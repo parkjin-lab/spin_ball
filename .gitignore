@@ -1,0 +1,60 @@
+# Unity generated directories
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# Local/editor-generated files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.opendb
+*.VC.db
+.vs/
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Unity crash and recovery artifacts
+[Cc]rash[Rr]eports/
+[Rr]ecovery/
+[Aa]ssets/_Recovery/
+[Aa]ssets/_Recovery.meta
+
+# Large third-party FEEL package content kept local for this publish.
+# NiceVibrations is still tracked because ProjectSettings enables it.
+/Assets/Feel/FeelDemos/
+/Assets/Feel/FeelDemos.meta
+/Assets/Feel/FeelDemosHDRP/
+/Assets/Feel/FeelDemosHDRP.meta
+/Assets/Feel/FeelDemosURP/
+/Assets/Feel/FeelDemosURP.meta
+/Assets/Feel/MMFeedbacks/
+/Assets/Feel/MMFeedbacks.meta
+/Assets/Feel/MMTools/
+/Assets/Feel/MMTools.meta
+/Assets/Feel/NiceVibrations/Demo/
+/Assets/Feel/NiceVibrations/Demo.meta
+/Assets/Feel/NiceVibrations/HapticSamples/
+/Assets/Feel/NiceVibrations/HapticSamples.meta
+/Assets/Feel/NiceVibrations/OlderVersions/
+/Assets/Feel/NiceVibrations/OlderVersions.meta
+
+# Stale nested Unity project scaffold
+/New Unity Project/

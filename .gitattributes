@@ -1,0 +1,15 @@
+# Binary assets
+*.dll binary
+*.exe binary
+*.fbx binary
+*.gif binary
+*.hdr binary
+*.jpg binary
+*.jpeg binary
+*.mp3 binary
+*.ogg binary
+*.png binary
+*.tga binary
+*.wav binary
+*.zip binary
+*.unitypackage binary
