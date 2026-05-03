@@ -33,6 +33,11 @@ namespace AlienCrusher.EditorTools
                 repairedCount++;
             }
 
+            if (EnsureHudRouteArrow())
+            {
+                repairedCount++;
+            }
+
             if (saveScene && scene.IsValid() && !string.IsNullOrEmpty(scene.path))
             {
                 EditorSceneManager.MarkSceneDirty(scene);
@@ -101,6 +106,83 @@ namespace AlienCrusher.EditorTools
             return true;
         }
 
+        private static bool EnsureHudRouteArrow()
+        {
+            var hud = FindSceneTransform("HUD_Dummy");
+            if (hud == null)
+            {
+                Debug.LogWarning("[AlienCrusher][Repair] HUD_Dummy not found; route arrow was not created.");
+                return false;
+            }
+
+            var repaired = false;
+            var routeArrow = FindSceneTransform("HudRouteArrow");
+            var routeArrowObject = routeArrow != null
+                ? routeArrow.gameObject
+                : new GameObject("HudRouteArrow", typeof(RectTransform));
+
+            if (routeArrow == null)
+            {
+                routeArrow = routeArrowObject.transform;
+                repaired = true;
+            }
+
+            routeArrow.SetParent(hud, false);
+            var rect = routeArrowObject.GetComponent<RectTransform>();
+            if (rect == null)
+            {
+                rect = routeArrowObject.AddComponent<RectTransform>();
+                repaired = true;
+            }
+
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(84f, 84f);
+            routeArrowObject.SetActive(false);
+
+            var arrowText = FindDirectChild(routeArrow, "ArrowText");
+            var arrowTextObject = arrowText != null
+                ? arrowText.gameObject
+                : new GameObject("ArrowText", typeof(RectTransform));
+
+            if (arrowText == null)
+            {
+                arrowText = arrowTextObject.transform;
+                repaired = true;
+            }
+
+            arrowText.SetParent(routeArrow, false);
+            var arrowRect = arrowTextObject.GetComponent<RectTransform>();
+            if (arrowRect == null)
+            {
+                arrowRect = arrowTextObject.AddComponent<RectTransform>();
+                repaired = true;
+            }
+
+            StretchRect(arrowRect);
+            var text = arrowTextObject.GetComponent<Text>();
+            if (text == null)
+            {
+                text = arrowTextObject.AddComponent<Text>();
+                repaired = true;
+            }
+
+            text.alignment = TextAnchor.MiddleCenter;
+            text.fontSize = 46;
+            text.fontStyle = FontStyle.Bold;
+            text.text = "^";
+            text.color = new Color(1f, 0.9f, 0.54f, 1f);
+            text.raycastTarget = false;
+            if (text.font == null)
+            {
+                text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            }
+
+            return repaired;
+        }
+
         private static Transform FindSceneTransform(string objectName)
         {
             var transforms = Resources.FindObjectsOfTypeAll<Transform>();
@@ -116,6 +198,33 @@ namespace AlienCrusher.EditorTools
             }
 
             return null;
+        }
+
+        private static Transform FindDirectChild(Transform parent, string childName)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < parent.childCount; i++)
+            {
+                var child = parent.GetChild(i);
+                if (child != null && child.name == childName)
+                {
+                    return child;
+                }
+            }
+
+            return null;
+        }
+
+        private static void StretchRect(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
         }
 
         private static void OpenDefaultSceneIfNeeded()

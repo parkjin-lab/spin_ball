@@ -55,6 +55,7 @@ namespace AlienCrusher.EditorTools
             CheckSceneTransform("HUD_Dummy", report, ref warnings, "HUD panel should contain objective, route indicator, and gauge UI.");
             CheckSceneText("ObjectiveText", report, ref warnings);
             CheckSceneText("HudRouteIndicatorText", report, ref warnings);
+            CheckSceneRouteArrow(report, ref warnings);
 
             report.AppendLine($"Result: {errors} error(s), {warnings} warning(s)");
 
@@ -142,6 +143,27 @@ namespace AlienCrusher.EditorTools
             report.AppendLine($"WARN: Missing Text binding for {objectName}.");
         }
 
+        private static void CheckSceneRouteArrow(StringBuilder report, ref int warnings)
+        {
+            var arrow = FindSceneTransform("HudRouteArrow");
+            if (arrow == null || arrow.GetComponent<RectTransform>() == null)
+            {
+                warnings++;
+                report.AppendLine("WARN: Missing HudRouteArrow RectTransform.");
+                return;
+            }
+
+            var arrowText = FindDirectChild(arrow, "ArrowText");
+            if (arrowText == null || arrowText.GetComponent<Text>() == null)
+            {
+                warnings++;
+                report.AppendLine("WARN: Missing HudRouteArrow/ArrowText Text binding.");
+                return;
+            }
+
+            report.AppendLine("OK: HudRouteArrow");
+        }
+
         private static void CheckFloat(SerializedObject serialized, string propertyName, float min, float max, StringBuilder report, ref int warnings)
         {
             var property = serialized.FindProperty(propertyName);
@@ -196,6 +218,25 @@ namespace AlienCrusher.EditorTools
                 }
 
                 return candidate;
+            }
+
+            return null;
+        }
+
+        private static Transform FindDirectChild(Transform parent, string childName)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < parent.childCount; i++)
+            {
+                var child = parent.GetChild(i);
+                if (child != null && child.name == childName)
+                {
+                    return child;
+                }
             }
 
             return null;
