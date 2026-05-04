@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using AlienCrusher.Gameplay;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -75,6 +76,46 @@ namespace AlienCrusher.Systems
 			LogRuntimeStageMapSummary(mapRoot, layout, theme);
 			Debug.Log((object)$"[AlienCrusher] Runtime stage map rebuilt for stage {layout.Stage:00}: {layout.MapSize:0.#}m, {layout.XCells}x{layout.ZCells} lots.");
 		}
+
+#if UNITY_EDITOR
+		public bool TryAuditRuntimeStageMapsForEditor(int firstStage, int lastStage, StringBuilder report, out int warnings)
+		{
+			warnings = 0;
+			if (report == null)
+			{
+				return false;
+			}
+
+			int originalStage = currentStageNumber;
+			bool originalRebuildSetting = rebuildRuntimeMapOnStageStart;
+			int minStage = Mathf.Max(1, firstStage);
+			int maxStage = Mathf.Max(minStage, lastStage);
+			rebuildRuntimeMapOnStageStart = true;
+			try
+			{
+				for (int stage = minStage; stage <= maxStage; stage++)
+				{
+					currentStageNumber = stage;
+					RebuildRuntimeStageMap();
+					bool hasWarning = !string.IsNullOrEmpty(runtimeMapLayoutDebugWarning) && runtimeMapLayoutDebugWarning != "OK";
+					if (hasWarning)
+					{
+						warnings++;
+					}
+
+					report.AppendLine($"{(hasWarning ? "WARN" : "OK")}: stage={stage:00} {runtimeMapLayoutDebugSummary} warnings={runtimeMapLayoutDebugWarning}");
+				}
+			}
+			finally
+			{
+				currentStageNumber = Mathf.Max(1, originalStage);
+				RebuildRuntimeStageMap();
+				rebuildRuntimeMapOnStageStart = originalRebuildSetting;
+			}
+
+			return true;
+		}
+#endif
 
 		private RuntimeStageMapLayout ResolveRuntimeStageMapLayout()
 		{
