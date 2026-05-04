@@ -446,6 +446,9 @@ namespace AlienCrusher.Systems
 		private float routeHoldCounterDuration = 1.05f;
 
 		[SerializeField]
+		private float routeOpenBeatSeconds = 2f;
+
+		[SerializeField]
 		private float stageAdvanceNearCompleteThreshold = 0.82f;
 
 		[SerializeField]
@@ -1475,6 +1478,8 @@ namespace AlienCrusher.Systems
 		private bool stageAdvanceRouteGuidanceActive;
 
 		private bool stageAdvanceRouteRewardGranted;
+
+		private float routeOpenBeatRemaining;
 
 		private DummyDestructibleBlock forwardSmashTargetBlock;
 

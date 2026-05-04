@@ -117,6 +117,7 @@ namespace AlienCrusher.Systems
 			routeHoldBonusGranted = false;
 			stageAdvanceRouteGuidanceActive = false;
 			stageAdvanceRouteRewardGranted = false;
+			routeOpenBeatRemaining = 0f;
 			activeStageAdvanceRouteMarker = null;
 			forwardSmashTargetBlock = null;
 			forwardSmashBonusPending = false;
@@ -327,7 +328,7 @@ namespace AlienCrusher.Systems
 			{
 				1 => "FIRST BREAK",
 				2 => "CRUSH START",
-				3 => "LANE BREAK",
+				3 => "LANE BREAK -> ROUTE OPEN",
 				_ => string.Empty,
 			};
 			if (num > 0)
@@ -337,11 +338,12 @@ namespace AlienCrusher.Systems
 			if (!string.IsNullOrEmpty(text))
 			{
 				PushAnnouncement((num > 0) ? $"{text} +{num}" : text, AnnouncementTone.Burst, 0.78f);
-				damageNumberSystem?.ShowTag(val + Vector3.up * 1.2f, text, false);
+				damageNumberSystem?.ShowTag(val + Vector3.up * 1.2f, bonusIndex >= 3 ? "ROUTE OPEN" : text, false);
 				feedbackSystem?.PlayComboRushFeedback(val + Vector3.up * 0.18f, bonusIndex == 1 ? 0.46f : 0.58f, bonusIndex == 1 ? 2.8f : 3.6f);
 				if (bonusIndex >= 3)
 				{
 					ActivateStageAdvanceRouteGuidance(resetReward: false);
+					StartRouteOpenBeat();
 					ResolvePlayerController();
 					cachedPlayerController?.ApplyCounterSurge(1.08f, 1.12f, 1.15f);
 					feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.24f, 0.62f, major: false);
@@ -454,6 +456,21 @@ namespace AlienCrusher.Systems
 			{
 				stageAdvanceRouteRewardGranted = false;
 			}
+		}
+
+		private void StartRouteOpenBeat()
+		{
+			routeOpenBeatRemaining = Mathf.Max(routeOpenBeatRemaining, Mathf.Max(0.1f, routeOpenBeatSeconds));
+		}
+
+		private bool IsRouteOpenBeatActive()
+		{
+			return routeOpenBeatRemaining > 0.001f && stageAdvanceRouteGuidanceActive && (Object)(object)activeStageAdvanceRouteMarker != (Object)null;
+		}
+
+		private float GetRouteOpenBeat01()
+		{
+			return Mathf.Clamp01(routeOpenBeatRemaining / Mathf.Max(0.1f, routeOpenBeatSeconds));
 		}
 
 		private void ResolveStageAdvanceRouteMarkers()

@@ -16,7 +16,7 @@ This document tracks the current project state, the next production priorities, 
 - Stage flow exists from lobby into stage start, HUD, level-up choice, result, restart, and next stage.
 - Destruction progression exists through score, chain timing, ball growth, landing shockwave, overdrive, combo rush, retail frenzy, strip clear, traffic panic, seismic bursts, and result feedback.
 - Form and meta progression exist around the current runtime forms `Sphere`, `Spike`, `Ram`, `Saucer`, and `Crusher`, plus meta upgrades such as `SizeCore`, `ImpactCore`, and `DpAmplifier`.
-- LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, HUD guidance, world beacon, route trail pips, route reward, result badges, and lobby/meta recommendations are connected.
+- LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, `LANE BREAK -> ROUTE OPEN` feedback, HUD guidance, world beacon, route trail pips, route reward, result badges, and lobby/meta recommendations are connected.
 - Runtime map rebuilds happen at stage start. Stage 1-7 currently grow from a compact starter layout into wider, denser maps with expanded target marker spacing and stage-gated landmarks.
 - Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
 - Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
@@ -26,7 +26,7 @@ This document tracks the current project state, the next production priorities, 
 - Latest scene validation report from 2026-05-05 00:27 in `Logs/AlienCrusherSceneValidation.log` shows `0 error(s), 0 warning(s)`.
 - `Assets/Scenes/SampleScene.unity` contains `HudRouteArrow` with child `ArrowText`, and `Tools/AuditSceneEssentialsStatic.ps1` verifies those scene essentials with `0 warning(s)`.
 - Unity-free static map audit passes Stage 1-7 formula checks with `0 warning(s)`.
-- Unity-free ROUTE HOLD tuning audit passes with `0 warning(s)` and reads current default tuning values from runtime C# fields before auditing.
+- Unity-free ROUTE HOLD tuning audit passes with `0 warning(s)` and reads current default tuning values, including route open beat timing, from runtime C# fields before auditing.
 - `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set.
 - Runtime Unity map layout batch report from 2026-05-05 00:28 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
@@ -62,7 +62,7 @@ Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 - landmark districts appear at the intended stages
 - camera clamp follows the rebuilt map bounds
 - target markers stay readable and reachable
-- LANE BREAK opens ROUTE HOLD clearly
+- LANE BREAK -> ROUTE OPEN beat is visible and then ROUTE HOLD reads clearly
 - route trail pips are not noisy on a small mobile-style viewport
 - ROUTE HOLD reward fires once and feels like a meaningful payoff
 
@@ -75,6 +75,7 @@ Done when:
 Tune only after playtest evidence:
 - `routeHoldWindowSeconds`
 - `routeHoldProgressThreshold`
+- `routeOpenBeatSeconds`
 - `routeHoldTrailPipCount`
 - `routeHoldTrailMaxDistance`
 - `routeHoldTrailMinPipSpacing`
@@ -118,11 +119,11 @@ Each run should ask one clear question:
 ### Near-Term Experiments
 
 #### 1. Route Open Moment
-After LANE BREAK, add a stronger two-second "route opened" beat:
-- HUD copy: `LANE BREAK -> ROUTE OPEN`
-- stronger Target_A/Target_B pulse
-- small camera/feedback pop
-- route trail appears with a short delay instead of blending into ordinary HUD noise
+After LANE BREAK, the baseline two-second "route opened" beat is now implemented:
+- announcement copy: `LANE BREAK -> ROUTE OPEN`
+- HUD objective/hint shifts briefly to `ROUTE OPEN`
+- active Target_A/Target_B marker, HUD route indicator, arrow, and route trail pulse harder during the beat
+- scene/static validation now checks the `routeOpenBeatSeconds` tuning range
 
 Success signal:
 - player can immediately tell that the next objective changed
@@ -183,10 +184,10 @@ Includes:
 
 ### Milestone 2 - Core Loop Fun Pass
 Goal:
-- make LANE BREAK -> ROUTE HOLD -> ROUTE BONUS the primary satisfying loop
+- make LANE BREAK -> ROUTE OPEN -> ROUTE HOLD -> ROUTE BONUS the primary satisfying loop
 
 Includes:
-- route open feedback beat
+- route open feedback beat tuning after playtest
 - reward cluster visibility
 - route progress mini-readability
 - shorter result advice

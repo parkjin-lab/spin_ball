@@ -333,6 +333,7 @@ namespace AlienCrusher.Systems
 			bool flag2 = !string.IsNullOrEmpty(hudUrgencyHint);
 			bool flag3a = IsEarlyOnboardingWindow(num);
 			bool openingMissed = HasMissedEarlyCrushLaneBreak(num);
+			bool routeOpenBeatActive = IsRouteOpenBeatActive();
 			hudUrgencyPulseCooldownRemaining = Mathf.Max(0f, hudUrgencyPulseCooldownRemaining - Time.deltaTime);
 			if (flag2)
 			{
@@ -352,7 +353,11 @@ namespace AlienCrusher.Systems
 				else if (!flag && IsRouteHoldObjectiveActive(num))
 				{
 					int routeHoldTarget = GetRouteHoldTarget();
-					text = $"NEXT STEP\nHold the route\nROUTE HOLD {Mathf.Min(num, routeHoldTarget):0}/{routeHoldTarget:0}  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
+					text = $"NEXT STEP\n{(routeOpenBeatActive ? "ROUTE OPEN" : "Hold the route")}\nROUTE HOLD {Mathf.Min(num, routeHoldTarget):0}/{routeHoldTarget:0}  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
+				}
+				else if (!flag && routeOpenBeatActive)
+				{
+					text = "NEXT STEP\nRoute opened\nFollow beacon";
 				}
 				else if (!flag && openingMissed)
 				{
@@ -375,6 +380,10 @@ namespace AlienCrusher.Systems
 				if (flag2)
 				{
 					val3 = Color.Lerp(val3, new Color(1f, 0.62f, 0.3f, 1f), Mathf.PingPong(Time.time * 4.8f, 1f) * 0.75f);
+				}
+				else if (routeOpenBeatActive)
+				{
+					val3 = Color.Lerp(val3, Color.white, Mathf.PingPong(Time.time * 5.4f, 1f) * 0.55f);
 				}
 				hudObjectiveText.color = val3;
 			}
@@ -410,6 +419,10 @@ namespace AlienCrusher.Systems
 				{
 					text4 = $"NEXT STEP  /  Keep PANIC CHAIN x{trafficPanicChainStack} alive";
 				}
+				else if (routeOpenBeatActive)
+				{
+					text4 = "ROUTE OPEN  /  Follow beacon, keep crushing";
+				}
 				else if (IsRouteHoldObjectiveActive(num))
 				{
 					int routeHoldTarget = GetRouteHoldTarget();
@@ -437,9 +450,11 @@ namespace AlienCrusher.Systems
 				}
 				text4 = CompactHudHint(text4);
 				int num4 = GetHudHintPriority(levelUpOpen, flag2, stageStartHintRemaining > 0f && flag3a, flag, flag3, overdriveActive, flag4, stripClearMissionCompleted, flag5);
-				text4 = ResolveStableHudHint(text4, num4, flag2 || levelUpOpen);
+				text4 = ResolveStableHudHint(text4, num4, flag2 || levelUpOpen || routeOpenBeatActive);
 				hudHintText.text = text4;
-				hudHintText.color = flag2 ? Color.Lerp(new Color(1f, 0.95f, 0.68f, 1f), new Color(1f, 0.52f, 0.22f, 1f), Mathf.PingPong(Time.time * 5.2f, 1f)) : Color.white;
+				hudHintText.color = flag2
+					? Color.Lerp(new Color(1f, 0.95f, 0.68f, 1f), new Color(1f, 0.52f, 0.22f, 1f), Mathf.PingPong(Time.time * 5.2f, 1f))
+					: (routeOpenBeatActive ? Color.Lerp(new Color(0.72f, 1f, 0.9f, 1f), Color.white, Mathf.PingPong(Time.time * 5.7f, 1f) * 0.38f) : Color.white);
 			}
 		}
 
@@ -702,6 +717,9 @@ namespace AlienCrusher.Systems
 		{
 			Transform[] array = new Transform[2] { stageAdvanceRouteMarkerA, stageAdvanceRouteMarkerB };
 			int num2 = (((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0);
+			routeOpenBeatRemaining = Mathf.Max(0f, routeOpenBeatRemaining - Time.deltaTime);
+			float routeOpenBeat01 = GetRouteOpenBeat01();
+			bool routeOpenBeatActive = IsRouteOpenBeatActive();
 			bool flag2 = IsEarlyOnboardingWindow(num2);
 			bool flag3 = IsLatePressureWindow(num2, stageBossEncounterActive && IsStageBossAlive());
 			bool flag4 = IsBossApproachWindow();
@@ -713,6 +731,11 @@ namespace AlienCrusher.Systems
 					: ((flag3 || flag4)
 						? Mathf.Lerp(1f, flag4 ? 1.3f : 1.24f, Mathf.PingPong(Time.time * (flag4 ? 3.6f : 3f), 1f))
 						: Mathf.Lerp(1f, 1.18f, Mathf.PingPong(Time.time * 2.1f, 1f)));
+				if (routeOpenBeatActive)
+				{
+					float openPulse = 1f + (routeOpenBeat01 * (0.28f + Mathf.PingPong(Time.time * 5.6f, 1f) * 0.16f));
+					num = Mathf.Max(num, openPulse);
+				}
 			}
 			for (int i = 0; i < array.Length; i++)
 			{
@@ -734,6 +757,10 @@ namespace AlienCrusher.Systems
 					Color color = flag
 						? Color.Lerp(stageAdvanceRouteMarkerColor, Color.white, Mathf.PingPong(Time.time * (flag2 ? 4.4f : (flag3 ? 3.5f : 2.8f)), 1f) * (flag2 ? 0.35f : (flag3 ? 0.24f : 0.18f)))
 						: new Color(stageAdvanceRouteMarkerColor.r, stageAdvanceRouteMarkerColor.g, stageAdvanceRouteMarkerColor.b, flag2 ? 0.28f : ((flag3 || flag4) ? 0.24f : 0.18f));
+					if (flag && routeOpenBeatActive)
+					{
+						color = Color.Lerp(color, Color.white, routeOpenBeat01 * (0.32f + Mathf.PingPong(Time.time * 6f, 1f) * 0.18f));
+					}
 					if (flag && flag4)
 					{
 						color = Color.Lerp(color, Color.white, Mathf.PingPong(Time.time * 4.1f, 1f) * 0.14f);
@@ -776,6 +803,7 @@ namespace AlienCrusher.Systems
 			Vector3 direction = delta / distance;
 			float visibleDistance = Mathf.Min(distance, Mathf.Max(4f, routeHoldTrailMaxDistance));
 			float pulse = Mathf.PingPong(Time.time * 3.8f, 1f);
+			float routeOpenBeat01 = IsRouteOpenBeatActive() ? GetRouteOpenBeat01() : 0f;
 			int count = routeHoldTrailPips.Length;
 			int activeCount = ResolveRouteHoldTrailActivePipCount(visibleDistance, count);
 			float distanceScale = Mathf.InverseLerp(Mathf.Max(0.75f, routeHoldTrailCloseHideDistance), Mathf.Max(4f, routeHoldTrailMaxDistance), visibleDistance);
@@ -797,8 +825,8 @@ namespace AlienCrusher.Systems
 				pip.position = position;
 				pip.rotation = Quaternion.LookRotation(direction, Vector3.up);
 				float scalePulse = 1f + 0.18f * Mathf.Sin((Time.time * 5.8f) - i * 0.75f);
-				float width = Mathf.Lerp(0.2f, 0.28f, distanceScale) + 0.045f * pulse;
-				float length = Mathf.Lerp(0.4f, 0.55f, distanceScale) + 0.18f * t;
+				float width = Mathf.Lerp(0.2f, 0.28f, distanceScale) + 0.045f * pulse + routeOpenBeat01 * 0.035f;
+				float length = Mathf.Lerp(0.4f, 0.55f, distanceScale) + 0.18f * t + routeOpenBeat01 * 0.08f;
 				pip.localScale = new Vector3(width, 0.018f, length * scalePulse);
 				((Component)pip).gameObject.SetActive(true);
 				Renderer renderer = ((Component)pip).GetComponent<Renderer>();
@@ -807,6 +835,10 @@ namespace AlienCrusher.Systems
 					MaterialPropertyBlock block = new MaterialPropertyBlock();
 					renderer.GetPropertyBlock(block);
 					Color color = Color.Lerp(routeHoldTrailColor, Color.white, (pulse * 0.18f) + t * 0.08f);
+					if (routeOpenBeat01 > 0f)
+					{
+						color = Color.Lerp(color, Color.white, routeOpenBeat01 * (0.2f + pulse * 0.14f));
+					}
 					block.SetColor("_BaseColor", color);
 					block.SetColor("_Color", color);
 					renderer.SetPropertyBlock(block);
@@ -893,6 +925,7 @@ namespace AlienCrusher.Systems
 			Transform val = null;
 			string text = string.Empty;
 			Color color = new Color(1f, 0.92f, 0.7f, 1f);
+			bool routeOpenBeatActive = IsRouteOpenBeatActive();
 			if (stageBossEncounterActive && IsStageBossAlive() && (Object)(object)stageBossBlock != (Object)null)
 			{
 				val = ((Component)stageBossBlock).transform;
@@ -902,8 +935,8 @@ namespace AlienCrusher.Systems
 			else if (stageAdvanceRouteGuidanceActive && (Object)(object)activeStageAdvanceRouteMarker != (Object)null)
 			{
 				val = activeStageAdvanceRouteMarker;
-				text = IsRouteHoldObjectiveActive((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0)) ? "HOLD" : "ROUTE";
-				color = new Color(1f, 0.86f, 0.36f, 1f);
+				text = routeOpenBeatActive ? "OPEN" : (IsRouteHoldObjectiveActive((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0)) ? "HOLD" : "ROUTE");
+				color = routeOpenBeatActive ? new Color(0.62f, 1f, 0.86f, 1f) : new Color(1f, 0.86f, 0.36f, 1f);
 			}
 			if ((Object)(object)val == (Object)null || (Object)(object)playerTransform == (Object)null)
 			{
@@ -929,7 +962,7 @@ namespace AlienCrusher.Systems
 			bool flag3 = IsLatePressureWindow((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0), stageBossEncounterActive && IsStageBossAlive());
 			bool flag4 = IsBossApproachWindow();
 			float num2 = Mathf.PingPong(Time.time * (flag2 ? 4.6f : ((flag3 || flag4) ? 3.5f : 2.4f)), 1f);
-			hudRouteIndicatorText.color = Color.Lerp(color, Color.white, num2 * (flag2 ? 0.35f : ((flag3 || flag4) ? 0.26f : 0.16f)));
+			hudRouteIndicatorText.color = Color.Lerp(color, Color.white, num2 * (routeOpenBeatActive ? 0.62f : (flag2 ? 0.35f : ((flag3 || flag4) ? 0.26f : 0.16f))));
 			UpdateHudRouteArrow(val, color);
 		}
 
@@ -1020,14 +1053,17 @@ namespace AlienCrusher.Systems
 			bool flag2 = IsEarlyOnboardingWindow((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0));
 			bool flag3 = IsLatePressureWindow((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0), stageBossEncounterActive && IsStageBossAlive());
 			bool flag4 = IsBossApproachWindow();
+			float routeOpenBeat01 = IsRouteOpenBeatActive() ? GetRouteOpenBeat01() : 0f;
 			float num5 = Mathf.PingPong(Time.time * (flag2 ? 4.8f : ((flag3 || flag4) ? 3.4f : 2.3f)), 1f);
 			float num6 = flag2 ? 1.08f : ((flag3 || flag4) ? 1.07f : 1.02f);
 			float num7 = flag2 ? 0.1f : ((flag3 || flag4) ? 0.07f : 0.035f);
+			num6 += routeOpenBeat01 * 0.08f;
+			num7 += routeOpenBeat01 * 0.08f;
 			hudRouteArrowRect.localScale = Vector3.one * (num6 + num5 * num7);
 			((Component)hudRouteArrowRect).gameObject.SetActive(true);
 			if ((Object)(object)hudRouteArrowText != (Object)null)
 			{
-				hudRouteArrowText.color = Color.Lerp(color, Color.white, num5 * (flag2 ? 0.26f : ((flag3 || flag4) ? 0.2f : 0.12f)));
+				hudRouteArrowText.color = Color.Lerp(color, Color.white, num5 * (routeOpenBeat01 > 0f ? 0.36f : (flag2 ? 0.26f : ((flag3 || flag4) ? 0.2f : 0.12f))));
 			}
 		}
 

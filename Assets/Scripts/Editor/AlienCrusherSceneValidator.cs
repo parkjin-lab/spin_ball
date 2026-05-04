@@ -102,6 +102,7 @@ namespace AlienCrusher.EditorTools
             CheckFloat(serialized, "routeHoldProgressThreshold", 0.25f, 0.75f, report, ref warnings);
             CheckInt(serialized, "routeHoldBonusScore", 1, 10000, report, ref warnings);
             CheckFloat(serialized, "routeHoldCounterDuration", 0.1f, 10f, report, ref warnings);
+            CheckFloat(serialized, "routeOpenBeatSeconds", 0.6f, 4f, report, ref warnings);
             CheckInt(serialized, "routeHoldTrailPipCount", 3, 8, report, ref warnings);
             CheckFloat(serialized, "routeHoldTrailMaxDistance", 4f, 40f, report, ref warnings);
             CheckFloat(serialized, "routeHoldTrailMinPipSpacing", 0.75f, 4f, report, ref warnings);
