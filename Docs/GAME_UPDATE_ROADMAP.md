@@ -30,6 +30,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set.
 - Runtime Unity map layout batch report from 2026-05-05 00:28 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
+- `Tools/GenerateStagePlaytestChecklist.ps1` generates `Logs/AlienCrusherStagePlaytestChecklist.md`, combining current validation results, Stage 1-7 map growth, route targets, route pressure, target distances, and hands-on observation prompts.
 
 ### Current Main Risk
 The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, and HUD scaffolding feel good in motion.
@@ -50,6 +51,12 @@ Done when:
 - Unity batch logs are from the current run, not stale files.
 
 ### P0 - Stage 1-7 Editor Playtest
+Before entering play mode, generate the checklist:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1
+```
+
 Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 - stage size/grid/destructible counts grow as expected
 - landmark districts appear at the intended stages
@@ -62,6 +69,7 @@ Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 Done when:
 - each stage band has one short note on readability, route pressure, and map identity
 - at least one screenshot or written observation exists for Stage 1, Stage 4, and Stage 7
+- `Logs/AlienCrusherStagePlaytestChecklist.md` has notes for Stage 1-7 or links to the matching screenshot/video captures
 
 ### P0 - ROUTE HOLD Readability Tuning
 Tune only after playtest evidence:

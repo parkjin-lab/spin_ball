@@ -21,6 +21,7 @@
 - Added `Docs/GAME_UPDATE_ROADMAP.md` and updated the GDD core loop section to reflect the current LANE BREAK -> ROUTE HOLD -> ROUTE BONUS / Forward Smash direction.
 - Added `HudRouteArrow/ArrowText` to `SampleScene.unity` and `Tools/AuditSceneEssentialsStatic.ps1` to catch missing route HUD essentials without relying on Unity batch.
 - 2026-05-05 validation follow-up: `Tools/RunUnityBatchChecks.ps1` passed. Scene validation and runtime map layout audit both refreshed their report/log timestamps and ended with `0 error(s), 0 warning(s)`.
+- Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass.
 
 ## Work Completed Immediately Before This Handoff
 - Extended `Tools/Alien Crusher/Validate Current Scene` so it also writes a validation report file.
@@ -76,6 +77,8 @@
   - Unity-free scene essential audit for SampleScene object presence, Text bindings, and HudRouteArrow parent/child wiring.
 - `Tools/RunStaticAudits.ps1`
   - Now also runs the scene essentials static audit before map layout and ROUTE HOLD audits.
+- `Tools/GenerateStagePlaytestChecklist.ps1`
+  - Generates a Stage 1-7 playtest checklist with validation status, map/grid growth, landmarks, ROUTE HOLD targets, route pressure, target distances, and observation prompts.
 - `Logs/AlienCrusherSceneValidation.log`
   - Current validation report from 2026-05-05 00:27: `0 error(s), 0 warning(s)`.
 - `Logs/AlienCrusherBatchValidationEditor.log`
@@ -129,12 +132,13 @@ Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
 Latest completed work: ROUTE HOLD is wired after LANE BREAK. HUD shows route/hold guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
 Latest validation: `Tools/RunUnityBatchChecks.ps1` passed on 2026-05-05. `Logs/AlienCrusherSceneValidation.log` refreshed at 00:27 with `Result: 0 error(s), 0 warning(s)`, and `Logs/AlienCrusherMapLayoutAudit.log` refreshed at 00:28 with Stage 1-7 `Result: 0 error(s), 0 warning(s)`. Unity-free scene essentials, static map audit, ROUTE HOLD static audit, and `Tools/RunStaticAudits.ps1` also passed on 2026-05-05. The ROUTE HOLD static audit reads its default tuning values from runtime C# fields before running. The map rebuild/landmark/audit/route-hold trail changes still need an in-editor/mobile playtest pass for feel.
-Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, `Assets/Scenes/SampleScene.unity`, `Tools/InvokeUnityBatch.ps1`, `Tools/RunUnityBatchChecks.ps1`, `Tools/AuditSceneEssentialsStatic.ps1`, `Docs/GAME_UPDATE_ROADMAP.md`, `Docs/GDD_ALIEN_CRUSHER.md`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
+Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, `Assets/Scenes/SampleScene.unity`, `Tools/InvokeUnityBatch.ps1`, `Tools/RunUnityBatchChecks.ps1`, `Tools/AuditSceneEssentialsStatic.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, `Docs/GAME_UPDATE_ROADMAP.md`, `Docs/GDD_ALIEN_CRUSHER.md`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
 Useful Unity batch command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1`
 Useful stale-lock retry command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1 -ClearStaleUnityLock`
+Useful playtest checklist command: `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
 Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
-Next priority: do a real in-editor/mobile playtest from Stage 1 through Stage 7. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE HOLD readability, trail/beacon clarity, target distance, timer pressure, and that route reward fires once. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
+Next priority: run `Tools/GenerateStagePlaytestChecklist.ps1`, then do a real in-editor/mobile playtest from Stage 1 through Stage 7 and fill the generated checklist. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE HOLD readability, trail/beacon clarity, target distance, timer pressure, and that route reward fires once. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
 Known risks: MCP unreliable; no hands-on playmode/mobile pass yet; route pips may be visually noisy; `DummyFlowController` remains an architecture risk; Unity editor shutdown logs a non-blocking temp allocator warning.
 ```
