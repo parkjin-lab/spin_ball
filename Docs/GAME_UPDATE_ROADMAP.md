@@ -142,10 +142,11 @@ Success signal:
 - ROUTE HOLD success visibly creates or reveals something worth chasing
 
 #### 3. Route Progress Readability
-Turn ROUTE HOLD progress into a faster-read mini meter or stronger HUD state:
-- use color/pulse on existing route text or stage gauge
-- keep numeric target/time, but do not rely on text alone
-- avoid persistent pips at close range
+Baseline ROUTE HOLD progress readability is now implemented:
+- HUD progress text switches to a ROUTE HOLD percentage, remaining wreck count, and countdown during the objective
+- stage goal gauge temporarily becomes the ROUTE HOLD meter before returning to normal stage progress
+- route indicator shows `HOLD xx%` while pointing at the active beacon
+- close-range pips still hide so the meter does the heavy readability work
 
 Success signal:
 - player can read "almost there" without parsing a sentence

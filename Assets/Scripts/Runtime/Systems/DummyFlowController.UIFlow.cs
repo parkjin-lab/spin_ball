@@ -353,8 +353,8 @@ namespace AlienCrusher.Systems
 				}
 				else if (!flag && IsRouteHoldObjectiveActive(num))
 				{
-					int routeHoldTarget = GetRouteHoldTarget();
-					text = $"NEXT STEP\n{(routeOpenBeatActive ? "ROUTE OPEN" : "Hold the route")}\nROUTE HOLD {Mathf.Min(num, routeHoldTarget):0}/{routeHoldTarget:0}  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
+					int routeHoldPercent = Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f);
+					text = $"NEXT STEP\n{(routeOpenBeatActive ? "ROUTE OPEN" : "Hold the route")}\nROUTE HOLD {routeHoldPercent:0}%  {GetRouteHoldRemainingWrecks(num):0} LEFT  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
 				}
 				else if (!flag && routeOpenBeatActive)
 				{
@@ -394,8 +394,17 @@ namespace AlienCrusher.Systems
 			}
 			if ((Object)(object)hudProgressText != (Object)null)
 			{
-				hudProgressText.text = flag2 ? $"DESTRUCTION {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  ({Mathf.RoundToInt(num3 * 100f)}%)  /  NEXT STEP" : $"DESTRUCTION {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  ({Mathf.RoundToInt(num3 * 100f)}%)";
-				hudProgressText.color = flag2 ? Color.Lerp(Color.white, new Color(1f, 0.72f, 0.36f, 1f), Mathf.PingPong(Time.time * 5.6f, 1f)) : Color.white;
+				if (!flag && IsRouteHoldObjectiveActive(num))
+				{
+					float routeHoldProgress = GetRouteHoldProgress01(num);
+					hudProgressText.text = $"ROUTE HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {GetRouteHoldRemainingWrecks(num):0} TO CLUSTER  /  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
+					hudProgressText.color = Color.Lerp(new Color(0.64f, 1f, 0.88f, 1f), new Color(1f, 0.86f, 0.36f, 1f), routeHoldProgress + Mathf.PingPong(Time.time * 5.4f, 1f) * 0.18f);
+				}
+				else
+				{
+					hudProgressText.text = flag2 ? $"DESTRUCTION {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  ({Mathf.RoundToInt(num3 * 100f)}%)  /  NEXT STEP" : $"DESTRUCTION {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  ({Mathf.RoundToInt(num3 * 100f)}%)";
+					hudProgressText.color = flag2 ? Color.Lerp(Color.white, new Color(1f, 0.72f, 0.36f, 1f), Mathf.PingPong(Time.time * 5.6f, 1f)) : Color.white;
+				}
 			}
 			UpdateHudBossStatus(flag);
 			if ((Object)(object)hudHintText != (Object)null)
@@ -434,8 +443,7 @@ namespace AlienCrusher.Systems
 				}
 				else if (IsRouteHoldObjectiveActive(num))
 				{
-					int routeHoldTarget = GetRouteHoldTarget();
-					text4 = $"NEXT STEP  /  ROUTE HOLD {Mathf.Min(num, routeHoldTarget):0}/{routeHoldTarget:0}, {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s left";
+					text4 = $"NEXT STEP  /  ROUTE HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%, {GetRouteHoldRemainingWrecks(num):0} to cluster";
 				}
 				else if (overdriveActive)
 				{
@@ -506,6 +514,18 @@ namespace AlienCrusher.Systems
 				return GetEarlyCrushLaneBreakTarget();
 			}
 			return Mathf.Max(GetEarlyCrushLaneBreakTarget(), Mathf.CeilToInt((float)stageAdvanceDestroyTarget * Mathf.Clamp(routeHoldProgressThreshold, 0.25f, 0.75f)));
+		}
+
+		private float GetRouteHoldProgress01(int destroyedCount)
+		{
+			int start = GetEarlyCrushLaneBreakTarget();
+			int target = GetRouteHoldTarget();
+			return Mathf.Clamp01((float)(Mathf.Max(0, destroyedCount) - start) / Mathf.Max(1f, target - start));
+		}
+
+		private int GetRouteHoldRemainingWrecks(int destroyedCount)
+		{
+			return Mathf.Max(0, GetRouteHoldTarget() - Mathf.Max(0, destroyedCount));
 		}
 
 		private bool IsRouteHoldObjectiveActive(int destroyedCount)
@@ -950,7 +970,8 @@ namespace AlienCrusher.Systems
 			else if (stageAdvanceRouteGuidanceActive && (Object)(object)activeStageAdvanceRouteMarker != (Object)null)
 			{
 				val = activeStageAdvanceRouteMarker;
-				text = routeOpenBeatActive ? "OPEN" : (IsRouteHoldObjectiveActive((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0)) ? "HOLD" : "ROUTE");
+				int destroyedCount = (((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0);
+				text = routeOpenBeatActive ? "OPEN" : (IsRouteHoldObjectiveActive(destroyedCount) ? $"HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(destroyedCount) * 100f):0}%" : "ROUTE");
 				color = routeOpenBeatActive ? new Color(0.62f, 1f, 0.86f, 1f) : new Color(1f, 0.86f, 0.36f, 1f);
 			}
 			if ((Object)(object)val == (Object)null || (Object)(object)playerTransform == (Object)null)
@@ -1116,31 +1137,41 @@ namespace AlienCrusher.Systems
 			int num2 = Mathf.Max(1, stageAdvanceDestroyTarget);
 			float num3 = enableStageAdvanceGoal ? Mathf.Clamp01((float)num / (float)num2) : 0f;
 			bool flag = stageBossEncounterActive && IsStageBossAlive();
+			bool routeHoldActive = !flag && IsRouteHoldObjectiveActive(num);
+			float routeHoldProgress = routeHoldActive ? GetRouteHoldProgress01(num) : 0f;
+			int routeHoldRemaining = routeHoldActive ? GetRouteHoldRemainingWrecks(num) : 0;
+			float routeHoldSeconds = routeHoldActive ? GetRouteHoldRemainingSeconds() : 0f;
 			bool flag2a = !stageAdvanceGoalReached && num3 >= 0.18f && num3 < 0.45f;
 			bool flag2 = !stageAdvanceGoalReached && num3 >= Mathf.Clamp(stageAdvanceNearCompleteThreshold, 0.6f, 0.98f);
-			float num4 = flag2
-				? Mathf.Lerp(1f, 1.16f, Mathf.PingPong(Time.time * Mathf.Max(1f, stageAdvanceGaugePulseSpeed), 1f))
-				: (flag2a ? Mathf.Lerp(1f, 1.08f, Mathf.PingPong(Time.time * Mathf.Max(1f, stageAdvanceGaugePulseSpeed * 0.72f), 1f)) : 1f);
+			float num4 = routeHoldActive
+				? Mathf.Lerp(1f, routeHoldSeconds <= 10f ? 1.16f : 1.1f, Mathf.PingPong(Time.time * Mathf.Max(1f, stageAdvanceGaugePulseSpeed * (routeHoldSeconds <= 10f ? 1.05f : 0.82f)), 1f))
+				: (flag2
+					? Mathf.Lerp(1f, 1.16f, Mathf.PingPong(Time.time * Mathf.Max(1f, stageAdvanceGaugePulseSpeed), 1f))
+					: (flag2a ? Mathf.Lerp(1f, 1.08f, Mathf.PingPong(Time.time * Mathf.Max(1f, stageAdvanceGaugePulseSpeed * 0.72f), 1f)) : 1f));
 			if ((Object)(object)hudStageGoalFillImage != (Object)null)
 			{
-				hudStageGoalFillImage.fillAmount = num3;
-				hudStageGoalFillImage.color = stageAdvanceGoalReached
-					? new Color(1f, 0.78f, 0.3f, 1f)
-					: (flag
-						? Color.Lerp(new Color(0.34f, 0.76f, 1f, 1f), new Color(1f, 0.48f, 0.18f, 1f), num3)
-						: (flag2a
-							? Color.Lerp(new Color(0.34f, 0.98f, 0.78f, 1f), new Color(1f, 0.84f, 0.34f, 1f), Mathf.InverseLerp(0.18f, 0.45f, num3))
-							: Color.Lerp(new Color(0.3f, 0.94f, 0.74f, 1f), new Color(1f, 0.78f, 0.28f, 1f), num3)));
+				hudStageGoalFillImage.fillAmount = routeHoldActive ? routeHoldProgress : num3;
+				hudStageGoalFillImage.color = routeHoldActive
+					? Color.Lerp(new Color(0.34f, 1f, 0.84f, 1f), new Color(1f, 0.86f, 0.34f, 1f), routeHoldProgress + Mathf.PingPong(Time.time * 5f, 1f) * 0.12f)
+					: (stageAdvanceGoalReached
+						? new Color(1f, 0.78f, 0.3f, 1f)
+						: (flag
+							? Color.Lerp(new Color(0.34f, 0.76f, 1f, 1f), new Color(1f, 0.48f, 0.18f, 1f), num3)
+							: (flag2a
+								? Color.Lerp(new Color(0.34f, 0.98f, 0.78f, 1f), new Color(1f, 0.84f, 0.34f, 1f), Mathf.InverseLerp(0.18f, 0.45f, num3))
+								: Color.Lerp(new Color(0.3f, 0.94f, 0.74f, 1f), new Color(1f, 0.78f, 0.28f, 1f), num3))));
 			}
 			if ((Object)(object)hudStageGoalBackgroundImage != (Object)null)
 			{
 				hudStageGoalBackgroundImage.color = stageAdvanceGoalReached
 					? new Color(0.18f, 0.16f, 0.12f, 0.92f)
-					: (flag2
+					: (routeHoldActive
+						? Color.Lerp(new Color(0.06f, 0.14f, 0.13f, 0.88f), new Color(0.12f, 0.2f, 0.16f, 0.94f), Mathf.PingPong(Time.time * 3.8f, 1f))
+						: (flag2
 						? Color.Lerp(new Color(0.08f, 0.1f, 0.14f, 0.82f), new Color(0.18f, 0.12f, 0.08f, 0.9f), Mathf.PingPong(Time.time * 3.4f, 1f))
 						: (flag2a
 							? Color.Lerp(new Color(0.08f, 0.12f, 0.1f, 0.82f), new Color(0.12f, 0.16f, 0.1f, 0.88f), Mathf.PingPong(Time.time * 2.8f, 1f))
-							: new Color(0.08f, 0.1f, 0.14f, 0.82f)));
+							: new Color(0.08f, 0.1f, 0.14f, 0.82f))));
 				((Transform)hudStageGoalBackgroundImage.rectTransform).localScale = new Vector3(num4, 1f, 1f);
 			}
 			if ((Object)(object)hudStageGoalFillImage != (Object)null)
@@ -1156,6 +1187,10 @@ namespace AlienCrusher.Systems
 				else if (stageAdvanceGoalReached)
 				{
 					hudStageGoalText.text = $"NEXT STAGE READY  {num:0}/{num2:0}";
+				}
+				else if (routeHoldActive)
+				{
+					hudStageGoalText.text = $"ROUTE HOLD  {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {routeHoldRemaining:0} TO CLUSTER";
 				}
 				else if (flag)
 				{
@@ -1175,11 +1210,13 @@ namespace AlienCrusher.Systems
 				}
 				hudStageGoalText.color = stageAdvanceGoalReached
 					? new Color(1f, 0.9f, 0.56f, 1f)
-					: (flag2
+					: (routeHoldActive
+						? Color.Lerp(new Color(0.78f, 1f, 0.92f, 1f), new Color(1f, 0.9f, 0.46f, 1f), Mathf.PingPong(Time.time * 4.8f, 1f) * 0.42f + routeHoldProgress * 0.28f)
+						: (flag2
 						? Color.Lerp(Color.white, new Color(1f, 0.86f, 0.4f, 1f), Mathf.PingPong(Time.time * 4.6f, 1f))
 						: (flag2a
 							? Color.Lerp(Color.white, new Color(0.76f, 1f, 0.78f, 1f), Mathf.PingPong(Time.time * 3.6f, 1f))
-							: Color.white));
+							: Color.white)));
 				((Transform)hudStageGoalText.rectTransform).localScale = new Vector3(num4, num4, 1f);
 			}
 		}

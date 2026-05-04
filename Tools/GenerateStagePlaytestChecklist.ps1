@@ -335,6 +335,7 @@ foreach ($row in $stageRows) {
     $lines.Add("- [ ] Starter lane is readable before the first crush.")
     $lines.Add("- [ ] LANE BREAK -> ROUTE OPEN beat is visible for about $("{0:0.#}" -f $routeOpenBeatSeconds)s.")
     $lines.Add("- [ ] Route beacon and trail pips point toward the next target without clutter.")
+    $lines.Add("- [ ] ROUTE HOLD meter moves from low progress to near-complete without reading the objective paragraph.")
     $lines.Add("- [ ] ROUTE HOLD pressure feels fair for the target distance.")
     $lines.Add("- [ ] Route reward opens about $routeRewardClusterPropCount payoff props around the next smash cluster.")
     $lines.Add("- [ ] Camera clamp and map bounds feel natural.")
