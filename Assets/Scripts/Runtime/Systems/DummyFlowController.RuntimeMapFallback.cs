@@ -376,11 +376,13 @@ namespace AlienCrusher.Systems
 			Transform orCreateDirectChild3 = GetOrCreateDirectChild(mapRoot, "StreetProps");
 			Transform orCreateDirectChild4 = GetOrCreateDirectChild(mapRoot, "TargetMarkers");
 			Transform orCreateDirectChild5 = GetOrCreateDirectChild(mapRoot, "GroundDetails");
+			Transform orCreateDirectChild6 = GetOrCreateDirectChild(mapRoot, "Landmarks");
 			ClearChildrenRuntime(orCreateDirectChild);
 			ClearChildrenRuntime(orCreateDirectChild2);
 			ClearChildrenRuntime(orCreateDirectChild3);
 			ClearChildrenRuntime(orCreateDirectChild4);
 			ClearChildrenRuntime(orCreateDirectChild5);
+			ClearChildrenRuntime(orCreateDirectChild6);
 			float num27 = layout.GridStartX;
 			float num28 = layout.GridStartZ;
 			int num29 = layout.OpeningRows;
@@ -405,6 +407,7 @@ namespace AlienCrusher.Systems
 					bool flag2 = j % layout.RoadColumnStride == 3;
 					bool flag3 = num37 < layout.SpawnLaneEndZ && Mathf.Abs(num38) < layout.SpawnLaneHalfWidth;
 					bool flag3a = num37 > num7 + 3.2f && Mathf.Abs(num38) < Mathf.Lerp(4.4f, 6f, layout.Growth01);
+					bool flag3b = IsInsideRuntimeLandmarkClearance(num38, num37, layout);
 					Vector3 val15a = new Vector3(layout.CellSize * 0.92f, 0.02f, layout.CellSize * 0.92f);
 					if (flag || flag2)
 					{
@@ -419,6 +422,10 @@ namespace AlienCrusher.Systems
 						{
 							EnsurePrimitive(orCreateDirectChild5, $"BossApproachLane_{i:00}_{j:00}", (PrimitiveType)3, new Vector3(num38, -0.007f, num37), new Vector3(1.34f, 0.01f, 0.24f), new Color(color3h.r, color3h.g, color3h.b, 0.34f));
 						}
+					}
+					if (flag3b)
+					{
+						continue;
 					}
 					if (flag || flag2 || flag3)
 					{
@@ -873,10 +880,317 @@ namespace AlienCrusher.Systems
 					}
 				}
 			}
+			EnsureRuntimeDistrictLandmarks(orCreateDirectChild6, orCreateDirectChild5, footprints, layout, runtimeCityThemeProfile, color3b, color3g, color3h, color3i, val5, val6, val7, val8, color3e, color3f, val9, val10, num27BoundaryPadding);
 			EnsureStarterDestructionCluster(orCreateDirectChild, orCreateDirectChild2, orCreateDirectChild5, footprints, color3d, val7, val8, color3e, color3f, num27BoundaryPadding, ResolveStarterClusterCenter(layout));
 			EnsurePrimitive(orCreateDirectChild4, "Target_A", (PrimitiveType)2, new Vector3(-layout.TargetX, 0.15f, layout.TargetForwardZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
 			EnsurePrimitive(orCreateDirectChild4, "Target_B", (PrimitiveType)2, new Vector3(layout.TargetX, 0.15f, layout.TargetReturnZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
 			return runtimeCityThemeProfile;
+		}
+
+		private static void EnsureRuntimeDistrictLandmarks(Transform landmarksRoot, Transform groundDetailsRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, RuntimeCityThemeProfile theme, Color asphaltColor, Color stripeColor, Color routeColor, Color sidewalkColor, Color foliageA, Color foliageB, Color neutralA, Color neutralB, Color accentA, Color accentB, Color hazardA, Color hazardB, float mapPadding)
+		{
+			if ((Object)(object)landmarksRoot == (Object)null || footprints == null)
+			{
+				return;
+			}
+
+			if (layout.Stage >= 2)
+			{
+				EnsurePocketParkLandmarkRuntime(landmarksRoot, groundDetailsRoot, footprints, layout, asphaltColor, foliageA, foliageB, neutralA, neutralB, accentA, mapPadding);
+			}
+
+			if (layout.Stage >= 3)
+			{
+				EnsureMarketLandmarkRuntime(landmarksRoot, groundDetailsRoot, footprints, layout, sidewalkColor, stripeColor, accentA, accentB, mapPadding);
+			}
+
+			if (layout.Stage >= 5)
+			{
+				EnsureConstructionLandmarkRuntime(landmarksRoot, footprints, layout, theme, asphaltColor, stripeColor, hazardA, hazardB, neutralA, mapPadding);
+			}
+
+			if (layout.Stage >= 6)
+			{
+				EnsurePowerLandmarkRuntime(landmarksRoot, footprints, layout, asphaltColor, routeColor, hazardA, hazardB, mapPadding);
+			}
+
+			if (layout.Stage >= 7)
+			{
+				EnsureSkylineLandmarkRuntime(landmarksRoot, groundDetailsRoot, footprints, layout, sidewalkColor, stripeColor, neutralA, neutralB, accentA, accentB, mapPadding);
+			}
+		}
+
+		private static void EnsurePocketParkLandmarkRuntime(Transform landmarksRoot, Transform groundDetailsRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, Color asphaltColor, Color foliageA, Color foliageB, Color neutralA, Color neutralB, Color accentColor, float mapPadding)
+		{
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 0);
+			Vector3 center = new Vector3(center2.x, 0f, center2.y);
+			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage02_PocketPark");
+			EnsurePrimitive(groundDetailsRoot, "Landmark_PocketPark_Pad", (PrimitiveType)3, new Vector3(center.x, -0.004f, center.z), new Vector3(6.4f, 0.018f, 4.8f), Color.Lerp(foliageA, asphaltColor, 0.38f));
+			EnsurePrimitive(groundDetailsRoot, "Landmark_PocketPark_Walk", (PrimitiveType)3, new Vector3(center.x, -0.001f, center.z), new Vector3(5.2f, 0.012f, 0.34f), Color.Lerp(neutralA, Color.white, 0.08f));
+			EnsurePrimitive(groundDetailsRoot, "Landmark_PocketPark_Cross", (PrimitiveType)3, new Vector3(center.x, 0f, center.z), new Vector3(0.34f, 0.012f, 3.8f), Color.Lerp(neutralA, Color.white, 0.08f));
+
+			for (int i = 0; i < 6; i++)
+			{
+				float angle = (float)i / 6f * Mathf.PI * 2f;
+				Vector3 position = new Vector3(center.x + Mathf.Cos(angle) * 2.35f, 0f, center.z + Mathf.Sin(angle) * 1.55f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref position, 0.58f, 0.58f, mapPadding))
+				{
+					EnsureStreetTreeRuntime(root, $"ParkTree_{i:00}", position, Color.Lerp(foliageA, foliageB, (float)i / 5f));
+				}
+			}
+
+			for (int i = 0; i < 2; i++)
+			{
+				Vector3 position = new Vector3(center.x - 1.1f + i * 2.2f, 0.22f, center.z - 1.85f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref position, 0.56f, 0.22f, mapPadding))
+				{
+					EnsureCommercialBenchRuntime(root, $"ParkBench_{i:00}", position, Color.Lerp(neutralB, accentColor, 0.18f));
+				}
+			}
+
+			Vector3 statuePosition = new Vector3(center.x, 0.46f, center.z + 0.85f);
+			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref statuePosition, 0.45f, 0.45f, mapPadding))
+			{
+				GameObject statue = EnsureDestructiblePrimitive(root, "ParkStatue", (PrimitiveType)2, statuePosition, new Vector3(0.52f, 0.92f, 0.52f), Color.Lerp(neutralA, neutralB, 0.55f), 2);
+				EnsurePrimitive(statue.transform, "StatueCap", (PrimitiveType)0, new Vector3(0f, 0.58f, 0f), new Vector3(0.38f, 0.28f, 0.38f), Color.Lerp(neutralA, Color.white, 0.18f));
+			}
+		}
+
+		private static void EnsureMarketLandmarkRuntime(Transform landmarksRoot, Transform groundDetailsRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, Color sidewalkColor, Color stripeColor, Color accentA, Color accentB, float mapPadding)
+		{
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 1);
+			Vector3 center = new Vector3(center2.x, 0f, center2.y);
+			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage03_MarketPlaza");
+			EnsurePrimitive(groundDetailsRoot, "Landmark_Market_Pad", (PrimitiveType)3, new Vector3(center.x, -0.004f, center.z), new Vector3(7f, 0.018f, 5.4f), sidewalkColor);
+			for (int i = 0; i < 6; i++)
+			{
+				float offset = ((float)i - 2.5f) * 0.78f;
+				EnsurePrimitive(groundDetailsRoot, $"Landmark_Market_Stripe_{i:00}", (PrimitiveType)3, new Vector3(center.x + offset, 0.002f, center.z + 2.1f), new Vector3(0.24f, 0.012f, 0.76f), stripeColor);
+			}
+
+			for (int i = 0; i < 4; i++)
+			{
+				float x = center.x + ((i % 2 == 0) ? -1.55f : 1.55f);
+				float z = center.z - 1.15f + (i / 2) * 1.95f;
+				Vector3 position = new Vector3(x, 0.58f, z);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref position, 0.62f, 0.52f, mapPadding))
+				{
+					Vector3 scale = new Vector3(0.82f, 0.96f, 0.74f);
+					EnsureCommercialKioskRuntime(root, $"MarketKiosk_{i:00}", position, scale, Color.Lerp(accentA, accentB, (float)i / 3f));
+				}
+			}
+
+			Vector3 busStop = new Vector3(center.x + 2.72f, 0.63f, center.z + 0.2f);
+			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref busStop, 0.62f, 0.28f, mapPadding))
+			{
+				EnsureCommercialBusStopRuntime(root, "MarketBusStop", busStop, Color.Lerp(accentB, Color.white, 0.14f));
+			}
+
+			Vector3 vending = new Vector3(center.x - 2.72f, 0.51f, center.z + 0.28f);
+			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref vending, 0.38f, 0.36f, mapPadding))
+			{
+				EnsureCommercialVendingRuntime(root, "MarketVending", vending, Color.Lerp(accentA, Color.white, 0.12f));
+			}
+		}
+
+		private static void EnsureConstructionLandmarkRuntime(Transform landmarksRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, RuntimeCityThemeProfile theme, Color asphaltColor, Color stripeColor, Color hazardA, Color hazardB, Color neutralColor, float mapPadding)
+		{
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 2);
+			Vector3 center = new Vector3(center2.x, 0f, center2.y);
+			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage05_ConstructionYard");
+			Color yardColor = theme == RuntimeCityThemeProfile.IndustrialHarbor ? Color.Lerp(asphaltColor, hazardA, 0.24f) : Color.Lerp(asphaltColor, neutralColor, 0.18f);
+			EnsurePrimitive(root, "YardPad", (PrimitiveType)3, new Vector3(center.x, -0.002f, center.z), new Vector3(7.6f, 0.018f, 5.8f), yardColor);
+			EnsurePrimitive(root, "HazardStripe_A", (PrimitiveType)3, new Vector3(center.x, 0.006f, center.z - 2.52f), new Vector3(6.8f, 0.014f, 0.18f), stripeColor);
+			EnsurePrimitive(root, "HazardStripe_B", (PrimitiveType)3, new Vector3(center.x, 0.006f, center.z + 2.52f), new Vector3(6.8f, 0.014f, 0.18f), stripeColor);
+
+			for (int i = 0; i < 5; i++)
+			{
+				Vector3 position = new Vector3(center.x - 2.6f + i * 1.3f, 0.42f, center.z - 0.8f + (i % 2) * 1.55f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref position, 0.62f, 0.42f, mapPadding))
+				{
+					EnsureDestructiblePrimitive(root, $"YardContainer_{i:00}", (PrimitiveType)3, position, new Vector3(1.05f, 0.84f, 0.72f), Color.Lerp(hazardA, hazardB, (float)i / 4f), 2);
+				}
+			}
+
+			for (int i = 0; i < 3; i++)
+			{
+				Vector3 position = new Vector3(center.x + 2.6f, 0f, center.z - 1.5f + i * 1.35f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref position, 0.36f, 0.36f, mapPadding))
+				{
+					EnsureExplosiveBarrelRuntime(root, $"YardBarrel_{i:00}", position, Color.Lerp(hazardA, hazardB, 0.32f + i * 0.16f));
+				}
+			}
+
+			Vector3 crane = new Vector3(center.x - 2.85f, 1.2f, center.z + 2.05f);
+			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref crane, 0.34f, 0.34f, mapPadding))
+			{
+				EnsurePrimitive(root, "YardCraneMast", (PrimitiveType)3, crane, new Vector3(0.22f, 2.4f, 0.22f), Color.Lerp(neutralColor, Color.black, 0.18f));
+				EnsurePrimitive(root, "YardCraneArm", (PrimitiveType)3, new Vector3(crane.x + 1.1f, crane.y + 1.16f, crane.z), new Vector3(2.4f, 0.16f, 0.18f), Color.Lerp(hazardB, Color.white, 0.12f));
+				EnsurePrimitive(root, "YardCraneHook", (PrimitiveType)3, new Vector3(crane.x + 2.15f, crane.y + 0.52f, crane.z), new Vector3(0.14f, 0.72f, 0.14f), hazardA);
+			}
+		}
+
+		private static void EnsurePowerLandmarkRuntime(Transform landmarksRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, Color asphaltColor, Color routeColor, Color hazardA, Color hazardB, float mapPadding)
+		{
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 3);
+			Vector3 center = new Vector3(center2.x, 0f, center2.y);
+			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage06_PowerBlock");
+			EnsurePrimitive(root, "PowerPad", (PrimitiveType)3, new Vector3(center.x, -0.002f, center.z), new Vector3(6.8f, 0.018f, 5.8f), Color.Lerp(asphaltColor, hazardB, 0.18f));
+			EnsurePrimitive(root, "PowerRoutePaint", (PrimitiveType)3, new Vector3(center.x, 0.008f, center.z), new Vector3(5.6f, 0.014f, 0.18f), routeColor);
+
+			for (int i = 0; i < 4; i++)
+			{
+				Vector3 position = new Vector3(center.x - 1.8f + (i % 2) * 2.15f, 0f, center.z - 1.2f + (i / 2) * 2.15f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref position, 0.62f, 0.48f, mapPadding))
+				{
+					EnsureTransformerRuntime(root, $"PowerTransformer_{i:00}", position, Color.Lerp(hazardB, Color.white, 0.16f + i * 0.06f));
+				}
+			}
+
+			for (int i = 0; i < 4; i++)
+			{
+				float x = center.x - 2.7f + i * 1.8f;
+				Vector3 fence = new Vector3(x, 0.21f, center.z + 2.45f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref fence, 0.46f, 0.12f, mapPadding))
+				{
+					EnsureResidentialFenceRuntime(root, $"PowerFence_{i:00}", fence, Color.Lerp(hazardA, hazardB, 0.4f));
+				}
+			}
+
+			for (int i = 0; i < 2; i++)
+			{
+				Vector3 barrel = new Vector3(center.x + 2.58f, 0f, center.z - 1.45f + i * 1.24f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref barrel, 0.34f, 0.34f, mapPadding))
+				{
+					EnsureExplosiveBarrelRuntime(root, $"PowerBarrel_{i:00}", barrel, Color.Lerp(hazardA, hazardB, 0.28f + i * 0.22f));
+				}
+			}
+		}
+
+		private static void EnsureSkylineLandmarkRuntime(Transform landmarksRoot, Transform groundDetailsRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, Color sidewalkColor, Color stripeColor, Color neutralA, Color neutralB, Color accentA, Color accentB, float mapPadding)
+		{
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 4);
+			Vector3 center = new Vector3(center2.x, 0f, center2.y);
+			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage07_SkylineBlock");
+			EnsurePrimitive(groundDetailsRoot, "Landmark_Skyline_Plaza", (PrimitiveType)3, new Vector3(center.x, -0.004f, center.z), new Vector3(8.6f, 0.018f, 6.2f), sidewalkColor);
+			EnsurePrimitive(groundDetailsRoot, "Landmark_Skyline_RouteLine", (PrimitiveType)3, new Vector3(center.x, 0.006f, center.z - 2.55f), new Vector3(7.2f, 0.014f, 0.2f), stripeColor);
+
+			for (int i = 0; i < 4; i++)
+			{
+				float x = center.x - 2.25f + (i % 2) * 4.5f;
+				float z = center.z - 1.25f + (i / 2) * 2.55f;
+				float height = 3.1f + i * 0.55f;
+				Vector3 position = new Vector3(x, height * 0.5f, z);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref position, 0.78f, 0.68f, mapPadding))
+				{
+					GameObject tower = EnsureDestructiblePrimitive(root, $"SkylineTower_{i:00}", (PrimitiveType)3, position, new Vector3(1.24f, height, 1.08f), Color.Lerp(neutralA, neutralB, (float)i / 3f), 5 + i);
+					EnsurePrimitive(tower.transform, "TowerCrown", (PrimitiveType)3, new Vector3(0f, height * 0.54f, 0f), new Vector3(1.36f, 0.24f, 1.2f), Color.Lerp(accentA, accentB, (float)i / 3f));
+					EnsurePrimitive(tower.transform, "TowerSign", (PrimitiveType)3, new Vector3(0f, height * 0.18f, -0.56f), new Vector3(0.82f, 0.34f, 0.08f), Color.Lerp(accentB, Color.white, 0.14f));
+				}
+			}
+
+			for (int i = 0; i < 3; i++)
+			{
+				Vector3 position = new Vector3(center.x - 1.4f + i * 1.4f, 0.22f, center.z - 2.25f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref position, 0.56f, 0.22f, mapPadding))
+				{
+					EnsureCommercialBenchRuntime(root, $"SkylineBench_{i:00}", position, Color.Lerp(accentA, accentB, (float)i / 2f));
+				}
+			}
+		}
+
+		private static bool IsInsideRuntimeLandmarkClearance(float x, float z, RuntimeStageMapLayout layout)
+		{
+			return (layout.Stage >= 2 && IsInsideRuntimeLandmarkClearance(x, z, layout, 0))
+				|| (layout.Stage >= 3 && IsInsideRuntimeLandmarkClearance(x, z, layout, 1))
+				|| (layout.Stage >= 5 && IsInsideRuntimeLandmarkClearance(x, z, layout, 2))
+				|| (layout.Stage >= 6 && IsInsideRuntimeLandmarkClearance(x, z, layout, 3))
+				|| (layout.Stage >= 7 && IsInsideRuntimeLandmarkClearance(x, z, layout, 4));
+		}
+
+		private static bool IsInsideRuntimeLandmarkClearance(float x, float z, RuntimeStageMapLayout layout, int landmarkIndex)
+		{
+			Vector2 center = ResolveRuntimeLandmarkCenter(layout, landmarkIndex);
+			Vector2 halfExtents = ResolveRuntimeLandmarkHalfExtents(landmarkIndex);
+			return Mathf.Abs(x - center.x) <= halfExtents.x && Mathf.Abs(z - center.y) <= halfExtents.y;
+		}
+
+		private static Vector2 ResolveRuntimeLandmarkCenter(RuntimeStageMapLayout layout, int landmarkIndex)
+		{
+			switch (landmarkIndex)
+			{
+			case 0:
+				return new Vector2(0f - Mathf.Lerp(7.2f, 10.2f, layout.Growth01), Mathf.Lerp(-1.8f, -5.8f, layout.Growth01));
+			case 1:
+				return new Vector2(Mathf.Lerp(5.8f, 9.8f, layout.Growth01), Mathf.Lerp(2.5f, 7.8f, layout.Growth01));
+			case 2:
+				return new Vector2(0f - Mathf.Lerp(8.8f, 13.4f, layout.Growth01), Mathf.Lerp(9.5f, 15.6f, layout.Growth01));
+			case 3:
+				return new Vector2(Mathf.Lerp(8.4f, 14.2f, layout.Growth01), Mathf.Lerp(-8.4f, -14.4f, layout.Growth01));
+			default:
+				return new Vector2(Mathf.Lerp(1.8f, 4.2f, layout.Growth01), Mathf.Lerp(13.6f, 18.8f, layout.Growth01));
+			}
+		}
+
+		private static Vector2 ResolveRuntimeLandmarkHalfExtents(int landmarkIndex)
+		{
+			switch (landmarkIndex)
+			{
+			case 0:
+				return new Vector2(3.6f, 2.8f);
+			case 1:
+				return new Vector2(3.8f, 3.1f);
+			case 2:
+				return new Vector2(4.2f, 3.4f);
+			case 3:
+				return new Vector2(3.8f, 3.4f);
+			default:
+				return new Vector2(4.8f, 3.8f);
+			}
+		}
+
+		private static int ResolveMinimumRuntimeLandmarkObjects(RuntimeStageMapLayout layout)
+		{
+			if (layout.Stage >= 7)
+			{
+				return 70;
+			}
+			if (layout.Stage >= 6)
+			{
+				return 50;
+			}
+			if (layout.Stage >= 5)
+			{
+				return 36;
+			}
+			if (layout.Stage >= 3)
+			{
+				return 22;
+			}
+			if (layout.Stage >= 2)
+			{
+				return 10;
+			}
+			return 0;
+		}
+
+		private static bool TryReserveRuntimeLandmarkFootprint(List<Vector4> footprints, RuntimeStageMapLayout layout, ref Vector3 localPosition, float halfX, float halfZ, float padding)
+		{
+			if (footprints == null)
+			{
+				return false;
+			}
+
+			Vector2 clamped = ClampFootprintCenterToMapInterior(localPosition.x, localPosition.z, halfX, halfZ, padding, layout.HalfExtent);
+			localPosition.x = clamped.x;
+			localPosition.z = clamped.y;
+			if (OverlapsAnyFootprintRuntime(footprints, localPosition.x, localPosition.z, halfX, halfZ))
+			{
+				return false;
+			}
+
+			AddFootprintRuntime(footprints, localPosition.x, localPosition.z, halfX, halfZ);
+			return true;
 		}
 
 		private void LogRuntimeStageMapSummary(Transform mapRoot, RuntimeStageMapLayout layout, RuntimeCityThemeProfile theme)
@@ -889,6 +1203,7 @@ namespace AlienCrusher.Systems
 			Transform cityBlocks = FindDirectChild(mapRoot, "CityBlocks");
 			Transform microProps = FindDirectChild(mapRoot, "MicroProps");
 			Transform streetProps = FindDirectChild(mapRoot, "StreetProps");
+			Transform landmarks = FindDirectChild(mapRoot, "Landmarks");
 			Transform targetMarkers = FindDirectChild(mapRoot, "TargetMarkers");
 			Transform targetA = ((Object)(object)targetMarkers != (Object)null) ? FindDirectChild(targetMarkers, "Target_A") : null;
 			Transform targetB = ((Object)(object)targetMarkers != (Object)null) ? FindDirectChild(targetMarkers, "Target_B") : null;
@@ -898,11 +1213,12 @@ namespace AlienCrusher.Systems
 			int cityObjectCount = CountDescendants(cityBlocks);
 			int microObjectCount = CountDescendants(microProps);
 			int streetObjectCount = CountDescendants(streetProps);
-			string summary = $"stage={layout.Stage:00} theme={theme} size={layout.MapSize:0.#}m grid={layout.XCells}x{layout.ZCells} destructibles={destructibleCount} city={cityObjectCount} micro={microObjectCount} street={streetObjectCount} reactiveProps={reactivePropCount} targetA={FormatMapPoint(targetA)} targetB={FormatMapPoint(targetB)}";
+			int landmarkObjectCount = CountDescendants(landmarks);
+			string summary = $"stage={layout.Stage:00} theme={theme} size={layout.MapSize:0.#}m grid={layout.XCells}x{layout.ZCells} destructibles={destructibleCount} city={cityObjectCount} micro={microObjectCount} street={streetObjectCount} landmarks={landmarkObjectCount} reactiveProps={reactivePropCount} targetA={FormatMapPoint(targetA)} targetB={FormatMapPoint(targetB)}";
 
 			Debug.Log((object)$"[AlienCrusher][MapLayout] {summary}");
 			List<string> warnings = new List<string>(6);
-			ValidateRuntimeStageMapLayout(mapRoot, layout, destructibles, targetA, targetB, warnings);
+			ValidateRuntimeStageMapLayout(mapRoot, layout, destructibles, targetA, targetB, landmarkObjectCount, warnings);
 			runtimeMapLayoutDebugSummary = summary;
 			runtimeMapLayoutDebugWarning = warnings.Count > 0 ? string.Join("; ", warnings) : "OK";
 			runtimeMapLayoutDebugUpdatedAt = Time.unscaledTime;
@@ -912,7 +1228,7 @@ namespace AlienCrusher.Systems
 			}
 		}
 
-		private static void ValidateRuntimeStageMapLayout(Transform mapRoot, RuntimeStageMapLayout layout, DummyDestructibleBlock[] destructibles, Transform targetA, Transform targetB, List<string> warnings)
+		private static void ValidateRuntimeStageMapLayout(Transform mapRoot, RuntimeStageMapLayout layout, DummyDestructibleBlock[] destructibles, Transform targetA, Transform targetB, int landmarkObjectCount, List<string> warnings)
 		{
 			if ((Object)(object)mapRoot == (Object)null || warnings == null)
 			{
@@ -931,6 +1247,12 @@ namespace AlienCrusher.Systems
 			if (openingCount < minimumOpening)
 			{
 				warnings.Add($"starter lane sparse {openingCount}/{minimumOpening}");
+			}
+
+			int minimumLandmarks = ResolveMinimumRuntimeLandmarkObjects(layout);
+			if (landmarkObjectCount < minimumLandmarks)
+			{
+				warnings.Add($"low landmarks {landmarkObjectCount}/{minimumLandmarks}");
 			}
 
 			Transform spawn = FindChildByName(null, "PlayerSpawn");
