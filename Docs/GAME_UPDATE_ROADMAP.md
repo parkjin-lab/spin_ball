@@ -152,12 +152,12 @@ Success signal:
 - player can read "almost there" without parsing a sentence
 
 #### 4. District Route Puzzles
-Treat landmark districts as route behavior changes:
-- Stage 2 park: forgiving open route and low clutter
-- Stage 3 market: dense small-object chain route
-- Stage 5 construction: explosive setup route
-- Stage 6 power block: transformer payoff route
-- Stage 7 skyline: long route into a high-value tower cluster
+Baseline district route payoff identity is now implemented:
+- Stage 2 park: forgiving bench/tree/barrel payoff
+- Stage 3-4 market: kiosk/vending/barrel chain payoff
+- Stage 5 construction: barrel-heavy yard blast payoff
+- Stage 6 power block: transformer-heavy power surge payoff
+- Stage 7 skyline: transformer/barrel cluster plus high-value skyline anchor
 
 Success signal:
 - later stages feel different by route decision, not only by size

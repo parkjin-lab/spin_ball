@@ -135,6 +135,19 @@ function Resolve-StageFocus {
     }
 }
 
+function Resolve-RoutePayoff {
+    param([int]$Stage)
+
+    switch ($Stage) {
+        1 { return "Starter cluster" }
+        2 { return "Park cut: bench/tree/barrel" }
+        { $_ -ge 3 -and $_ -le 4 } { return "Market chain: kiosk/vending/barrel" }
+        5 { return "Yard blast: barrel-heavy setup" }
+        6 { return "Power surge: transformer-heavy setup" }
+        default { return "Skyline breach: high-value anchor" }
+    }
+}
+
 function Resolve-MinimumDestructibles {
     param($Layout)
 
@@ -299,6 +312,7 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
         DistA = $distA
         DistB = $distB
         Landmarks = Resolve-Landmarks -Layout $layout
+        RoutePayoff = Resolve-RoutePayoff -Stage $stage
     }
     $stageRows.Add($row)
 
@@ -328,6 +342,7 @@ foreach ($row in $stageRows) {
     $lines.Add("Expected setup:")
     $lines.Add("- Map/grid: $("{0:0.0}" -f $row.Layout.MapSize)m, $($row.Layout.XCells)x$($row.Layout.ZCells)")
     $lines.Add("- Landmarks: $($row.Landmarks)")
+    $lines.Add("- Route payoff: $($row.RoutePayoff)")
     $lines.Add("- Route target: $($row.RouteTarget)/$($row.StageTarget) by $("{0:0.#}" -f $deadlineSeconds)s")
     $lines.Add("- Target A/B: $($row.TargetA) / $($row.TargetB)")
     $lines.Add("")
@@ -338,6 +353,7 @@ foreach ($row in $stageRows) {
     $lines.Add("- [ ] ROUTE HOLD meter moves from low progress to near-complete without reading the objective paragraph.")
     $lines.Add("- [ ] ROUTE HOLD pressure feels fair for the target distance.")
     $lines.Add("- [ ] Route reward opens about $routeRewardClusterPropCount payoff props around the next smash cluster.")
+    $lines.Add("- [ ] Route payoff identity matches the expected district.")
     $lines.Add("- [ ] Camera clamp and map bounds feel natural.")
     $lines.Add("- [ ] Notes:")
     $lines.Add("- [ ] Screenshot/video reference:")
