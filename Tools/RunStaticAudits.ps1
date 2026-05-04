@@ -52,6 +52,11 @@ New-Item -ItemType Directory -Path $ReportDirectory -Force | Out-Null
 
 $audits = @(
     [pscustomobject]@{
+        Label = "Scene essentials"
+        ScriptPath = Join-Path $PSScriptRoot "AuditSceneEssentialsStatic.ps1"
+        ReportPath = Join-Path $ReportDirectory "AlienCrusherSceneEssentialsStaticAudit.log"
+    },
+    [pscustomobject]@{
         Label = "Runtime map layout"
         ScriptPath = Join-Path $PSScriptRoot "AuditRuntimeMapLayoutStatic.ps1"
         ReportPath = Join-Path $ReportDirectory "AlienCrusherMapLayoutStaticAudit.log"

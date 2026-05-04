@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-05-04
+Last updated: 2026-05-05
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -23,25 +23,25 @@ This document tracks the current project state, the next production priorities, 
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status
-- Latest scene validation report in `Logs/AlienCrusherSceneValidation.log` shows `0 error(s), 1 warning(s)`.
-- The open scene validation warning is `Missing HudRouteArrow RectTransform`.
+- Latest scene validation report from 2026-05-05 00:27 in `Logs/AlienCrusherSceneValidation.log` shows `0 error(s), 0 warning(s)`.
+- `Assets/Scenes/SampleScene.unity` contains `HudRouteArrow` with child `ArrowText`, and `Tools/AuditSceneEssentialsStatic.ps1` verifies those scene essentials with `0 warning(s)`.
 - Unity-free static map audit passes Stage 1-7 formula checks with `0 warning(s)`.
 - Unity-free ROUTE HOLD tuning audit passes with `0 warning(s)` and reads current default tuning values from runtime C# fields before auditing.
 - `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set.
-- Runtime Unity map layout batch reports are still missing: `Logs/AlienCrusherMapLayoutAudit.log` and `Logs/AlienCrusherMapLayoutAuditEditor.log` are not present.
-- Unity batch remains an unstable verification path. Recent runs exposed stale report, project-open lock, and timeout behavior, so `Tools/RunUnityBatchChecks.ps1` should be used for future attempts.
+- Runtime Unity map layout batch report from 2026-05-05 00:28 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
+- `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
 
 ### Current Main Risk
-The prototype has enough systems to be interesting, but the verification loop is not yet fully trustworthy. Static audits verify formulas, not play feel. Unity batch and real editor/mobile playtests must still confirm that route readability, map growth, reward timing, and HUD scaffolding work in the actual scene.
+The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, and HUD scaffolding feel good in motion.
 
 ---
 
 ## 2. Immediate Work Queue
 
 ### P0 - Restore Validation Confidence
-1. Fix or rerun scene repair for `HudRouteArrow/ArrowText`.
-2. Rerun `Tools/RunUnityBatchChecks.ps1`.
-3. Require both scene validation and runtime map layout audit reports to refresh during the same run.
+1. Keep `Tools/RunUnityBatchChecks.ps1` passing before any new scene/map changes.
+2. Keep `Tools/RunStaticAudits.ps1` passing before committing gameplay tuning.
+3. Require both scene validation and runtime map layout audit reports to refresh during Unity batch runs.
 4. Treat stale or missing report files as validation failures, even if Unity exits with code `0`.
 
 Done when:
@@ -229,9 +229,7 @@ Extraction candidates:
 
 ## 6. Open Risks
 
-- Unity batch has recently shown stale log, lock, and timeout behavior.
-- `HudRouteArrow` is still reported missing by the latest scene validation log.
-- Runtime map layout audit has no current Unity-generated report file.
+- Unity batch has recently shown stale log, lock, and timeout behavior, although the 2026-05-05 wrapper run passed cleanly.
 - Static audits pass formula checks but cannot validate real play feel.
 - Route trail pips may be visually noisy on small Android screens.
 - Current implementation form names differ from older GDD form fantasy names; status documents should use runtime names until the design naming pass is resolved.
