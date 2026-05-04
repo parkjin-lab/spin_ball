@@ -9,7 +9,7 @@
 - 2026-05-04 map follow-up: runtime stage start now rebuilds the managed city map instead of reusing the same static layout forever. Map bounds, lot grid, target markers, spawn position, camera clamp, density, and prop variety now scale across the early stage ramp.
 - Runtime map generation now emits a compact `[AlienCrusher][MapLayout]` console line with stage, theme, map size, grid size, destructible count, prop counts, and target marker positions for quick playtest tuning.
 - Runtime map generation also emits `[AlienCrusher][MapLayout][WARN]` if it detects low destructible density, sparse starter-lane objects, missing/off-lane spawn, missing target markers, out-of-bounds targets, or targets too close to spawn.
-- In editor/development builds, map layout testing has hotkeys: `F6` previous stage, `F7` next stage, `F8` reset to Stage 1. These restart the stage for layout testing without advancing saved progression.
+- In editor/development builds, map layout testing has hotkeys: `F6` previous stage, `F7` next stage, `F8` reset to Stage 1, and `F9` toggle map layout overlay. These restart the stage for layout testing without advancing saved progression.
 
 ## Work Completed Immediately Before This Handoff
 - Extended `Tools/Alien Crusher/Validate Current Scene` so it also writes a validation report file.
@@ -28,7 +28,7 @@
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`
   - Stage-aware runtime map reset/rebuild flow. Managed map children are cleared safely, then regenerated with larger bounds and more varied lots/props by stage. Emits `[AlienCrusher][MapLayout]` summary logs and `[AlienCrusher][MapLayout][WARN]` safety warnings.
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`
-  - Added editor/development hotkeys for fast map layout stage cycling: `F6`, `F7`, `F8`.
+  - Added editor/development hotkeys for fast map layout stage cycling: `F6`, `F7`, `F8`, plus `F9` overlay toggle.
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`
   - Calls runtime map rebuild at stage start before destructible reset and encounter setup.
 - `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`
@@ -59,7 +59,7 @@
 2. If validation reports a missing scene essential, run:
    `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherSceneRepair.RepairCurrentSceneEssentialsBatch -logFile D:\uni\spinball\Logs\AlienCrusherBatchRepairEditor.log`
 3. Confirm `HudRouteArrow/ArrowText` exists under `HUD_Dummy` after repair, then rerun validation.
-4. Run in-editor playtest from Stage 1 through at least Stage 7. Use `F7` to jump forward, `F6` to jump back, and `F8` to reset to Stage 1. Watch `[AlienCrusher][MapLayout]` logs to verify size/grid/destructible/prop counts climb as expected. Treat any `[AlienCrusher][MapLayout][WARN]` line as a placement bug to tune before visual polish.
+4. Run in-editor playtest from Stage 1 through at least Stage 7. Use `F7` to jump forward, `F6` to jump back, `F8` to reset to Stage 1, and `F9` to hide/show the map layout overlay. Watch the overlay and `[AlienCrusher][MapLayout]` logs to verify size/grid/destructible/prop counts climb as expected. Treat any warning text or `[AlienCrusher][MapLayout][WARN]` line as a placement bug to tune before visual polish.
 5. Verify the map grows from a compact residential starter layout into denser/wider districts with more cars, props, commercial objects, barrels, transformers, and wider ROUTE HOLD targets.
 6. Verify LANE BREAK appears, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD target/time is readable, and ROUTE HOLD reward fires once.
 7. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, and marker positions based on mobile readability.
@@ -70,7 +70,7 @@
 ```text
 Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
-Latest completed work: ROUTE HOLD is wired after LANE BREAK. HUD shows route/hold guidance, route beacon, and world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs to compare stage, theme, size, grid, destructible count, prop counts, and target positions during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling.
+Latest completed work: ROUTE HOLD is wired after LANE BREAK. HUD shows route/hold guidance, route beacon, and world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling and `F9` to toggle the overlay.
 Latest validation: Unity batch validation completed successfully on 2026-05-02 with `Result: 0 error(s), 0 warning(s)`. Fresh 2026-05-04 batch attempts did not update logs, and the waited Unity process returned `-2147483645`, so the map rebuild change still needs an in-editor compile/playmode validation pass.
 Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
 Useful validation command: `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherSceneValidator.ValidateCurrentSceneBatch -logFile D:\uni\spinball\Logs\AlienCrusherBatchValidationEditor.log`

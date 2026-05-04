@@ -879,7 +879,7 @@ namespace AlienCrusher.Systems
 			return runtimeCityThemeProfile;
 		}
 
-		private static void LogRuntimeStageMapSummary(Transform mapRoot, RuntimeStageMapLayout layout, RuntimeCityThemeProfile theme)
+		private void LogRuntimeStageMapSummary(Transform mapRoot, RuntimeStageMapLayout layout, RuntimeCityThemeProfile theme)
 		{
 			if ((Object)(object)mapRoot == (Object)null)
 			{
@@ -898,13 +898,17 @@ namespace AlienCrusher.Systems
 			int cityObjectCount = CountDescendants(cityBlocks);
 			int microObjectCount = CountDescendants(microProps);
 			int streetObjectCount = CountDescendants(streetProps);
+			string summary = $"stage={layout.Stage:00} theme={theme} size={layout.MapSize:0.#}m grid={layout.XCells}x{layout.ZCells} destructibles={destructibleCount} city={cityObjectCount} micro={microObjectCount} street={streetObjectCount} reactiveProps={reactivePropCount} targetA={FormatMapPoint(targetA)} targetB={FormatMapPoint(targetB)}";
 
-			Debug.Log((object)$"[AlienCrusher][MapLayout] stage={layout.Stage:00} theme={theme} size={layout.MapSize:0.#}m grid={layout.XCells}x{layout.ZCells} destructibles={destructibleCount} city={cityObjectCount} micro={microObjectCount} street={streetObjectCount} reactiveProps={reactivePropCount} targetA={FormatMapPoint(targetA)} targetB={FormatMapPoint(targetB)}");
+			Debug.Log((object)$"[AlienCrusher][MapLayout] {summary}");
 			List<string> warnings = new List<string>(6);
 			ValidateRuntimeStageMapLayout(mapRoot, layout, destructibles, targetA, targetB, warnings);
+			runtimeMapLayoutDebugSummary = summary;
+			runtimeMapLayoutDebugWarning = warnings.Count > 0 ? string.Join("; ", warnings) : "OK";
+			runtimeMapLayoutDebugUpdatedAt = Time.unscaledTime;
 			if (warnings.Count > 0)
 			{
-				Debug.LogWarning((object)$"[AlienCrusher][MapLayout][WARN] stage={layout.Stage:00} {string.Join("; ", warnings)}");
+				Debug.LogWarning((object)$"[AlienCrusher][MapLayout][WARN] stage={layout.Stage:00} {runtimeMapLayoutDebugWarning}");
 			}
 		}
 

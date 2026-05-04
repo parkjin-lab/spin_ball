@@ -177,6 +177,13 @@ namespace AlienCrusher.Systems
 				StartMapLayoutDebugStage(1);
 				return true;
 			}
+
+			if (current.f9Key.wasPressedThisFrame)
+			{
+				showMapLayoutDebugOverlay = !showMapLayoutDebugOverlay;
+				Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Overlay {(showMapLayoutDebugOverlay ? "shown" : "hidden")}.");
+				return true;
+			}
 #endif
 			return false;
 		}
@@ -186,8 +193,49 @@ namespace AlienCrusher.Systems
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 			int maxStage = Mathf.Max(1, mapLayoutDebugMaxStage);
 			currentStageNumber = Mathf.Clamp(stageNumber, 1, maxStage);
-			Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Starting layout test stage {currentStageNumber:00}. F6 previous, F7 next, F8 reset.");
+			Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Starting layout test stage {currentStageNumber:00}. F6 previous, F7 next, F8 reset, F9 overlay.");
 			StartStage();
+#endif
+		}
+
+		private void OnGUI()
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (!showMapLayoutDebugOverlay || string.IsNullOrEmpty(runtimeMapLayoutDebugSummary))
+			{
+				return;
+			}
+
+			EnsureMapLayoutOverlayStyles();
+			float width = Mathf.Min(Mathf.Max(280f, Screen.width - 24f), 760f);
+			float height = string.IsNullOrEmpty(runtimeMapLayoutDebugWarning) || runtimeMapLayoutDebugWarning == "OK" ? 86f : 106f;
+			Rect box = new Rect(12f, 12f, width, height);
+			GUI.Box(box, GUIContent.none);
+			float ageSeconds = Mathf.Max(0f, Time.unscaledTime - runtimeMapLayoutDebugUpdatedAt);
+			GUI.Label(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, 22f), $"MAP LAYOUT TEST  /  F6 PREV  F7 NEXT  F8 RESET  F9 HIDE  /  {ageSeconds:0.0}s", runtimeMapLayoutOverlayStyle);
+			GUI.Label(new Rect(box.x + 10f, box.y + 32f, box.width - 20f, 40f), runtimeMapLayoutDebugSummary, runtimeMapLayoutOverlayStyle);
+			string warningText = runtimeMapLayoutDebugWarning == "OK" ? "warnings: none" : $"warnings: {runtimeMapLayoutDebugWarning}";
+			GUI.Label(new Rect(box.x + 10f, box.y + 68f, box.width - 20f, 32f), warningText, runtimeMapLayoutDebugWarning == "OK" ? runtimeMapLayoutOverlayStyle : runtimeMapLayoutWarningStyle);
+#endif
+		}
+
+		private void EnsureMapLayoutOverlayStyles()
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (runtimeMapLayoutOverlayStyle != null && runtimeMapLayoutWarningStyle != null)
+			{
+				return;
+			}
+
+			runtimeMapLayoutOverlayStyle = new GUIStyle(GUI.skin.label)
+			{
+				fontSize = 13,
+				wordWrap = true
+			};
+			runtimeMapLayoutOverlayStyle.normal.textColor = new Color(0.94f, 0.97f, 1f, 1f);
+
+			runtimeMapLayoutWarningStyle = new GUIStyle(runtimeMapLayoutOverlayStyle);
+			runtimeMapLayoutWarningStyle.normal.textColor = new Color(1f, 0.72f, 0.32f, 1f);
 #endif
 		}
 	}

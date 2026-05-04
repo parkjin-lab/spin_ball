@@ -1132,6 +1132,15 @@ namespace AlienCrusher.Systems
 		[Min(1)]
 		private int mapLayoutDebugMaxStage = 7;
 
+		[SerializeField]
+		private bool showMapLayoutDebugOverlay = true;
+
+		private string runtimeMapLayoutDebugSummary = string.Empty;
+		private string runtimeMapLayoutDebugWarning = string.Empty;
+		private float runtimeMapLayoutDebugUpdatedAt;
+		private GUIStyle runtimeMapLayoutOverlayStyle;
+		private GUIStyle runtimeMapLayoutWarningStyle;
+
 		[Header("Scene References")]
 		[SerializeField]
 		private string playerBallName = "PlayerBall";
