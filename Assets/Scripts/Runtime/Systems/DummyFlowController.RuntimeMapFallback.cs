@@ -874,7 +874,63 @@ namespace AlienCrusher.Systems
 			EnsureStarterDestructionCluster(orCreateDirectChild, orCreateDirectChild2, orCreateDirectChild5, footprints, color3d, val7, val8, color3e, color3f, num27BoundaryPadding, ResolveStarterClusterCenter(layout));
 			EnsurePrimitive(orCreateDirectChild4, "Target_A", (PrimitiveType)2, new Vector3(-layout.TargetX, 0.15f, layout.TargetForwardZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
 			EnsurePrimitive(orCreateDirectChild4, "Target_B", (PrimitiveType)2, new Vector3(layout.TargetX, 0.15f, layout.TargetReturnZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
-			Debug.Log((object)$"[AlienCrusher] Runtime city theme generated: {runtimeCityThemeProfile}, stage {layout.Stage:00}, size {layout.MapSize:0.#}");
+			LogRuntimeStageMapSummary(mapRoot, layout, runtimeCityThemeProfile);
+		}
+
+		private static void LogRuntimeStageMapSummary(Transform mapRoot, RuntimeStageMapLayout layout, RuntimeCityThemeProfile theme)
+		{
+			if ((Object)(object)mapRoot == (Object)null)
+			{
+				return;
+			}
+
+			Transform cityBlocks = FindDirectChild(mapRoot, "CityBlocks");
+			Transform microProps = FindDirectChild(mapRoot, "MicroProps");
+			Transform streetProps = FindDirectChild(mapRoot, "StreetProps");
+			Transform targetMarkers = FindDirectChild(mapRoot, "TargetMarkers");
+			Transform targetA = ((Object)(object)targetMarkers != (Object)null) ? FindDirectChild(targetMarkers, "Target_A") : null;
+			Transform targetB = ((Object)(object)targetMarkers != (Object)null) ? FindDirectChild(targetMarkers, "Target_B") : null;
+			int destructibleCount = ((Component)mapRoot).GetComponentsInChildren<DummyDestructibleBlock>(true).Length;
+			int reactivePropCount = ((Component)mapRoot).GetComponentsInChildren<DummyStreetPropReactive>(true).Length;
+			int cityObjectCount = CountDescendants(cityBlocks);
+			int microObjectCount = CountDescendants(microProps);
+			int streetObjectCount = CountDescendants(streetProps);
+
+			Debug.Log((object)$"[AlienCrusher][MapLayout] stage={layout.Stage:00} theme={theme} size={layout.MapSize:0.#}m grid={layout.XCells}x{layout.ZCells} destructibles={destructibleCount} city={cityObjectCount} micro={microObjectCount} street={streetObjectCount} reactiveProps={reactivePropCount} targetA={FormatMapPoint(targetA)} targetB={FormatMapPoint(targetB)}");
+		}
+
+		private static int CountDescendants(Transform root)
+		{
+			if ((Object)(object)root == (Object)null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+			for (int i = 0; i < root.childCount; i++)
+			{
+				Transform child = root.GetChild(i);
+				if ((Object)(object)child == (Object)null)
+				{
+					continue;
+				}
+
+				count++;
+				count += CountDescendants(child);
+			}
+
+			return count;
+		}
+
+		private static string FormatMapPoint(Transform target)
+		{
+			if ((Object)(object)target == (Object)null)
+			{
+				return "missing";
+			}
+
+			Vector3 position = target.position;
+			return $"({position.x:0.#},{position.z:0.#})";
 		}
 
 		private void EnsureOpeningDestructionDensity(DummyDestructibleBlock[] existingDestructibles)
