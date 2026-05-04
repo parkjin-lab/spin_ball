@@ -45,8 +45,9 @@ namespace AlienCrusher.Systems
 				}
 				Transform orCreateDirectChild = GetOrCreateDirectChild(val, "MapRoot");
 				RuntimeStageMapLayout layout = ResolveRuntimeStageMapLayout();
-				BuildFallbackMap(orCreateDirectChild, layout);
+				RuntimeCityThemeProfile theme = BuildFallbackMap(orCreateDirectChild, layout);
 				EnsureSpawnPointFallback(val, layout);
+				LogRuntimeStageMapSummary(orCreateDirectChild, layout, theme);
 				Debug.Log((object)"[AlienCrusher] Destructible density was low, so fallback map objects were generated at runtime.");
 				return;
 			}
@@ -68,9 +69,10 @@ namespace AlienCrusher.Systems
 
 			RuntimeStageMapLayout layout = ResolveRuntimeStageMapLayout();
 			Transform mapRoot = GetOrCreateDirectChild(gameplayRoot, "MapRoot");
-			BuildFallbackMap(mapRoot, layout);
+			RuntimeCityThemeProfile theme = BuildFallbackMap(mapRoot, layout);
 			EnsureSpawnPointFallback(gameplayRoot, layout);
 			ApplyRuntimeMapCameraBounds(layout);
+			LogRuntimeStageMapSummary(mapRoot, layout, theme);
 			Debug.Log((object)$"[AlienCrusher] Runtime stage map rebuilt for stage {layout.Stage:00}: {layout.MapSize:0.#}m, {layout.XCells}x{layout.ZCells} lots.");
 		}
 
@@ -117,7 +119,7 @@ namespace AlienCrusher.Systems
 			}
 		}
 
-		private void BuildFallbackMap(Transform mapRoot, RuntimeStageMapLayout layout)
+		private RuntimeCityThemeProfile BuildFallbackMap(Transform mapRoot, RuntimeStageMapLayout layout)
 		{
 			//IL_0502: Unknown result type (might be due to invalid IL or missing references)
 			//IL_0516: Unknown result type (might be due to invalid IL or missing references)
@@ -874,7 +876,7 @@ namespace AlienCrusher.Systems
 			EnsureStarterDestructionCluster(orCreateDirectChild, orCreateDirectChild2, orCreateDirectChild5, footprints, color3d, val7, val8, color3e, color3f, num27BoundaryPadding, ResolveStarterClusterCenter(layout));
 			EnsurePrimitive(orCreateDirectChild4, "Target_A", (PrimitiveType)2, new Vector3(-layout.TargetX, 0.15f, layout.TargetForwardZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
 			EnsurePrimitive(orCreateDirectChild4, "Target_B", (PrimitiveType)2, new Vector3(layout.TargetX, 0.15f, layout.TargetReturnZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
-			LogRuntimeStageMapSummary(mapRoot, layout, runtimeCityThemeProfile);
+			return runtimeCityThemeProfile;
 		}
 
 		private static void LogRuntimeStageMapSummary(Transform mapRoot, RuntimeStageMapLayout layout, RuntimeCityThemeProfile theme)
@@ -890,13 +892,121 @@ namespace AlienCrusher.Systems
 			Transform targetMarkers = FindDirectChild(mapRoot, "TargetMarkers");
 			Transform targetA = ((Object)(object)targetMarkers != (Object)null) ? FindDirectChild(targetMarkers, "Target_A") : null;
 			Transform targetB = ((Object)(object)targetMarkers != (Object)null) ? FindDirectChild(targetMarkers, "Target_B") : null;
-			int destructibleCount = ((Component)mapRoot).GetComponentsInChildren<DummyDestructibleBlock>(true).Length;
+			DummyDestructibleBlock[] destructibles = ((Component)mapRoot).GetComponentsInChildren<DummyDestructibleBlock>(true);
+			int destructibleCount = destructibles.Length;
 			int reactivePropCount = ((Component)mapRoot).GetComponentsInChildren<DummyStreetPropReactive>(true).Length;
 			int cityObjectCount = CountDescendants(cityBlocks);
 			int microObjectCount = CountDescendants(microProps);
 			int streetObjectCount = CountDescendants(streetProps);
 
 			Debug.Log((object)$"[AlienCrusher][MapLayout] stage={layout.Stage:00} theme={theme} size={layout.MapSize:0.#}m grid={layout.XCells}x{layout.ZCells} destructibles={destructibleCount} city={cityObjectCount} micro={microObjectCount} street={streetObjectCount} reactiveProps={reactivePropCount} targetA={FormatMapPoint(targetA)} targetB={FormatMapPoint(targetB)}");
+			List<string> warnings = new List<string>(6);
+			ValidateRuntimeStageMapLayout(mapRoot, layout, destructibles, targetA, targetB, warnings);
+			if (warnings.Count > 0)
+			{
+				Debug.LogWarning((object)$"[AlienCrusher][MapLayout][WARN] stage={layout.Stage:00} {string.Join("; ", warnings)}");
+			}
+		}
+
+		private static void ValidateRuntimeStageMapLayout(Transform mapRoot, RuntimeStageMapLayout layout, DummyDestructibleBlock[] destructibles, Transform targetA, Transform targetB, List<string> warnings)
+		{
+			if ((Object)(object)mapRoot == (Object)null || warnings == null)
+			{
+				return;
+			}
+
+			int destructibleCount = destructibles != null ? destructibles.Length : 0;
+			int minimumDestructibles = Mathf.Max(52, Mathf.RoundToInt(layout.XCells * layout.ZCells * Mathf.Lerp(0.34f, 0.42f, layout.Growth01)));
+			if (destructibleCount < minimumDestructibles)
+			{
+				warnings.Add($"low destructibles {destructibleCount}/{minimumDestructibles}");
+			}
+
+			int openingCount = CountOpeningDestructibles(destructibles, mapRoot, layout);
+			int minimumOpening = Mathf.Clamp(14 + layout.GrowthTier * 2, 14, 24);
+			if (openingCount < minimumOpening)
+			{
+				warnings.Add($"starter lane sparse {openingCount}/{minimumOpening}");
+			}
+
+			Transform spawn = FindChildByName(null, "PlayerSpawn");
+			if ((Object)(object)spawn == (Object)null)
+			{
+				warnings.Add("missing PlayerSpawn");
+			}
+			else
+			{
+				Vector3 spawnLocal = mapRoot.InverseTransformPoint(spawn.position);
+				if (!IsInsideRuntimeMapBounds(spawnLocal, layout, 1.5f))
+				{
+					warnings.Add($"spawn outside map {FormatMapPoint(spawn)}");
+				}
+				else if (Mathf.Abs(spawnLocal.x) > layout.SpawnLaneHalfWidth + 1.8f || spawnLocal.z > layout.SpawnLaneEndZ + 2f)
+				{
+					warnings.Add($"spawn off starter lane {FormatMapPoint(spawn)}");
+				}
+			}
+
+			ValidateTargetMarker("Target_A", targetA, mapRoot, layout, spawn, warnings);
+			ValidateTargetMarker("Target_B", targetB, mapRoot, layout, spawn, warnings);
+		}
+
+		private static void ValidateTargetMarker(string label, Transform target, Transform mapRoot, RuntimeStageMapLayout layout, Transform spawn, List<string> warnings)
+		{
+			if ((Object)(object)target == (Object)null)
+			{
+				warnings.Add($"missing {label}");
+				return;
+			}
+
+			Vector3 targetLocal = mapRoot.InverseTransformPoint(target.position);
+			if (!IsInsideRuntimeMapBounds(targetLocal, layout, 2.2f))
+			{
+				warnings.Add($"{label} outside map {FormatMapPoint(target)}");
+			}
+
+			if ((Object)(object)spawn != (Object)null)
+			{
+				Vector3 delta = target.position - spawn.position;
+				delta.y = 0f;
+				if (delta.magnitude < 9f)
+				{
+					warnings.Add($"{label} too close to spawn {delta.magnitude:0.#}m");
+				}
+			}
+		}
+
+		private static int CountOpeningDestructibles(DummyDestructibleBlock[] destructibles, Transform mapRoot, RuntimeStageMapLayout layout)
+		{
+			if (destructibles == null || (Object)(object)mapRoot == (Object)null)
+			{
+				return 0;
+			}
+
+			Vector2 center = ResolveStarterClusterCenter(layout);
+			int count = 0;
+			for (int i = 0; i < destructibles.Length; i++)
+			{
+				DummyDestructibleBlock block = destructibles[i];
+				if ((Object)(object)block == (Object)null || !block.transform.IsChildOf(mapRoot))
+				{
+					continue;
+				}
+
+				Vector3 localPosition = mapRoot.InverseTransformPoint(block.transform.position);
+				if (Mathf.Abs(localPosition.x - center.x) <= layout.SpawnLaneHalfWidth + 1.4f && localPosition.z >= center.y - 4.8f && localPosition.z <= center.y + 8.4f)
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		private static bool IsInsideRuntimeMapBounds(Vector3 localPoint, RuntimeStageMapLayout layout, float padding)
+		{
+			float limit = Mathf.Max(1f, layout.HalfExtent - Mathf.Max(0f, padding));
+			return Mathf.Abs(localPoint.x) <= limit && Mathf.Abs(localPoint.z) <= limit;
 		}
 
 		private static int CountDescendants(Transform root)

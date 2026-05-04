@@ -8,6 +8,7 @@
 - 2026-05-04 follow-up: validation/repair now also covers the ROUTE HOLD HUD arrow scaffold (`HudRouteArrow` with child `ArrowText`). A fresh Unity batch run is still needed after the current editor/batch process issue is cleared.
 - 2026-05-04 map follow-up: runtime stage start now rebuilds the managed city map instead of reusing the same static layout forever. Map bounds, lot grid, target markers, spawn position, camera clamp, density, and prop variety now scale across the early stage ramp.
 - Runtime map generation now emits a compact `[AlienCrusher][MapLayout]` console line with stage, theme, map size, grid size, destructible count, prop counts, and target marker positions for quick playtest tuning.
+- Runtime map generation also emits `[AlienCrusher][MapLayout][WARN]` if it detects low destructible density, sparse starter-lane objects, missing/off-lane spawn, missing target markers, out-of-bounds targets, or targets too close to spawn.
 
 ## Work Completed Immediately Before This Handoff
 - Extended `Tools/Alien Crusher/Validate Current Scene` so it also writes a validation report file.
@@ -24,7 +25,7 @@
 - `Assets/Scripts/Editor/AlienCrusherSceneRepair.cs`
   - Targeted editor repair utility for scene essentials, currently ensuring the ROUTE HOLD HUD route indicator and route arrow scaffold exist.
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`
-  - Stage-aware runtime map reset/rebuild flow. Managed map children are cleared safely, then regenerated with larger bounds and more varied lots/props by stage. Emits `[AlienCrusher][MapLayout]` summary logs.
+  - Stage-aware runtime map reset/rebuild flow. Managed map children are cleared safely, then regenerated with larger bounds and more varied lots/props by stage. Emits `[AlienCrusher][MapLayout]` summary logs and `[AlienCrusher][MapLayout][WARN]` safety warnings.
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`
   - Calls runtime map rebuild at stage start before destructible reset and encounter setup.
 - `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`
@@ -55,7 +56,7 @@
 2. If validation reports a missing scene essential, run:
    `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherSceneRepair.RepairCurrentSceneEssentialsBatch -logFile D:\uni\spinball\Logs\AlienCrusherBatchRepairEditor.log`
 3. Confirm `HudRouteArrow/ArrowText` exists under `HUD_Dummy` after repair, then rerun validation.
-4. Run in-editor playtest from Stage 1 through at least Stage 7 and watch `[AlienCrusher][MapLayout]` logs to verify size/grid/destructible/prop counts climb as expected.
+4. Run in-editor playtest from Stage 1 through at least Stage 7 and watch `[AlienCrusher][MapLayout]` logs to verify size/grid/destructible/prop counts climb as expected. Treat any `[AlienCrusher][MapLayout][WARN]` line as a placement bug to tune before visual polish.
 5. Verify the map grows from a compact residential starter layout into denser/wider districts with more cars, props, commercial objects, barrels, transformers, and wider ROUTE HOLD targets.
 6. Verify LANE BREAK appears, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD target/time is readable, and ROUTE HOLD reward fires once.
 7. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, and marker positions based on mobile readability.
