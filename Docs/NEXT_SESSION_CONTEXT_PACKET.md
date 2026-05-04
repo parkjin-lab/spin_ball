@@ -15,6 +15,7 @@
 - Added `Tools/AuditRuntimeMapLayoutStatic.ps1` as a Unity-free fallback audit for Stage 1-7 map growth formulas, spawn/target bounds, landmark placement, and minimum-count thresholds.
 - ROUTE HOLD trail pips now scale their visible count by route distance and hide at very close range, reducing small-screen visual noise while keeping longer routes readable.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
+- Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
 
 ## Work Completed Immediately Before This Handoff
 - Extended `Tools/Alien Crusher/Validate Current Scene` so it also writes a validation report file.
@@ -52,6 +53,8 @@
   - Unity-free map formula audit. It mirrors the runtime growth/landmark placement thresholds and writes `Logs/AlienCrusherMapLayoutStaticAudit.log`.
 - `Tools/AuditRouteHoldTuningStatic.ps1`
   - Unity-free ROUTE HOLD tuning audit. It mirrors stage target, route hold target, deadline, and trail active-pip formulas and writes `Logs/AlienCrusherRouteHoldStaticAudit.log`.
+- `Tools/RunStaticAudits.ps1`
+  - Runs the map layout and ROUTE HOLD static audits together, using `-FailOnWarnings` for both.
 - `Assets/Scripts/Editor/AlienCrusherSceneRepair.cs.meta`
   - Unity-generated meta file for the new editor script.
 - `Assets/Scenes/SampleScene.unity`
@@ -69,6 +72,7 @@
 - Unity batch validation still needs a fresh log-backed successful run after the map rebuild/landmark/audit changes. A 2026-05-04 validation attempt returned process code `0`, but the validation log files still did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs.
 - Unity-free static map audit passed on 2026-05-04 with `Result: 0 error(s), 0 warning(s)`. This does not replace in-editor/playmode validation, but it catches formula regressions while Unity batch is unstable.
 - Unity-free ROUTE HOLD static audit passed on 2026-05-04 with `Result: 0 error(s), 0 warning(s)`. This verifies current route targets, route pressure, and distance-aware trail pip counts across Stage 1-7.
+- `Tools/RunStaticAudits.ps1` passed on 2026-05-04 with `Result: all static audits passed`.
 - Playmode/mobile behavior still needs hands-on verification: route trail visibility, beacon distance readability, target count, reward timing, and reward single-trigger behavior.
 - Trail pips are runtime primitives; verify they are not visually noisy on small Android screens.
 - `DummyFlowController` remains a high-risk mega-controller split across many partials. Extracting ROUTE HOLD / stage route logic is still recommended after behavior is stable.
@@ -87,24 +91,27 @@
    `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 7. Run the ROUTE HOLD fallback audit:
    `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
-8. Run in-editor playtest from Stage 1 through at least Stage 7. Use `F10` for an automatic Stage 1-7 sweep with a short pause per stage, or `F7` to jump forward, `F6` to jump back, `F8` to reset to Stage 1, and `F9` to hide/show the map layout overlay. Watch the overlay and `[AlienCrusher][MapLayout]` logs to verify size/grid/destructible/prop/landmark counts climb as expected.
-9. Verify the map grows from a compact residential starter layout into denser/wider districts with more cars, props, commercial objects, barrels, transformers, landmark districts, and wider ROUTE HOLD targets.
-10. Verify LANE BREAK appears, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD target/time is readable, and ROUTE HOLD reward fires once.
-11. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and marker positions based on mobile readability.
-12. If route pips are still too noisy, increase close-hide distance/min spacing or switch to fewer arrow-shaped pips.
-13. After playtest stability, extract ROUTE HOLD / Stage Route logic out of `DummyFlowController` partials into a smaller dedicated runtime component or service.
+8. Or run all Unity-free audits at once:
+   `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
+9. Run in-editor playtest from Stage 1 through at least Stage 7. Use `F10` for an automatic Stage 1-7 sweep with a short pause per stage, or `F7` to jump forward, `F6` to jump back, `F8` to reset to Stage 1, and `F9` to hide/show the map layout overlay. Watch the overlay and `[AlienCrusher][MapLayout]` logs to verify size/grid/destructible/prop/landmark counts climb as expected.
+10. Verify the map grows from a compact residential starter layout into denser/wider districts with more cars, props, commercial objects, barrels, transformers, landmark districts, and wider ROUTE HOLD targets.
+11. Verify LANE BREAK appears, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD target/time is readable, and ROUTE HOLD reward fires once.
+12. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and marker positions based on mobile readability.
+13. If route pips are still too noisy, increase close-hide distance/min spacing or switch to fewer arrow-shaped pips.
+14. After playtest stability, extract ROUTE HOLD / Stage Route logic out of `DummyFlowController` partials into a smaller dedicated runtime component or service.
 
 ## Next Session Paste Context Packet
 ```text
 Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
 Latest completed work: ROUTE HOLD is wired after LANE BREAK. HUD shows route/hold guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
-Latest validation: Unity batch validation completed successfully on 2026-05-02 with `Result: 0 error(s), 0 warning(s)`. A fresh 2026-05-04 validation batch attempt returned process code `0`, but the validation logs still did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs. Unity-free static map audit and ROUTE HOLD static audit passed on 2026-05-04 with `Result: 0 error(s), 0 warning(s)`, but the map rebuild/landmark/audit/route-hold trail changes still need an in-editor compile/playmode validation pass.
+Latest validation: Unity batch validation completed successfully on 2026-05-02 with `Result: 0 error(s), 0 warning(s)`. A fresh 2026-05-04 validation batch attempt returned process code `0`, but the validation logs still did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs. Unity-free static map audit, ROUTE HOLD static audit, and `Tools/RunStaticAudits.ps1` passed on 2026-05-04, but the map rebuild/landmark/audit/route-hold trail changes still need an in-editor compile/playmode validation pass.
 Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
 Useful validation command: `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherSceneValidator.ValidateCurrentSceneBatch -logFile D:\uni\spinball\Logs\AlienCrusherBatchValidationEditor.log`
 Useful map audit command: `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherMapLayoutAuditor.AuditRuntimeMapLayoutBatch -logFile D:\uni\spinball\Logs\AlienCrusherMapLayoutAuditEditor.log`
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
-Next priority: rerun repair/validation, map layout audit, and ROUTE HOLD tuning audit, confirm `HudRouteArrow/ArrowText` is present, then do a real in-editor/mobile playtest from Stage 1 through Stage 7. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE HOLD readability, trail/beacon clarity, target distance, timer pressure, and that route reward fires once. Then tune route hold values. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
+Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
+Next priority: rerun repair/validation, map layout audit, and combined static audits, confirm `HudRouteArrow/ArrowText` is present, then do a real in-editor/mobile playtest from Stage 1 through Stage 7. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE HOLD readability, trail/beacon clarity, target distance, timer pressure, and that route reward fires once. Then tune route hold values. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
 Known risks: MCP unreliable; no hands-on playmode/mobile pass yet; route pips may be visually noisy; `DummyFlowController` remains an architecture risk; Unity editor shutdown logs a non-blocking temp allocator warning.
 ```
