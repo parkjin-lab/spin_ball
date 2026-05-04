@@ -81,6 +81,13 @@ namespace AlienCrusher.Systems
             SnapToTarget();
         }
 
+        public void SetMapHalfExtent(Vector2 halfExtent)
+        {
+            mapHalfExtent = new Vector2(
+                Mathf.Max(12f, Mathf.Abs(halfExtent.x)),
+                Mathf.Max(12f, Mathf.Abs(halfExtent.y)));
+        }
+
         private void LateUpdate()
         {
             ResolveReferences(forceCreateCamera: true);

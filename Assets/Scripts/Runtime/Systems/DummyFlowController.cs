@@ -1118,6 +1118,13 @@ namespace AlienCrusher.Systems
 		[SerializeField]
 		private RuntimeCityThemeProfile fallbackCityTheme;
 
+		[SerializeField]
+		private bool rebuildRuntimeMapOnStageStart = true;
+
+		[SerializeField]
+		[Min(1)]
+		private int runtimeMapMaxGrowthStage = 7;
+
 		[Header("Scene References")]
 		[SerializeField]
 		private string playerBallName = "PlayerBall";

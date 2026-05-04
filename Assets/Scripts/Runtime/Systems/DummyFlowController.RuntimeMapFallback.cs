@@ -8,6 +8,30 @@ namespace AlienCrusher.Systems
 {
 	public partial class DummyFlowController
 	{
+		private struct RuntimeStageMapLayout
+		{
+			public int Stage;
+			public int GrowthTier;
+			public float Growth01;
+			public float MapSize;
+			public float HalfExtent;
+			public float CellSize;
+			public int XCells;
+			public int ZCells;
+			public float GridStartX;
+			public float GridStartZ;
+			public int OpeningRows;
+			public int RoadRowStride;
+			public int RoadColumnStride;
+			public float SpawnLaneEndZ;
+			public float SpawnLaneHalfWidth;
+			public float LowDistrictEndZ;
+			public float MidDistrictEndZ;
+			public float TargetX;
+			public float TargetForwardZ;
+			public float TargetReturnZ;
+		}
+
 		private void EnsureRuntimeMapFallback()
 		{
 			//IL_0028: Unknown result type (might be due to invalid IL or missing references)
@@ -20,15 +44,80 @@ namespace AlienCrusher.Systems
 					val = new GameObject("_Gameplay").transform;
 				}
 				Transform orCreateDirectChild = GetOrCreateDirectChild(val, "MapRoot");
-				BuildFallbackMap(orCreateDirectChild);
-				EnsureSpawnPointFallback(val);
+				RuntimeStageMapLayout layout = ResolveRuntimeStageMapLayout();
+				BuildFallbackMap(orCreateDirectChild, layout);
+				EnsureSpawnPointFallback(val, layout);
 				Debug.Log((object)"[AlienCrusher] Destructible density was low, so fallback map objects were generated at runtime.");
 				return;
 			}
 			EnsureOpeningDestructionDensity(existingDestructibles);
 		}
 
-		private void BuildFallbackMap(Transform mapRoot)
+		private void RebuildRuntimeStageMap()
+		{
+			if (!rebuildRuntimeMapOnStageStart)
+			{
+				return;
+			}
+
+			Transform gameplayRoot = FindChildByName(null, "_Gameplay");
+			if ((Object)(object)gameplayRoot == (Object)null)
+			{
+				gameplayRoot = new GameObject("_Gameplay").transform;
+			}
+
+			RuntimeStageMapLayout layout = ResolveRuntimeStageMapLayout();
+			Transform mapRoot = GetOrCreateDirectChild(gameplayRoot, "MapRoot");
+			BuildFallbackMap(mapRoot, layout);
+			EnsureSpawnPointFallback(gameplayRoot, layout);
+			ApplyRuntimeMapCameraBounds(layout);
+			Debug.Log((object)$"[AlienCrusher] Runtime stage map rebuilt for stage {layout.Stage:00}: {layout.MapSize:0.#}m, {layout.XCells}x{layout.ZCells} lots.");
+		}
+
+		private RuntimeStageMapLayout ResolveRuntimeStageMapLayout()
+		{
+			int stage = Mathf.Max(1, currentStageNumber);
+			int maxGrowthStage = Mathf.Max(1, runtimeMapMaxGrowthStage);
+			int growthTier = Mathf.Clamp(stage - 1, 0, maxGrowthStage - 1);
+			float growth01 = (maxGrowthStage <= 1) ? 0f : Mathf.Clamp01((float)growthTier / (float)(maxGrowthStage - 1));
+			float mapSize = Mathf.Lerp(44f, 62f, growth01);
+			float cellSize = Mathf.Lerp(2.8f, 3.05f, growth01);
+			int cells = Mathf.Clamp(13 + growthTier, 13, 19);
+			float gridWidth = (cells - 1) * cellSize;
+
+			RuntimeStageMapLayout layout = default;
+			layout.Stage = stage;
+			layout.GrowthTier = growthTier;
+			layout.Growth01 = growth01;
+			layout.MapSize = mapSize;
+			layout.HalfExtent = mapSize * 0.5f;
+			layout.CellSize = cellSize;
+			layout.XCells = cells;
+			layout.ZCells = cells;
+			layout.GridStartX = gridWidth * -0.5f;
+			layout.GridStartZ = gridWidth * -0.5f - Mathf.Lerp(1.2f, 0.25f, growth01);
+			layout.OpeningRows = Mathf.Clamp(4 + growthTier / 2, 4, 7);
+			layout.RoadRowStride = stage >= 5 ? 4 : 5;
+			layout.RoadColumnStride = stage >= 4 ? 5 : 6;
+			layout.SpawnLaneEndZ = layout.GridStartZ + cellSize * 2.45f;
+			layout.SpawnLaneHalfWidth = Mathf.Lerp(4.8f, 6.4f, growth01);
+			layout.LowDistrictEndZ = Mathf.Lerp(1.5f, 4.2f, growth01);
+			layout.MidDistrictEndZ = Mathf.Lerp(9.5f, 16.5f, growth01);
+			layout.TargetX = Mathf.Lerp(13.5f, 22f, growth01);
+			layout.TargetForwardZ = Mathf.Lerp(11.5f, 21f, growth01);
+			layout.TargetReturnZ = Mathf.Lerp(-11.5f, -20f, growth01);
+			return layout;
+		}
+
+		private void ApplyRuntimeMapCameraBounds(RuntimeStageMapLayout layout)
+		{
+			if ((Object)(object)cameraFollowSystem != (Object)null)
+			{
+				cameraFollowSystem.SetMapHalfExtent(new Vector2(layout.HalfExtent - 2f, layout.HalfExtent - 2f));
+			}
+		}
+
+		private void BuildFallbackMap(Transform mapRoot, RuntimeStageMapLayout layout)
 		{
 			//IL_0502: Unknown result type (might be due to invalid IL or missing references)
 			//IL_0516: Unknown result type (might be due to invalid IL or missing references)
@@ -109,7 +198,7 @@ namespace AlienCrusher.Systems
 			//IL_0cfd: Unknown result type (might be due to invalid IL or missing references)
 			//IL_0d02: Unknown result type (might be due to invalid IL or missing references)
 			RuntimeCityThemeProfile runtimeCityThemeProfile = ResolveFallbackCityTheme(mapRoot);
-			System.Random random = new System.Random(2117 + (int)runtimeCityThemeProfile * 97);
+			System.Random random = new System.Random(2117 + (int)runtimeCityThemeProfile * 97 + layout.Stage * 389);
 			Color color = default(Color);
 			color = new Color(0.06f, 0.09f, 0.14f);
 			Color color2 = default(Color);
@@ -261,11 +350,25 @@ namespace AlienCrusher.Systems
 				color3f = new Color(0.28f, 0.82f, 0.98f, 1f);
 				break;
 			}
-			EnsurePrimitive(mapRoot, "Ground", (PrimitiveType)3, new Vector3(0f, -0.5f, 0f), new Vector3(50f, 1f, 50f), color);
-			EnsurePrimitive(mapRoot, "Wall_North", (PrimitiveType)3, new Vector3(0f, 2f, 25f), new Vector3(50f, 4f, 1f), color2);
-			EnsurePrimitive(mapRoot, "Wall_South", (PrimitiveType)3, new Vector3(0f, 2f, -25f), new Vector3(50f, 4f, 1f), color2);
-			EnsurePrimitive(mapRoot, "Wall_East", (PrimitiveType)3, new Vector3(25f, 2f, 0f), new Vector3(1f, 4f, 50f), color2);
-			EnsurePrimitive(mapRoot, "Wall_West", (PrimitiveType)3, new Vector3(-25f, 2f, 0f), new Vector3(1f, 4f, 50f), color2);
+			num = Mathf.Clamp01(num + layout.Growth01 * 0.08f);
+			num2 = Mathf.Clamp01(num2 + layout.Growth01 * 0.08f);
+			num3 = Mathf.Clamp01(num3 + layout.Growth01 * 0.07f);
+			num4 = Mathf.Clamp01(num4 + layout.Growth01 * 0.05f);
+			num5 = Mathf.Clamp01(num5 + layout.Growth01 * 0.05f);
+			num6 = Mathf.Max(num6, layout.LowDistrictEndZ);
+			num7 = Mathf.Max(num7, layout.MidDistrictEndZ);
+			num10 = Mathf.Clamp01(num10 + layout.Growth01 * 0.14f);
+			num16 += layout.Growth01 * 0.65f;
+			num20 += layout.Growth01 * 0.9f;
+			num22 += layout.Growth01 * 1.8f;
+			num25e = Mathf.Clamp01(num25e + layout.Growth01 * 0.12f);
+			num25f = Mathf.Clamp01(num25f + layout.Growth01 * 0.12f);
+			num25g = Mathf.Clamp01(num25g + layout.Growth01 * 0.1f);
+			EnsurePrimitive(mapRoot, "Ground", (PrimitiveType)3, new Vector3(0f, -0.5f, 0f), new Vector3(layout.MapSize, 1f, layout.MapSize), color);
+			EnsurePrimitive(mapRoot, "Wall_North", (PrimitiveType)3, new Vector3(0f, 2f, layout.HalfExtent), new Vector3(layout.MapSize, 4f, 1f), color2);
+			EnsurePrimitive(mapRoot, "Wall_South", (PrimitiveType)3, new Vector3(0f, 2f, -layout.HalfExtent), new Vector3(layout.MapSize, 4f, 1f), color2);
+			EnsurePrimitive(mapRoot, "Wall_East", (PrimitiveType)3, new Vector3(layout.HalfExtent, 2f, 0f), new Vector3(1f, 4f, layout.MapSize), color2);
+			EnsurePrimitive(mapRoot, "Wall_West", (PrimitiveType)3, new Vector3(-layout.HalfExtent, 2f, 0f), new Vector3(1f, 4f, layout.MapSize), color2);
 			Transform orCreateDirectChild = GetOrCreateDirectChild(mapRoot, "CityBlocks");
 			Transform orCreateDirectChild2 = GetOrCreateDirectChild(mapRoot, "MicroProps");
 			Transform orCreateDirectChild3 = GetOrCreateDirectChild(mapRoot, "StreetProps");
@@ -276,9 +379,9 @@ namespace AlienCrusher.Systems
 			ClearChildrenRuntime(orCreateDirectChild3);
 			ClearChildrenRuntime(orCreateDirectChild4);
 			ClearChildrenRuntime(orCreateDirectChild5);
-			float num27 = -24.650002f;
-			float num28 = -20f;
-			int num29 = Mathf.CeilToInt(7.9f);
+			float num27 = layout.GridStartX;
+			float num28 = layout.GridStartZ;
+			int num29 = layout.OpeningRows;
 			int num30 = 0;
 			int num31 = 0;
 			int num32 = 0;
@@ -286,30 +389,30 @@ namespace AlienCrusher.Systems
 			int num34 = 0;
 			int num35 = 0;
 			int num36 = 0;
-			List<Vector4> footprints = new List<Vector4>(270);
+			List<Vector4> footprints = new List<Vector4>(layout.XCells * layout.ZCells);
 			Vector3 val11 = default(Vector3);
 			Vector3 val12 = default(Vector3);
 			Vector3 val15 = default(Vector3);
-			for (int i = 0; i < 15; i++)
+			for (int i = 0; i < layout.ZCells; i++)
 			{
-				float num37 = num28 + (float)i * 2.9f;
-				bool flag = i % 5 == 2;
-				for (int j = 0; j < 18; j++)
+				float num37 = num28 + (float)i * layout.CellSize;
+				bool flag = i % layout.RoadRowStride == 2;
+				for (int j = 0; j < layout.XCells; j++)
 				{
-					float num38 = num27 + (float)j * 2.9f;
-					bool flag2 = j % 6 == 3;
-					bool flag3 = num37 < -13.5f && Mathf.Abs(num38) < 5.4f;
-					bool flag3a = num37 > num7 + 3.2f && Mathf.Abs(num38) < 4.4f;
-					Vector3 val15a = new Vector3(2.668f, 0.02f, 2.668f);
+					float num38 = num27 + (float)j * layout.CellSize;
+					bool flag2 = j % layout.RoadColumnStride == 3;
+					bool flag3 = num37 < layout.SpawnLaneEndZ && Mathf.Abs(num38) < layout.SpawnLaneHalfWidth;
+					bool flag3a = num37 > num7 + 3.2f && Mathf.Abs(num38) < Mathf.Lerp(4.4f, 6f, layout.Growth01);
+					Vector3 val15a = new Vector3(layout.CellSize * 0.92f, 0.02f, layout.CellSize * 0.92f);
 					if (flag || flag2)
 					{
 						EnsurePrimitive(orCreateDirectChild5, $"RoadTile_{i:00}_{j:00}", (PrimitiveType)3, new Vector3(num38, -0.01f, num37), val15a, color3b);
 					}
 					else if (!flag3)
 					{
-						float num38a = Mathf.InverseLerp(-20f, 20f, num37);
+						float num38a = Mathf.InverseLerp(layout.GridStartZ, layout.GridStartZ + (layout.ZCells - 1) * layout.CellSize, num37);
 						Color lotColor = Color.Lerp(color3c, color3d, num38a * 0.65f);
-						EnsurePrimitive(orCreateDirectChild5, $"LotTile_{i:00}_{j:00}", (PrimitiveType)3, new Vector3(num38, -0.015f, num37), new Vector3(2.494f, 0.015f, 2.494f), lotColor);
+						EnsurePrimitive(orCreateDirectChild5, $"LotTile_{i:00}_{j:00}", (PrimitiveType)3, new Vector3(num38, -0.015f, num37), new Vector3(layout.CellSize * 0.86f, 0.015f, layout.CellSize * 0.86f), lotColor);
 						if (flag3a)
 						{
 							EnsurePrimitive(orCreateDirectChild5, $"BossApproachLane_{i:00}_{j:00}", (PrimitiveType)3, new Vector3(num38, -0.007f, num37), new Vector3(1.34f, 0.01f, 0.24f), new Color(color3h.r, color3h.g, color3h.b, 0.34f));
@@ -379,7 +482,7 @@ namespace AlienCrusher.Systems
 						}
 						continue;
 					}
-					float num39 = Mathf.InverseLerp(-20f, 20f, num37);
+					float num39 = Mathf.InverseLerp(layout.GridStartZ, layout.GridStartZ + (layout.ZCells - 1) * layout.CellSize, num37);
 					bool flag4 = num37 < num6;
 					bool flag5 = num37 >= num6 && num37 < num7;
 					float num39a = num8;
@@ -421,7 +524,7 @@ namespace AlienCrusher.Systems
 					}
 					float halfX = num45 * 0.5f + num26;
 					float halfZ = num46 * 0.5f + num26;
-					Vector2 val13 = ClampFootprintCenterToMapInterior(num49, num50, halfX, halfZ, num27BoundaryPadding);
+					Vector2 val13 = ClampFootprintCenterToMapInterior(num49, num50, halfX, halfZ, num27BoundaryPadding, layout.HalfExtent);
 					num49 = val13.x;
 					num50 = val13.y;
 					if (OverlapsAnyFootprintRuntime(footprints, num49, num50, halfX, halfZ))
@@ -490,7 +593,7 @@ namespace AlienCrusher.Systems
 								halfZ4 = 0.4f;
 								val13f.y = 0f;
 							}
-							Vector2 val13h = ClampFootprintCenterToMapInterior(val13f.x, val13f.z, halfX4, halfZ4, num27BoundaryPadding);
+							Vector2 val13h = ClampFootprintCenterToMapInterior(val13f.x, val13f.z, halfX4, halfZ4, num27BoundaryPadding, layout.HalfExtent);
 							val13f.x = val13h.x;
 							val13f.z = val13h.y;
 							if (OverlapsAnyFootprintRuntime(footprints, val13f.x, val13f.z, halfX4, halfZ4))
@@ -561,7 +664,7 @@ namespace AlienCrusher.Systems
 							Vector3 val13d = new Vector3(Mathf.Lerp(0.66f, 0.96f, (float)random.NextDouble()), Mathf.Lerp(0.72f, 1.06f, (float)random.NextDouble()), Mathf.Lerp(0.5f, 0.76f, (float)random.NextDouble()));
 							float halfX2 = Mathf.Max(0.24f, val13d.x * 0.5f);
 							float halfZ2 = Mathf.Max(0.2f, val13d.z * 0.5f);
-							Vector2 val13e = ClampFootprintCenterToMapInterior(val13c.x, val13c.z, halfX2, halfZ2, num27BoundaryPadding);
+							Vector2 val13e = ClampFootprintCenterToMapInterior(val13c.x, val13c.z, halfX2, halfZ2, num27BoundaryPadding, layout.HalfExtent);
 							val13c.x = val13e.x;
 							val13c.z = val13e.y;
 							if (OverlapsAnyFootprintRuntime(footprints, val13c.x, val13c.z, halfX2, halfZ2))
@@ -614,7 +717,7 @@ namespace AlienCrusher.Systems
 						float num57 = num50 + num55;
 						float halfX2 = num51 * 0.5f + Mathf.Max(0.18f, num26 * 0.5f);
 						float halfZ2 = num52 * 0.5f + Mathf.Max(0.18f, num26 * 0.5f);
-						Vector2 val13a = ClampFootprintCenterToMapInterior(num56, num57, halfX2, halfZ2, num27BoundaryPadding);
+						Vector2 val13a = ClampFootprintCenterToMapInterior(num56, num57, halfX2, halfZ2, num27BoundaryPadding, layout.HalfExtent);
 						num56 = val13a.x;
 						num57 = val13a.y;
 						if (!OverlapsAnyFootprintRuntime(footprints, num56, num57, halfX2, halfZ2))
@@ -648,7 +751,7 @@ namespace AlienCrusher.Systems
 							Vector3 val14a = new Vector3(flag7a ? (num60a + num62) : num60a, 0.21f, flag7a ? num61a : (num61a + num62));
 							float halfX2 = flag7a ? 0.52f : 0.12f;
 							float halfZ2 = flag7a ? 0.12f : 0.52f;
-							Vector2 val14b = ClampFootprintCenterToMapInterior(val14a.x, val14a.z, halfX2, halfZ2, num27BoundaryPadding);
+							Vector2 val14b = ClampFootprintCenterToMapInterior(val14a.x, val14a.z, halfX2, halfZ2, num27BoundaryPadding, layout.HalfExtent);
 							val14a.x = val14b.x;
 							val14a.z = val14b.y;
 							if (!OverlapsAnyFootprintRuntime(footprints, val14a.x, val14a.z, halfX2, halfZ2))
@@ -702,7 +805,7 @@ namespace AlienCrusher.Systems
 								break;
 							}
 						}
-						Vector2 val17 = ClampFootprintCenterToMapInterior(val15.x, val15.z, halfX3, halfZ3, num27BoundaryPadding);
+						Vector2 val17 = ClampFootprintCenterToMapInterior(val15.x, val15.z, halfX3, halfZ3, num27BoundaryPadding, layout.HalfExtent);
 						val15.x = val17.x;
 						val15.z = val17.y;
 						if (!OverlapsAnyFootprintRuntime(footprints, val15.x, val15.z, halfX3, halfZ3))
@@ -739,7 +842,7 @@ namespace AlienCrusher.Systems
 						Vector3 val19 = new Vector3(Mathf.Lerp(0.7f, 1.25f, (float)random.NextDouble()), Mathf.Lerp(0.75f, 1.2f, (float)random.NextDouble()), Mathf.Lerp(0.52f, 0.9f, (float)random.NextDouble()));
 						float halfX3 = Mathf.Max(0.26f, val19.x * 0.5f);
 						float halfZ3 = Mathf.Max(0.22f, val19.z * 0.5f);
-						Vector2 val20 = ClampFootprintCenterToMapInterior(val18a.x, val18a.z, halfX3, halfZ3, num27BoundaryPadding);
+						Vector2 val20 = ClampFootprintCenterToMapInterior(val18a.x, val18a.z, halfX3, halfZ3, num27BoundaryPadding, layout.HalfExtent);
 						val18a.x = val20.x;
 						val18a.z = val20.y;
 						if (!OverlapsAnyFootprintRuntime(footprints, val18a.x, val18a.z, halfX3, halfZ3))
@@ -768,10 +871,10 @@ namespace AlienCrusher.Systems
 					}
 				}
 			}
-			EnsureStarterDestructionCluster(orCreateDirectChild, orCreateDirectChild2, orCreateDirectChild5, footprints, color3d, val7, val8, color3e, color3f, num27BoundaryPadding);
-			EnsurePrimitive(orCreateDirectChild4, "Target_A", (PrimitiveType)2, new Vector3(-15f, 0.15f, 12f), new Vector3(1.5f, 0.15f, 1.5f), color3);
-			EnsurePrimitive(orCreateDirectChild4, "Target_B", (PrimitiveType)2, new Vector3(15f, 0.15f, -12f), new Vector3(1.5f, 0.15f, 1.5f), color3);
-			Debug.Log((object)$"[AlienCrusher] Runtime city theme generated: {runtimeCityThemeProfile}");
+			EnsureStarterDestructionCluster(orCreateDirectChild, orCreateDirectChild2, orCreateDirectChild5, footprints, color3d, val7, val8, color3e, color3f, num27BoundaryPadding, ResolveStarterClusterCenter(layout));
+			EnsurePrimitive(orCreateDirectChild4, "Target_A", (PrimitiveType)2, new Vector3(-layout.TargetX, 0.15f, layout.TargetForwardZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
+			EnsurePrimitive(orCreateDirectChild4, "Target_B", (PrimitiveType)2, new Vector3(layout.TargetX, 0.15f, layout.TargetReturnZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
+			Debug.Log((object)$"[AlienCrusher] Runtime city theme generated: {runtimeCityThemeProfile}, stage {layout.Stage:00}, size {layout.MapSize:0.#}");
 		}
 
 		private void EnsureOpeningDestructionDensity(DummyDestructibleBlock[] existingDestructibles)
@@ -846,14 +949,24 @@ namespace AlienCrusher.Systems
 			return footprints;
 		}
 
+		private static Vector2 ResolveStarterClusterCenter(RuntimeStageMapLayout layout)
+		{
+			return new Vector2(0f, Mathf.Lerp(-16.2f, layout.GridStartZ + layout.CellSize * 1.2f, layout.Growth01));
+		}
+
 		private static void EnsureStarterDestructionCluster(Transform cityBlocksRoot, Transform microPropsRoot, Transform groundDetailsRoot, List<Vector4> footprints, Color asphaltColor, Color smallBlockColorA, Color smallBlockColorB, Color commercialColorA, Color commercialColorB, float mapPadding)
+		{
+			EnsureStarterDestructionCluster(cityBlocksRoot, microPropsRoot, groundDetailsRoot, footprints, asphaltColor, smallBlockColorA, smallBlockColorB, commercialColorA, commercialColorB, mapPadding, new Vector2(0f, -16.2f));
+		}
+
+		private static void EnsureStarterDestructionCluster(Transform cityBlocksRoot, Transform microPropsRoot, Transform groundDetailsRoot, List<Vector4> footprints, Color asphaltColor, Color smallBlockColorA, Color smallBlockColorB, Color commercialColorA, Color commercialColorB, float mapPadding, Vector2 center)
 		{
 			if ((Object)(object)cityBlocksRoot == (Object)null || footprints == null)
 			{
 				return;
 			}
 			Vector2 val = default(Vector2);
-			val = new Vector2(0f, -16.2f);
+			val = center;
 			EnsurePrimitive(groundDetailsRoot, "StarterParkingPad", (PrimitiveType)3, new Vector3(val.x, -0.012f, val.y), new Vector3(8.6f, 0.014f, 5.8f), asphaltColor);
 			for (int i = 0; i < 5; i++)
 			{
@@ -1236,10 +1349,10 @@ namespace AlienCrusher.Systems
 			footprints.Add(new Vector4(x, z, halfX, halfZ));
 		}
 
-		private static Vector2 ClampFootprintCenterToMapInterior(float x, float z, float halfX, float halfZ, float padding)
+		private static Vector2 ClampFootprintCenterToMapInterior(float x, float z, float halfX, float halfZ, float padding, float mapHalfExtent = 25f)
 		{
-			float num = Mathf.Max(0.5f, 25f - Mathf.Max(0f, padding) - Mathf.Max(0f, halfX));
-			float num2 = Mathf.Max(0.5f, 25f - Mathf.Max(0f, padding) - Mathf.Max(0f, halfZ));
+			float num = Mathf.Max(0.5f, Mathf.Max(1f, mapHalfExtent) - Mathf.Max(0f, padding) - Mathf.Max(0f, halfX));
+			float num2 = Mathf.Max(0.5f, Mathf.Max(1f, mapHalfExtent) - Mathf.Max(0f, padding) - Mathf.Max(0f, halfZ));
 			return new Vector2(Mathf.Clamp(x, -num, num), Mathf.Clamp(z, -num2, num2));
 		}
 
@@ -1254,24 +1367,27 @@ namespace AlienCrusher.Systems
 				Transform child = root.GetChild(num);
 				if (!((Object)(object)child == (Object)null))
 				{
+					GameObject childObject = ((Component)child).gameObject;
 					if (Application.isPlaying)
 					{
-						Object.Destroy((Object)(object)((Component)child).gameObject);
+						childObject.SetActive(false);
+						child.SetParent(null, false);
+						Object.Destroy((Object)(object)childObject);
 					}
 					else
 					{
-						Object.DestroyImmediate((Object)(object)((Component)child).gameObject);
+						Object.DestroyImmediate((Object)(object)childObject);
 					}
 				}
 			}
 		}
 
-		private void EnsureSpawnPointFallback(Transform gameplayRoot)
+		private void EnsureSpawnPointFallback(Transform gameplayRoot, RuntimeStageMapLayout layout)
 		{
 			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
 			//IL_002f: Unknown result type (might be due to invalid IL or missing references)
 			Transform orCreateDirectChild = GetOrCreateDirectChild(GetOrCreateDirectChild(gameplayRoot, "SpawnRoot"), "PlayerSpawn");
-			orCreateDirectChild.localPosition = new Vector3(0f, 0.6f, -18f);
+			orCreateDirectChild.localPosition = new Vector3(0f, 0.6f, Mathf.Max(-layout.HalfExtent + 4f, layout.GridStartZ - 0.8f));
 			orCreateDirectChild.localRotation = Quaternion.identity;
 		}
 	}

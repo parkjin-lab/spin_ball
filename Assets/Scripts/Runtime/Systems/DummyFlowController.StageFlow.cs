@@ -16,6 +16,7 @@ namespace AlienCrusher.Systems
 			scoreSystem?.ResetScore();
 			scoreSystem?.BreakChain();
 			ballGrowthSystem?.ResetGrowth();
+			RebuildRuntimeStageMap();
 			ResetAllDestructibles();
 			ConfigureStageEncounter();
 			ResetPlayerToSpawn();
