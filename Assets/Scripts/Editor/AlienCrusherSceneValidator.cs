@@ -104,6 +104,8 @@ namespace AlienCrusher.EditorTools
             CheckFloat(serialized, "routeHoldCounterDuration", 0.1f, 10f, report, ref warnings);
             CheckInt(serialized, "routeHoldTrailPipCount", 3, 8, report, ref warnings);
             CheckFloat(serialized, "routeHoldTrailMaxDistance", 4f, 40f, report, ref warnings);
+            CheckFloat(serialized, "routeHoldTrailMinPipSpacing", 0.75f, 4f, report, ref warnings);
+            CheckFloat(serialized, "routeHoldTrailCloseHideDistance", 0.75f, 6f, report, ref warnings);
         }
 
         private static void CheckRequiredComponent<T>(StringBuilder report, ref int count, string label) where T : Object

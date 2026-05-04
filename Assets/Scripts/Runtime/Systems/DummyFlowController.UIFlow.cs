@@ -768,7 +768,7 @@ namespace AlienCrusher.Systems
 			Vector3 delta = end - start;
 			delta.y = 0f;
 			float distance = delta.magnitude;
-			if (distance <= 0.75f)
+			if (distance <= Mathf.Max(0.75f, routeHoldTrailCloseHideDistance))
 			{
 				SetRouteHoldTrailVisible(false);
 				return;
@@ -777,6 +777,8 @@ namespace AlienCrusher.Systems
 			float visibleDistance = Mathf.Min(distance, Mathf.Max(4f, routeHoldTrailMaxDistance));
 			float pulse = Mathf.PingPong(Time.time * 3.8f, 1f);
 			int count = routeHoldTrailPips.Length;
+			int activeCount = ResolveRouteHoldTrailActivePipCount(visibleDistance, count);
+			float distanceScale = Mathf.InverseLerp(Mathf.Max(0.75f, routeHoldTrailCloseHideDistance), Mathf.Max(4f, routeHoldTrailMaxDistance), visibleDistance);
 			for (int i = 0; i < count; i++)
 			{
 				Transform pip = routeHoldTrailPips[i];
@@ -784,13 +786,20 @@ namespace AlienCrusher.Systems
 				{
 					continue;
 				}
-				float t = (i + 1f) / (count + 1f);
+				if (i >= activeCount)
+				{
+					((Component)pip).gameObject.SetActive(false);
+					continue;
+				}
+				float t = (i + 1f) / (activeCount + 1f);
 				Vector3 position = start + direction * (visibleDistance * t);
 				position.y = 0.055f + 0.012f * Mathf.Sin((Time.time * 5.2f) + i * 0.85f);
 				pip.position = position;
 				pip.rotation = Quaternion.LookRotation(direction, Vector3.up);
 				float scalePulse = 1f + 0.18f * Mathf.Sin((Time.time * 5.8f) - i * 0.75f);
-				pip.localScale = new Vector3(0.28f + 0.06f * pulse, 0.018f, (0.55f + 0.18f * t) * scalePulse);
+				float width = Mathf.Lerp(0.2f, 0.28f, distanceScale) + 0.045f * pulse;
+				float length = Mathf.Lerp(0.4f, 0.55f, distanceScale) + 0.18f * t;
+				pip.localScale = new Vector3(width, 0.018f, length * scalePulse);
 				((Component)pip).gameObject.SetActive(true);
 				Renderer renderer = ((Component)pip).GetComponent<Renderer>();
 				if ((Object)(object)renderer != (Object)null)
@@ -803,6 +812,19 @@ namespace AlienCrusher.Systems
 					renderer.SetPropertyBlock(block);
 				}
 			}
+		}
+
+		private int ResolveRouteHoldTrailActivePipCount(float visibleDistance, int allocatedCount)
+		{
+			int maxCount = Mathf.Clamp(allocatedCount, 0, Mathf.Clamp(routeHoldTrailPipCount, 3, 8));
+			if (maxCount <= 0)
+			{
+				return 0;
+			}
+
+			float spacing = Mathf.Max(0.75f, routeHoldTrailMinPipSpacing);
+			int distanceCount = Mathf.FloorToInt(visibleDistance / spacing);
+			return Mathf.Clamp(distanceCount, Mathf.Min(2, maxCount), maxCount);
 		}
 
 		private void EnsureRouteHoldTrailPips()

@@ -462,6 +462,12 @@ namespace AlienCrusher.Systems
 		private float routeHoldTrailMaxDistance = 18f;
 
 		[SerializeField]
+		private float routeHoldTrailMinPipSpacing = 1.65f;
+
+		[SerializeField]
+		private float routeHoldTrailCloseHideDistance = 2.4f;
+
+		[SerializeField]
 		private Color routeHoldTrailColor = new Color(1f, 0.88f, 0.28f, 0.88f);
 
 		[SerializeField]
