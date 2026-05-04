@@ -15,6 +15,7 @@
 - Added `Tools/AuditRuntimeMapLayoutStatic.ps1` as a Unity-free fallback audit for Stage 1-7 map growth formulas, spawn/target bounds, landmark placement, and minimum-count thresholds.
 - ROUTE HOLD trail pips now scale their visible count by route distance and hide at very close range, reducing small-screen visual noise while keeping longer routes readable.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
+- `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
 - Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
 
 ## Work Completed Immediately Before This Handoff
@@ -52,7 +53,7 @@
 - `Tools/AuditRuntimeMapLayoutStatic.ps1`
   - Unity-free map formula audit. It mirrors the runtime growth/landmark placement thresholds and writes `Logs/AlienCrusherMapLayoutStaticAudit.log`.
 - `Tools/AuditRouteHoldTuningStatic.ps1`
-  - Unity-free ROUTE HOLD tuning audit. It mirrors stage target, route hold target, deadline, and trail active-pip formulas and writes `Logs/AlienCrusherRouteHoldStaticAudit.log`.
+  - Unity-free ROUTE HOLD tuning audit. It reads the relevant runtime C# default fields, mirrors stage target, route hold target, deadline, and trail active-pip formulas, then writes `Logs/AlienCrusherRouteHoldStaticAudit.log`.
 - `Tools/RunStaticAudits.ps1`
   - Runs the map layout and ROUTE HOLD static audits together, using `-FailOnWarnings` for both.
 - `Assets/Scripts/Editor/AlienCrusherSceneRepair.cs.meta`
@@ -71,7 +72,7 @@
 - A titleless Unity process was observed during the 2026-05-04 follow-up; batch repair/validation did not refresh the 2026-05-02 logs. Clear the stale editor process before relying on fresh batch results.
 - Unity batch validation still needs a fresh log-backed successful run after the map rebuild/landmark/audit changes. A 2026-05-04 validation attempt returned process code `0`, but the validation log files still did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs.
 - Unity-free static map audit passed on 2026-05-04 with `Result: 0 error(s), 0 warning(s)`. This does not replace in-editor/playmode validation, but it catches formula regressions while Unity batch is unstable.
-- Unity-free ROUTE HOLD static audit passed on 2026-05-04 with `Result: 0 error(s), 0 warning(s)`. This verifies current route targets, route pressure, and distance-aware trail pip counts across Stage 1-7.
+- Unity-free ROUTE HOLD static audit passed on 2026-05-04 with `Result: 0 error(s), 0 warning(s)`. It now parses the current C# default tuning fields before verifying route targets, route pressure, and distance-aware trail pip counts across Stage 1-7.
 - `Tools/RunStaticAudits.ps1` passed on 2026-05-04 with `Result: all static audits passed`.
 - Playmode/mobile behavior still needs hands-on verification: route trail visibility, beacon distance readability, target count, reward timing, and reward single-trigger behavior.
 - Trail pips are runtime primitives; verify they are not visually noisy on small Android screens.
@@ -105,7 +106,7 @@
 Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
 Latest completed work: ROUTE HOLD is wired after LANE BREAK. HUD shows route/hold guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
-Latest validation: Unity batch validation completed successfully on 2026-05-02 with `Result: 0 error(s), 0 warning(s)`. A fresh 2026-05-04 validation batch attempt returned process code `0`, but the validation logs still did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs. Unity-free static map audit, ROUTE HOLD static audit, and `Tools/RunStaticAudits.ps1` passed on 2026-05-04, but the map rebuild/landmark/audit/route-hold trail changes still need an in-editor compile/playmode validation pass.
+Latest validation: Unity batch validation completed successfully on 2026-05-02 with `Result: 0 error(s), 0 warning(s)`. A fresh 2026-05-04 validation batch attempt returned process code `0`, but the validation logs still did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs. Unity-free static map audit, ROUTE HOLD static audit, and `Tools/RunStaticAudits.ps1` passed on 2026-05-04. The ROUTE HOLD static audit now reads its default tuning values from the runtime C# fields before running, but the map rebuild/landmark/audit/route-hold trail changes still need an in-editor compile/playmode validation pass.
 Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
 Useful validation command: `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherSceneValidator.ValidateCurrentSceneBatch -logFile D:\uni\spinball\Logs\AlienCrusherBatchValidationEditor.log`
 Useful map audit command: `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherMapLayoutAuditor.AuditRuntimeMapLayoutBatch -logFile D:\uni\spinball\Logs\AlienCrusherMapLayoutAuditEditor.log`

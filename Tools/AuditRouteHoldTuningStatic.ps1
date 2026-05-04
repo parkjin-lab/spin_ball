@@ -3,6 +3,8 @@ param(
     [int]$MaxStage = 7,
     [int]$MaxGrowthStage = 7,
     [string]$ReportPath = "",
+    [string]$RuntimeConfigPath = "",
+    [string]$GameFlowConfigPath = "",
     [switch]$FailOnWarnings
 )
 
@@ -22,6 +24,66 @@ function Clamp-Int {
 function Lerp {
     param([double]$A, [double]$B, [double]$T)
     return $A + (($B - $A) * $T)
+}
+
+function Resolve-ProjectPath {
+    param([string]$OverridePath, [string]$RelativePath)
+
+    $projectRoot = Split-Path -Parent $PSScriptRoot
+    if (-not [string]::IsNullOrWhiteSpace($OverridePath)) {
+        if ([System.IO.Path]::IsPathRooted($OverridePath)) {
+            return $OverridePath
+        }
+
+        return Join-Path $projectRoot $OverridePath
+    }
+
+    return Join-Path $projectRoot $RelativePath
+}
+
+function Read-SourceText {
+    param(
+        [string]$Path,
+        [string]$Label,
+        [System.Collections.Generic.List[string]]$Warnings
+    )
+
+    if (-not (Test-Path -Path $Path -PathType Leaf)) {
+        $Warnings.Add("$Label config source not found: $Path")
+        return ""
+    }
+
+    return Get-Content -Path $Path -Raw
+}
+
+function Read-CSharpNumberDefault {
+    param(
+        [string]$SourceText,
+        [string]$FieldName,
+        [double]$Fallback,
+        [string]$Kind,
+        [string]$SourceLabel,
+        [System.Collections.Generic.List[string]]$Warnings
+    )
+
+    $escapedFieldName = [regex]::Escape($FieldName)
+    $pattern = "(?m)^\s*(?:\[[^\]]+\]\s*)*(?:private|protected|public)\s+(?:int|float|double)\s+$escapedFieldName\s*=\s*([-+]?(?:\d+(?:\.\d+)?|\.\d+))(?:[fFdD])?\s*;"
+    $match = [regex]::Match($SourceText, $pattern)
+    if (-not $match.Success) {
+        $Warnings.Add("$SourceLabel default '$FieldName' not found; using fallback $Fallback")
+        if ($Kind -eq "int") {
+            return [int]$Fallback
+        }
+
+        return [double]$Fallback
+    }
+
+    $raw = $match.Groups[1].Value
+    if ($Kind -eq "int") {
+        return [int][double]$raw
+    }
+
+    return [double]$raw
 }
 
 function Resolve-MapGrowth {
@@ -137,19 +199,25 @@ if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherRouteHoldStaticAudit.log"
 }
 
-$stageAdvanceBaseTarget = 16
-$stageAdvanceTargetPerStage = 3
-$stageAdvanceTargetRatio = 0.48
-$bossStageStart = 4
-$earlyCrushFlowWindowSeconds = 18.0
-$earlyCrushLaneBreakTarget = 9
-$routeHoldWindowSeconds = 38.0
-$routeHoldProgressThreshold = 0.45
-$routeHoldTrailPipCount = 5
-$routeHoldTrailMaxDistance = 18.0
-$routeHoldTrailMinPipSpacing = 1.65
-$routeHoldTrailCloseHideDistance = 2.4
-$stageDurationSeconds = 90.0
+$configWarnings = [System.Collections.Generic.List[string]]::new()
+$resolvedRuntimeConfigPath = Resolve-ProjectPath -OverridePath $RuntimeConfigPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.cs"
+$resolvedGameFlowConfigPath = Resolve-ProjectPath -OverridePath $GameFlowConfigPath -RelativePath "Assets\Scripts\Runtime\Systems\GameFlowSystem.cs"
+$runtimeConfigText = Read-SourceText -Path $resolvedRuntimeConfigPath -Label "Runtime" -Warnings $configWarnings
+$gameFlowConfigText = Read-SourceText -Path $resolvedGameFlowConfigPath -Label "Game flow" -Warnings $configWarnings
+
+$stageAdvanceBaseTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceBaseTarget" -Fallback 16 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
+$stageAdvanceTargetPerStage = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetPerStage" -Fallback 3 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
+$stageAdvanceTargetRatio = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetRatio" -Fallback 0.48 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$bossStageStart = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "bossStageStart" -Fallback 4 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
+$earlyCrushFlowWindowSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "earlyCrushFlowWindowSeconds" -Fallback 18.0 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$earlyCrushLaneBreakTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "earlyCrushLaneBreakTarget" -Fallback 9 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
+$routeHoldWindowSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldWindowSeconds" -Fallback 38.0 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$routeHoldProgressThreshold = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldProgressThreshold" -Fallback 0.45 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$routeHoldTrailPipCount = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailPipCount" -Fallback 5 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
+$routeHoldTrailMaxDistance = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailMaxDistance" -Fallback 18.0 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$routeHoldTrailMinPipSpacing = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailMinPipSpacing" -Fallback 1.65 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$routeHoldTrailCloseHideDistance = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailCloseHideDistance" -Fallback 2.4 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$stageDurationSeconds = Read-CSharpNumberDefault -SourceText $gameFlowConfigText -FieldName "stageDurationSeconds" -Fallback 90.0 -Kind "double" -SourceLabel "Game flow" -Warnings $configWarnings
 $distanceSamples = @(2.0, 3.0, 6.0, 12.0, 18.0, 24.0)
 
 $lines = [System.Collections.Generic.List[string]]::new()
@@ -157,6 +225,25 @@ $warningCount = 0
 
 $lines.Add("[AlienCrusher][RouteHoldStaticAudit] ROUTE HOLD tuning audit")
 $lines.Add("Range: Stage 01-$("{0:00}" -f $MaxStage)")
+$lines.Add("Runtime config: $resolvedRuntimeConfigPath")
+$lines.Add("Game flow config: $resolvedGameFlowConfigPath")
+$lines.Add(("Tuning: stageBase={0} perStage={1} ratio={2:0.##} laneBreakWindow={3:0.#}s laneBreakTarget={4} routeWindow={5:0.#}s routeThreshold={6:0.##} pips={7} maxDistance={8:0.#}m minSpacing={9:0.##}m closeHide={10:0.##}m stageDuration={11:0.#}s" -f `
+    $stageAdvanceBaseTarget, `
+    $stageAdvanceTargetPerStage, `
+    $stageAdvanceTargetRatio, `
+    $earlyCrushFlowWindowSeconds, `
+    $earlyCrushLaneBreakTarget, `
+    $routeHoldWindowSeconds, `
+    $routeHoldProgressThreshold, `
+    $routeHoldTrailPipCount, `
+    $routeHoldTrailMaxDistance, `
+    $routeHoldTrailMinPipSpacing, `
+    $routeHoldTrailCloseHideDistance, `
+    $stageDurationSeconds))
+foreach ($configWarning in $configWarnings) {
+    $warningCount++
+    $lines.Add("WARN: $configWarning")
+}
 
 $deadlineSeconds = [Math]::Max($earlyCrushFlowWindowSeconds, $routeHoldWindowSeconds)
 if ($deadlineSeconds -ge $stageDurationSeconds) {
