@@ -184,6 +184,12 @@ namespace AlienCrusher.Systems
 				Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Overlay {(showMapLayoutDebugOverlay ? "shown" : "hidden")}.");
 				return true;
 			}
+
+			if (current.f10Key.wasPressedThisFrame)
+			{
+				ToggleMapLayoutDebugSweep();
+				return true;
+			}
 #endif
 			return false;
 		}
@@ -191,10 +197,70 @@ namespace AlienCrusher.Systems
 		private void StartMapLayoutDebugStage(int stageNumber)
 		{
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+			StopMapLayoutDebugSweep(false);
 			int maxStage = Mathf.Max(1, mapLayoutDebugMaxStage);
 			currentStageNumber = Mathf.Clamp(stageNumber, 1, maxStage);
-			Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Starting layout test stage {currentStageNumber:00}. F6 previous, F7 next, F8 reset, F9 overlay.");
+			Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Starting layout test stage {currentStageNumber:00}. F6 previous, F7 next, F8 reset, F9 overlay, F10 sweep.");
 			StartStage();
+#endif
+		}
+
+		private bool StopMapLayoutDebugSweep(bool restoreStage)
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (mapLayoutDebugSweepRoutine == null)
+			{
+				return false;
+			}
+
+			StopCoroutine(mapLayoutDebugSweepRoutine);
+			mapLayoutDebugSweepRoutine = null;
+			if (restoreStage)
+			{
+				currentStageNumber = Mathf.Max(1, mapLayoutDebugSweepRestoreStage);
+				RebuildRuntimeStageMap();
+			}
+
+			return true;
+#else
+			return false;
+#endif
+		}
+
+		private void ToggleMapLayoutDebugSweep()
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (StopMapLayoutDebugSweep(true))
+			{
+				Debug.Log((object)"[AlienCrusher][MapLayout][Debug] Stage sweep stopped.");
+				return;
+			}
+
+			mapLayoutDebugSweepRestoreStage = Mathf.Max(1, currentStageNumber);
+			mapLayoutDebugSweepRoutine = StartCoroutine(MapLayoutDebugSweepRoutine());
+#endif
+		}
+
+		private System.Collections.IEnumerator MapLayoutDebugSweepRoutine()
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			int maxStage = Mathf.Max(1, mapLayoutDebugMaxStage);
+			float stepSeconds = Mathf.Max(0.05f, mapLayoutDebugSweepStepSeconds);
+			Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Sweeping stages 1-{maxStage:00}. F10 stops.");
+			for (int stage = 1; stage <= maxStage; stage++)
+			{
+				currentStageNumber = stage;
+				RebuildRuntimeStageMap();
+				Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Sweep stage {stage:00}/{maxStage:00} complete.");
+				yield return new WaitForSecondsRealtime(stepSeconds);
+			}
+
+			currentStageNumber = Mathf.Max(1, mapLayoutDebugSweepRestoreStage);
+			RebuildRuntimeStageMap();
+			mapLayoutDebugSweepRoutine = null;
+			Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Sweep complete. Restored stage {currentStageNumber:00}.");
+#else
+			yield break;
 #endif
 		}
 
@@ -212,7 +278,8 @@ namespace AlienCrusher.Systems
 			Rect box = new Rect(12f, 12f, width, height);
 			GUI.Box(box, GUIContent.none);
 			float ageSeconds = Mathf.Max(0f, Time.unscaledTime - runtimeMapLayoutDebugUpdatedAt);
-			GUI.Label(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, 22f), $"MAP LAYOUT TEST  /  F6 PREV  F7 NEXT  F8 RESET  F9 HIDE  /  {ageSeconds:0.0}s", runtimeMapLayoutOverlayStyle);
+			string sweepText = mapLayoutDebugSweepRoutine == null ? "F10 SWEEP" : "F10 STOP";
+			GUI.Label(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, 22f), $"MAP LAYOUT TEST  /  F6 PREV  F7 NEXT  F8 RESET  F9 HIDE  {sweepText}  /  {ageSeconds:0.0}s", runtimeMapLayoutOverlayStyle);
 			GUI.Label(new Rect(box.x + 10f, box.y + 32f, box.width - 20f, 40f), runtimeMapLayoutDebugSummary, runtimeMapLayoutOverlayStyle);
 			string warningText = runtimeMapLayoutDebugWarning == "OK" ? "warnings: none" : $"warnings: {runtimeMapLayoutDebugWarning}";
 			GUI.Label(new Rect(box.x + 10f, box.y + 68f, box.width - 20f, 32f), warningText, runtimeMapLayoutDebugWarning == "OK" ? runtimeMapLayoutOverlayStyle : runtimeMapLayoutWarningStyle);

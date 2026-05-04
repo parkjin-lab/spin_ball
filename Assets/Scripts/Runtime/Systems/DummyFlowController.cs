@@ -1135,11 +1135,17 @@ namespace AlienCrusher.Systems
 		[SerializeField]
 		private bool showMapLayoutDebugOverlay = true;
 
+		[SerializeField]
+		[Min(0.05f)]
+		private float mapLayoutDebugSweepStepSeconds = 0.35f;
+
 		private string runtimeMapLayoutDebugSummary = string.Empty;
 		private string runtimeMapLayoutDebugWarning = string.Empty;
 		private float runtimeMapLayoutDebugUpdatedAt;
 		private GUIStyle runtimeMapLayoutOverlayStyle;
 		private GUIStyle runtimeMapLayoutWarningStyle;
+		private Coroutine mapLayoutDebugSweepRoutine;
+		private int mapLayoutDebugSweepRestoreStage = 1;
 
 		[Header("Scene References")]
 		[SerializeField]
