@@ -18,6 +18,7 @@
 - `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
 - Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
 - Added `Tools/InvokeUnityBatch.ps1` and `Tools/RunUnityBatchChecks.ps1` to make Unity batch validation less ambiguous. The wrapper uses batch/nographics mode, detects stale `Temp/UnityLockfile`, captures stdout/stderr, enforces a timeout, and fails if the expected report file timestamp does not advance.
+- Added `Docs/GAME_UPDATE_ROADMAP.md` and updated the GDD core loop section to reflect the current LANE BREAK -> ROUTE HOLD -> ROUTE BONUS / Forward Smash direction.
 
 ## Work Completed Immediately Before This Handoff
 - Extended `Tools/Alien Crusher/Validate Current Scene` so it also writes a validation report file.
@@ -51,6 +52,10 @@
   - Allows runtime map rebuilds to update camera clamp bounds.
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`
   - Validates the new ROUTE HOLD trail spacing/close-hide tuning fields.
+- `Docs/GDD_ALIEN_CRUSHER.md`
+  - Adds a current implementation note that the prototype's core loop has evolved into starter-lane crush, LANE BREAK, ROUTE HOLD, route reward, and result-driven growth.
+- `Docs/GAME_UPDATE_ROADMAP.md`
+  - Tracks current project status, immediate work, core loop fun improvements, future update milestones, and open risks.
 - `Tools/AuditRuntimeMapLayoutStatic.ps1`
   - Unity-free map formula audit. It mirrors the runtime growth/landmark placement thresholds and writes `Logs/AlienCrusherMapLayoutStaticAudit.log`.
 - `Tools/AuditRouteHoldTuningStatic.ps1`
@@ -66,7 +71,7 @@
 - `Assets/Scenes/SampleScene.unity`
   - Added `HudRouteIndicatorText` with `UnityEngine.UI.Text` binding under `HUD_Dummy`.
 - `Logs/AlienCrusherSceneValidation.log`
-  - Latest validation report: `0 error(s), 0 warning(s)`.
+  - Current validation report from 2026-05-04 20:23: `0 error(s), 1 warning(s)`; warning is `Missing HudRouteArrow RectTransform`.
 - `Logs/AlienCrusherBatchValidationEditor.log`
   - Unity batch validation log.
 - `Logs/AlienCrusherBatchRepairEditor.log`
@@ -74,6 +79,7 @@
 
 ## Current Unresolved Issues
 - MCP connection is still assumed unreliable; continue using Unity batch commands and log files first.
+- Current scene validation log is not fully clean: `0 error(s), 1 warning(s)` because `HudRouteArrow` is missing. Repair or rerun scene essentials before declaring validation green.
 - A titleless Unity process was observed during the 2026-05-04 follow-up; batch repair/validation did not refresh the 2026-05-02 logs. Clear the stale editor process before relying on fresh batch results.
 - Unity batch validation still needs a fresh log-backed successful run after the map rebuild/landmark/audit changes. A 2026-05-04 validation attempt returned process code `0`, but the validation log files still did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs.
 - 2026-05-04 batch follow-up: direct Unity invocation surfaced `Aborting batchmode due to fatal error: It looks like another Unity instance is running with this project open.` A later wrapper run reached a real Unity process but timed out after 900 seconds without creating the editor log or refreshing the validation report. No Unity Editor process or `Temp/UnityLockfile` remained afterward. Use `Tools/RunUnityBatchChecks.ps1` for the next attempt so stale-lock and stale-report failures are explicit.
@@ -90,7 +96,7 @@
    `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1`
 2. If it reports a stale Unity lock after confirming the project is not open in Unity, rerun:
    `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1 -ClearStaleUnityLock`
-3. If validation reports a missing scene essential, run:
+3. If validation reports the current `HudRouteArrow` warning or any missing scene essential, run:
    `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherSceneRepair.RepairCurrentSceneEssentialsBatch -logFile D:\uni\spinball\Logs\AlienCrusherBatchRepairEditor.log`
 4. Confirm `HudRouteArrow/ArrowText` exists under `HUD_Dummy` after repair, then rerun validation.
 5. Inspect `Logs/AlienCrusherMapLayoutAudit.log`; any `WARN:` line should be treated as a placement bug before visual polish.
@@ -112,13 +118,13 @@
 Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
 Latest completed work: ROUTE HOLD is wired after LANE BREAK. HUD shows route/hold guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
-Latest validation: Unity batch validation completed successfully on 2026-05-02 with `Result: 0 error(s), 0 warning(s)`. A fresh 2026-05-04 validation batch attempt returned process code `0`, but the validation logs still did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs. A later direct Unity call exposed a project-open lock fatal error, and `Tools/InvokeUnityBatch.ps1` then timed out after 900 seconds without refreshed reports. Unity-free static map audit, ROUTE HOLD static audit, and `Tools/RunStaticAudits.ps1` passed on 2026-05-04. The ROUTE HOLD static audit now reads its default tuning values from the runtime C# fields before running, but the map rebuild/landmark/audit/route-hold trail changes still need an in-editor compile/playmode validation pass.
-Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, `Tools/InvokeUnityBatch.ps1`, `Tools/RunUnityBatchChecks.ps1`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
+Latest validation: Unity batch validation completed successfully on 2026-05-02 with `Result: 0 error(s), 0 warning(s)`, but the current 2026-05-04 scene validation report is `0 error(s), 1 warning(s)` because `HudRouteArrow` is missing. A fresh 2026-05-04 validation batch attempt returned process code `0`, but the validation logs initially did not update from 2026-05-02 and a titleless Unity process had to be cleared afterward. A first map audit batch attempt returned `-2147483645` and did not create audit logs. A later direct Unity call exposed a project-open lock fatal error, and `Tools/InvokeUnityBatch.ps1` then timed out after 900 seconds without refreshed reports. Unity-free static map audit, ROUTE HOLD static audit, and `Tools/RunStaticAudits.ps1` passed on 2026-05-04. The ROUTE HOLD static audit now reads its default tuning values from the runtime C# fields before running, but the map rebuild/landmark/audit/route-hold trail changes still need an in-editor compile/playmode validation pass.
+Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, `Tools/InvokeUnityBatch.ps1`, `Tools/RunUnityBatchChecks.ps1`, `Docs/GAME_UPDATE_ROADMAP.md`, `Docs/GDD_ALIEN_CRUSHER.md`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
 Useful Unity batch command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1`
 Useful stale-lock retry command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1 -ClearStaleUnityLock`
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
 Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
-Next priority: rerun repair/validation, map layout audit, and combined static audits, confirm `HudRouteArrow/ArrowText` is present, then do a real in-editor/mobile playtest from Stage 1 through Stage 7. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE HOLD readability, trail/beacon clarity, target distance, timer pressure, and that route reward fires once. Then tune route hold values. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
+Next priority: fix or rerun repair for `HudRouteArrow/ArrowText`, rerun `Tools/RunUnityBatchChecks.ps1`, produce a current runtime map layout audit log, and run combined static audits. Then do a real in-editor/mobile playtest from Stage 1 through Stage 7. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE HOLD readability, trail/beacon clarity, target distance, timer pressure, and that route reward fires once. Then tune route hold values. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
 Known risks: MCP unreliable; no hands-on playmode/mobile pass yet; route pips may be visually noisy; `DummyFlowController` remains an architecture risk; Unity editor shutdown logs a non-blocking temp allocator warning.
 ```
