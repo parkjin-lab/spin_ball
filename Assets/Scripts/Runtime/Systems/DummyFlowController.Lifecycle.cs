@@ -68,6 +68,10 @@ namespace AlienCrusher.Systems
 		private void Update()
 		{
 			UpdateActionSkillButtonFeedback(Time.deltaTime);
+			if (ProcessMapLayoutDebugHotkeys())
+			{
+				return;
+			}
 			if (!stageRunning)
 			{
 				if (currentUiViewState == UiViewState.Lobby)
@@ -140,6 +144,51 @@ namespace AlienCrusher.Systems
 				return;
 			}
 			EvaluateLevelUpProgression();
+		}
+
+		private bool ProcessMapLayoutDebugHotkeys()
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (!enableMapLayoutDebugHotkeys)
+			{
+				return false;
+			}
+
+			Keyboard current = Keyboard.current;
+			if (current == null)
+			{
+				return false;
+			}
+
+			if (current.f6Key.wasPressedThisFrame)
+			{
+				StartMapLayoutDebugStage(Mathf.Max(1, currentStageNumber - 1));
+				return true;
+			}
+
+			if (current.f7Key.wasPressedThisFrame)
+			{
+				StartMapLayoutDebugStage(Mathf.Min(Mathf.Max(1, mapLayoutDebugMaxStage), currentStageNumber + 1));
+				return true;
+			}
+
+			if (current.f8Key.wasPressedThisFrame)
+			{
+				StartMapLayoutDebugStage(1);
+				return true;
+			}
+#endif
+			return false;
+		}
+
+		private void StartMapLayoutDebugStage(int stageNumber)
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			int maxStage = Mathf.Max(1, mapLayoutDebugMaxStage);
+			currentStageNumber = Mathf.Clamp(stageNumber, 1, maxStage);
+			Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Starting layout test stage {currentStageNumber:00}. F6 previous, F7 next, F8 reset.");
+			StartStage();
+#endif
 		}
 	}
 }

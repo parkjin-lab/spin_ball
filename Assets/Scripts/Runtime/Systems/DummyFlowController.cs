@@ -1125,6 +1125,13 @@ namespace AlienCrusher.Systems
 		[Min(1)]
 		private int runtimeMapMaxGrowthStage = 7;
 
+		[SerializeField]
+		private bool enableMapLayoutDebugHotkeys = true;
+
+		[SerializeField]
+		[Min(1)]
+		private int mapLayoutDebugMaxStage = 7;
+
 		[Header("Scene References")]
 		[SerializeField]
 		private string playerBallName = "PlayerBall";
