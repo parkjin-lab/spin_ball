@@ -17,6 +17,7 @@ This document tracks the current project state, the next production priorities, 
 - Destruction progression exists through score, chain timing, ball growth, landing shockwave, overdrive, combo rush, retail frenzy, strip clear, traffic panic, seismic bursts, and result feedback.
 - Form and meta progression exist around the current runtime forms `Sphere`, `Spike`, `Ram`, `Saucer`, and `Crusher`, plus meta upgrades such as `SizeCore`, `ImpactCore`, and `DpAmplifier`.
 - LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, `LANE BREAK -> ROUTE OPEN` feedback, HUD guidance, world beacon, route trail pips, route reward, FORWARD SMASH cluster payoff, result badges, and lobby/meta recommendations are connected.
+- Failure result and lobby recommendation copy now start with one bucket-specific first action before explaining the upgrade reason.
 - Runtime map rebuilds happen at stage start. Stage 1-7 currently grow from a compact starter layout into wider, denser maps with expanded target marker spacing and stage-gated landmarks.
 - Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
 - Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
@@ -163,12 +164,12 @@ Success signal:
 - later stages feel different by route decision, not only by size
 
 #### 5. Shorter Failure Advice
-Result and lobby advice should always answer the next run's first action:
-- `OPENING FAILED`: hit the low-density starter lane first
-- `ROUTE HOLD MISSED`: stay inside the beacon route after LANE BREAK
+Baseline shorter failure advice is now implemented. Result and lobby advice both start with the next run's first action:
+- `OPENING FAILED`: hit dense low-rise rows first
+- `ROUTE HOLD MISSED`: after LANE BREAK, stay on the beacon route
 - `MID-RUN DRIFT`: choose the next cluster before speed drops
-- `FINAL PUSH FAILED`: save burst/form power for the last target group
-- `BOSS PHASE`: break pylons, then hit exposed core
+- `FINAL PUSH FAILED`: ignore side props and force the goal lane
+- `BOSS PHASE`: break pylons, then burst the exposed core
 
 Success signal:
 - failure advice is actionable in one glance

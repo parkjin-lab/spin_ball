@@ -1,4 +1,4 @@
-# Alien Crusher Handoff - 2026-05-04
+# Alien Crusher Handoff - 2026-05-05
 
 ## Current Progress Update
 - MCP may still be unreliable, so the project now has a filesystem/Unity-batch validation path.
@@ -18,6 +18,7 @@
 - ROUTE BONUS now opens a clearer Forward Smash payoff: copy says `ROUTE BONUS -> CLUSTER OPEN`, HUD route arrow switches to `SMASH`, and extra barrels/transformers spawn around the highlighted target.
 - ROUTE HOLD progress now has a faster-read HUD state: progress text shows percent/remaining/countdown, the stage goal gauge temporarily becomes a ROUTE HOLD meter, and the route indicator shows `HOLD xx%`.
 - Route reward clusters now vary by district: park rewards stay lower clutter, market routes add kiosk/vending chains, construction routes lean into barrels, power routes lean into transformers, and skyline routes add a high-value anchor.
+- Failure result and lobby recommendation copy now start with one next-run first action for `OPENING FAILED`, `ROUTE HOLD MISSED`, `MID-RUN DRIFT`, `FINAL PUSH FAILED`, and `BOSS PHASE`.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
 - `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, route open beat, route reward cluster, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
 - Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
@@ -56,7 +57,9 @@
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`
   - Added `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, `routeOpenBeatSeconds`, `routeRewardClusterRadius`, and `routeRewardClusterPropCount` tuning fields.
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`
-  - Calls runtime map rebuild at stage start before destructible reset and encounter setup.
+  - Calls runtime map rebuild at stage start before destructible reset and encounter setup. Result failure copy now starts with a bucket-specific first action and follows with a compact why line.
+- `Assets/Scripts/Runtime/Systems/DummyFlowController.MetaProgression.cs`
+  - Lobby recommendations now reuse the last-run first action line before showing the meta upgrade recommendation and reason.
 - `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`
   - Allows runtime map rebuilds to update camera clamp bounds.
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`
@@ -84,7 +87,7 @@
 - `Tools/RunStaticAudits.ps1`
   - Now also runs the scene essentials static audit before map layout and ROUTE HOLD audits.
 - `Tools/GenerateStagePlaytestChecklist.ps1`
-  - Generates a Stage 1-7 playtest checklist with validation status, map/grid growth, landmarks, ROUTE HOLD targets, route open beat timing, district reward identity, reward cluster expectations, route progress readability, route pressure, target distances, and observation prompts.
+  - Generates a Stage 1-7 playtest checklist with validation status, map/grid growth, landmarks, ROUTE HOLD targets, route open beat timing, district reward identity, reward cluster expectations, route progress readability, failure-advice checks, route pressure, target distances, and observation prompts.
 - `Logs/AlienCrusherSceneValidation.log`
   - Current validation report from 2026-05-05 00:27: `0 error(s), 0 warning(s)`.
 - `Logs/AlienCrusherBatchValidationEditor.log`
@@ -136,9 +139,9 @@
 ```text
 Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
-Latest completed work: ROUTE HOLD is wired after LANE BREAK, LANE BREAK triggers a short ROUTE OPEN beat, ROUTE HOLD progress is now shown as a faster-read HUD/gauge meter, and ROUTE BONUS opens a district-flavored SMASH target cluster before normal Forward Smash resolution. HUD shows route/hold/smash guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
+Latest completed work: ROUTE HOLD is wired after LANE BREAK, LANE BREAK triggers a short ROUTE OPEN beat, ROUTE HOLD progress is now shown as a faster-read HUD/gauge meter, ROUTE BONUS opens a district-flavored SMASH target cluster before normal Forward Smash resolution, and failure result/lobby advice now starts with one next-run first action for the last failure bucket. HUD shows route/hold/smash guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
 Latest validation: `Tools/RunUnityBatchChecks.ps1` passed on 2026-05-05. `Logs/AlienCrusherSceneValidation.log` refreshed at 00:27 with `Result: 0 error(s), 0 warning(s)`, and `Logs/AlienCrusherMapLayoutAudit.log` refreshed at 00:28 with Stage 1-7 `Result: 0 error(s), 0 warning(s)`. Unity-free scene essentials, static map audit, ROUTE HOLD static audit, and `Tools/RunStaticAudits.ps1` also passed on 2026-05-05. The ROUTE HOLD static audit reads its default tuning values from runtime C# fields before running. The route open beat/map rebuild/landmark/audit/route-hold trail changes still need an in-editor/mobile playtest pass for feel.
-Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.ProgressionCore.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`, `Assets/Scenes/SampleScene.unity`, `Tools/InvokeUnityBatch.ps1`, `Tools/RunUnityBatchChecks.ps1`, `Tools/AuditSceneEssentialsStatic.ps1`, `Tools/AuditRouteHoldTuningStatic.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, `Docs/GAME_UPDATE_ROADMAP.md`, `Docs/GDD_ALIEN_CRUSHER.md`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
+Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.ProgressionCore.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.MetaProgression.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`, `Assets/Scenes/SampleScene.unity`, `Tools/InvokeUnityBatch.ps1`, `Tools/RunUnityBatchChecks.ps1`, `Tools/AuditSceneEssentialsStatic.ps1`, `Tools/AuditRouteHoldTuningStatic.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, `Docs/GAME_UPDATE_ROADMAP.md`, `Docs/GDD_ALIEN_CRUSHER.md`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
 Useful Unity batch command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1`
 Useful stale-lock retry command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1 -ClearStaleUnityLock`
 Useful playtest checklist command: `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`

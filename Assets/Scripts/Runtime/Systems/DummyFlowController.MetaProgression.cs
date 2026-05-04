@@ -373,6 +373,11 @@ namespace AlienCrusher.Systems
 			string text3 = GetRecommendedFormUnlockHint(num);
 			string text4 = string.IsNullOrWhiteSpace(lastLobbyActionStatus) ? string.Empty : $"ACTION  /  {lastLobbyActionStatus}";
 			string text5 = $"NEXT STEP  /  {GetMetaUpgradeShortTag(previewMetaUpgradeType)}  LV {metaUpgradeLevel}/{metaUpgradeMaxLevel}\n{text2}";
+			string firstActionLine = GetLastRunFirstActionLine();
+			if (!string.IsNullOrWhiteSpace(firstActionLine))
+			{
+				text5 = $"{firstActionLine}\n{text5}";
+			}
 			if (!string.IsNullOrWhiteSpace(reason))
 			{
 				text5 = $"{text5}\nWHY  /  {GetCompactLobbyReason(reason, text)}";

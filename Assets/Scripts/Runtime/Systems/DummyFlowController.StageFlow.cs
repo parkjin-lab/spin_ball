@@ -449,32 +449,12 @@ namespace AlienCrusher.Systems
 
 		private string GetFailureActionLine()
 		{
-			if (stageBossEncounterActive && IsStageBossAlive())
+			string firstActionLine = GetLastRunFirstActionLine();
+			if (!string.IsNullOrWhiteSpace(firstActionLine))
 			{
-				return "BOSS PHASE / BREAK PYLONS, THEN BURST CORE ON OPEN";
+				return firstActionLine;
 			}
-			if (stageEndReason == StageEndReason.TimerExpired)
-			{
-				int num = (((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0);
-				float num2 = (enableStageAdvanceGoal && stageAdvanceDestroyTarget > 0) ? ((float)num / Mathf.Max(1f, stageAdvanceDestroyTarget)) : 0f;
-				if (num2 < 0.45f)
-				{
-					return "OPENING FAILED / ENTER DENSER LOW-RISE LANES IMMEDIATELY";
-				}
-				if (enableStageAdvanceGoal && !stageAdvanceGoalReached && num2 >= Mathf.Clamp(stageAdvanceNearCompleteThreshold, 0.6f, 0.98f))
-				{
-					return "FINAL PUSH FAILED / STAY ON THE GOAL LANE TO FINISH";
-				}
-				if (earlyCrushFlowBonusIndex >= 3 && !routeHoldBonusGranted)
-				{
-					return "ROUTE HOLD MISSED / KEEP THE GOAL LANE AFTER LANE BREAK";
-				}
-				return "MID-RUN DRIFT / HOLD THE ROUTE AND KEEP CHAIN PRESSURE";
-			}
-			return stageEndReason switch
-			{
-				_ => "ASSAULT LOST MOMENTUM / RE-ENTER THE DISTRICT"
-			};
+			return "ASSAULT LOST MOMENTUM / RE-ENTER THE DISTRICT";
 		}
 
 		private void UpdateResultButtonStates(bool cleared)
@@ -561,52 +541,43 @@ namespace AlienCrusher.Systems
 
 		private string GetFailureAdviceText(int destroyedCount, int destroyedPercent)
 		{
-			float num = (enableStageAdvanceGoal && stageAdvanceDestroyTarget > 0) ? ((float)Mathf.Max(0, destroyedCount) / Mathf.Max(1f, stageAdvanceDestroyTarget)) : 0f;
-			if (earlyCrushRecoveryBonusGranted)
+			string actionLine = GetLastRunFirstActionLine();
+			if (string.IsNullOrWhiteSpace(actionLine))
 			{
-				return "TACTICAL NOTE  Recovery saved the opening late. Convert it into earlier LANE BREAK next run.";
+				actionLine = "FIRST ACTION / REBUILD CHAIN IN DENSE LANES";
 			}
-			if (earlyCrushFlowBonusIndex >= 3 && !routeHoldBonusGranted && stageEndReason == StageEndReason.TimerExpired)
+			string whyLine = GetLastRunFailureWhyLine(destroyedCount, destroyedPercent);
+			return $"{actionLine}\nWHY / {whyLine}";
+		}
+
+		private string GetLastRunFirstActionLine()
+		{
+			string bucket = GetLastRunFailureBucket();
+			return bucket switch
 			{
-				return "TACTICAL NOTE  LANE BREAK worked, but ROUTE HOLD was missed. Stay on the goal lane after the opening.";
-			}
-			if (earlyCrushFlowBonusIndex >= 3 && stageEndReason == StageEndReason.TimerExpired)
+				"OPENING FAILED" => "FIRST ACTION / HIT DENSE LOW-RISE ROWS",
+				"ROUTE HOLD MISSED" => "FIRST ACTION / AFTER LANE BREAK, STAY ON BEACON",
+				"MID-RUN DRIFT" => "FIRST ACTION / PICK NEXT CLUSTER BEFORE SPEED DROPS",
+				"FINAL PUSH FAILED" => "FIRST ACTION / IGNORE SIDE PROPS, FORCE GOAL LANE",
+				"BOSS PHASE" => "FIRST ACTION / BREAK PYLONS, BURST CORE ON OPEN",
+				"RUN COLLAPSE" => "FIRST ACTION / REBUILD CHAIN IN DENSE LANES",
+				_ => string.Empty,
+			};
+		}
+
+		private string GetLastRunFailureWhyLine(int destroyedCount, int destroyedPercent)
+		{
+			string bucket = GetLastRunFailureBucket();
+			return bucket switch
 			{
-				return "TACTICAL NOTE  Opening was strong. Failure came after tempo drop, so hold the route lane longer.";
-			}
-			if (stageEndReason == StageEndReason.TimerExpired)
-			{
-				if (enableStageAdvanceGoal && destroyedCount < stageAdvanceDestroyTarget)
-				{
-					if (num < 0.45f)
-					{
-						return "TACTICAL NOTE  Opening was too thin. Enter a denser low-rise lane immediately.";
-					}
-					if (num >= Mathf.Clamp(stageAdvanceNearCompleteThreshold, 0.6f, 0.98f))
-					{
-						return "TACTICAL NOTE  Final push broke late. Ignore side props and force the goal lane to close the stage.";
-					}
-					return "TACTICAL NOTE  Mid-run pace slipped. Stop drifting and stay on the goal lane.";
-				}
-				return "TACTICAL NOTE  Time expired. Commit to dense low-rise clusters sooner.";
-			}
-			if (stageBossEncounterActive && IsStageBossAlive())
-			{
-				if (stageBossShieldActiveCount > 0)
-				{
-					return "TACTICAL NOTE  Sentinel held the district. Break pylons first, then save burst for the core window.";
-				}
-				if (stageBossPhaseTwoDroneRecoveryRemaining > 0.001f)
-				{
-					return "TACTICAL NOTE  Core window was open. Stay near center and cash damage in before the drones return.";
-				}
-				return "TACTICAL NOTE  Sentinel held the district. Break pylons, then burst the core on BREAK.";
-			}
-			if (destroyedPercent < 35)
-			{
-				return "TACTICAL NOTE  Opening stalled early. Build speed on props and low-rise blocks first.";
-			}
-			return "TACTICAL NOTE  Momentum collapsed mid-run. Protect the opening chain and stay inside dense lanes.";
+				"OPENING FAILED" => "opening wreck count was too low; start in tighter rows",
+				"ROUTE HOLD MISSED" => "LANE BREAK happened, but route pressure did not convert",
+				"MID-RUN DRIFT" => "pace slipped between clusters; choose the next target earlier",
+				"FINAL PUSH FAILED" => "stage goal was close; commit to the goal lane",
+				"BOSS PHASE" => stageBossShieldActiveCount > 0 ? "Sentinel pylons blocked core damage" : "save burst damage for the open core window",
+				"RUN COLLAPSE" => destroyedPercent < 35 ? "opening chain broke before value appeared" : "momentum collapsed before the route paid off",
+				_ => destroyedCount < stageAdvanceDestroyTarget ? "stage target stayed out of reach" : "the run lost momentum before payout",
+			};
 		}
 
 		private void SetButtonPresentation(string buttonName, string label, bool interactable, Color backgroundColor, Color textColor)
