@@ -214,6 +214,8 @@ $earlyCrushLaneBreakTarget = Read-CSharpNumberDefault -SourceText $runtimeConfig
 $routeHoldWindowSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldWindowSeconds" -Fallback 38.0 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
 $routeHoldProgressThreshold = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldProgressThreshold" -Fallback 0.45 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
 $routeOpenBeatSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeOpenBeatSeconds" -Fallback 2.0 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$routeRewardClusterRadius = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeRewardClusterRadius" -Fallback 3.4 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$routeRewardClusterPropCount = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeRewardClusterPropCount" -Fallback 4 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
 $routeHoldTrailPipCount = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailPipCount" -Fallback 5 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
 $routeHoldTrailMaxDistance = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailMaxDistance" -Fallback 18.0 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
 $routeHoldTrailMinPipSpacing = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailMinPipSpacing" -Fallback 1.65 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
@@ -228,7 +230,7 @@ $lines.Add("[AlienCrusher][RouteHoldStaticAudit] ROUTE HOLD tuning audit")
 $lines.Add("Range: Stage 01-$("{0:00}" -f $MaxStage)")
 $lines.Add("Runtime config: $resolvedRuntimeConfigPath")
 $lines.Add("Game flow config: $resolvedGameFlowConfigPath")
-$lines.Add(("Tuning: stageBase={0} perStage={1} ratio={2:0.##} laneBreakWindow={3:0.#}s laneBreakTarget={4} routeWindow={5:0.#}s routeThreshold={6:0.##} routeOpenBeat={7:0.#}s pips={8} maxDistance={9:0.#}m minSpacing={10:0.##}m closeHide={11:0.##}m stageDuration={12:0.#}s" -f `
+$lines.Add(("Tuning: stageBase={0} perStage={1} ratio={2:0.##} laneBreakWindow={3:0.#}s laneBreakTarget={4} routeWindow={5:0.#}s routeThreshold={6:0.##} routeOpenBeat={7:0.#}s rewardCluster={8}x/{9:0.#}m pips={10} maxDistance={11:0.#}m minSpacing={12:0.##}m closeHide={13:0.##}m stageDuration={14:0.#}s" -f `
     $stageAdvanceBaseTarget, `
     $stageAdvanceTargetPerStage, `
     $stageAdvanceTargetRatio, `
@@ -237,6 +239,8 @@ $lines.Add(("Tuning: stageBase={0} perStage={1} ratio={2:0.##} laneBreakWindow={
     $routeHoldWindowSeconds, `
     $routeHoldProgressThreshold, `
     $routeOpenBeatSeconds, `
+    $routeRewardClusterPropCount, `
+    $routeRewardClusterRadius, `
     $routeHoldTrailPipCount, `
     $routeHoldTrailMaxDistance, `
     $routeHoldTrailMinPipSpacing, `
@@ -255,6 +259,14 @@ if ($deadlineSeconds -ge $stageDurationSeconds) {
 if ($routeOpenBeatSeconds -lt 0.6 -or $routeOpenBeatSeconds -gt 4.0) {
     $warningCount++
     $lines.Add("WARN: route open beat should stay between 0.6s and 4.0s for readability")
+}
+if ($routeRewardClusterPropCount -lt 3 -or $routeRewardClusterPropCount -gt 6) {
+    $warningCount++
+    $lines.Add("WARN: route reward cluster prop count should stay between 3 and 6")
+}
+if ($routeRewardClusterRadius -lt 1.8 -or $routeRewardClusterRadius -gt 8.0) {
+    $warningCount++
+    $lines.Add("WARN: route reward cluster radius should stay between 1.8m and 8.0m")
 }
 
 for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {

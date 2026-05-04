@@ -547,8 +547,8 @@ namespace AlienCrusher.Systems
 			feedbackSystem?.PlayComboRushFeedback(val, 0.72f, 4.8f);
 			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(Mathf.Max(0.1f, stageAdvanceRouteRewardCameraImpulse));
-			damageNumberSystem?.ShowTag(val + Vector3.up * 1.05f, $"ROUTE BONUS +{Mathf.Max(0, stageAdvanceRouteRewardScore):0}", true);
-			PushAnnouncement($"ROUTE BONUS +{Mathf.Max(0, stageAdvanceRouteRewardScore):0}", AnnouncementTone.Milestone, 1f);
+			damageNumberSystem?.ShowTag(val + Vector3.up * 1.05f, $"CLUSTER OPEN +{Mathf.Max(0, stageAdvanceRouteRewardScore):0}", true);
+			PushAnnouncement($"ROUTE BONUS -> CLUSTER OPEN +{Mathf.Max(0, stageAdvanceRouteRewardScore):0}", AnnouncementTone.Milestone, 1.05f);
 			SpawnStageAdvanceRewardProps(activeStageAdvanceRouteMarker);
 			PreviewStageAdvanceFollowupTarget(activeStageAdvanceRouteMarker);
 		}
@@ -612,9 +612,68 @@ namespace AlienCrusher.Systems
 			}
 			forwardSmashTargetBlock = val;
 			forwardSmashBonusPending = true;
+			SpawnForwardSmashRewardCluster(val);
 			Vector3 val2 = ((Component)val).transform.position + Vector3.up * Mathf.Max(1f, ((Component)val).transform.lossyScale.y * 0.75f);
-			damageNumberSystem?.ShowTag(val2, "BIGGER TARGET AHEAD", true);
+			damageNumberSystem?.ShowTag(val2, "SMASH CLUSTER OPEN", true);
 			feedbackSystem?.PlayComboRushFeedback(((Component)val).transform.position + Vector3.up * 0.22f, 0.62f, 5.6f);
+		}
+
+		private void SpawnForwardSmashRewardCluster(DummyDestructibleBlock targetBlock)
+		{
+			if ((Object)(object)targetBlock == (Object)null)
+			{
+				return;
+			}
+			Transform mapRoot = FindChildByName(null, "MapRoot");
+			if ((Object)(object)mapRoot == (Object)null)
+			{
+				return;
+			}
+			Transform streetPropsRoot = FindChildByName(mapRoot, "StreetProps");
+			if ((Object)(object)streetPropsRoot == (Object)null)
+			{
+				return;
+			}
+			Transform targetTransform = ((Component)targetBlock).transform;
+			Vector3 worldCenter = targetTransform.position;
+			Vector3 localCenter = streetPropsRoot.InverseTransformPoint(worldCenter);
+			localCenter.y = 0f;
+			float radius = Mathf.Max(1.8f, routeRewardClusterRadius);
+			int propCount = Mathf.Clamp(routeRewardClusterPropCount, 3, 6);
+			for (int i = 0; i < propCount; i++)
+			{
+				float angle = ((360f / (float)propCount) * i + currentStageNumber * 19f) * Mathf.Deg2Rad;
+				float ringScale = (i % 2 == 0) ? 1f : 0.72f;
+				Vector3 offset = new Vector3(Mathf.Cos(angle) * radius * ringScale, 0f, Mathf.Sin(angle) * radius * 0.78f * ringScale);
+				string suffix = $"{currentStageNumber:00}_{i:00}";
+				if (i == propCount - 1 || i % 3 == 1)
+				{
+					EnsureTransformerRuntime(streetPropsRoot, $"RouteClusterTransformer_{suffix}", localCenter + offset, new Color(0.72f, 1f, 0.68f));
+				}
+				else
+				{
+					EnsureExplosiveBarrelRuntime(streetPropsRoot, $"RouteClusterBarrel_{suffix}", localCenter + offset, Color.Lerp(new Color(1f, 0.52f, 0.2f), new Color(0.62f, 1f, 0.86f), (float)i / Mathf.Max(1, propCount - 1)));
+				}
+			}
+
+			Transform groundDetailsRoot = FindChildByName(mapRoot, "GroundDetails");
+			if ((Object)(object)groundDetailsRoot == (Object)null)
+			{
+				return;
+			}
+			Vector3 markerLocal = groundDetailsRoot.InverseTransformPoint(worldCenter);
+			markerLocal.y = 0.035f;
+			GameObject marker = EnsurePrimitive(groundDetailsRoot, $"RouteClusterMarker_{currentStageNumber:00}", PrimitiveType.Cylinder, markerLocal, new Vector3(radius * 1.15f, 0.018f, radius * 1.15f), new Color(0.62f, 1f, 0.86f, 0.58f));
+			Collider markerCollider = marker.GetComponent<Collider>();
+			if ((Object)(object)markerCollider != (Object)null)
+			{
+				markerCollider.enabled = false;
+			}
+		}
+
+		private bool IsForwardSmashTargetActive()
+		{
+			return forwardSmashBonusPending && (Object)(object)forwardSmashTargetBlock != (Object)null && forwardSmashTargetBlock.IsAlive;
 		}
 
 		private void EvaluateForwardSmashBonus()

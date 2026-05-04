@@ -492,6 +492,13 @@ namespace AlienCrusher.Systems
 		private float stageAdvanceRouteRewardCameraImpulse = 0.7f;
 
 		[SerializeField]
+		private float routeRewardClusterRadius = 3.4f;
+
+		[SerializeField]
+		[Range(3, 6)]
+		private int routeRewardClusterPropCount = 4;
+
+		[SerializeField]
 		private int forwardSmashBonusScore = 260;
 
 		[SerializeField]

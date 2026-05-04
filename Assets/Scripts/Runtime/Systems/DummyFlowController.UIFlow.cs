@@ -334,6 +334,7 @@ namespace AlienCrusher.Systems
 			bool flag3a = IsEarlyOnboardingWindow(num);
 			bool openingMissed = HasMissedEarlyCrushLaneBreak(num);
 			bool routeOpenBeatActive = IsRouteOpenBeatActive();
+			bool forwardSmashTargetActive = IsForwardSmashTargetActive();
 			hudUrgencyPulseCooldownRemaining = Mathf.Max(0f, hudUrgencyPulseCooldownRemaining - Time.deltaTime);
 			if (flag2)
 			{
@@ -358,6 +359,10 @@ namespace AlienCrusher.Systems
 				else if (!flag && routeOpenBeatActive)
 				{
 					text = "NEXT STEP\nRoute opened\nFollow beacon";
+				}
+				else if (!flag && forwardSmashTargetActive)
+				{
+					text = "NEXT STEP\nSmash opened cluster\nFORWARD TARGET";
 				}
 				else if (!flag && openingMissed)
 				{
@@ -423,6 +428,10 @@ namespace AlienCrusher.Systems
 				{
 					text4 = "ROUTE OPEN  /  Follow beacon, keep crushing";
 				}
+				else if (forwardSmashTargetActive)
+				{
+					text4 = "CLUSTER OPEN  /  Smash highlighted target";
+				}
 				else if (IsRouteHoldObjectiveActive(num))
 				{
 					int routeHoldTarget = GetRouteHoldTarget();
@@ -450,11 +459,11 @@ namespace AlienCrusher.Systems
 				}
 				text4 = CompactHudHint(text4);
 				int num4 = GetHudHintPriority(levelUpOpen, flag2, stageStartHintRemaining > 0f && flag3a, flag, flag3, overdriveActive, flag4, stripClearMissionCompleted, flag5);
-				text4 = ResolveStableHudHint(text4, num4, flag2 || levelUpOpen || routeOpenBeatActive);
+				text4 = ResolveStableHudHint(text4, num4, flag2 || levelUpOpen || routeOpenBeatActive || forwardSmashTargetActive);
 				hudHintText.text = text4;
 				hudHintText.color = flag2
 					? Color.Lerp(new Color(1f, 0.95f, 0.68f, 1f), new Color(1f, 0.52f, 0.22f, 1f), Mathf.PingPong(Time.time * 5.2f, 1f))
-					: (routeOpenBeatActive ? Color.Lerp(new Color(0.72f, 1f, 0.9f, 1f), Color.white, Mathf.PingPong(Time.time * 5.7f, 1f) * 0.38f) : Color.white);
+					: (routeOpenBeatActive || forwardSmashTargetActive ? Color.Lerp(new Color(0.72f, 1f, 0.9f, 1f), Color.white, Mathf.PingPong(Time.time * 5.7f, 1f) * 0.38f) : Color.white);
 			}
 		}
 
@@ -931,6 +940,12 @@ namespace AlienCrusher.Systems
 				val = ((Component)stageBossBlock).transform;
 				text = "SENTINEL";
 				color = new Color(1f, 0.68f, 0.42f, 1f);
+			}
+			else if (IsForwardSmashTargetActive())
+			{
+				val = ((Component)forwardSmashTargetBlock).transform;
+				text = "SMASH";
+				color = new Color(0.62f, 1f, 0.86f, 1f);
 			}
 			else if (stageAdvanceRouteGuidanceActive && (Object)(object)activeStageAdvanceRouteMarker != (Object)null)
 			{

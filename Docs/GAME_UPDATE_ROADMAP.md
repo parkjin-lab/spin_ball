@@ -16,7 +16,7 @@ This document tracks the current project state, the next production priorities, 
 - Stage flow exists from lobby into stage start, HUD, level-up choice, result, restart, and next stage.
 - Destruction progression exists through score, chain timing, ball growth, landing shockwave, overdrive, combo rush, retail frenzy, strip clear, traffic panic, seismic bursts, and result feedback.
 - Form and meta progression exist around the current runtime forms `Sphere`, `Spike`, `Ram`, `Saucer`, and `Crusher`, plus meta upgrades such as `SizeCore`, `ImpactCore`, and `DpAmplifier`.
-- LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, `LANE BREAK -> ROUTE OPEN` feedback, HUD guidance, world beacon, route trail pips, route reward, result badges, and lobby/meta recommendations are connected.
+- LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, `LANE BREAK -> ROUTE OPEN` feedback, HUD guidance, world beacon, route trail pips, route reward, FORWARD SMASH cluster payoff, result badges, and lobby/meta recommendations are connected.
 - Runtime map rebuilds happen at stage start. Stage 1-7 currently grow from a compact starter layout into wider, denser maps with expanded target marker spacing and stage-gated landmarks.
 - Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
 - Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
@@ -76,6 +76,8 @@ Tune only after playtest evidence:
 - `routeHoldWindowSeconds`
 - `routeHoldProgressThreshold`
 - `routeOpenBeatSeconds`
+- `routeRewardClusterRadius`
+- `routeRewardClusterPropCount`
 - `routeHoldTrailPipCount`
 - `routeHoldTrailMaxDistance`
 - `routeHoldTrailMinPipSpacing`
@@ -129,10 +131,12 @@ Success signal:
 - player can immediately tell that the next objective changed
 
 #### 2. Reward Cluster Emphasis
-Make ROUTE HOLD feel less like a score bonus and more like opening the next smash cluster:
-- emphasize spawned barrels/transformers as route payoff objects
-- make Forward Smash target copy and marker more direct
-- result text should say what the route opened, not only how many points it gave
+Baseline reward cluster emphasis is now implemented:
+- ROUTE BONUS copy shifts to `ROUTE BONUS -> CLUSTER OPEN`
+- Forward Smash target copy now says `SMASH CLUSTER OPEN`
+- HUD route arrow switches to `SMASH` and points at the highlighted forward target
+- route reward spawns extra barrel/transformer payoff props around the next Forward Smash target
+- scene/static validation now checks route reward cluster radius and prop count
 
 Success signal:
 - ROUTE HOLD success visibly creates or reveals something worth chasing

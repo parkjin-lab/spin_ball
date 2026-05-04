@@ -230,6 +230,8 @@ $earlyCrushLaneBreakTarget = Read-CSharpNumberDefault -SourceText $runtimeConfig
 $routeHoldWindowSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldWindowSeconds" -Fallback 38.0 -Kind "double"
 $routeHoldProgressThreshold = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldProgressThreshold" -Fallback 0.45 -Kind "double"
 $routeOpenBeatSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeOpenBeatSeconds" -Fallback 2.0 -Kind "double"
+$routeRewardClusterRadius = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeRewardClusterRadius" -Fallback 3.4 -Kind "double"
+$routeRewardClusterPropCount = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeRewardClusterPropCount" -Fallback 4 -Kind "int"
 $stageDurationSeconds = Read-CSharpNumberDefault -SourceText $gameFlowConfigText -FieldName "stageDurationSeconds" -Fallback 90.0 -Kind "double"
 $deadlineSeconds = [Math]::Max($earlyCrushFlowWindowSeconds, $routeHoldWindowSeconds)
 
@@ -334,7 +336,7 @@ foreach ($row in $stageRows) {
     $lines.Add("- [ ] LANE BREAK -> ROUTE OPEN beat is visible for about $("{0:0.#}" -f $routeOpenBeatSeconds)s.")
     $lines.Add("- [ ] Route beacon and trail pips point toward the next target without clutter.")
     $lines.Add("- [ ] ROUTE HOLD pressure feels fair for the target distance.")
-    $lines.Add("- [ ] Route reward creates or reveals a satisfying next smash cluster.")
+    $lines.Add("- [ ] Route reward opens about $routeRewardClusterPropCount payoff props around the next smash cluster.")
     $lines.Add("- [ ] Camera clamp and map bounds feel natural.")
     $lines.Add("- [ ] Notes:")
     $lines.Add("- [ ] Screenshot/video reference:")
@@ -346,6 +348,7 @@ $lines.Add("")
 $lines.Add('- If close-range pips feel noisy, raise `routeHoldTrailCloseHideDistance` or `routeHoldTrailMinPipSpacing`.')
 $lines.Add("- If far targets are hard to read, lower route distance growth or increase route beacon/trail contrast.")
 $lines.Add('- If LANE BREAK still feels ambiguous, tune `routeOpenBeatSeconds` before adding more HUD text.')
+$lines.Add(('- If the payoff cluster feels cramped or invisible, tune `routeRewardClusterRadius` around the current {0:0.#}m default.' -f $routeRewardClusterRadius))
 $lines.Add("- If ROUTE HOLD feels like distance tax, increase reward cluster density near targets before extending the timer.")
 $lines.Add("- If Stage 5-7 feel samey, give construction, power, and skyline landmarks different route payoffs.")
 $lines.Add("- Stage timer default: $("{0:0.#}" -f $stageDurationSeconds)s")

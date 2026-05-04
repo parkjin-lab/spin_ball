@@ -15,8 +15,9 @@
 - Added `Tools/AuditRuntimeMapLayoutStatic.ps1` as a Unity-free fallback audit for Stage 1-7 map growth formulas, spawn/target bounds, landmark placement, and minimum-count thresholds.
 - ROUTE HOLD trail pips now scale their visible count by route distance and hide at very close range, reducing small-screen visual noise while keeping longer routes readable.
 - LANE BREAK now starts a short route open beat: the announcement says `LANE BREAK -> ROUTE OPEN`, the HUD route indicator briefly says `OPEN`, and the active route marker/arrow/trail pulse harder for `routeOpenBeatSeconds`.
+- ROUTE BONUS now opens a clearer Forward Smash payoff: copy says `ROUTE BONUS -> CLUSTER OPEN`, HUD route arrow switches to `SMASH`, and extra barrels/transformers spawn around the highlighted target.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
-- `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, route open beat, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
+- `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, route open beat, route reward cluster, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
 - Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
 - Added `Tools/InvokeUnityBatch.ps1` and `Tools/RunUnityBatchChecks.ps1` to make Unity batch validation less ambiguous. The wrapper uses batch/nographics mode, detects stale `Temp/UnityLockfile`, captures stdout/stderr, enforces a timeout, and fails if the expected report file timestamp does not advance.
 - Added `Docs/GAME_UPDATE_ROADMAP.md` and updated the GDD core loop section to reflect the current LANE BREAK -> ROUTE OPEN -> ROUTE HOLD -> ROUTE BONUS / Forward Smash direction.
@@ -49,9 +50,9 @@
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`
   - ROUTE HOLD world trail now uses distance-aware active pip counts and smaller close-range pip scales. The route open beat also pulses the route marker, HUD indicator, arrow, and trail.
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.ProgressionCore.cs`
-  - LANE BREAK now starts `LANE BREAK -> ROUTE OPEN`, sets the route open beat timer, and resets that runtime timer at stage setup.
+  - LANE BREAK now starts `LANE BREAK -> ROUTE OPEN`, sets the route open beat timer, and resets that runtime timer at stage setup. ROUTE BONUS now spawns a Forward Smash reward cluster around the highlighted target.
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`
-  - Added `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and `routeOpenBeatSeconds` tuning fields.
+  - Added `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, `routeOpenBeatSeconds`, `routeRewardClusterRadius`, and `routeRewardClusterPropCount` tuning fields.
 - `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`
   - Calls runtime map rebuild at stage start before destructible reset and encounter setup.
 - `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`
@@ -65,7 +66,7 @@
 - `Tools/AuditRuntimeMapLayoutStatic.ps1`
   - Unity-free map formula audit. It mirrors the runtime growth/landmark placement thresholds and writes `Logs/AlienCrusherMapLayoutStaticAudit.log`.
 - `Tools/AuditRouteHoldTuningStatic.ps1`
-  - Unity-free ROUTE HOLD tuning audit. It reads the relevant runtime C# default fields, mirrors stage target, route hold target, deadline, route open beat range, and trail active-pip formulas, then writes `Logs/AlienCrusherRouteHoldStaticAudit.log`.
+  - Unity-free ROUTE HOLD tuning audit. It reads the relevant runtime C# default fields, mirrors stage target, route hold target, deadline, route open beat range, route reward cluster range, and trail active-pip formulas, then writes `Logs/AlienCrusherRouteHoldStaticAudit.log`.
 - `Tools/RunStaticAudits.ps1`
   - Runs the map layout and ROUTE HOLD static audits together, using `-FailOnWarnings` for both.
 - `Tools/InvokeUnityBatch.ps1`
@@ -81,7 +82,7 @@
 - `Tools/RunStaticAudits.ps1`
   - Now also runs the scene essentials static audit before map layout and ROUTE HOLD audits.
 - `Tools/GenerateStagePlaytestChecklist.ps1`
-  - Generates a Stage 1-7 playtest checklist with validation status, map/grid growth, landmarks, ROUTE HOLD targets, route open beat timing, route pressure, target distances, and observation prompts.
+  - Generates a Stage 1-7 playtest checklist with validation status, map/grid growth, landmarks, ROUTE HOLD targets, route open beat timing, reward cluster expectations, route pressure, target distances, and observation prompts.
 - `Logs/AlienCrusherSceneValidation.log`
   - Current validation report from 2026-05-05 00:27: `0 error(s), 0 warning(s)`.
 - `Logs/AlienCrusherBatchValidationEditor.log`
@@ -124,8 +125,8 @@
    `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
 9. Run in-editor playtest from Stage 1 through at least Stage 7. Use `F10` for an automatic Stage 1-7 sweep with a short pause per stage, or `F7` to jump forward, `F6` to jump back, `F8` to reset to Stage 1, and `F9` to hide/show the map layout overlay. Watch the overlay and `[AlienCrusher][MapLayout]` logs to verify size/grid/destructible/prop/landmark counts climb as expected.
 10. Verify the map grows from a compact residential starter layout into denser/wider districts with more cars, props, commercial objects, barrels, transformers, landmark districts, and wider ROUTE HOLD targets.
-11. Verify LANE BREAK appears, ROUTE OPEN beat is readable, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD target/time is readable, and ROUTE HOLD reward fires once.
-12. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeOpenBeatSeconds`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and marker positions based on mobile readability.
+11. Verify LANE BREAK appears, ROUTE OPEN beat is readable, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD target/time is readable, and ROUTE HOLD reward opens the SMASH target cluster once.
+12. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeOpenBeatSeconds`, `routeRewardClusterRadius`, `routeRewardClusterPropCount`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and marker positions based on mobile readability.
 13. If route pips are still too noisy, increase close-hide distance/min spacing or switch to fewer arrow-shaped pips.
 14. After playtest stability, extract ROUTE HOLD / Stage Route logic out of `DummyFlowController` partials into a smaller dedicated runtime component or service.
 
@@ -133,7 +134,7 @@
 ```text
 Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
-Latest completed work: ROUTE HOLD is wired after LANE BREAK, and LANE BREAK now triggers a short ROUTE OPEN beat before normal route hold guidance settles in. HUD shows route/hold guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
+Latest completed work: ROUTE HOLD is wired after LANE BREAK, LANE BREAK triggers a short ROUTE OPEN beat, and ROUTE BONUS now opens a more visible SMASH target cluster before normal Forward Smash resolution. HUD shows route/hold/smash guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, and the map layout overlay to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, and warnings during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
 Latest validation: `Tools/RunUnityBatchChecks.ps1` passed on 2026-05-05. `Logs/AlienCrusherSceneValidation.log` refreshed at 00:27 with `Result: 0 error(s), 0 warning(s)`, and `Logs/AlienCrusherMapLayoutAudit.log` refreshed at 00:28 with Stage 1-7 `Result: 0 error(s), 0 warning(s)`. Unity-free scene essentials, static map audit, ROUTE HOLD static audit, and `Tools/RunStaticAudits.ps1` also passed on 2026-05-05. The ROUTE HOLD static audit reads its default tuning values from runtime C# fields before running. The route open beat/map rebuild/landmark/audit/route-hold trail changes still need an in-editor/mobile playtest pass for feel.
 Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.ProgressionCore.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`, `Assets/Scenes/SampleScene.unity`, `Tools/InvokeUnityBatch.ps1`, `Tools/RunUnityBatchChecks.ps1`, `Tools/AuditSceneEssentialsStatic.ps1`, `Tools/AuditRouteHoldTuningStatic.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, `Docs/GAME_UPDATE_ROADMAP.md`, `Docs/GDD_ALIEN_CRUSHER.md`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
 Useful Unity batch command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1`
@@ -142,6 +143,6 @@ Useful playtest checklist command: `powershell -ExecutionPolicy Bypass -File Too
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
 Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
-Next priority: run `Tools/GenerateStagePlaytestChecklist.ps1`, then do a real in-editor/mobile playtest from Stage 1 through Stage 7 and fill the generated checklist. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE OPEN -> ROUTE HOLD readability, trail/beacon clarity, target distance, timer pressure, and that route reward fires once. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
+Next priority: run `Tools/GenerateStagePlaytestChecklist.ps1`, then do a real in-editor/mobile playtest from Stage 1 through Stage 7 and fill the generated checklist. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE OPEN -> ROUTE HOLD readability, trail/beacon clarity, target distance, timer pressure, and that route reward opens one readable SMASH cluster. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
 Known risks: MCP unreliable; no hands-on playmode/mobile pass yet; route pips may be visually noisy; `DummyFlowController` remains an architecture risk; Unity editor shutdown logs a non-blocking temp allocator warning.
 ```
