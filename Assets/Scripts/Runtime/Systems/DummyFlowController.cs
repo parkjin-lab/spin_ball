@@ -1155,6 +1155,10 @@ namespace AlienCrusher.Systems
 		[Min(0.05f)]
 		private float mapLayoutDebugSweepStepSeconds = 0.35f;
 
+		[Header("Playtest Telemetry")]
+		[SerializeField]
+		private bool enablePlaytestTelemetry = true;
+
 		private string runtimeMapLayoutDebugSummary = string.Empty;
 		private string runtimeMapLayoutDebugWarning = string.Empty;
 		private float runtimeMapLayoutDebugUpdatedAt;

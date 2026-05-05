@@ -344,6 +344,7 @@ namespace AlienCrusher.Systems
 				{
 					ActivateStageAdvanceRouteGuidance(resetReward: false);
 					StartRouteOpenBeat();
+					LogPlaytestRouteOpen((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : bonusIndex));
 					ResolvePlayerController();
 					cachedPlayerController?.ApplyCounterSurge(1.08f, 1.12f, 1.15f);
 					feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.24f, 0.62f, major: false);
@@ -376,6 +377,7 @@ namespace AlienCrusher.Systems
 			Vector3 val = (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero);
 			PushAnnouncement((num4 > 0) ? $"ROUTE HOLD +{num4:0}" : "ROUTE HOLD", AnnouncementTone.Milestone, 0.88f);
 			damageNumberSystem?.ShowTag(val + Vector3.up * 1.25f, "ROUTE HOLD", false);
+			LogPlaytestRouteHoldSuccess(destroyedCount);
 			ResolvePlayerController();
 			cachedPlayerController?.ApplyCounterSurge(1.05f, 1.1f, Mathf.Max(0.3f, routeHoldCounterDuration));
 			feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.2f, 0.58f, major: false);
@@ -552,6 +554,7 @@ namespace AlienCrusher.Systems
 			PushAnnouncement($"ROUTE BONUS -> {districtLabel} +{Mathf.Max(0, stageAdvanceRouteRewardScore):0}", AnnouncementTone.Milestone, 1.05f);
 			SpawnStageAdvanceRewardProps(activeStageAdvanceRouteMarker);
 			PreviewStageAdvanceFollowupTarget(activeStageAdvanceRouteMarker);
+			LogPlaytestRouteBonusClaim(districtLabel);
 		}
 
 		private string GetRouteDistrictPayoffLabel()
@@ -833,6 +836,7 @@ namespace AlienCrusher.Systems
 				return;
 			}
 			forwardSmashBonusPending = false;
+			string targetName = ((Component)forwardSmashTargetBlock).transform.name;
 			Vector3 position = ((Component)forwardSmashTargetBlock).transform.position;
 			int num = Mathf.Max(0, forwardSmashBonusScore);
 			if (num > 0)
@@ -847,6 +851,7 @@ namespace AlienCrusher.Systems
 			cameraFollowSystem?.AddImpulse(0.95f);
 			TriggerForwardSmashChain(position);
 			forwardSmashTargetBlock = null;
+			LogPlaytestForwardSmash(targetName, num);
 		}
 
 		private void TriggerForwardSmashChain(Vector3 center)

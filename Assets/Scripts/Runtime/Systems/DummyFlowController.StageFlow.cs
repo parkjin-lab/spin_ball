@@ -62,6 +62,7 @@ namespace AlienCrusher.Systems
 			UpdateMetaProgressUi();
 			UpdateLobbyMissionGuide();
 			RefreshActionSkillButtons(force: true);
+			LogPlaytestStageStart();
 			Vector3 val = (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero);
 			feedbackSystem?.PlayStageStartFeedback(val + Vector3.up * 0.22f);
 			if (useStageEntryImpact)
@@ -125,6 +126,7 @@ namespace AlienCrusher.Systems
 			}
 			UpdateMetaProgressUi();
 			UpdateResultSummary();
+			LogPlaytestStageEnd();
 		}
 
 		public void FailStage()
