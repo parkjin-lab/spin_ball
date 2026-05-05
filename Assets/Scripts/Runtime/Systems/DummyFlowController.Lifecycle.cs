@@ -274,7 +274,8 @@ namespace AlienCrusher.Systems
 
 			EnsureMapLayoutOverlayStyles();
 			float width = Mathf.Min(Mathf.Max(280f, Screen.width - 24f), 760f);
-			float height = string.IsNullOrEmpty(runtimeMapLayoutDebugWarning) || runtimeMapLayoutDebugWarning == "OK" ? 86f : 106f;
+			bool hasWarnings = !string.IsNullOrEmpty(runtimeMapLayoutDebugWarning) && runtimeMapLayoutDebugWarning != "OK";
+			float height = hasWarnings ? 152f : 132f;
 			Rect box = new Rect(12f, 12f, width, height);
 			GUI.Box(box, GUIContent.none);
 			float ageSeconds = Mathf.Max(0f, Time.unscaledTime - runtimeMapLayoutDebugUpdatedAt);
@@ -282,7 +283,44 @@ namespace AlienCrusher.Systems
 			GUI.Label(new Rect(box.x + 10f, box.y + 8f, box.width - 20f, 22f), $"MAP LAYOUT TEST  /  F6 PREV  F7 NEXT  F8 RESET  F9 HIDE  {sweepText}  /  {ageSeconds:0.0}s", runtimeMapLayoutOverlayStyle);
 			GUI.Label(new Rect(box.x + 10f, box.y + 32f, box.width - 20f, 40f), runtimeMapLayoutDebugSummary, runtimeMapLayoutOverlayStyle);
 			string warningText = runtimeMapLayoutDebugWarning == "OK" ? "warnings: none" : $"warnings: {runtimeMapLayoutDebugWarning}";
-			GUI.Label(new Rect(box.x + 10f, box.y + 68f, box.width - 20f, 32f), warningText, runtimeMapLayoutDebugWarning == "OK" ? runtimeMapLayoutOverlayStyle : runtimeMapLayoutWarningStyle);
+			GUI.Label(new Rect(box.x + 10f, box.y + 68f, box.width - 20f, 28f), warningText, runtimeMapLayoutDebugWarning == "OK" ? runtimeMapLayoutOverlayStyle : runtimeMapLayoutWarningStyle);
+			GUI.Label(new Rect(box.x + 10f, box.y + 96f, box.width - 20f, 24f), GetRouteDebugPrimaryLine(), runtimeMapLayoutOverlayStyle);
+			GUI.Label(new Rect(box.x + 10f, box.y + 116f, box.width - 20f, 32f), GetRouteDebugSecondaryLine(), runtimeMapLayoutOverlayStyle);
+#endif
+		}
+
+		private string GetRouteDebugPrimaryLine()
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			int destroyedCount = (scoreSystem != null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0;
+			string laneBreakText = $"LANE {Mathf.Min(destroyedCount, GetEarlyCrushLaneBreakTarget()):0}/{GetEarlyCrushLaneBreakTarget():0}";
+			string routeOpenText = IsRouteOpenBeatActive() ? $"OPEN {Mathf.CeilToInt(routeOpenBeatRemaining):0}s" : "OPEN idle";
+			string routeHoldText = routeHoldBonusGranted
+				? "HOLD done"
+				: (IsRouteHoldObjectiveActive(destroyedCount)
+					? $"HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(destroyedCount) * 100f):0}%  {GetRouteHoldRemainingWrecks(destroyedCount):0} left  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s"
+					: "HOLD waiting");
+			return $"ROUTE TEST  /  {laneBreakText}  /  {routeOpenText}  /  {routeHoldText}";
+#else
+			return string.Empty;
+#endif
+		}
+
+		private string GetRouteDebugSecondaryLine()
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			string targetText = "target none";
+			if (activeStageAdvanceRouteMarker != null && playerTransform != null)
+			{
+				float distance = Vector3.Distance(playerTransform.position, activeStageAdvanceRouteMarker.position);
+				targetText = $"{activeStageAdvanceRouteMarker.name}  {distance:0.#}m";
+			}
+			string rewardText = stageAdvanceRouteRewardGranted ? "BONUS claimed" : (stageAdvanceRouteGuidanceActive ? "BONUS pending" : "BONUS idle");
+			string smashText = IsForwardSmashTargetActive() ? $"SMASH {forwardSmashTargetBlock.name}" : "SMASH idle";
+			string payoffText = GetRouteDistrictPayoffLabel();
+			return $"FOLLOWUP  /  {rewardText}  /  {smashText}  /  TARGET {targetText}  /  PAYOFF {payoffText}";
+#else
+			return string.Empty;
 #endif
 		}
 
