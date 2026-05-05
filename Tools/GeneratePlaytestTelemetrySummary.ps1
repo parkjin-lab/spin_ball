@@ -523,6 +523,65 @@ function Get-TuningCandidateCurrentValues {
     }
 }
 
+function Get-TuningCandidateExperimentLines {
+    param(
+        [string]$Key,
+        $TuningConfig
+    )
+
+    $lines = [System.Collections.Generic.List[string]]::new()
+
+    switch ($Key) {
+        'OPENING' {
+            $raisedBeat = [Math]::Min(3.0, $TuningConfig.RouteOpenBeatSeconds + 0.4)
+            $loweredLaneBreak = [Math]::Max(6, $TuningConfig.EarlyCrushLaneBreakTarget - 1)
+            $lines.Add(('First pass: raise routeOpenBeatSeconds from {0:0.#}s to {1:0.#}s so the ROUTE OPEN beat hangs on screen a little longer.' -f $TuningConfig.RouteOpenBeatSeconds, $raisedBeat))
+            $lines.Add(('Alternate: lower earlyCrushLaneBreakTarget from {0} to {1} if the first lane still feels too demanding in Stage 1-3.' -f $TuningConfig.EarlyCrushLaneBreakTarget, $loweredLaneBreak))
+        }
+        'ROUTE_HOLD' {
+            $raisedWindow = [Math]::Min(48.0, $TuningConfig.RouteHoldWindowSeconds + 4.0)
+            $loweredThreshold = [Math]::Max(0.35, $TuningConfig.RouteHoldProgressThreshold - 0.03)
+            $raisedPips = [Math]::Min(6, $TuningConfig.RouteHoldTrailPipCount + 1)
+            $lines.Add(('First pass: raise routeHoldWindowSeconds from {0:0.#}s to {1:0.#}s and lower routeHoldProgressThreshold from {2:0.##} to {3:0.##}.' -f $TuningConfig.RouteHoldWindowSeconds, $raisedWindow, $TuningConfig.RouteHoldProgressThreshold, $loweredThreshold))
+            $lines.Add(('Alternate: raise routeHoldTrailPipCount from {0} to {1} if players are simply losing the path rather than the timer.' -f $TuningConfig.RouteHoldTrailPipCount, $raisedPips))
+        }
+        'ROUTE_BONUS' {
+            $raisedRadius = [Math]::Min(5.0, $TuningConfig.RouteRewardClusterRadius + 0.6)
+            $raisedProps = [Math]::Min(6, $TuningConfig.RouteRewardClusterPropCount + 1)
+            $lines.Add(('First pass: raise routeRewardClusterRadius from {0:0.#}m to {1:0.#}m so the payoff opens with more readable spacing.' -f $TuningConfig.RouteRewardClusterRadius, $raisedRadius))
+            $lines.Add(('Alternate: raise routeRewardClusterPropCount from {0} to {1} if the reward cluster still feels too small to notice.' -f $TuningConfig.RouteRewardClusterPropCount, $raisedProps))
+        }
+        'FORWARD_SMASH' {
+            $raisedRadius = [Math]::Min(5.2, $TuningConfig.RouteRewardClusterRadius + 0.8)
+            $lines.Add(('First pass: widen routeRewardClusterRadius from {0:0.#}m to {1:0.#}m so the final smash target is less buried in its payoff clutter.' -f $TuningConfig.RouteRewardClusterRadius, $raisedRadius))
+            $lines.Add("Alternate: keep the current numbers and instead verify the highlighted smash anchor is the brightest/cleanest object in the cluster.")
+        }
+        'MID_RUN' {
+            $raisedStageDuration = [Math]::Min(105.0, $TuningConfig.StageDurationSeconds + 5.0)
+            $raisedTrailDistance = [Math]::Min(24.0, $TuningConfig.RouteHoldTrailMaxDistance + 3.0)
+            $lines.Add(('First pass: raise stageDurationSeconds from {0:0.#}s to {1:0.#}s if late-route drift looks like pure time starvation.' -f $TuningConfig.StageDurationSeconds, $raisedStageDuration))
+            $lines.Add(('Alternate: raise routeHoldTrailMaxDistance from {0:0.#}m to {1:0.#}m if players are drifting because the next route target appears too late.' -f $TuningConfig.RouteHoldTrailMaxDistance, $raisedTrailDistance))
+        }
+        'FINAL_PUSH' {
+            $raisedStageDuration = [Math]::Min(105.0, $TuningConfig.StageDurationSeconds + 5.0)
+            $loweredRatio = [Math]::Max(0.42, $TuningConfig.StageAdvanceTargetRatio - 0.02)
+            $lines.Add(('First pass: raise stageDurationSeconds from {0:0.#}s to {1:0.#}s so the finish lane gets one more readable commit window.' -f $TuningConfig.StageDurationSeconds, $raisedStageDuration))
+            $lines.Add(('Alternate: lower stageAdvanceTargetRatio from {0:0.##} to {1:0.##} if the run is consistently reaching the finish but missing by a small margin.' -f $TuningConfig.StageAdvanceTargetRatio, $loweredRatio))
+        }
+        'BOSS' {
+            $raisedBreakWindow = [Math]::Min(8.5, $TuningConfig.BossBreakWindowDuration + 1.0)
+            $raisedPulseInterval = [Math]::Min(10.0, $TuningConfig.BossPressurePulseInterval + 0.8)
+            $lines.Add(('First pass: raise bossBreakWindowDuration from {0:0.#}s to {1:0.#}s so the core-exposed window reads more clearly.' -f $TuningConfig.BossBreakWindowDuration, $raisedBreakWindow))
+            $lines.Add(('Alternate: raise bossPressurePulseInterval from {0:0.#}s to {1:0.#}s if the boss pressure cadence is drowning the readable action window.' -f $TuningConfig.BossPressurePulseInterval, $raisedPulseInterval))
+        }
+        default {
+            $lines.Add("First pass: compare the current tuning snapshot against the playtest notes and pick the smallest one-variable change that matches the failure pattern.")
+        }
+    }
+
+    return $lines
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedTelemetryLogPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TelemetryLogPath -RelativePath "Logs\AlienCrusherPlaytestTelemetry.log"
 $resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherPlaytestTelemetrySummary.md"
@@ -795,6 +854,9 @@ else {
         $lines.Add("- Observed in: $($candidateEntry.Value.Count) run(s), stages $stageList")
         $lines.Add("- Tune first: $($definition.TuneFirst)")
         $lines.Add("- Current values: $(Get-TuningCandidateCurrentValues -Key $candidateEntry.Key -TuningConfig $currentTuningConfig)")
+        foreach ($experimentLine in @(Get-TuningCandidateExperimentLines -Key $candidateEntry.Key -TuningConfig $currentTuningConfig)) {
+            $lines.Add("- Experiment: $experimentLine")
+        }
         $lines.Add("- Why: $($definition.Why)")
         $lines.Add("")
     }

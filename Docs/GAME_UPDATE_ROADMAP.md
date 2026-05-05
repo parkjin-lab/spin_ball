@@ -19,7 +19,7 @@ This document tracks the current project state, the next production priorities, 
 - LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, `LANE BREAK -> ROUTE OPEN` feedback, HUD guidance, world beacon, route trail pips, route reward, FORWARD SMASH cluster payoff, result badges, and lobby/meta recommendations are connected.
 - Failure result and lobby recommendation copy now start with one bucket-specific first action before explaining the upgrade reason.
 - Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines and append the same route telemetry to `Logs/AlienCrusherPlaytestTelemetry.log` for `SWEEP_START`, stage start, route open, route hold clear, route bonus, forward smash, stage end, and `SWEEP_END`.
-- `Tools/GeneratePlaytestTelemetrySummary.ps1` can convert the telemetry log into a markdown report with a current tuning snapshot, sweep-level summaries, stage trend rollups, tuning candidates, failure bucket actions, and per-run breakdowns for faster Stage 1-7 review.
+- `Tools/GeneratePlaytestTelemetrySummary.ps1` can convert the telemetry log into a markdown report with a current tuning snapshot, sweep-level summaries, stage trend rollups, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdowns for faster Stage 1-7 review.
 - Runtime map rebuilds happen at stage start. Stage 1-7 currently grow from a compact starter layout into wider, denser maps with expanded target marker spacing and stage-gated landmarks.
 - Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
 - Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
@@ -70,7 +70,7 @@ Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 - ROUTE HOLD reward fires once and feels like a meaningful payoff
 - console filter `[AlienCrusher][Playtest]` shows the expected route event order per run
 - `Logs/AlienCrusherPlaytestTelemetry.log` keeps the same event order from `SWEEP_START` through `SWEEP_END`
-- `Tools/GeneratePlaytestTelemetrySummary.ps1` produces a readable current tuning snapshot, sweep summary, stage trend rollup, tuning candidates, failure bucket actions, and per-run breakdown after the sweep
+- `Tools/GeneratePlaytestTelemetrySummary.ps1` produces a readable current tuning snapshot, sweep summary, stage trend rollup, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdown after the sweep
 
 Done when:
 - each stage band has one short note on readability, route pressure, and map identity
