@@ -270,6 +270,98 @@ function Get-RunFocusHint {
     return Get-BucketFocusHint -Bucket (Get-RunBucket -Run $Run)
 }
 
+function Get-TuningCandidateDefinition {
+    param([string]$Key)
+
+    switch ($Key) {
+        'OPENING' {
+            return [pscustomobject]@{
+                Label = "Opening Clarity"
+                TuneFirst = '`routeOpenBeatSeconds`, starter-lane density / minimum opening in `DummyFlowController.RuntimeMapFallback.cs`, early lane-break target pacing'
+                Why = 'Runs are failing before ROUTE OPEN, so the first crush lane may be too sparse or the opening beat may not read fast enough.'
+            }
+        }
+        'ROUTE_HOLD' {
+            return [pscustomobject]@{
+                Label = "Route Hold Readability"
+                TuneFirst = '`routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, `Target_A/B` spacing'
+                Why = 'ROUTE OPEN is happening, but the player is not converting it into a readable hold path often enough.'
+            }
+        }
+        'ROUTE_BONUS' {
+            return [pscustomobject]@{
+                Label = "Route Bonus Payoff"
+                TuneFirst = '`routeRewardClusterRadius`, `routeRewardClusterPropCount`, reward-cluster spawn readability near `Target_A/B`'
+                Why = 'ROUTE HOLD is clearing, but the bonus cluster is not landing as a clear payoff beat.'
+            }
+        }
+        'FORWARD_SMASH' {
+            return [pscustomobject]@{
+                Label = "Forward Smash Visibility"
+                TuneFirst = 'Forward Smash target highlight/contrast, reward-cluster spacing, end-of-route `Target_A/B` staging'
+                Why = 'The reward beat is appearing, but the final smash target is not closing the loop cleanly.'
+            }
+        }
+        'MID_RUN' {
+            return [pscustomobject]@{
+                Label = "Mid-Run Carry"
+                TuneFirst = '`routeHoldTrail*`, next-cluster visibility, `stageDurationSeconds`, carry-speed preservation'
+                Why = 'The route opens, but momentum collapses before the next cluster or finish can be committed to.'
+            }
+        }
+        'FINAL_PUSH' {
+            return [pscustomobject]@{
+                Label = "Final Push Pressure"
+                TuneFirst = '`stageDurationSeconds`, stage target pacing, end-lane `Target_A/B` spacing, side-prop distraction around the finish'
+                Why = 'The player is reaching late-run value, then losing the close because the finish lane reads too late or asks too much.'
+            }
+        }
+        'BOSS' {
+            return [pscustomobject]@{
+                Label = "Boss Window Readability"
+                TuneFirst = '`bossBreakWindowDuration`, `bossPressurePulseInterval`, `bossPressurePulseRadius`, `bossShieldRegenInterval`'
+                Why = 'The boss phase is being reached, but the break window or pressure cadence is likely too hard to parse in motion.'
+            }
+        }
+        default {
+            return [pscustomobject]@{
+                Label = "General Review"
+                TuneFirst = 'Checklist notes, route telemetry order, and stage identity comparison'
+                Why = 'Use the stage notes to decide whether the issue is readability, pacing, or payoff clarity.'
+            }
+        }
+    }
+}
+
+function Get-RunTuningCandidateKeys {
+    param($Run)
+
+    $keys = [System.Collections.Generic.List[string]]::new()
+
+    if (-not (Test-RunHasEvent -Run $Run -EventName 'ROUTE_OPEN')) {
+        $keys.Add('OPENING')
+    }
+    elseif (-not (Test-RunHasEvent -Run $Run -EventName 'ROUTE_HOLD_CLEAR')) {
+        $keys.Add('ROUTE_HOLD')
+    }
+    elseif (-not (Test-RunHasEvent -Run $Run -EventName 'ROUTE_BONUS')) {
+        $keys.Add('ROUTE_BONUS')
+    }
+    elseif (-not (Test-RunHasEvent -Run $Run -EventName 'FORWARD_SMASH')) {
+        $keys.Add('FORWARD_SMASH')
+    }
+
+    switch (Get-RunBucket -Run $Run) {
+        'OPENING FAILED' { if (-not $keys.Contains('OPENING')) { $keys.Add('OPENING') } }
+        'ROUTE HOLD MISSED' { if (-not $keys.Contains('ROUTE_HOLD')) { $keys.Add('ROUTE_HOLD') } }
+        'MID-RUN DRIFT' { if (-not $keys.Contains('MID_RUN')) { $keys.Add('MID_RUN') } }
+        'FINAL PUSH FAILED' { if (-not $keys.Contains('FINAL_PUSH')) { $keys.Add('FINAL_PUSH') } }
+        'BOSS PHASE' { if (-not $keys.Contains('BOSS')) { $keys.Add('BOSS') } }
+    }
+
+    return $keys
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedTelemetryLogPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TelemetryLogPath -RelativePath "Logs\AlienCrusherPlaytestTelemetry.log"
 $resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherPlaytestTelemetrySummary.md"
@@ -493,6 +585,38 @@ else {
         $lines.Add("- Route loop coverage: open $routeOpenCount/$runCount, hold $routeHoldCount/$runCount, bonus $routeBonusCount/$runCount, smash $forwardSmashCount/$runCount")
         $lines.Add("- Buckets: $bucketSummary")
         $lines.Add("- Suggested focus: $stageFocus")
+        $lines.Add("")
+    }
+}
+
+$lines.Add("## Tuning Candidates")
+$lines.Add("")
+
+$tuningCandidates = @{}
+foreach ($run in $runs) {
+    foreach ($candidateKey in @(Get-RunTuningCandidateKeys -Run $run)) {
+        if (-not $tuningCandidates.ContainsKey($candidateKey)) {
+            $tuningCandidates[$candidateKey] = [System.Collections.Generic.List[int]]::new()
+        }
+        $tuningCandidates[$candidateKey].Add([int]$run.Stage)
+    }
+}
+
+if ($tuningCandidates.Count -eq 0) {
+    $lines.Add("No tuning candidates were inferred yet.")
+    $lines.Add("")
+}
+else {
+    foreach ($candidateEntry in @($tuningCandidates.GetEnumerator() | Sort-Object -Property @{ Expression = { $_.Value.Count }; Descending = $true }, @{ Expression = 'Key'; Descending = $false })) {
+        $definition = Get-TuningCandidateDefinition -Key $candidateEntry.Key
+        $uniqueStages = @($candidateEntry.Value | Sort-Object -Unique)
+        $stageList = [string]::Join(", ", @($uniqueStages | ForEach-Object { "{0:00}" -f $_ }))
+
+        $lines.Add("### $($definition.Label)")
+        $lines.Add("")
+        $lines.Add("- Observed in: $($candidateEntry.Value.Count) run(s), stages $stageList")
+        $lines.Add("- Tune first: $($definition.TuneFirst)")
+        $lines.Add("- Why: $($definition.Why)")
         $lines.Add("")
     }
 }
