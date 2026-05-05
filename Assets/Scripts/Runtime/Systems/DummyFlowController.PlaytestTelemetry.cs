@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using AlienCrusher.Gameplay;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -6,6 +8,9 @@ namespace AlienCrusher.Systems
 {
 	public partial class DummyFlowController
 	{
+		private string playtestTelemetryLogPath;
+		private bool playtestTelemetryLogWriteFailed;
+
 		private void EmitPlaytestTelemetry(string eventName, string detail = "")
 		{
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -14,7 +19,64 @@ namespace AlienCrusher.Systems
 				return;
 			}
 			string suffix = string.IsNullOrWhiteSpace(detail) ? string.Empty : $" {detail}";
-			Debug.Log((object)$"[AlienCrusher][Playtest] stage={Mathf.Max(1, currentStageNumber):00} event={eventName}{suffix}");
+			string line = $"[AlienCrusher][Playtest] time={DateTime.Now:yyyy-MM-dd HH:mm:ss} stage={Mathf.Max(1, currentStageNumber):00} event={eventName}{suffix}";
+			Debug.Log((object)line);
+			AppendPlaytestTelemetryLine(line);
+#endif
+		}
+
+		private void AppendPlaytestTelemetryLine(string line)
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (playtestTelemetryLogWriteFailed || string.IsNullOrWhiteSpace(line))
+			{
+				return;
+			}
+			try
+			{
+				string logPath = GetPlaytestTelemetryLogPath();
+				if (string.IsNullOrWhiteSpace(logPath))
+				{
+					return;
+				}
+				string directoryPath = Path.GetDirectoryName(logPath);
+				if (!string.IsNullOrWhiteSpace(directoryPath))
+				{
+					Directory.CreateDirectory(directoryPath);
+				}
+				File.AppendAllText(logPath, line + Environment.NewLine);
+			}
+			catch (Exception exception)
+			{
+				playtestTelemetryLogWriteFailed = true;
+				Debug.LogWarning((object)$"[AlienCrusher][Playtest] Failed to append telemetry log: {exception.Message}");
+			}
+#endif
+		}
+
+		private string GetPlaytestTelemetryLogPath()
+		{
+#if UNITY_EDITOR
+			if (!string.IsNullOrWhiteSpace(playtestTelemetryLogPath))
+			{
+				return playtestTelemetryLogPath;
+			}
+			string projectRoot = Path.GetDirectoryName(Application.dataPath);
+			if (string.IsNullOrWhiteSpace(projectRoot))
+			{
+				return string.Empty;
+			}
+			playtestTelemetryLogPath = Path.Combine(projectRoot, "Logs", "AlienCrusherPlaytestTelemetry.log");
+			return playtestTelemetryLogPath;
+#elif DEVELOPMENT_BUILD
+			if (!string.IsNullOrWhiteSpace(playtestTelemetryLogPath))
+			{
+				return playtestTelemetryLogPath;
+			}
+			playtestTelemetryLogPath = Path.Combine(Application.persistentDataPath, "AlienCrusherPlaytestTelemetry.log");
+			return playtestTelemetryLogPath;
+#else
+			return string.Empty;
 #endif
 		}
 

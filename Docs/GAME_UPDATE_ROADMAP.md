@@ -18,19 +18,19 @@ This document tracks the current project state, the next production priorities, 
 - Form and meta progression exist around the current runtime forms `Sphere`, `Spike`, `Ram`, `Saucer`, and `Crusher`, plus meta upgrades such as `SizeCore`, `ImpactCore`, and `DpAmplifier`.
 - LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, `LANE BREAK -> ROUTE OPEN` feedback, HUD guidance, world beacon, route trail pips, route reward, FORWARD SMASH cluster payoff, result badges, and lobby/meta recommendations are connected.
 - Failure result and lobby recommendation copy now start with one bucket-specific first action before explaining the upgrade reason.
-- Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines for stage start, route open, route hold clear, route bonus, forward smash, and stage end.
+- Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines and append the same route telemetry to `Logs/AlienCrusherPlaytestTelemetry.log` for stage start, route open, route hold clear, route bonus, forward smash, and stage end.
 - Runtime map rebuilds happen at stage start. Stage 1-7 currently grow from a compact starter layout into wider, denser maps with expanded target marker spacing and stage-gated landmarks.
 - Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
 - Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status
-- Latest scene validation report from 2026-05-05 20:04 in `Logs/AlienCrusherSceneValidation.log` shows `0 error(s), 0 warning(s)`.
+- Latest scene validation report from 2026-05-05 20:52 in `Logs/AlienCrusherSceneValidation.log` shows `0 error(s), 0 warning(s)`.
 - `Assets/Scenes/SampleScene.unity` contains `HudRouteArrow` with child `ArrowText`, and `Tools/AuditSceneEssentialsStatic.ps1` verifies those scene essentials with `0 warning(s)`.
 - Unity-free static map audit passes Stage 1-7 formula checks with `0 warning(s)`.
 - Unity-free ROUTE HOLD tuning audit passes with `0 warning(s)` and reads current default tuning values, including route open beat timing, from runtime C# fields before auditing.
 - `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set.
-- Runtime Unity map layout batch report from 2026-05-05 20:05 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
+- Runtime Unity map layout batch report from 2026-05-05 20:53 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
 - `Tools/GenerateStagePlaytestChecklist.ps1` generates `Logs/AlienCrusherStagePlaytestChecklist.md`, combining current validation results, Stage 1-7 map growth, route targets, route pressure, target distances, and hands-on observation prompts.
 
@@ -68,6 +68,7 @@ Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 - route trail pips are not noisy on a small mobile-style viewport
 - ROUTE HOLD reward fires once and feels like a meaningful payoff
 - console filter `[AlienCrusher][Playtest]` shows the expected route event order per run
+- `Logs/AlienCrusherPlaytestTelemetry.log` keeps the same event order after the sweep
 
 Done when:
 - each stage band has one short note on readability, route pressure, and map identity
