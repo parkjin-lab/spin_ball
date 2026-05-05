@@ -191,6 +191,85 @@ function Get-RunIssues {
     return $issues
 }
 
+function Test-RunHasEvent {
+    param(
+        $Run,
+        [string]$EventName
+    )
+
+    foreach ($entry in $Run.Entries) {
+        if ($entry.Event -eq $EventName) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
+function Get-RunEndEntry {
+    param($Run)
+
+    return Get-FirstEntryByEvent -Entries $Run.Entries -EventName 'STAGE_END'
+}
+
+function Get-RunResult {
+    param($Run)
+
+    $endEntry = Get-RunEndEntry -Run $Run
+    if ($null -eq $endEntry) {
+        return "OPEN"
+    }
+
+    return Get-StageEndResult -Detail $endEntry.Detail
+}
+
+function Get-RunBucket {
+    param($Run)
+
+    $endEntry = Get-RunEndEntry -Run $Run
+    if ($null -eq $endEntry) {
+        return "UNKNOWN"
+    }
+
+    return Get-StageEndBucket -Detail $endEntry.Detail
+}
+
+function Get-BucketFocusHint {
+    param([string]$Bucket)
+
+    switch ($Bucket) {
+        'OPENING FAILED' { return "Check opening lane clarity, dense low-rise placement, and early LANE BREAK pacing." }
+        'ROUTE HOLD MISSED' { return "Check route beacon/trail readability, target distance, and ROUTE HOLD window pressure." }
+        'MID-RUN DRIFT' { return "Check next-cluster readability, carry speed, and whether the route payoff pulls the player forward." }
+        'FINAL PUSH FAILED' { return "Check goal-lane commitment, end-of-run target spacing, and whether side props distract from the finish." }
+        'BOSS PHASE' { return "Check pylon/core readability, damage windows, and phase transition pressure." }
+        'NONE' { return "Stable finish; compare pacing, map identity, and payoff feel against nearby stages." }
+        default { return "Check the first missing route milestone and compare the stage note against the checklist." }
+    }
+}
+
+function Get-RunFocusHint {
+    param($Run)
+
+    if (-not (Test-RunHasEvent -Run $Run -EventName 'ROUTE_OPEN')) {
+        return "Check opening lane clarity, dense row placement, and early LANE BREAK target count."
+    }
+
+    if (-not (Test-RunHasEvent -Run $Run -EventName 'ROUTE_HOLD_CLEAR')) {
+        return "Check route beacon/trail readability, target distance, and ROUTE HOLD pressure after ROUTE OPEN."
+    }
+
+    if (-not (Test-RunHasEvent -Run $Run -EventName 'ROUTE_BONUS')) {
+        return "Check ROUTE BONUS trigger timing and whether the reward cluster is spawning clearly."
+    }
+
+    if (-not (Test-RunHasEvent -Run $Run -EventName 'FORWARD_SMASH')) {
+        return "Check Forward Smash target highlight, reward cluster spacing, and payoff contrast."
+    }
+
+    return Get-BucketFocusHint -Bucket (Get-RunBucket -Run $Run)
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedTelemetryLogPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TelemetryLogPath -RelativePath "Logs\AlienCrusherPlaytestTelemetry.log"
 $resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherPlaytestTelemetrySummary.md"
@@ -326,6 +405,123 @@ else {
     }
 }
 
+$lines.Add("## Stage Trends")
+$lines.Add("")
+
+$stageGroups = @($runs | Group-Object Stage | Sort-Object { [int]$_.Name })
+if ($stageGroups.Count -eq 0) {
+    $lines.Add("No stage runs were parsed yet.")
+    $lines.Add("")
+}
+else {
+    foreach ($stageGroup in $stageGroups) {
+        $stageRuns = @($stageGroup.Group)
+        $runCount = $stageRuns.Count
+        $victoryCount = 0
+        $defeatCount = 0
+        $routeOpenCount = 0
+        $routeHoldCount = 0
+        $routeBonusCount = 0
+        $forwardSmashCount = 0
+        $bucketCounts = @{}
+
+        foreach ($stageRun in $stageRuns) {
+            $result = Get-RunResult -Run $stageRun
+            $bucket = Get-RunBucket -Run $stageRun
+
+            if ($result -eq 'VICTORY') {
+                $victoryCount++
+            }
+            else {
+                $defeatCount++
+            }
+
+            if (Test-RunHasEvent -Run $stageRun -EventName 'ROUTE_OPEN') {
+                $routeOpenCount++
+            }
+            if (Test-RunHasEvent -Run $stageRun -EventName 'ROUTE_HOLD_CLEAR') {
+                $routeHoldCount++
+            }
+            if (Test-RunHasEvent -Run $stageRun -EventName 'ROUTE_BONUS') {
+                $routeBonusCount++
+            }
+            if (Test-RunHasEvent -Run $stageRun -EventName 'FORWARD_SMASH') {
+                $forwardSmashCount++
+            }
+
+            if (-not $bucketCounts.ContainsKey($bucket)) {
+                $bucketCounts[$bucket] = 0
+            }
+            $bucketCounts[$bucket]++
+        }
+
+        $bucketSummary = if ($bucketCounts.Count -eq 0) {
+            "none"
+        }
+        else {
+            [string]::Join(", ", @($bucketCounts.GetEnumerator() | Sort-Object -Property @{ Expression = 'Value'; Descending = $true }, @{ Expression = 'Key'; Descending = $false } | ForEach-Object { "{0} x{1}" -f $_.Key, $_.Value }))
+        }
+
+        $dominantDefeatBucket = "NONE"
+        $defeatBucketEntries = @($bucketCounts.GetEnumerator() | Where-Object { $_.Key -ne 'NONE' -and $_.Key -ne 'UNKNOWN' } | Sort-Object -Property @{ Expression = 'Value'; Descending = $true }, @{ Expression = 'Key'; Descending = $false })
+        if ($defeatBucketEntries.Count -gt 0) {
+            $dominantDefeatBucket = $defeatBucketEntries[0].Key
+        }
+
+        $stageFocus = if ($routeOpenCount -eq 0) {
+            "Check opening lane clarity, dense low-rise rows, and early route target count."
+        }
+        elseif ($routeHoldCount -lt $routeOpenCount) {
+            "Check route beacon/trail readability, target distance, and ROUTE HOLD window pressure."
+        }
+        elseif ($routeBonusCount -lt $routeHoldCount) {
+            "Check ROUTE BONUS trigger timing and whether the reward cluster spawns cleanly."
+        }
+        elseif ($forwardSmashCount -lt $routeBonusCount) {
+            "Check Forward Smash target highlight and payoff cluster visibility."
+        }
+        elseif ($defeatCount -gt 0 -and $dominantDefeatBucket -ne 'NONE') {
+            Get-BucketFocusHint -Bucket $dominantDefeatBucket
+        }
+        else {
+            "Stable route loop; compare pacing, map identity, and payoff feel against nearby stages."
+        }
+
+        $lines.Add("### Stage $("{0:00}" -f [int]$stageGroup.Name)")
+        $lines.Add("")
+        $lines.Add("- Runs: $runCount (victory $victoryCount / defeat $defeatCount)")
+        $lines.Add("- Route loop coverage: open $routeOpenCount/$runCount, hold $routeHoldCount/$runCount, bonus $routeBonusCount/$runCount, smash $forwardSmashCount/$runCount")
+        $lines.Add("- Buckets: $bucketSummary")
+        $lines.Add("- Suggested focus: $stageFocus")
+        $lines.Add("")
+    }
+}
+
+$lines.Add("## Failure Buckets")
+$lines.Add("")
+
+$defeatRuns = @($runs | Where-Object { (Get-RunResult -Run $_) -ne 'VICTORY' })
+if ($defeatRuns.Count -eq 0) {
+    $lines.Add("No failing stage-end buckets were observed yet.")
+    $lines.Add("")
+}
+else {
+    $bucketStages = @{}
+    foreach ($defeatRun in $defeatRuns) {
+        $bucket = Get-RunBucket -Run $defeatRun
+        if (-not $bucketStages.ContainsKey($bucket)) {
+            $bucketStages[$bucket] = [System.Collections.Generic.List[int]]::new()
+        }
+        $bucketStages[$bucket].Add([int]$defeatRun.Stage)
+    }
+
+    foreach ($bucketEntry in @($bucketStages.GetEnumerator() | Sort-Object -Property @{ Expression = { $_.Value.Count }; Descending = $true }, @{ Expression = 'Key'; Descending = $false })) {
+        $stageList = [string]::Join(", ", @($bucketEntry.Value | Sort-Object | ForEach-Object { "{0:00}" -f $_ }))
+        $lines.Add("- $($bucketEntry.Key): $($bucketEntry.Value.Count) run(s), stages $stageList. Action: $(Get-BucketFocusHint -Bucket $bucketEntry.Key)")
+    }
+    $lines.Add("")
+}
+
 $lines.Add("## Run Summary")
 $lines.Add("")
 
@@ -354,6 +550,7 @@ foreach ($run in $runs) {
     $lines.Add("- Forward smash: $(Format-EntryLine -Entry $smashEntry)")
     $lines.Add("- End: $(Format-EntryLine -Entry $endEntry)")
     $lines.Add("- Verdict: result=$result / bucket=$bucket")
+    $lines.Add("- Suggested focus: $(Get-RunFocusHint -Run $run)")
     if ($issues.Count -eq 0) {
         $lines.Add("- Issues: none")
     }
