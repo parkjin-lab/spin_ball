@@ -147,6 +147,24 @@ namespace AlienCrusher.Systems
 #endif
 		}
 
+		private void LogPlaytestSweepStart(int maxStage, int restoreStage)
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			EmitPlaytestTelemetry(
+				"SWEEP_START",
+				$"maxStage={Mathf.Max(1, maxStage):00} restore={Mathf.Max(1, restoreStage):00}");
+#endif
+		}
+
+		private void LogPlaytestSweepEnd(int restoredStage, bool completed)
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			EmitPlaytestTelemetry(
+				"SWEEP_END",
+				$"restored={Mathf.Max(1, restoredStage):00} completed={(completed ? "yes" : "no")}");
+#endif
+		}
+
 		private string FormatPlaytestActiveTarget()
 		{
 			if ((Object)(object)activeStageAdvanceRouteMarker == (Object)null)

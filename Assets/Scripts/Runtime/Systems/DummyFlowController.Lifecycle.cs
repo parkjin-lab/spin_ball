@@ -215,11 +215,13 @@ namespace AlienCrusher.Systems
 
 			StopCoroutine(mapLayoutDebugSweepRoutine);
 			mapLayoutDebugSweepRoutine = null;
+			int restoredStage = restoreStage ? Mathf.Max(1, mapLayoutDebugSweepRestoreStage) : Mathf.Max(1, currentStageNumber);
 			if (restoreStage)
 			{
-				currentStageNumber = Mathf.Max(1, mapLayoutDebugSweepRestoreStage);
+				currentStageNumber = restoredStage;
 				RebuildRuntimeStageMap();
 			}
+			LogPlaytestSweepEnd(restoredStage, completed: false);
 
 			return true;
 #else
@@ -237,6 +239,7 @@ namespace AlienCrusher.Systems
 			}
 
 			mapLayoutDebugSweepRestoreStage = Mathf.Max(1, currentStageNumber);
+			LogPlaytestSweepStart(Mathf.Max(1, mapLayoutDebugMaxStage), mapLayoutDebugSweepRestoreStage);
 			mapLayoutDebugSweepRoutine = StartCoroutine(MapLayoutDebugSweepRoutine());
 #endif
 		}
@@ -258,6 +261,7 @@ namespace AlienCrusher.Systems
 			currentStageNumber = Mathf.Max(1, mapLayoutDebugSweepRestoreStage);
 			RebuildRuntimeStageMap();
 			mapLayoutDebugSweepRoutine = null;
+			LogPlaytestSweepEnd(currentStageNumber, completed: true);
 			Debug.Log((object)$"[AlienCrusher][MapLayout][Debug] Sweep complete. Restored stage {currentStageNumber:00}.");
 #else
 			yield break;

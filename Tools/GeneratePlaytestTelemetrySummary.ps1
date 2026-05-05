@@ -54,14 +54,31 @@ function Parse-TelemetryLine {
 function New-RunRecord {
     param(
         [int]$Stage,
-        [datetime]$Time
+        [datetime]$Time,
+        [string]$SweepLabel
     )
 
     return [pscustomobject]@{
         Stage = $Stage
         StartTime = $Time
         EndTime = $null
+        SweepLabel = $SweepLabel
         Entries = [System.Collections.Generic.List[object]]::new()
+    }
+}
+
+function New-SweepRecord {
+    param(
+        [string]$Label,
+        $StartEntry
+    )
+
+    return [pscustomobject]@{
+        Label = $Label
+        StartEntry = $StartEntry
+        EndEntry = $null
+        Entries = [System.Collections.Generic.List[object]]::new()
+        Stages = [System.Collections.Generic.List[int]]::new()
     }
 }
 
@@ -122,6 +139,25 @@ function Get-StageEndBucket {
     }
 
     return "UNKNOWN"
+}
+
+function Get-DetailField {
+    param(
+        [string]$Detail,
+        [string]$FieldName
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Detail) -or [string]::IsNullOrWhiteSpace($FieldName)) {
+        return ""
+    }
+
+    $pattern = "(?:^|\s)$([regex]::Escape($FieldName))=(?<value>\S+)"
+    $match = [regex]::Match($Detail, $pattern)
+    if ($match.Success) {
+        return $match.Groups['value'].Value.Trim()
+    }
+
+    return ""
 }
 
 function Get-RunIssues {
@@ -201,16 +237,44 @@ if ($entries.Count -eq 0) {
 }
 
 $runs = [System.Collections.Generic.List[object]]::new()
+$sweeps = [System.Collections.Generic.List[object]]::new()
 $activeRuns = @{}
+$currentSweep = $null
+$sweepIndex = 0
 foreach ($entry in $entries) {
+    if ($entry.Event -eq 'SWEEP_START') {
+        $sweepIndex++
+        $currentSweep = New-SweepRecord -Label ("Sweep {0:00}" -f $sweepIndex) -StartEntry $entry
+        $sweeps.Add($currentSweep)
+        continue
+    }
+
+    if ($entry.Event -eq 'SWEEP_END') {
+        if ($null -ne $currentSweep) {
+            $currentSweep.EndEntry = $entry
+            $currentSweep.Entries.Add($entry)
+            $currentSweep = $null
+        }
+        continue
+    }
+
+    if ($null -ne $currentSweep) {
+        $currentSweep.Entries.Add($entry)
+        if ($entry.Event -eq 'STAGE_START' -and -not $currentSweep.Stages.Contains($entry.Stage)) {
+            $currentSweep.Stages.Add($entry.Stage)
+        }
+    }
+
+    $sweepLabel = if ($null -ne $currentSweep) { $currentSweep.Label } else { "Ad hoc" }
+
     $stageKey = "{0:00}" -f $entry.Stage
     if ($entry.Event -eq 'STAGE_START') {
-        $run = New-RunRecord -Stage $entry.Stage -Time $entry.Time
+        $run = New-RunRecord -Stage $entry.Stage -Time $entry.Time -SweepLabel $sweepLabel
         $runs.Add($run)
         $activeRuns[$stageKey] = $run
     }
     elseif (-not $activeRuns.ContainsKey($stageKey)) {
-        $run = New-RunRecord -Stage $entry.Stage -Time $entry.Time
+        $run = New-RunRecord -Stage $entry.Stage -Time $entry.Time -SweepLabel $sweepLabel
         $runs.Add($run)
         $activeRuns[$stageKey] = $run
     }
@@ -235,6 +299,33 @@ $lines.Add("- Forward smashes: $((@($entries | Where-Object { $_.Event -eq 'FORW
 $lines.Add("- Stage ends: $((@($entries | Where-Object { $_.Event -eq 'STAGE_END' })).Count)")
 $lines.Add("")
 
+$lines.Add("## Sweep Summary")
+$lines.Add("")
+if ($sweeps.Count -eq 0) {
+    $lines.Add("No `SWEEP_START` / `SWEEP_END` telemetry was found yet.")
+    $lines.Add("")
+}
+else {
+    foreach ($sweep in $sweeps) {
+        $completed = if ($null -ne $sweep.EndEntry) { Get-DetailField -Detail $sweep.EndEntry.Detail -FieldName 'completed' } else { "no" }
+        $stagesObserved = if ($sweep.Stages.Count -eq 0) { "none" } else { [string]::Join(", ", @($sweep.Stages | Sort-Object | ForEach-Object { "{0:00}" -f $_ })) }
+        $stageStartCount = (@($sweep.Entries | Where-Object { $_.Event -eq 'STAGE_START' })).Count
+        $stageEndCount = (@($sweep.Entries | Where-Object { $_.Event -eq 'STAGE_END' })).Count
+        $routeHoldCount = (@($sweep.Entries | Where-Object { $_.Event -eq 'ROUTE_HOLD_CLEAR' })).Count
+        $smashCount = (@($sweep.Entries | Where-Object { $_.Event -eq 'FORWARD_SMASH' })).Count
+
+        $lines.Add("### $($sweep.Label)")
+        $lines.Add("")
+        $lines.Add("- Start: $(Format-EntryLine -Entry $sweep.StartEntry)")
+        $lines.Add("- End: $(Format-EntryLine -Entry $sweep.EndEntry)")
+        $lines.Add("- Completed: $completed")
+        $lines.Add("- Stages observed: $stagesObserved")
+        $lines.Add("- Stage starts / ends: $stageStartCount / $stageEndCount")
+        $lines.Add("- Route hold clears / forward smashes: $routeHoldCount / $smashCount")
+        $lines.Add("")
+    }
+}
+
 $lines.Add("## Run Summary")
 $lines.Add("")
 
@@ -248,12 +339,13 @@ foreach ($run in $runs) {
     $bonusEntry = Get-FirstEntryByEvent -Entries $run.Entries -EventName 'ROUTE_BONUS'
     $smashEntry = Get-FirstEntryByEvent -Entries $run.Entries -EventName 'FORWARD_SMASH'
     $endEntry = Get-FirstEntryByEvent -Entries $run.Entries -EventName 'STAGE_END'
-    $issues = Get-RunIssues -Run $run
+    $issues = @(Get-RunIssues -Run $run)
     $result = if ($null -ne $endEntry) { Get-StageEndResult -Detail $endEntry.Detail } else { "OPEN" }
     $bucket = if ($null -ne $endEntry) { Get-StageEndBucket -Detail $endEntry.Detail } else { "UNKNOWN" }
 
     $lines.Add("### Run $("{0:00}" -f $runIndex) - Stage $("{0:00}" -f $run.Stage)")
     $lines.Add("")
+    $lines.Add("- Sweep: $($run.SweepLabel)")
     $lines.Add("- Start: $(Format-EntryLine -Entry $startEntry)")
     $lines.Add("- Sequence: $sequence")
     $lines.Add("- Route open: $(Format-EntryLine -Entry $openEntry)")
