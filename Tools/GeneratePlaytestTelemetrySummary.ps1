@@ -362,9 +362,171 @@ function Get-RunTuningCandidateKeys {
     return $keys
 }
 
+function Read-SourceText {
+    param(
+        [string]$Path,
+        [string]$Label,
+        [System.Collections.Generic.List[string]]$Warnings
+    )
+
+    if (-not (Test-Path -Path $Path -PathType Leaf)) {
+        $Warnings.Add("$Label config source not found: $Path")
+        return ""
+    }
+
+    return Get-Content -Path $Path -Raw
+}
+
+function Read-CSharpNumberDefault {
+    param(
+        [string]$SourceText,
+        [string]$FieldName,
+        [double]$Fallback,
+        [string]$Kind,
+        [string]$SourceLabel,
+        [System.Collections.Generic.List[string]]$Warnings
+    )
+
+    $escapedFieldName = [regex]::Escape($FieldName)
+    $pattern = "(?m)^\s*(?:\[[^\]]+\]\s*)*(?:private|protected|public)\s+(?:int|float|double)\s+$escapedFieldName\s*=\s*([-+]?(?:\d+(?:\.\d+)?|\.\d+))(?:[fFdD])?\s*;"
+    $match = [regex]::Match($SourceText, $pattern)
+    if (-not $match.Success) {
+        $Warnings.Add("$SourceLabel default '$FieldName' not found; using fallback $Fallback")
+        if ($Kind -eq 'int') {
+            return [int]$Fallback
+        }
+
+        return [double]$Fallback
+    }
+
+    $raw = $match.Groups[1].Value
+    if ($Kind -eq 'int') {
+        return [int][double]$raw
+    }
+
+    return [double]$raw
+}
+
+function Get-CurrentTuningConfig {
+    param([string]$ProjectRoot)
+
+    $warnings = [System.Collections.Generic.List[string]]::new()
+    $runtimeConfigPath = Resolve-ProjectPath -ProjectRoot $ProjectRoot -OverridePath "" -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.cs"
+    $gameFlowConfigPath = Resolve-ProjectPath -ProjectRoot $ProjectRoot -OverridePath "" -RelativePath "Assets\Scripts\Runtime\Systems\GameFlowSystem.cs"
+    $runtimeConfigText = Read-SourceText -Path $runtimeConfigPath -Label "Runtime" -Warnings $warnings
+    $gameFlowConfigText = Read-SourceText -Path $gameFlowConfigPath -Label "Game flow" -Warnings $warnings
+
+    return [pscustomobject]@{
+        RuntimeConfigPath = $runtimeConfigPath
+        GameFlowConfigPath = $gameFlowConfigPath
+        StageAdvanceBaseTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceBaseTarget" -Fallback 16 -Kind "int" -SourceLabel "Runtime" -Warnings $warnings
+        StageAdvanceTargetPerStage = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetPerStage" -Fallback 3 -Kind "int" -SourceLabel "Runtime" -Warnings $warnings
+        StageAdvanceTargetRatio = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetRatio" -Fallback 0.48 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        BossStageStart = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "bossStageStart" -Fallback 4 -Kind "int" -SourceLabel "Runtime" -Warnings $warnings
+        EarlyCrushFlowWindowSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "earlyCrushFlowWindowSeconds" -Fallback 18.0 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        EarlyCrushLaneBreakTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "earlyCrushLaneBreakTarget" -Fallback 9 -Kind "int" -SourceLabel "Runtime" -Warnings $warnings
+        RouteHoldWindowSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldWindowSeconds" -Fallback 38.0 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        RouteHoldProgressThreshold = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldProgressThreshold" -Fallback 0.45 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        RouteOpenBeatSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeOpenBeatSeconds" -Fallback 2.0 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        RouteRewardClusterRadius = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeRewardClusterRadius" -Fallback 3.4 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        RouteRewardClusterPropCount = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeRewardClusterPropCount" -Fallback 4 -Kind "int" -SourceLabel "Runtime" -Warnings $warnings
+        RouteHoldTrailPipCount = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailPipCount" -Fallback 5 -Kind "int" -SourceLabel "Runtime" -Warnings $warnings
+        RouteHoldTrailMaxDistance = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailMaxDistance" -Fallback 18.0 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        RouteHoldTrailMinPipSpacing = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailMinPipSpacing" -Fallback 1.65 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        RouteHoldTrailCloseHideDistance = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "routeHoldTrailCloseHideDistance" -Fallback 2.4 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        BossBreakWindowDuration = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "bossBreakWindowDuration" -Fallback 6.5 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        BossPressurePulseInterval = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "bossPressurePulseInterval" -Fallback 8.4 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        BossPressurePulseRadius = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "bossPressurePulseRadius" -Fallback 7.5 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        BossShieldRegenInterval = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "bossShieldRegenInterval" -Fallback 3.8 -Kind "double" -SourceLabel "Runtime" -Warnings $warnings
+        StageDurationSeconds = Read-CSharpNumberDefault -SourceText $gameFlowConfigText -FieldName "stageDurationSeconds" -Fallback 90.0 -Kind "double" -SourceLabel "Game flow" -Warnings $warnings
+        Warnings = $warnings
+    }
+}
+
+function Format-TuningValueList {
+    param([string[]]$Items)
+
+    return [string]::Join(", ", @($Items | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }))
+}
+
+function Get-TuningCandidateCurrentValues {
+    param(
+        [string]$Key,
+        $TuningConfig
+    )
+
+    switch ($Key) {
+        'OPENING' {
+            return Format-TuningValueList -Items @(
+                ("routeOpenBeatSeconds={0:0.#}s" -f $TuningConfig.RouteOpenBeatSeconds),
+                ("earlyCrushFlowWindowSeconds={0:0.#}s" -f $TuningConfig.EarlyCrushFlowWindowSeconds),
+                ("earlyCrushLaneBreakTarget={0}" -f $TuningConfig.EarlyCrushLaneBreakTarget),
+                ("stageAdvanceBaseTarget={0}" -f $TuningConfig.StageAdvanceBaseTarget),
+                ("stageAdvanceTargetPerStage={0}" -f $TuningConfig.StageAdvanceTargetPerStage),
+                ("stageAdvanceTargetRatio={0:0.##}" -f $TuningConfig.StageAdvanceTargetRatio)
+            )
+        }
+        'ROUTE_HOLD' {
+            return Format-TuningValueList -Items @(
+                ("routeHoldWindowSeconds={0:0.#}s" -f $TuningConfig.RouteHoldWindowSeconds),
+                ("routeHoldProgressThreshold={0:0.##}" -f $TuningConfig.RouteHoldProgressThreshold),
+                ("routeHoldTrailPipCount={0}" -f $TuningConfig.RouteHoldTrailPipCount),
+                ("routeHoldTrailMaxDistance={0:0.#}m" -f $TuningConfig.RouteHoldTrailMaxDistance),
+                ("routeHoldTrailMinPipSpacing={0:0.##}m" -f $TuningConfig.RouteHoldTrailMinPipSpacing),
+                ("routeHoldTrailCloseHideDistance={0:0.##}m" -f $TuningConfig.RouteHoldTrailCloseHideDistance)
+            )
+        }
+        'ROUTE_BONUS' {
+            return Format-TuningValueList -Items @(
+                ("routeRewardClusterPropCount={0}" -f $TuningConfig.RouteRewardClusterPropCount),
+                ("routeRewardClusterRadius={0:0.#}m" -f $TuningConfig.RouteRewardClusterRadius)
+            )
+        }
+        'FORWARD_SMASH' {
+            return Format-TuningValueList -Items @(
+                ("routeRewardClusterPropCount={0}" -f $TuningConfig.RouteRewardClusterPropCount),
+                ("routeRewardClusterRadius={0:0.#}m" -f $TuningConfig.RouteRewardClusterRadius),
+                ("bossStageStart={0}" -f $TuningConfig.BossStageStart)
+            )
+        }
+        'MID_RUN' {
+            return Format-TuningValueList -Items @(
+                ("routeHoldWindowSeconds={0:0.#}s" -f $TuningConfig.RouteHoldWindowSeconds),
+                ("routeHoldTrailMaxDistance={0:0.#}m" -f $TuningConfig.RouteHoldTrailMaxDistance),
+                ("routeHoldTrailMinPipSpacing={0:0.##}m" -f $TuningConfig.RouteHoldTrailMinPipSpacing),
+                ("stageDurationSeconds={0:0.#}s" -f $TuningConfig.StageDurationSeconds)
+            )
+        }
+        'FINAL_PUSH' {
+            return Format-TuningValueList -Items @(
+                ("stageDurationSeconds={0:0.#}s" -f $TuningConfig.StageDurationSeconds),
+                ("stageAdvanceBaseTarget={0}" -f $TuningConfig.StageAdvanceBaseTarget),
+                ("stageAdvanceTargetPerStage={0}" -f $TuningConfig.StageAdvanceTargetPerStage),
+                ("stageAdvanceTargetRatio={0:0.##}" -f $TuningConfig.StageAdvanceTargetRatio)
+            )
+        }
+        'BOSS' {
+            return Format-TuningValueList -Items @(
+                ("bossStageStart={0}" -f $TuningConfig.BossStageStart),
+                ("bossBreakWindowDuration={0:0.#}s" -f $TuningConfig.BossBreakWindowDuration),
+                ("bossPressurePulseInterval={0:0.#}s" -f $TuningConfig.BossPressurePulseInterval),
+                ("bossPressurePulseRadius={0:0.#}m" -f $TuningConfig.BossPressurePulseRadius),
+                ("bossShieldRegenInterval={0:0.#}s" -f $TuningConfig.BossShieldRegenInterval)
+            )
+        }
+        default {
+            return Format-TuningValueList -Items @(
+                ("stageDurationSeconds={0:0.#}s" -f $TuningConfig.StageDurationSeconds),
+                ("bossStageStart={0}" -f $TuningConfig.BossStageStart)
+            )
+        }
+    }
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedTelemetryLogPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TelemetryLogPath -RelativePath "Logs\AlienCrusherPlaytestTelemetry.log"
 $resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherPlaytestTelemetrySummary.md"
+$currentTuningConfig = Get-CurrentTuningConfig -ProjectRoot $projectRoot
 
 $reportDirectory = Split-Path -Parent $resolvedReportPath
 if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
@@ -468,6 +630,22 @@ $lines.Add("- Route hold clears: $((@($entries | Where-Object { $_.Event -eq 'RO
 $lines.Add("- Route bonuses: $((@($entries | Where-Object { $_.Event -eq 'ROUTE_BONUS' })).Count)")
 $lines.Add("- Forward smashes: $((@($entries | Where-Object { $_.Event -eq 'FORWARD_SMASH' })).Count)")
 $lines.Add("- Stage ends: $((@($entries | Where-Object { $_.Event -eq 'STAGE_END' })).Count)")
+$lines.Add("")
+
+$lines.Add("## Current Tuning Snapshot")
+$lines.Add("")
+$lines.Add("- Runtime config: $($currentTuningConfig.RuntimeConfigPath)")
+$lines.Add("- Game flow config: $($currentTuningConfig.GameFlowConfigPath)")
+$lines.Add("- Opening: $(Format-TuningValueList -Items @(("earlyCrushFlowWindowSeconds={0:0.#}s" -f $currentTuningConfig.EarlyCrushFlowWindowSeconds), ("earlyCrushLaneBreakTarget={0}" -f $currentTuningConfig.EarlyCrushLaneBreakTarget), ("routeOpenBeatSeconds={0:0.#}s" -f $currentTuningConfig.RouteOpenBeatSeconds)))")
+$lines.Add("- Route hold: $(Format-TuningValueList -Items @(("routeHoldWindowSeconds={0:0.#}s" -f $currentTuningConfig.RouteHoldWindowSeconds), ("routeHoldProgressThreshold={0:0.##}" -f $currentTuningConfig.RouteHoldProgressThreshold), ("routeHoldTrailPipCount={0}" -f $currentTuningConfig.RouteHoldTrailPipCount), ("routeHoldTrailMaxDistance={0:0.#}m" -f $currentTuningConfig.RouteHoldTrailMaxDistance), ("routeHoldTrailMinPipSpacing={0:0.##}m" -f $currentTuningConfig.RouteHoldTrailMinPipSpacing), ("routeHoldTrailCloseHideDistance={0:0.##}m" -f $currentTuningConfig.RouteHoldTrailCloseHideDistance)))")
+$lines.Add("- Route payoff: $(Format-TuningValueList -Items @(("routeRewardClusterPropCount={0}" -f $currentTuningConfig.RouteRewardClusterPropCount), ("routeRewardClusterRadius={0:0.#}m" -f $currentTuningConfig.RouteRewardClusterRadius)))")
+$lines.Add("- Stage pacing: $(Format-TuningValueList -Items @(("stageAdvanceBaseTarget={0}" -f $currentTuningConfig.StageAdvanceBaseTarget), ("stageAdvanceTargetPerStage={0}" -f $currentTuningConfig.StageAdvanceTargetPerStage), ("stageAdvanceTargetRatio={0:0.##}" -f $currentTuningConfig.StageAdvanceTargetRatio), ("stageDurationSeconds={0:0.#}s" -f $currentTuningConfig.StageDurationSeconds), ("bossStageStart={0}" -f $currentTuningConfig.BossStageStart)))")
+$lines.Add("- Boss: $(Format-TuningValueList -Items @(("bossBreakWindowDuration={0:0.#}s" -f $currentTuningConfig.BossBreakWindowDuration), ("bossPressurePulseInterval={0:0.#}s" -f $currentTuningConfig.BossPressurePulseInterval), ("bossPressurePulseRadius={0:0.#}m" -f $currentTuningConfig.BossPressurePulseRadius), ("bossShieldRegenInterval={0:0.#}s" -f $currentTuningConfig.BossShieldRegenInterval)))")
+if ($currentTuningConfig.Warnings.Count -gt 0) {
+    foreach ($configWarning in $currentTuningConfig.Warnings) {
+        $lines.Add("- Config warning: $configWarning")
+    }
+}
 $lines.Add("")
 
 $lines.Add("## Sweep Summary")
@@ -616,6 +794,7 @@ else {
         $lines.Add("")
         $lines.Add("- Observed in: $($candidateEntry.Value.Count) run(s), stages $stageList")
         $lines.Add("- Tune first: $($definition.TuneFirst)")
+        $lines.Add("- Current values: $(Get-TuningCandidateCurrentValues -Key $candidateEntry.Key -TuningConfig $currentTuningConfig)")
         $lines.Add("- Why: $($definition.Why)")
         $lines.Add("")
     }
