@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-05-05
+Last updated: 2026-05-10
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -36,7 +36,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/GenerateStagePlaytestChecklist.ps1` generates `Logs/AlienCrusherStagePlaytestChecklist.md`, combining current validation results, Stage 1-7 map growth, route targets, route pressure, target distances, and hands-on observation prompts.
 
 ### Current Main Risk
-The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, and HUD scaffolding feel good in motion.
+The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure.
 
 ---
 
@@ -68,12 +68,14 @@ Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 - LANE BREAK -> ROUTE OPEN beat is visible and then ROUTE HOLD reads clearly
 - route trail pips are not noisy on a small mobile-style viewport
 - ROUTE HOLD reward fires once and feels like a meaningful payoff
+- each run has a readable opener, pivot, sustain, payoff, and late squeeze/climax beat
+- Stage 2/3/5/6/7 change the rhythm problem, not only the map size or target distance
 - console filter `[AlienCrusher][Playtest]` shows the expected route event order per run
 - `Logs/AlienCrusherPlaytestTelemetry.log` keeps the same event order from `SWEEP_START` through `SWEEP_END`
-- `Tools/GeneratePlaytestTelemetrySummary.ps1` produces a readable current tuning snapshot, sweep summary, stage trend rollup, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdown after the sweep
+- `Tools/GeneratePlaytestTelemetrySummary.ps1` produces a readable current tuning snapshot, rhythm snapshot, sweep summary, stage trend rollup, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdown after the sweep
 
 Done when:
-- each stage band has one short note on readability, route pressure, and map identity
+- each stage band has one short note on readability, route pressure, map identity, and rhythm identity
 - at least one screenshot or written observation exists for Stage 1, Stage 4, and Stage 7
 - `Logs/AlienCrusherStagePlaytestChecklist.md` has notes for Stage 1-7 or links to the matching screenshot/video captures
 
@@ -119,6 +121,17 @@ LANE BREAK is the opening tempo check. ROUTE HOLD is the mid-run control test. R
 Each run should ask one clear question:
 
 > Can I find the best crush lane, keep speed through the route, and turn that momentum into the next big destruction cluster?
+
+### Rhythm Lens
+The loop only works if a run changes state in readable beats rather than sitting at one pressure level the whole time.
+
+- **Opener**: first crush lane is obvious and satisfying to commit to
+- **Pivot**: `LANE BREAK -> ROUTE OPEN` makes the next objective feel like a real turn, not extra UI noise
+- **Sustain**: `ROUTE HOLD` asks for control and commitment without becoming pure distance tax
+- **Payoff**: `ROUTE BONUS` / Forward Smash feels earned because it follows a readable route problem
+- **Climax**: finish lane or boss phase compresses the prior beats into one last push
+
+If a stage feels flat, boring, or samey, treat that as a rhythm bug before treating it as a content shortage.
 
 ---
 
@@ -198,6 +211,7 @@ Goal:
 - make LANE BREAK -> ROUTE OPEN -> ROUTE HOLD -> ROUTE BONUS the primary satisfying loop
 
 Includes:
+- verified opener -> pivot -> sustain -> payoff -> climax cadence in Stage 1-7 playtests
 - route open feedback beat tuning after playtest
 - reward cluster visibility
 - route progress mini-readability
@@ -251,6 +265,7 @@ Extraction candidates:
 
 - Unity batch has recently shown stale log, lock, and timeout behavior, although the 2026-05-05 wrapper run passed cleanly.
 - Static audits pass formula checks but cannot validate real play feel.
+- The route loop may still flatten into uniform pressure if district-to-district rhythm variation is too weak.
 - Route trail pips may be visually noisy on small Android screens.
 - Current implementation form names differ from older GDD form fantasy names; status documents should use runtime names until the design naming pass is resolved.
 - `DummyFlowController` remains a large partial mega-controller and should not absorb more route/gameplay surface indefinitely.

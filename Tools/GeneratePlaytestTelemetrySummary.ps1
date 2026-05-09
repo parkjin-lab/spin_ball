@@ -582,6 +582,63 @@ function Get-TuningCandidateExperimentLines {
     return $lines
 }
 
+function Format-Percent {
+    param(
+        [int]$Value,
+        [int]$Total
+    )
+
+    if ($Total -le 0) {
+        return "n/a"
+    }
+
+    return "{0:0}%" -f (($Value * 100.0) / $Total)
+}
+
+function Get-RhythmDiagnosis {
+    param(
+        [int]$StageStarts,
+        [int]$RouteOpens,
+        [int]$RouteHolds,
+        [int]$RouteBonuses,
+        [int]$ForwardSmashes,
+        [int]$Victories,
+        [int]$StageEnds
+    )
+
+    if ($StageStarts -le 0) {
+        return "No stage starts were observed yet, so rhythm cannot be judged."
+    }
+
+    $openingRate = if ($StageStarts -gt 0) { $RouteOpens / [double]$StageStarts } else { 0.0 }
+    $holdRate = if ($RouteOpens -gt 0) { $RouteHolds / [double]$RouteOpens } else { 0.0 }
+    $payoffRate = if ($RouteHolds -gt 0) { $RouteBonuses / [double]$RouteHolds } else { 0.0 }
+    $smashRate = if ($RouteBonuses -gt 0) { $ForwardSmashes / [double]$RouteBonuses } else { 0.0 }
+    $closeRate = if ($StageEnds -gt 0) { $Victories / [double]$StageEnds } else { 0.0 }
+
+    if ($openingRate -lt 0.65) {
+        return "Opening rhythm is collapsing before the pivot; treat the starter lane and first `LANE BREAK` read as the bottleneck."
+    }
+
+    if ($holdRate -lt 0.65) {
+        return "The pivot is visible, but sustain is collapsing during `ROUTE HOLD`; route readability or mid-run pressure is the bottleneck."
+    }
+
+    if ($payoffRate -lt 0.70) {
+        return "The route is being held often enough, but the payoff beat is not landing consistently; `ROUTE BONUS` clarity needs work."
+    }
+
+    if ($smashRate -lt 0.70) {
+        return "The payoff appears, but the smash close is muddy; the final reward beat needs a cleaner target read."
+    }
+
+    if ($closeRate -lt 0.50) {
+        return "The run reaches late value, but the climax is too compressed; finish-lane or boss cadence needs more readable closure."
+    }
+
+    return "The full opener -> pivot -> sustain -> payoff -> climax chain is surviving often enough to tune stage-to-stage variation instead of basic readability."
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedTelemetryLogPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TelemetryLogPath -RelativePath "Logs\AlienCrusherPlaytestTelemetry.log"
 $resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherPlaytestTelemetrySummary.md"
@@ -679,16 +736,24 @@ foreach ($entry in $entries) {
     }
 }
 
+$stageStartCount = (@($entries | Where-Object { $_.Event -eq 'STAGE_START' })).Count
+$routeOpenCount = (@($entries | Where-Object { $_.Event -eq 'ROUTE_OPEN' })).Count
+$routeHoldCount = (@($entries | Where-Object { $_.Event -eq 'ROUTE_HOLD_CLEAR' })).Count
+$routeBonusCount = (@($entries | Where-Object { $_.Event -eq 'ROUTE_BONUS' })).Count
+$forwardSmashCount = (@($entries | Where-Object { $_.Event -eq 'FORWARD_SMASH' })).Count
+$stageEndCount = (@($entries | Where-Object { $_.Event -eq 'STAGE_END' })).Count
+$victoryCount = (@($runs | Where-Object { (Get-RunResult -Run $_) -eq 'VICTORY' })).Count
+
 $lines.Add("## Totals")
 $lines.Add("")
 $lines.Add("- Entries parsed: $($entries.Count)")
 $lines.Add("- Runs parsed: $($runs.Count)")
-$lines.Add("- Stage starts: $((@($entries | Where-Object { $_.Event -eq 'STAGE_START' })).Count)")
-$lines.Add("- Route opens: $((@($entries | Where-Object { $_.Event -eq 'ROUTE_OPEN' })).Count)")
-$lines.Add("- Route hold clears: $((@($entries | Where-Object { $_.Event -eq 'ROUTE_HOLD_CLEAR' })).Count)")
-$lines.Add("- Route bonuses: $((@($entries | Where-Object { $_.Event -eq 'ROUTE_BONUS' })).Count)")
-$lines.Add("- Forward smashes: $((@($entries | Where-Object { $_.Event -eq 'FORWARD_SMASH' })).Count)")
-$lines.Add("- Stage ends: $((@($entries | Where-Object { $_.Event -eq 'STAGE_END' })).Count)")
+$lines.Add("- Stage starts: $stageStartCount")
+$lines.Add("- Route opens: $routeOpenCount")
+$lines.Add("- Route hold clears: $routeHoldCount")
+$lines.Add("- Route bonuses: $routeBonusCount")
+$lines.Add("- Forward smashes: $forwardSmashCount")
+$lines.Add("- Stage ends: $stageEndCount")
 $lines.Add("")
 
 $lines.Add("## Current Tuning Snapshot")
@@ -705,6 +770,17 @@ if ($currentTuningConfig.Warnings.Count -gt 0) {
         $lines.Add("- Config warning: $configWarning")
     }
 }
+$lines.Add("")
+
+$lines.Add("## Rhythm Snapshot")
+$lines.Add("")
+$lines.Add("- Opening beat (`STAGE_START -> ROUTE_OPEN`): $routeOpenCount/$stageStartCount ($(Format-Percent -Value $routeOpenCount -Total $stageStartCount))")
+$lines.Add("- Sustain beat (`ROUTE_OPEN -> ROUTE_HOLD_CLEAR`): $routeHoldCount/$routeOpenCount ($(Format-Percent -Value $routeHoldCount -Total $routeOpenCount))")
+$lines.Add("- Payoff beat (`ROUTE_HOLD_CLEAR -> ROUTE_BONUS`): $routeBonusCount/$routeHoldCount ($(Format-Percent -Value $routeBonusCount -Total $routeHoldCount))")
+$lines.Add("- Smash close (`ROUTE_BONUS -> FORWARD_SMASH`): $forwardSmashCount/$routeBonusCount ($(Format-Percent -Value $forwardSmashCount -Total $routeBonusCount))")
+$lines.Add("- Run close (`STAGE_END victory`): $victoryCount/$stageEndCount ($(Format-Percent -Value $victoryCount -Total $stageEndCount))")
+$lines.Add("- Rhythm read: $(Get-RhythmDiagnosis -StageStarts $stageStartCount -RouteOpens $routeOpenCount -RouteHolds $routeHoldCount -RouteBonuses $routeBonusCount -ForwardSmashes $forwardSmashCount -Victories $victoryCount -StageEnds $stageEndCount)")
+$lines.Add("- Target cadence: opener -> pivot -> sustain -> payoff -> climax, with a short release or recommit beat after payoff.")
 $lines.Add("")
 
 $lines.Add("## Sweep Summary")

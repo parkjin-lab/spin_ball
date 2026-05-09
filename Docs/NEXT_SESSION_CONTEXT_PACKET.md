@@ -1,4 +1,4 @@
-# Alien Crusher Handoff - 2026-05-05
+# Alien Crusher Handoff - 2026-05-10
 
 ## Current Progress Update
 - MCP may still be unreliable, so the project now has a filesystem/Unity-batch validation path.
@@ -21,6 +21,7 @@
 - Failure result and lobby recommendation copy now start with one next-run first action for `OPENING FAILED`, `ROUTE HOLD MISSED`, `MID-RUN DRIFT`, `FINAL PUSH FAILED`, and `BOSS PHASE`.
 - Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines for `SWEEP_START`, `STAGE_START`, `ROUTE_OPEN`, `ROUTE_HOLD_CLEAR`, `ROUTE_BONUS`, `FORWARD_SMASH`, `STAGE_END`, and `SWEEP_END`, and append the same lines to `Logs/AlienCrusherPlaytestTelemetry.log`.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now parses that telemetry log into `Logs/AlienCrusherPlaytestTelemetrySummary.md`, grouping runs under sweep-level summaries when `F10` is used and adding a current tuning snapshot, stage trend, tuning candidate, first-pass experiment, and failure bucket action rollup.
+- Rhythm is now an explicit design lens: playtests should judge opener -> pivot -> sustain -> payoff -> climax cadence, and neighboring stages should differ by rhythm problem rather than size alone.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
 - `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, route open beat, route reward cluster, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
 - Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
@@ -134,10 +135,11 @@
    `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
 9. Run in-editor playtest from Stage 1 through at least Stage 7. Use `F10` for an automatic Stage 1-7 sweep with a short pause per stage, or `F7` to jump forward, `F6` to jump back, `F8` to reset to Stage 1, and `F9` to hide/show the map layout overlay. Watch the overlay and `[AlienCrusher][MapLayout]` logs to verify size/grid/destructible/prop/landmark counts climb as expected.
 10. Verify the map grows from a compact residential starter layout into denser/wider districts with more cars, props, commercial objects, barrels, transformers, landmark districts, and wider ROUTE HOLD targets.
-11. Verify LANE BREAK appears, ROUTE OPEN beat is readable, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD meter progresses clearly, and ROUTE HOLD reward opens the expected district SMASH target cluster once.
-12. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeOpenBeatSeconds`, `routeRewardClusterRadius`, `routeRewardClusterPropCount`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and marker positions based on mobile readability.
-13. If route pips are still too noisy, increase close-hide distance/min spacing or switch to fewer arrow-shaped pips.
-14. After playtest stability, extract ROUTE HOLD / Stage Route logic out of `DummyFlowController` partials into a smaller dedicated runtime component or service.
+11. Verify each run has a readable opener, pivot, sustain, payoff, and late squeeze or climax; Stage 2/3/5/6/7 should change the rhythm problem, not only the size or route distance.
+12. Verify LANE BREAK appears, ROUTE OPEN beat is readable, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD meter progresses clearly, and ROUTE HOLD reward opens the expected district SMASH target cluster once.
+13. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeOpenBeatSeconds`, `routeRewardClusterRadius`, `routeRewardClusterPropCount`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and marker positions based on mobile readability.
+14. If route pips are still too noisy, increase close-hide distance/min spacing or switch to fewer arrow-shaped pips.
+15. After playtest stability, extract ROUTE HOLD / Stage Route logic out of `DummyFlowController` partials into a smaller dedicated runtime component or service.
 
 ## Next Session Paste Context Packet
 ```text
@@ -153,6 +155,6 @@ Useful playtest telemetry summary command: `powershell -ExecutionPolicy Bypass -
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
 Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
-Next priority: run `Tools/GenerateStagePlaytestChecklist.ps1`, then do a real in-editor/mobile playtest from Stage 1 through Stage 7 and fill the generated checklist. After the sweep, run `Tools/GeneratePlaytestTelemetrySummary.ps1` and compare the markdown summary against the checklist notes. Confirm map growth, object variety, landmark district placement, LANE BREAK -> ROUTE OPEN -> ROUTE HOLD readability, route meter clarity, trail/beacon clarity, target distance, timer pressure, and that route reward opens one readable district SMASH cluster. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
+Next priority: run `Tools/GenerateStagePlaytestChecklist.ps1`, then do a real in-editor/mobile playtest from Stage 1 through Stage 7 and fill the generated checklist. After the sweep, run `Tools/GeneratePlaytestTelemetrySummary.ps1` and compare the markdown summary against the checklist notes. Confirm map growth, object variety, landmark district placement, opener -> pivot -> sustain -> payoff -> climax rhythm, LANE BREAK -> ROUTE OPEN -> ROUTE HOLD readability, route meter clarity, trail/beacon clarity, target distance, timer pressure, and that route reward opens one readable district SMASH cluster. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
 Known risks: MCP unreliable; no hands-on playmode/mobile pass yet; route pips may be visually noisy; `DummyFlowController` remains an architecture risk; Unity editor shutdown logs a non-blocking temp allocator warning.
 ```

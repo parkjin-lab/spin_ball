@@ -148,6 +148,20 @@ function Resolve-RoutePayoff {
     }
 }
 
+function Resolve-StageRhythmProfile {
+    param([int]$Stage)
+
+    switch ($Stage) {
+        1 { return "Clear opener, fast first break, short first payoff" }
+        2 { return "Breathing room opener, wider pivot, gentle hold pressure" }
+        3 { return "Dense opener, chain-heavy sustain, quicker payoff release" }
+        4 { return "Boss setup pivot, pressure pulse cadence, readable break window" }
+        5 { return "Explosive setup, wider commitment, louder payoff release" }
+        6 { return "Long-route sustain, utility payoff, late correction pressure" }
+        default { return "Long-route squeeze, anchor chase, skyline climax pressure" }
+    }
+}
+
 function Resolve-MinimumDestructibles {
     param($Layout)
 
@@ -272,7 +286,7 @@ $lines.Add('- `F9`: toggle map layout overlay')
 $lines.Add('- `F10`: sweep Stage 1 through the debug max stage and emit `SWEEP_START` / `SWEEP_END` markers')
 $lines.Add('- Console filter: `[AlienCrusher][Playtest]` for route milestone ordering and end-state summaries')
 $lines.Add('- Playtest log file: `Logs/AlienCrusherPlaytestTelemetry.log`')
-$lines.Add('- Playtest summary command: `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1` (includes current tuning snapshot, sweep, stage trend, tuning candidate, first-pass experiment, and failure bucket summaries when `F10` is used)')
+$lines.Add('- Playtest summary command: `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1` (includes current tuning snapshot, rhythm snapshot, sweep, stage trend, tuning candidate, first-pass experiment, and failure bucket summaries when `F10` is used)')
 $lines.Add("")
 $lines.Add("## Failure Advice Checks")
 $lines.Add("")
@@ -281,6 +295,14 @@ $lines.Add("- [ ] `ROUTE HOLD MISSED` result/lobby advice starts with staying on
 $lines.Add("- [ ] `MID-RUN DRIFT` result/lobby advice starts with choosing the next cluster before speed drops.")
 $lines.Add("- [ ] `FINAL PUSH FAILED` result/lobby advice starts with forcing the goal lane instead of side props.")
 $lines.Add("- [ ] `BOSS PHASE` result/lobby advice starts with breaking pylons, then bursting the exposed core.")
+$lines.Add("")
+$lines.Add("## Rhythm Pass")
+$lines.Add("")
+$lines.Add("- [ ] Each run has a readable opener, pivot, sustain, payoff, and late squeeze or climax.")
+$lines.Add("- [ ] Pressure rises and releases in waves instead of staying flat for the whole stage.")
+$lines.Add("- [ ] Reward beats feel earned because they follow a readable route problem.")
+$lines.Add("- [ ] Stage 2/3/5/6/7 change the rhythm problem, not only the map size or prop count.")
+$lines.Add("- [ ] Boss runs read as a climax rather than a longer normal route.")
 $lines.Add("")
 $lines.Add("## Stage Summary")
 $lines.Add("")
@@ -354,6 +376,7 @@ foreach ($row in $stageRows) {
     $lines.Add("- Map/grid: $("{0:0.0}" -f $row.Layout.MapSize)m, $($row.Layout.XCells)x$($row.Layout.ZCells)")
     $lines.Add("- Landmarks: $($row.Landmarks)")
     $lines.Add("- Route payoff: $($row.RoutePayoff)")
+    $lines.Add("- Rhythm goal: $(Resolve-StageRhythmProfile -Stage $row.Stage)")
     $lines.Add("- Route target: $($row.RouteTarget)/$($row.StageTarget) by $("{0:0.#}" -f $deadlineSeconds)s")
     $lines.Add("- Target A/B: $($row.TargetA) / $($row.TargetB)")
     $lines.Add("")
@@ -365,6 +388,9 @@ foreach ($row in $stageRows) {
     $lines.Add("- [ ] ROUTE HOLD pressure feels fair for the target distance.")
     $lines.Add("- [ ] Route reward opens about $routeRewardClusterPropCount payoff props around the next smash cluster.")
     $lines.Add("- [ ] Route payoff identity matches the expected district.")
+    $lines.Add("- [ ] Rhythm identity matches the expected stage profile.")
+    $lines.Add("- [ ] The run has a readable opener -> pivot -> sustain -> payoff sequence, even if one beat is intentionally short.")
+    $lines.Add("- [ ] There is a short release or recommit beat after the main payoff instead of flat pressure to the end.")
     $lines.Add("- [ ] Camera clamp and map bounds feel natural.")
     $lines.Add("- [ ] Notes:")
     $lines.Add("- [ ] Screenshot/video reference:")
