@@ -34,6 +34,7 @@ This document tracks the current project state, the next production priorities, 
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
 - `Tools/GenerateStagePlaytestChecklist.ps1` generates `Logs/AlienCrusherStagePlaytestChecklist.md`, combining current validation results, Stage 1-7 map growth, route targets, route pressure, target distances, and hands-on observation prompts.
+- `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
 
 ### Current Main Risk
 The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure.
@@ -191,6 +192,36 @@ Baseline shorter failure advice is now implemented. Result and lobby advice both
 
 Success signal:
 - failure advice is actionable in one glance
+
+#### 6. Stage Rhythm Presets
+After the first real Stage 1-7 sweep, test small stage-specific rhythm presets instead of one global tempo profile:
+- Stage 2: slightly longer `routeOpenBeatSeconds`
+- Stage 3-4: faster opening pressure and denser sustain
+- Stage 5: larger payoff spacing and louder release
+- Stage 6: longer hold window for long-route commitment
+- Stage 7: tighter late-run squeeze before the skyline climax
+
+Success signal:
+- neighboring stages feel like different tempo problems before new content is added
+
+#### 7. Payoff Layout Rhythm
+Keep district payoff identity, but vary the layout rhythm as much as the prop set:
+- market payoff: tighter chainable clusters
+- construction payoff: wider blast spacing
+- power payoff: longer transformer corridor
+- skyline payoff: asymmetric anchor-first cluster
+
+Success signal:
+- payoff beats feel different in motion, not just visually different in screenshots
+
+#### 8. Boss Breathing Windows
+Boss pressure should read as "breathe -> burst -> breathe" instead of constant harassment:
+- widen break windows slightly if core exposure is too hard to parse
+- delay pressure pulses slightly if the punish window is drowned out
+- make drone-break aftermath a clearer low-pressure punish beat
+
+Success signal:
+- the boss feels like the run's climax instead of a longer version of the normal route
 
 ---
 
