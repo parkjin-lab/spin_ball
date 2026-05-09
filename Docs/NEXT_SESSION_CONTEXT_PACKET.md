@@ -9,6 +9,19 @@
 1. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`
 2. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes
 3. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
+4. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
+
+## After First Sweep, Tune In This Order
+1. opening / first pivot readability
+2. route hold sustain readability
+3. payoff / smash close readability
+4. stage-specific rhythm presets
+5. boss breathing windows
+
+Rule:
+- choose one dominant broken beat
+- choose one variable family
+- retest only the affected stages before widening the pass
 
 ## Current Progress Update
 - MCP may still be unreliable, so the project now has a filesystem/Unity-batch validation path.
@@ -147,9 +160,11 @@
 10. Verify the map grows from a compact residential starter layout into denser/wider districts with more cars, props, commercial objects, barrels, transformers, landmark districts, and wider ROUTE HOLD targets.
 11. Verify each run has a readable opener, pivot, sustain, payoff, and late squeeze or climax; Stage 2/3/5/6/7 should change the rhythm problem, not only the size or route distance.
 12. Verify LANE BREAK appears, ROUTE OPEN beat is readable, HOLD beacon activates, route trail points to the active marker, ROUTE HOLD meter progresses clearly, and ROUTE HOLD reward opens the expected district SMASH target cluster once.
-13. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeOpenBeatSeconds`, `routeRewardClusterRadius`, `routeRewardClusterPropCount`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and marker positions based on mobile readability.
-14. If route pips are still too noisy, increase close-hide distance/min spacing or switch to fewer arrow-shaped pips.
-15. After playtest stability, extract ROUTE HOLD / Stage Route logic out of `DummyFlowController` partials into a smaller dedicated runtime component or service.
+13. Choose one dominant broken beat from the checklist plus telemetry summary, then pick one variable family to change next.
+14. Tune `routeHoldWindowSeconds`, `routeHoldProgressThreshold`, `routeOpenBeatSeconds`, `routeRewardClusterRadius`, `routeRewardClusterPropCount`, `routeHoldTrailPipCount`, `routeHoldTrailMaxDistance`, `routeHoldTrailMinPipSpacing`, `routeHoldTrailCloseHideDistance`, and marker positions based on mobile readability, but only for the chosen beat family first.
+15. Retest only the affected stages before widening into stage-specific presets or boss-window tuning.
+16. If route pips are still too noisy, increase close-hide distance/min spacing or switch to fewer arrow-shaped pips.
+17. After playtest stability, extract ROUTE HOLD / Stage Route logic out of `DummyFlowController` partials into a smaller dedicated runtime component or service.
 
 ## Next Session Paste Context Packet
 ```text
@@ -165,6 +180,6 @@ Useful playtest telemetry summary command: `powershell -ExecutionPolicy Bypass -
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
 Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
-Next priority: run `Tools/GenerateStagePlaytestChecklist.ps1`, then do a real in-editor/mobile playtest from Stage 1 through Stage 7 and fill the generated checklist. After the sweep, run `Tools/GeneratePlaytestTelemetrySummary.ps1` and compare the markdown summary against the checklist notes. Confirm map growth, object variety, landmark district placement, opener -> pivot -> sustain -> payoff -> climax rhythm, LANE BREAK -> ROUTE OPEN -> ROUTE HOLD readability, route meter clarity, trail/beacon clarity, target distance, timer pressure, and that route reward opens one readable district SMASH cluster. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
+Next priority: run `Tools/GenerateStagePlaytestChecklist.ps1`, then do a real in-editor/mobile playtest from Stage 1 through Stage 7 and fill the generated checklist. After the sweep, run `Tools/GeneratePlaytestTelemetrySummary.ps1` and compare the markdown summary against the checklist notes. Confirm map growth, object variety, landmark district placement, opener -> pivot -> sustain -> payoff -> climax rhythm, LANE BREAK -> ROUTE OPEN -> ROUTE HOLD readability, route meter clarity, trail/beacon clarity, target distance, timer pressure, and that route reward opens one readable district SMASH cluster. Then choose one dominant broken beat, one variable family, and the retest stages before touching broader stage presets or boss windows. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
 Known risks: MCP unreliable; no hands-on playmode/mobile pass yet; route pips may be visually noisy; `DummyFlowController` remains an architecture risk; Unity editor shutdown logs a non-blocking temp allocator warning.
 ```

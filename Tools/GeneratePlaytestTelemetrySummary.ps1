@@ -582,6 +582,68 @@ function Get-TuningCandidateExperimentLines {
     return $lines
 }
 
+function Get-TuningPriorityRank {
+    param([string]$Key)
+
+    switch ($Key) {
+        'OPENING' { return 1 }
+        'ROUTE_HOLD' { return 2 }
+        'ROUTE_BONUS' { return 3 }
+        'FORWARD_SMASH' { return 3 }
+        'MID_RUN' { return 4 }
+        'FINAL_PUSH' { return 4 }
+        'BOSS' { return 5 }
+        default { return 99 }
+    }
+}
+
+function Get-PrimaryTuningDecision {
+    param(
+        [hashtable]$TuningCandidates,
+        $TuningConfig
+    )
+
+    if ($null -eq $TuningCandidates -or $TuningCandidates.Count -eq 0) {
+        return $null
+    }
+
+    $orderedCandidates = @(
+        $TuningCandidates.GetEnumerator() | Sort-Object -Property `
+            @{ Expression = { $_.Value.Count }; Descending = $true }, `
+            @{ Expression = { Get-TuningPriorityRank -Key $_.Key }; Descending = $false }, `
+            @{ Expression = 'Key'; Descending = $false }
+    )
+    if ($orderedCandidates.Count -eq 0) {
+        return $null
+    }
+
+    $candidateEntry = $orderedCandidates[0]
+    $definition = Get-TuningCandidateDefinition -Key $candidateEntry.Key
+    $uniqueStages = @($candidateEntry.Value | Sort-Object -Unique)
+    $retestStages = if ($uniqueStages.Count -eq 0) { "none yet" } else { [string]::Join(", ", @($uniqueStages | ForEach-Object { "{0:00}" -f $_ })) }
+    $doNotTouchYet = switch ($candidateEntry.Key) {
+        'OPENING' { 'Do not touch stage-specific rhythm presets, payoff layouts, or boss windows until the opener and first pivot read cleanly.' }
+        'ROUTE_HOLD' { 'Do not touch stage-specific presets or boss windows until the route path and sustain pressure read cleanly.' }
+        'ROUTE_BONUS' { 'Do not touch stage-specific presets or boss windows until the first payoff beat is visible enough.' }
+        'FORWARD_SMASH' { 'Do not touch stage-specific presets or boss windows until the smash close reads as a clean target.' }
+        'MID_RUN' { 'Do not touch boss windows yet; stabilize the normal route carry first.' }
+        'FINAL_PUSH' { 'Do not touch boss windows yet; stabilize the non-boss finish first.' }
+        'BOSS' { 'Do not touch opening or route-hold tuning unless the normal stages are already reading cleanly.' }
+        default { 'Do not change more than one variable family before the next retest.' }
+    }
+
+    return [pscustomobject]@{
+        Key = $candidateEntry.Key
+        Label = $definition.Label
+        Count = $candidateEntry.Value.Count
+        RetestStages = $retestStages
+        TuneFirst = $definition.TuneFirst
+        CurrentValues = Get-TuningCandidateCurrentValues -Key $candidateEntry.Key -TuningConfig $TuningConfig
+        ExperimentLines = @(Get-TuningCandidateExperimentLines -Key $candidateEntry.Key -TuningConfig $TuningConfig)
+        DoNotTouchYet = $doNotTouchYet
+    }
+}
+
 function Format-Percent {
     param(
         [int]$Value,
@@ -662,6 +724,7 @@ if (-not (Test-Path -Path $resolvedTelemetryLogPath -PathType Leaf)) {
     $lines.Add("Next step:")
     $lines.Add("- Run an editor/development playtest or `F10` sweep.")
     $lines.Add("- Re-run `Tools/GeneratePlaytestTelemetrySummary.ps1` after the run.")
+    $lines.Add("- After the first sweep, choose one dominant broken beat and one variable family before making broader tuning changes.")
 
     $report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine
     Set-Content -Path $resolvedReportPath -Value $report -Encoding UTF8
@@ -743,6 +806,16 @@ $routeBonusCount = (@($entries | Where-Object { $_.Event -eq 'ROUTE_BONUS' })).C
 $forwardSmashCount = (@($entries | Where-Object { $_.Event -eq 'FORWARD_SMASH' })).Count
 $stageEndCount = (@($entries | Where-Object { $_.Event -eq 'STAGE_END' })).Count
 $victoryCount = (@($runs | Where-Object { (Get-RunResult -Run $_) -eq 'VICTORY' })).Count
+$tuningCandidates = @{}
+foreach ($run in $runs) {
+    foreach ($candidateKey in @(Get-RunTuningCandidateKeys -Run $run)) {
+        if (-not $tuningCandidates.ContainsKey($candidateKey)) {
+            $tuningCandidates[$candidateKey] = [System.Collections.Generic.List[int]]::new()
+        }
+        $tuningCandidates[$candidateKey].Add([int]$run.Stage)
+    }
+}
+$primaryTuningDecision = Get-PrimaryTuningDecision -TuningCandidates $tuningCandidates -TuningConfig $currentTuningConfig
 
 $lines.Add("## Totals")
 $lines.Add("")
@@ -782,6 +855,27 @@ $lines.Add("- Run close (`STAGE_END victory`): $victoryCount/$stageEndCount ($(F
 $lines.Add("- Rhythm read: $(Get-RhythmDiagnosis -StageStarts $stageStartCount -RouteOpens $routeOpenCount -RouteHolds $routeHoldCount -RouteBonuses $routeBonusCount -ForwardSmashes $forwardSmashCount -Victories $victoryCount -StageEnds $stageEndCount)")
 $lines.Add("- Target cadence: opener -> pivot -> sustain -> payoff -> climax, with a short release or recommit beat after payoff.")
 $lines.Add("")
+
+$lines.Add("## Tune Next")
+$lines.Add("")
+if ($null -eq $primaryTuningDecision) {
+    $lines.Add("No single tuning target was inferred yet.")
+    $lines.Add("- Strict order: `opening -> route hold -> payoff/smash -> stage-specific presets -> boss windows`.")
+    $lines.Add("- Once a real sweep exists, pick one dominant broken beat and change one variable family before re-testing.")
+    $lines.Add("")
+}
+else {
+    $lines.Add("- Primary bottleneck: $($primaryTuningDecision.Label)")
+    $lines.Add("- Tune these fields first: $($primaryTuningDecision.TuneFirst)")
+    $lines.Add("- Current values: $($primaryTuningDecision.CurrentValues)")
+    if ($primaryTuningDecision.ExperimentLines.Count -gt 0) {
+        $lines.Add("- Chosen first-pass experiment: $($primaryTuningDecision.ExperimentLines[0])")
+    }
+    $lines.Add("- Retest stages: $($primaryTuningDecision.RetestStages)")
+    $lines.Add("- Do not touch yet: $($primaryTuningDecision.DoNotTouchYet)")
+    $lines.Add("- Strict order: `opening -> route hold -> payoff/smash -> stage-specific presets -> boss windows`.")
+    $lines.Add("")
+}
 
 $lines.Add("## Sweep Summary")
 $lines.Add("")
@@ -904,16 +998,6 @@ else {
 
 $lines.Add("## Tuning Candidates")
 $lines.Add("")
-
-$tuningCandidates = @{}
-foreach ($run in $runs) {
-    foreach ($candidateKey in @(Get-RunTuningCandidateKeys -Run $run)) {
-        if (-not $tuningCandidates.ContainsKey($candidateKey)) {
-            $tuningCandidates[$candidateKey] = [System.Collections.Generic.List[int]]::new()
-        }
-        $tuningCandidates[$candidateKey].Add([int]$run.Stage)
-    }
-}
 
 if ($tuningCandidates.Count -eq 0) {
     $lines.Add("No tuning candidates were inferred yet.")

@@ -399,6 +399,8 @@ foreach ($row in $stageRows) {
 
 $lines.Add("## Tuning Notes")
 $lines.Add("")
+$lines.Add("- After the first real sweep, tune in this order: `opening -> route hold -> payoff/smash -> stage-specific presets -> boss windows`.")
+$lines.Add("- Pick one dominant broken beat from the summary/checklist comparison before changing more than one variable family.")
 $lines.Add('- If close-range pips feel noisy, raise `routeHoldTrailCloseHideDistance` or `routeHoldTrailMinPipSpacing`.')
 $lines.Add("- If far targets are hard to read, lower route distance growth or increase route beacon/trail contrast.")
 $lines.Add('- If LANE BREAK still feels ambiguous, tune `routeOpenBeatSeconds` before adding more HUD text.')
@@ -406,6 +408,14 @@ $lines.Add(('- If the payoff cluster feels cramped or invisible, tune `routeRewa
 $lines.Add("- If ROUTE HOLD feels like distance tax, increase reward cluster density near targets before extending the timer.")
 $lines.Add("- If Stage 5-7 feel samey, give construction, power, and skyline landmarks different route payoffs.")
 $lines.Add("- Stage timer default: $("{0:0.#}" -f $stageDurationSeconds)s")
+$lines.Add("")
+$lines.Add("## Post-Sweep Decision")
+$lines.Add("")
+$lines.Add('- [ ] Dominant broken beat: `opening` / `route hold` / `payoff` / `smash close` / `boss`')
+$lines.Add('- [ ] One variable family to change next:')
+$lines.Add('- [ ] Chosen first-pass experiment:')
+$lines.Add('- [ ] Retest stage(s):')
+$lines.Add('- [ ] Do not touch yet:')
 
 $reportDirectory = Split-Path -Parent $ReportPath
 if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {

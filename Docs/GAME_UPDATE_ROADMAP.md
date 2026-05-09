@@ -80,6 +80,18 @@ Done when:
 - at least one screenshot or written observation exists for Stage 1, Stage 4, and Stage 7
 - `Logs/AlienCrusherStagePlaytestChecklist.md` has notes for Stage 1-7 or links to the matching screenshot/video captures
 
+After the first real sweep, tune in this order:
+1. opening / first pivot readability
+2. route hold sustain readability
+3. payoff / smash close readability
+4. stage-specific rhythm presets
+5. boss breathing windows
+
+Rule:
+- choose one dominant broken beat
+- choose one variable family
+- retest only the affected stages before widening the pass
+
 ### P0 - ROUTE HOLD Readability Tuning
 Tune only after playtest evidence:
 - `routeHoldWindowSeconds`
@@ -243,6 +255,7 @@ Goal:
 
 Includes:
 - verified opener -> pivot -> sustain -> payoff -> climax cadence in Stage 1-7 playtests
+- one explicit post-sweep tuning decision per pass instead of broad multi-variable adjustments
 - route open feedback beat tuning after playtest
 - reward cluster visibility
 - route progress mini-readability
