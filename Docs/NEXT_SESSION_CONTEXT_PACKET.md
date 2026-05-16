@@ -1,15 +1,20 @@
-# Alien Crusher Handoff - 2026-05-10
+# Alien Crusher Handoff - 2026-05-17
 
 ## Validation Snapshot
 - Latest Unity batch validation: 2026-05-05 (`Tools/RunUnityBatchChecks.ps1` passed; scene and map audit logs refreshed)
-- Latest static/checklist refresh: 2026-05-10 (`Tools/RunStaticAudits.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, `Tools/GeneratePlaytestTelemetrySummary.ps1`)
-- Real Stage 1-7 playtest telemetry: not captured yet; the summary pipeline is ready but still waiting on the first true `F10` sweep
+- Latest static/checklist refresh: 2026-05-17 (`Tools/RunStaticAudits.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, `Tools/GeneratePlaytestTelemetrySummary.ps1`)
+- Real Stage 1-7 playtest telemetry: still not captured as of 2026-05-17; the summary pipeline is ready but still waiting on the first true `F10` sweep
 
 ## Immediate First Action
 1. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`
 2. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes
 3. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
 4. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
+
+Done only when:
+- `Logs/AlienCrusherPlaytestTelemetry.log` exists
+- regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md` contains `Tune Next` from real run data
+- Stage 1 / 4 / 7 notes or screenshot/video references exist
 
 ## After First Sweep, Tune In This Order
 1. opening / first pivot readability
@@ -43,7 +48,7 @@ Rule:
 - Route reward clusters now vary by district: park rewards stay lower clutter, market routes add kiosk/vending chains, construction routes lean into barrels, power routes lean into transformers, and skyline routes add a high-value anchor.
 - Failure result and lobby recommendation copy now start with one next-run first action for `OPENING FAILED`, `ROUTE HOLD MISSED`, `MID-RUN DRIFT`, `FINAL PUSH FAILED`, and `BOSS PHASE`.
 - Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines for `SWEEP_START`, `STAGE_START`, `ROUTE_OPEN`, `ROUTE_HOLD_CLEAR`, `ROUTE_BONUS`, `FORWARD_SMASH`, `STAGE_END`, and `SWEEP_END`, and append the same lines to `Logs/AlienCrusherPlaytestTelemetry.log`.
-- `Tools/GeneratePlaytestTelemetrySummary.ps1` now parses that telemetry log into `Logs/AlienCrusherPlaytestTelemetrySummary.md`, grouping runs under sweep-level summaries when `F10` is used and adding a current tuning snapshot, rhythm snapshot, stage trend, tuning candidate, first-pass experiment, and failure bucket action rollup.
+- `Tools/GeneratePlaytestTelemetrySummary.ps1` now parses that telemetry log into `Logs/AlienCrusherPlaytestTelemetrySummary.md`, grouping runs under sweep-level summaries when `F10` is used and adding a current tuning snapshot, rhythm snapshot, `Tune Next` decision block, stage trend, tuning candidate, first-pass experiment, and failure bucket action rollup.
 - Rhythm is now an explicit design lens: playtests should judge opener -> pivot -> sustain -> payoff -> climax cadence, and neighboring stages should differ by rhythm problem rather than size alone.
 - No real Stage 1-7 sweep telemetry has been captured yet, so the next important evidence is still the first true `F10` playtest pass.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
@@ -52,7 +57,7 @@ Rule:
 - Added `Tools/InvokeUnityBatch.ps1` and `Tools/RunUnityBatchChecks.ps1` to make Unity batch validation less ambiguous. The wrapper uses batch/nographics mode, detects stale `Temp/UnityLockfile`, captures stdout/stderr, enforces a timeout, and fails if the expected report file timestamp does not advance.
 - Added `Docs/GAME_UPDATE_ROADMAP.md` and updated the GDD core loop section to reflect the current LANE BREAK -> ROUTE OPEN -> ROUTE HOLD -> ROUTE BONUS / Forward Smash direction.
 - Added `HudRouteArrow/ArrowText` to `SampleScene.unity` and `Tools/AuditSceneEssentialsStatic.ps1` to catch missing route HUD essentials without relying on Unity batch.
-- 2026-05-05 validation follow-up: `Tools/RunUnityBatchChecks.ps1` passed. Scene validation and runtime map layout audit refreshed their report/log timestamps at 20:52 and 20:53 and ended with `0 error(s), 0 warning(s)`.
+- 2026-05-05 validation follow-up: `Tools/RunUnityBatchChecks.ps1` passed. Scene validation and runtime map layout audit refreshed their report/log timestamps at 21:14 and 21:15 and ended with `0 error(s), 0 warning(s)`.
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass.
 
 ## Work Completed Immediately Before This Handoff
@@ -117,13 +122,13 @@ Rule:
 - `Tools/GenerateStagePlaytestChecklist.ps1`
   - Generates a Stage 1-7 playtest checklist with validation status, map/grid growth, landmarks, ROUTE HOLD targets, route open beat timing, district reward identity, reward cluster expectations, route progress readability, failure-advice checks, route pressure, target distances, and observation prompts.
 - `Logs/AlienCrusherSceneValidation.log`
-  - Current validation report from 2026-05-05 20:52: `0 error(s), 0 warning(s)`.
+  - Current validation report from 2026-05-05 21:14: `0 error(s), 0 warning(s)`.
 - `Logs/AlienCrusherBatchValidationEditor.log`
-  - Unity batch validation log refreshed on 2026-05-05 20:53.
+  - Unity batch validation log refreshed on 2026-05-05 21:14.
 - `Logs/AlienCrusherMapLayoutAudit.log`
-  - Current runtime map layout audit report from 2026-05-05 20:53: Stage 1-7 `0 error(s), 0 warning(s)`.
+  - Current runtime map layout audit report from 2026-05-05 21:15: Stage 1-7 `0 error(s), 0 warning(s)`.
 - `Logs/AlienCrusherMapLayoutAuditEditor.log`
-  - Unity batch map layout audit editor log refreshed on 2026-05-05 20:53.
+  - Unity batch map layout audit editor log refreshed on 2026-05-05 21:15.
 - `Logs/AlienCrusherBatchRepairEditor.log`
   - Unity batch repair log.
 
@@ -135,7 +140,7 @@ Rule:
 - Unity-free scene essentials static audit passed after the `HudRouteArrow/ArrowText` scene source fix with `Result: 0 error(s), 0 warning(s)`.
 - Unity-free static map audit passed on 2026-05-05 with `Result: 0 error(s), 0 warning(s)`. This does not replace in-editor/playmode validation, but it catches formula regressions while Unity batch is unstable.
 - Unity-free ROUTE HOLD static audit passed on 2026-05-05 with `Result: 0 error(s), 0 warning(s)`. It now parses the current C# default tuning fields before verifying route targets, route open beat timing, route pressure, and distance-aware trail pip counts across Stage 1-7.
-- `Tools/RunStaticAudits.ps1` passed on 2026-05-05 with `Result: all static audits passed`.
+- `Tools/RunStaticAudits.ps1` passed on 2026-05-17 with `Result: all static audits passed`.
 - Playmode/mobile behavior still needs hands-on verification: route trail visibility, beacon distance readability, target count, reward timing, and reward single-trigger behavior.
 - Trail pips are runtime primitives; verify they are not visually noisy on small Android screens.
 - `DummyFlowController` remains a high-risk mega-controller split across many partials. Extracting ROUTE HOLD / stage route logic is still recommended after behavior is stable.
@@ -170,8 +175,8 @@ Rule:
 ```text
 Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
-Latest completed work: ROUTE HOLD is wired after LANE BREAK, LANE BREAK triggers a short ROUTE OPEN beat, ROUTE HOLD progress is now shown as a faster-read HUD/gauge meter, ROUTE BONUS opens a district-flavored SMASH target cluster before normal Forward Smash resolution, failure result/lobby advice now starts with one next-run first action for the last failure bucket, and editor/development playtests now emit structured `[AlienCrusher][Playtest]` telemetry to both the Console and `Logs/AlienCrusherPlaytestTelemetry.log`. The telemetry stream now includes `SWEEP_START` and `SWEEP_END` around `F10` stage sweeps, and `Tools/GeneratePlaytestTelemetrySummary.ps1` now converts the log into `Logs/AlienCrusherPlaytestTelemetrySummary.md` with a current tuning snapshot, rhythm snapshot, sweep-level summaries, stage trend rollups, tuning candidates, first-pass experiment suggestions, failure bucket action cues, and per-run breakdowns. Rhythm is now an explicit design lens, so the next pass should judge opener -> pivot -> sustain -> payoff -> climax cadence rather than only route readability. HUD shows route/hold/smash guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, the map layout overlay, `[AlienCrusher][Playtest]` filtering, the playtest telemetry log file, and the telemetry summary file to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, warnings, and route event order during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
-Latest validation: `Tools/RunUnityBatchChecks.ps1` passed on 2026-05-05. `Logs/AlienCrusherSceneValidation.log` refreshed at 21:14 with `Result: 0 error(s), 0 warning(s)`, and `Logs/AlienCrusherMapLayoutAudit.log` refreshed at 21:15 with Stage 1-7 `Result: 0 error(s), 0 warning(s)`. Unity-free scene essentials, static map audit, ROUTE HOLD static audit, `Tools/RunStaticAudits.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, and `Tools/GeneratePlaytestTelemetrySummary.ps1` were refreshed again on 2026-05-10. The route open beat/map rebuild/landmark/audit/route-hold trail/sweep telemetry changes still need the first real in-editor or mobile-style `F10` sweep for feel.
+Latest completed work: ROUTE HOLD is wired after LANE BREAK, LANE BREAK triggers a short ROUTE OPEN beat, ROUTE HOLD progress is now shown as a faster-read HUD/gauge meter, ROUTE BONUS opens a district-flavored SMASH target cluster before normal Forward Smash resolution, failure result/lobby advice now starts with one next-run first action for the last failure bucket, and editor/development playtests now emit structured `[AlienCrusher][Playtest]` telemetry to both the Console and `Logs/AlienCrusherPlaytestTelemetry.log`. The telemetry stream now includes `SWEEP_START` and `SWEEP_END` around `F10` stage sweeps, and `Tools/GeneratePlaytestTelemetrySummary.ps1` now converts the log into `Logs/AlienCrusherPlaytestTelemetrySummary.md` with a current tuning snapshot, rhythm snapshot, `Tune Next` decision block, sweep-level summaries, stage trend rollups, tuning candidates, first-pass experiment suggestions, failure bucket action cues, and per-run breakdowns. Rhythm is now an explicit design lens, so the next pass should judge opener -> pivot -> sustain -> payoff -> climax cadence rather than only route readability. HUD shows route/hold/smash guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, the map layout overlay, `[AlienCrusher][Playtest]` filtering, the playtest telemetry log file, and the telemetry summary file to compare stage, theme, size, grid, destructible count, prop counts, landmark count, target positions, warnings, and route event order during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
+Latest validation: `Tools/RunUnityBatchChecks.ps1` passed on 2026-05-05. `Logs/AlienCrusherSceneValidation.log` refreshed at 21:14 with `Result: 0 error(s), 0 warning(s)`, and `Logs/AlienCrusherMapLayoutAudit.log` refreshed at 21:15 with Stage 1-7 `Result: 0 error(s), 0 warning(s)`. Unity-free scene essentials, static map audit, ROUTE HOLD static audit, `Tools/RunStaticAudits.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, and `Tools/GeneratePlaytestTelemetrySummary.ps1` were refreshed again on 2026-05-17. As of 2026-05-17, no real `F10` sweep telemetry log exists yet. The route open beat/map rebuild/landmark/audit/route-hold trail/sweep telemetry changes still need the first real in-editor or mobile-style `F10` sweep for feel.
 Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.ProgressionCore.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.MetaProgression.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.PlaytestTelemetry.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/CameraFollowSystem.cs`, `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`, `Assets/Scenes/SampleScene.unity`, `Tools/InvokeUnityBatch.ps1`, `Tools/RunUnityBatchChecks.ps1`, `Tools/AuditSceneEssentialsStatic.ps1`, `Tools/AuditRouteHoldTuningStatic.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, `Tools/GeneratePlaytestTelemetrySummary.ps1`, `Docs/GAME_UPDATE_ROADMAP.md`, `Docs/GDD_ALIEN_CRUSHER.md`, plus editor validation/repair files from the ROUTE HOLD arrow pass and this handoff doc.
 Useful Unity batch command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1`
 Useful stale-lock retry command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1 -ClearStaleUnityLock`
