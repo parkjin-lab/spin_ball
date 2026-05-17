@@ -5,6 +5,7 @@ param(
     [string]$ReportPath = "",
     [string]$TelemetrySourcePath = "",
     [string]$SummaryScriptPath = "",
+    [string]$RuntimeSystemsPath = "",
     [switch]$FailOnWarnings
 )
 
@@ -51,6 +52,7 @@ function Read-RequiredText {
 $projectRoot = Resolve-ProjectRoot
 $resolvedTelemetrySourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TelemetrySourcePath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.PlaytestTelemetry.cs"
 $resolvedSummaryScriptPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $SummaryScriptPath -RelativePath "Tools\GeneratePlaytestTelemetrySummary.ps1"
+$resolvedRuntimeSystemsPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RuntimeSystemsPath -RelativePath "Assets\Scripts\Runtime\Systems"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetryWiringStaticAudit.log"
@@ -64,16 +66,17 @@ $warnings = [System.Collections.Generic.List[string]]::new()
 $telemetrySourceText = Read-RequiredText -Path $resolvedTelemetrySourcePath -Label "Telemetry source" -Errors $errors
 $summaryScriptText = Read-RequiredText -Path $resolvedSummaryScriptPath -Label "Summary script" -Errors $errors
 
-$expectedEvents = @(
-    "SWEEP_START",
-    "STAGE_START",
-    "ROUTE_OPEN",
-    "ROUTE_HOLD_CLEAR",
-    "ROUTE_BONUS",
-    "FORWARD_SMASH",
-    "STAGE_END",
-    "SWEEP_END"
+$eventContracts = @(
+    [pscustomobject]@{ Event = "SWEEP_START"; Helper = "LogPlaytestSweepStart"; Caller = "DummyFlowController.Lifecycle.cs" },
+    [pscustomobject]@{ Event = "STAGE_START"; Helper = "LogPlaytestStageStart"; Caller = "DummyFlowController.StageFlow.cs" },
+    [pscustomobject]@{ Event = "ROUTE_OPEN"; Helper = "LogPlaytestRouteOpen"; Caller = "DummyFlowController.ProgressionCore.cs" },
+    [pscustomobject]@{ Event = "ROUTE_HOLD_CLEAR"; Helper = "LogPlaytestRouteHoldSuccess"; Caller = "DummyFlowController.ProgressionCore.cs" },
+    [pscustomobject]@{ Event = "ROUTE_BONUS"; Helper = "LogPlaytestRouteBonusClaim"; Caller = "DummyFlowController.ProgressionCore.cs" },
+    [pscustomobject]@{ Event = "FORWARD_SMASH"; Helper = "LogPlaytestForwardSmash"; Caller = "DummyFlowController.ProgressionCore.cs" },
+    [pscustomobject]@{ Event = "STAGE_END"; Helper = "LogPlaytestStageEnd"; Caller = "DummyFlowController.StageFlow.cs" },
+    [pscustomobject]@{ Event = "SWEEP_END"; Helper = "LogPlaytestSweepEnd"; Caller = "DummyFlowController.Lifecycle.cs" }
 )
+$expectedEvents = @($eventContracts | ForEach-Object { $_.Event })
 
 $emittedEvents = @(
     [regex]::Matches($telemetrySourceText, 'EmitPlaytestTelemetry\(\s*"(?<event>[A-Z_]+)"') |
@@ -89,6 +92,37 @@ foreach ($eventName in $expectedEvents) {
     if ($summaryScriptText -notmatch [regex]::Escape("'$eventName'") -and $summaryScriptText -notmatch [regex]::Escape("`"$eventName`"")) {
         $errors.Add("Summary script does not reference expected event: $eventName")
     }
+}
+
+foreach ($contract in $eventContracts) {
+    $helperPattern = "(?s)private\s+void\s+$([regex]::Escape($contract.Helper))\s*\([^)]*\).*?EmitPlaytestTelemetry\(\s*`"$([regex]::Escape($contract.Event))`""
+    if ($telemetrySourceText -notmatch $helperPattern) {
+        $errors.Add("Telemetry helper '$($contract.Helper)' does not clearly emit expected event '$($contract.Event)'.")
+    }
+
+    $callerPath = Join-Path $resolvedRuntimeSystemsPath $contract.Caller
+    $callerText = Read-RequiredText -Path $callerPath -Label "Telemetry caller $($contract.Caller)" -Errors $errors
+    if (-not [string]::IsNullOrWhiteSpace($callerText) -and $callerText -notmatch "$([regex]::Escape($contract.Helper))\s*\(") {
+        $errors.Add("Telemetry helper '$($contract.Helper)' is not called in expected file: $callerPath")
+    }
+}
+
+if (Test-Path -Path $resolvedRuntimeSystemsPath -PathType Container) {
+    $telemetrySourceFullPath = [System.IO.Path]::GetFullPath($resolvedTelemetrySourcePath)
+    Get-ChildItem -Path $resolvedRuntimeSystemsPath -Filter "DummyFlowController*.cs" -File | ForEach-Object {
+        $candidatePath = [System.IO.Path]::GetFullPath($_.FullName)
+        if ([string]::Equals($candidatePath, $telemetrySourceFullPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+            return
+        }
+
+        $candidateText = Get-Content -Path $_.FullName -Raw
+        if ($candidateText -match 'EmitPlaytestTelemetry\s*\(') {
+            $errors.Add("Direct EmitPlaytestTelemetry call found outside telemetry helper file: $($_.FullName)")
+        }
+    }
+}
+else {
+    $errors.Add("Runtime systems directory not found: $resolvedRuntimeSystemsPath")
 }
 
 foreach ($eventName in $emittedEvents) {
@@ -113,8 +147,10 @@ $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("[AlienCrusher][PlaytestTelemetryWiringStaticAudit] Playtest telemetry wiring audit")
 $lines.Add("Telemetry source: $resolvedTelemetrySourcePath")
 $lines.Add("Summary script: $resolvedSummaryScriptPath")
+$lines.Add("Runtime systems: $resolvedRuntimeSystemsPath")
 $lines.Add("Expected events: $([string]::Join(', ', $expectedEvents))")
 $lines.Add("Emitted events: $([string]::Join(', ', $emittedEvents))")
+$lines.Add("Helper contracts: $([string]::Join(', ', @($eventContracts | ForEach-Object { "$($_.Event)->$($_.Helper)@$($_.Caller)" })))")
 
 foreach ($errorMessage in $errors) {
     $lines.Add("ERROR: $errorMessage")
