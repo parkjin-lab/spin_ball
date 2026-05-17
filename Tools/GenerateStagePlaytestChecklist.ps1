@@ -276,6 +276,8 @@ $lines.Add("- Runtime map layout audit: $(Format-ResultLine -Path (Join-Path $pr
 $lines.Add("- Scene essentials static audit: $(Format-ResultLine -Path (Join-Path $projectRoot "Logs\AlienCrusherSceneEssentialsStaticAudit.log"))")
 $lines.Add("- Map static audit: $(Format-ResultLine -Path (Join-Path $projectRoot "Logs\AlienCrusherMapLayoutStaticAudit.log"))")
 $lines.Add("- ROUTE HOLD static audit: $(Format-ResultLine -Path (Join-Path $projectRoot "Logs\AlienCrusherRouteHoldStaticAudit.log"))")
+$lines.Add("- Playtest telemetry wiring audit: $(Format-ResultLine -Path (Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetryWiringStaticAudit.log"))")
+$lines.Add("- Playtest telemetry summary regression: $(Format-ResultLine -Path (Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetrySummaryRegression.log"))")
 $lines.Add("")
 $lines.Add("## Controls")
 $lines.Add("")

@@ -1,0 +1,10 @@
+[AlienCrusher][Playtest] time=2026-05-05 21:10:00 stage=03 event=SWEEP_START maxStage=07 restore=03
+[AlienCrusher][Playtest] time=2026-05-05 21:10:01 stage=01 event=STAGE_START timer=90.0s target=21 routeTarget=10 deadline=38.0s destructibles=57 payoff=CLUSTER OPEN markers=Target_A(-13.5,11.5,32.4m) Target_B(13.5,-11.5,15.0m)
+[AlienCrusher][Playtest] time=2026-05-05 21:10:06 stage=01 event=ROUTE_OPEN destroyed=9 laneBreak=9 routeTarget=10 deadlineLeft=32.0s target=Target_B(13.5,-11.5,15.0m)
+[AlienCrusher][Playtest] time=2026-05-05 21:10:09 stage=01 event=ROUTE_HOLD_CLEAR destroyed=10 routeTarget=10 rewardScore=135 payoff=CLUSTER OPEN next=Target_B(13.5,-11.5,14.1m)
+[AlienCrusher][Playtest] time=2026-05-05 21:10:10 stage=01 event=ROUTE_BONUS score=180 payoff=CLUSTER OPEN marker=Target_B(13.5,-11.5,13.8m) smash=RouteClusterSkylineAnchor_01
+[AlienCrusher][Playtest] time=2026-05-05 21:10:12 stage=01 event=FORWARD_SMASH target=RouteClusterSkylineAnchor_01 score=260 radius=6.2 chain=11
+[AlienCrusher][Playtest] time=2026-05-05 21:10:14 stage=01 event=STAGE_END result=VICTORY reason=MANUAL bucket=NONE destroyed=24/57 pct=42 chain=11 laneBreakTier=3 routeHold=yes routeBonus=yes boss=NONE payoff=CLUSTER OPEN
+[AlienCrusher][Playtest] time=2026-05-05 21:10:15 stage=02 event=STAGE_START timer=90.0s target=26 routeTarget=12 deadline=38.0s destructibles=69 payoff=PARK CUT OPEN markers=Target_A(-14.9,13.1,35.8m) Target_B(14.9,-12.9,16.3m)
+[AlienCrusher][Playtest] time=2026-05-05 21:10:40 stage=02 event=STAGE_END result=DEFEAT reason=TIMER bucket=OPENING FAILED destroyed=8/69 pct=12 chain=4 laneBreakTier=1 routeHold=no routeBonus=no boss=NONE payoff=PARK CUT OPEN
+[AlienCrusher][Playtest] time=2026-05-05 21:10:41 stage=03 event=SWEEP_END restored=03 completed=yes

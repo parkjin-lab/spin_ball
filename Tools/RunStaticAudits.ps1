@@ -94,6 +94,11 @@ $audits = @(
         Label = "Playtest telemetry wiring"
         ScriptPath = Join-Path $PSScriptRoot "AuditPlaytestTelemetryWiringStatic.ps1"
         ReportPath = Join-Path $ReportDirectory "AlienCrusherPlaytestTelemetryWiringStaticAudit.log"
+    },
+    [pscustomobject]@{
+        Label = "Playtest telemetry summary regression"
+        ScriptPath = Join-Path $PSScriptRoot "TestPlaytestTelemetrySummary.ps1"
+        ReportPath = Join-Path $ReportDirectory "AlienCrusherPlaytestTelemetrySummaryRegression.log"
     }
 )
 
