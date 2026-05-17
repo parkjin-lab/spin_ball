@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$UnityPath = "D:\Unity\6000.3.8f1\Editor\Unity.exe",
+    [string]$UnityPath = "",
     [string]$ProjectPath = "",
     [int]$TimeoutSeconds = 900,
     [switch]$UseGraphics,
@@ -19,6 +19,30 @@ function Resolve-ProjectRoot {
     }
 
     return Split-Path -Parent $PSScriptRoot
+}
+
+function Resolve-UnityEditorPath {
+    param(
+        [string]$ProjectRoot,
+        [string]$OverridePath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($OverridePath)) {
+        return $OverridePath
+    }
+
+    $projectVersionPath = Join-Path $ProjectRoot "ProjectSettings\ProjectVersion.txt"
+    if (-not (Test-Path -Path $projectVersionPath -PathType Leaf)) {
+        return "D:\Unity\Editor\Unity.exe"
+    }
+
+    $versionLine = Get-Content -Path $projectVersionPath | Where-Object { $_ -match '^m_EditorVersion:\s*(?<version>\S+)' } | Select-Object -First 1
+    if ($null -eq $versionLine) {
+        return "D:\Unity\Editor\Unity.exe"
+    }
+
+    $version = ([regex]::Match($versionLine, '^m_EditorVersion:\s*(?<version>\S+)')).Groups['version'].Value
+    return Join-Path (Join-Path (Join-Path "D:\Unity" $version) "Editor") "Unity.exe"
 }
 
 function Invoke-UnityBatchCheck {
@@ -69,6 +93,7 @@ function Invoke-UnityBatchCheck {
 }
 
 $projectRoot = Resolve-ProjectRoot -OverridePath $ProjectPath
+$UnityPath = Resolve-UnityEditorPath -ProjectRoot $projectRoot -OverridePath $UnityPath
 $logsPath = Join-Path $projectRoot "Logs"
 New-Item -ItemType Directory -Path $logsPath -Force | Out-Null
 
@@ -90,6 +115,7 @@ $checks = @(
 $failed = 0
 Write-Output "[AlienCrusher][UnityBatchChecks] Running Unity batch checks"
 Write-Output "Project: $projectRoot"
+Write-Output "Unity: $UnityPath"
 Write-Output "Logs: $logsPath"
 
 foreach ($check in $checks) {

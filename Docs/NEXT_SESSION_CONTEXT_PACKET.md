@@ -156,7 +156,7 @@ Rule:
 2. If it reports a stale Unity lock after confirming the project is not open in Unity, rerun:
    `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1 -ClearStaleUnityLock`
 3. If validation reports any missing scene essential, run:
-   `D:\Unity\6000.3.8f1\Editor\Unity.exe -batchmode -quit -projectPath D:\uni\spinball -executeMethod AlienCrusher.EditorTools.AlienCrusherSceneRepair.RepairCurrentSceneEssentialsBatch -logFile D:\uni\spinball\Logs\AlienCrusherBatchRepairEditor.log`
+   `powershell -ExecutionPolicy Bypass -File Tools/InvokeUnityBatch.ps1 -ExecuteMethod AlienCrusher.EditorTools.AlienCrusherSceneRepair.RepairCurrentSceneEssentialsBatch -EditorLogPath Logs/AlienCrusherBatchRepairEditor.log -ExpectedReportPath ""`
 4. Confirm `HudRouteArrow/ArrowText` exists under `HUD_Dummy` after repair, then rerun validation.
 5. Inspect `Logs/AlienCrusherMapLayoutAudit.log`; any `WARN:` line should be treated as a placement bug before visual polish.
 6. If Unity batch is still unstable, run the fallback audit:

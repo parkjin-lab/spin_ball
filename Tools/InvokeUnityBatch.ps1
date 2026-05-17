@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$UnityPath = "D:\Unity\6000.3.8f1\Editor\Unity.exe",
+    [string]$UnityPath = "",
     [string]$ProjectPath = "",
     [Parameter(Mandatory = $true)]
     [string]$ExecuteMethod,
@@ -36,6 +36,30 @@ function Resolve-ProjectFilePath {
     }
 
     return $candidate
+}
+
+function Resolve-UnityEditorPath {
+    param(
+        [string]$ProjectRoot,
+        [string]$OverridePath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($OverridePath)) {
+        return $OverridePath
+    }
+
+    $projectVersionPath = Join-Path $ProjectRoot "ProjectSettings\ProjectVersion.txt"
+    if (-not (Test-Path -Path $projectVersionPath -PathType Leaf)) {
+        return "D:\Unity\Editor\Unity.exe"
+    }
+
+    $versionLine = Get-Content -Path $projectVersionPath | Where-Object { $_ -match '^m_EditorVersion:\s*(?<version>\S+)' } | Select-Object -First 1
+    if ($null -eq $versionLine) {
+        return "D:\Unity\Editor\Unity.exe"
+    }
+
+    $version = ([regex]::Match($versionLine, '^m_EditorVersion:\s*(?<version>\S+)')).Groups['version'].Value
+    return Join-Path (Join-Path (Join-Path "D:\Unity" $version) "Editor") "Unity.exe"
 }
 
 function Resolve-DefaultReportPath {
@@ -107,6 +131,7 @@ function ConvertTo-ProcessArgument {
 }
 
 $projectRoot = Resolve-ProjectRoot -OverridePath $ProjectPath
+$UnityPath = Resolve-UnityEditorPath -ProjectRoot $projectRoot -OverridePath $UnityPath
 $logsPath = Join-Path $projectRoot "Logs"
 New-Item -ItemType Directory -Path $logsPath -Force | Out-Null
 
@@ -170,6 +195,7 @@ $arguments.Add($EditorLogPath)
 
 Write-Output "[AlienCrusher][UnityBatch] $ExecuteMethod"
 Write-Output "Project: $projectRoot"
+Write-Output "Unity: $UnityPath"
 Write-Output "Editor log: $EditorLogPath"
 if (-not [string]::IsNullOrWhiteSpace($ExpectedReportPath)) {
     Write-Output "Expected report: $ExpectedReportPath"
