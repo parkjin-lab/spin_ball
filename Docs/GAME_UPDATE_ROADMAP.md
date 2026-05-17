@@ -34,9 +34,9 @@ This document tracks the current project state, the next production priorities, 
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
-- `Tools/GenerateStagePlaytestChecklist.ps1` generates `Logs/AlienCrusherStagePlaytestChecklist.md`, combining current validation results, Stage 1-7 map growth, route targets, route pressure, target distances, and hands-on observation prompts.
+- `Tools/GenerateStagePlaytestChecklist.ps1` generates disposable readiness output at `Logs/AlienCrusherStagePlaytestChecklist.md`, while durable human observations should be recorded in `Docs/AlienCrusherStagePlaytestNotes.md`.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
-- As of 2026-05-17, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 checklist notes.
+- As of 2026-05-17, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ### Current Main Risk
 The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure.
@@ -66,7 +66,7 @@ powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps
 Required next artifacts:
 - `Logs/AlienCrusherPlaytestTelemetry.log`
 - regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md` with `Tune Next` based on real run data
-- populated Stage 1 / 4 / 7 notes in `Logs/AlienCrusherStagePlaytestChecklist.md` or linked screenshots/videos
+- populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md` or linked screenshots/videos
 
 First `F10` sweep minimum markers:
 - `SWEEP_START`
@@ -92,7 +92,7 @@ Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 Done when:
 - each stage band has one short note on readability, route pressure, map identity, and rhythm identity
 - at least one screenshot or written observation exists for Stage 1, Stage 4, and Stage 7
-- `Logs/AlienCrusherStagePlaytestChecklist.md` has notes for Stage 1-7 or links to the matching screenshot/video captures
+- `Docs/AlienCrusherStagePlaytestNotes.md` has notes for Stage 1-7 or links to the matching screenshot/video captures
 
 After the first real sweep, tune in this order:
 1. opening / first pivot readability

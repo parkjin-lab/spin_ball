@@ -3,6 +3,7 @@ param(
     [int]$MaxStage = 7,
     [int]$MaxGrowthStage = 7,
     [string]$ReportPath = "",
+    [string]$NotesPath = "",
     [string]$RuntimeConfigPath = "",
     [string]$GameFlowConfigPath = ""
 )
@@ -248,6 +249,19 @@ elseif (-not [System.IO.Path]::IsPathRooted($ReportPath)) {
     $ReportPath = Join-Path $projectRoot $ReportPath
 }
 
+if ([string]::IsNullOrWhiteSpace($NotesPath)) {
+    $NotesPath = Join-Path $projectRoot "Docs\AlienCrusherStagePlaytestNotes.md"
+}
+elseif (-not [System.IO.Path]::IsPathRooted($NotesPath)) {
+    $NotesPath = Join-Path $projectRoot $NotesPath
+}
+
+$notesDisplayPath = $NotesPath
+if ($notesDisplayPath.StartsWith($projectRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+    $notesDisplayPath = $notesDisplayPath.Substring($projectRoot.Length).TrimStart('\', '/')
+}
+$notesDisplayPath = $notesDisplayPath.Replace('\', '/')
+
 $stageAdvanceBaseTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceBaseTarget" -Fallback 16 -Kind "int"
 $stageAdvanceTargetPerStage = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetPerStage" -Fallback 3 -Kind "int"
 $stageAdvanceTargetRatio = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetRatio" -Fallback 0.48 -Kind "double"
@@ -267,7 +281,9 @@ $lines.Add("# Alien Crusher Stage 1-7 Playtest Checklist")
 $lines.Add("")
 $lines.Add("Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm K")")
 $lines.Add("")
-$lines.Add("Use this during an in-editor or mobile-style viewport pass. The goal is to capture feel issues that static audits cannot see.")
+$lines.Add("Use this generated checklist during an in-editor or mobile-style viewport pass. It is safe to regenerate; record durable human notes in ``$notesDisplayPath``.")
+$lines.Add("")
+$lines.Add("Manual notes file: ``$notesDisplayPath``")
 $lines.Add("")
 $lines.Add("## Validation Gate")
 $lines.Add("")
@@ -407,8 +423,7 @@ foreach ($row in $stageRows) {
     $lines.Add("- [ ] The run has a readable opener -> pivot -> sustain -> payoff sequence, even if one beat is intentionally short.")
     $lines.Add("- [ ] There is a short release or recommit beat after the main payoff instead of flat pressure to the end.")
     $lines.Add("- [ ] Camera clamp and map bounds feel natural.")
-    $lines.Add("- [ ] Notes:")
-    $lines.Add("- [ ] Screenshot/video reference:")
+    $lines.Add("- [ ] Record notes and screenshot/video references in ``$notesDisplayPath``.")
     $lines.Add("")
 }
 
@@ -425,6 +440,8 @@ $lines.Add("- If Stage 5-7 feel samey, give construction, power, and skyline lan
 $lines.Add("- Stage timer default: $("{0:0.#}" -f $stageDurationSeconds)s")
 $lines.Add("")
 $lines.Add("## Post-Sweep Decision")
+$lines.Add("")
+$lines.Add("Record the durable post-sweep decision in ``$notesDisplayPath``.")
 $lines.Add("")
 $lines.Add('- [ ] Primary bottleneck / dominant broken beat: `opening` / `route hold` / `payoff` / `smash close` / `boss`')
 $lines.Add('- [ ] Tune these fields first / one variable family to change next:')
