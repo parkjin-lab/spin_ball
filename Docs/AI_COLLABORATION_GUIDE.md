@@ -70,7 +70,7 @@ AI의 출력물은 항상 **사람이 검수하고 의사결정** 한다.
 장르: 하이퍼 캐주얼 / 디스트럭션 / 탑뷰 3D
 플랫폼: 모바일 세로형 (iOS/Android)
 세션 길이: 1판 60~90초
-핵심 루프: 타이밍 게임(낙하) -> 드래그 파괴 -> 레벨업 스킬 선택 -> 아웃게임 해금
+핵심 루프: 스테이지 시작 -> 스타터 레인 파괴 -> LANE BREAK -> ROUTE OPEN -> ROUTE HOLD -> ROUTE BONUS / Forward Smash -> 결과 피드백과 성장 선택
 
 [프로덕션 제약 & 디자인 원칙]
 - 플레이어 정체성: 외계 문명 Vrak이 만든 파괴 구체(크러셔 볼) 그 자체
@@ -80,7 +80,8 @@ AI의 출력물은 항상 **사람이 검수하고 의사결정** 한다.
 
 [주요 시스템 요약]
 - 크러셔 볼: 드래그로 조작, 건물 파괴
-- 형태 변환: 드릴 전차/UFO/슬라임/플라즈마/마그네틱 (인게임 일시적)
+- 형태/메타 진행: 현재 런타임 명칭은 Sphere, Spike, Ram, Saucer, Crusher이며, 디자인 네이밍 패스 전까지 상태 문서와 프롬프트는 이 명칭을 우선 사용
+- 루트 시스템: LANE BREAK, ROUTE OPEN, ROUTE HOLD, ROUTE BONUS, Forward Smash 클러스터 보상, 실패 버킷 기반 결과/로비 추천
 - 스킬트리: DP(파괴점수)로 영구 해금, 인게임 레벨업 시 랜덤 3선택
 - 재화: DP(무료/파괴 획득), 크레딧(유료), 에너지(스태미나)
 - 별 시스템: 목표 점수 50/80/100% = 1/2/3별
@@ -225,7 +226,7 @@ ALIEN CRUSHER UI 텍스트 작성 원칙:
 
 예시 스킬 설명 텍스트:
 - 중력 코어: "질량 강화. 부수는 힘이 커진다."
-- 드릴 전차: "지면을 뚫어라. 무엇도 막지 못한다."
+- Ram: "루트를 되찾아라. 밀고 나가라."
 ```
 
 #### 로컬라이징 프롬프트 예시
@@ -236,10 +237,11 @@ ALIEN CRUSHER UI 텍스트 작성 원칙:
 
 [텍스트 리스트]
 - PERFECT LANDING
-- TOTAL DESTRUCTION
-- CHAIN REACTION
-- LEVEL UP
-- SKILL UNLOCKED
+- LANE BREAK -> ROUTE OPEN
+- ROUTE HOLD
+- ROUTE BONUS -> CLUSTER OPEN
+- SMASH CLUSTER OPEN
+- ROUTE HOLD MISSED
 ```
 
 ---
@@ -272,13 +274,13 @@ ALIEN CRUSHER UI 텍스트 작성 원칙:
 #### 이미지 생성 AI용 프롬프트 예시 (Midjourney/DALL-E)
 
 ```
-"ALIEN CRUSHER 게임의 '드릴 전차' 형태 변환 연출을 위한 컨셉 참고 이미지 프롬프트를 써줘.
+"ALIEN CRUSHER의 런타임 형태 5종(Sphere, Spike, Ram, Saucer, Crusher)을 위한 아이콘/실루엣 컨셉 참고 이미지 프롬프트를 써줘.
 조건:
 - 스타일: Low Poly 3D, 밝고 채도 높은 색감
-- 구성: 탑뷰 아이소메트릭
-- 형태: 크러셔 볼이 드릴이 달린 전차로 변신하는 순간
-- 배경: SF 파괴 도시, 먼지와 파편
-- 색상: 주황색 + 은색 계열
+- 구성: 모바일 탑뷰 게임에서 한눈에 구분되는 형태별 실루엣
+- 형태: Sphere는 안정적인 기본형, Spike는 관통/약점 공격형, Ram은 돌파/회복형, Saucer는 이동/도달형, Crusher는 중량/압박형
+- 배경: 투명 또는 단색 배경, UI 아이콘 제작 참고용
+- 색상: 각 형태가 서로 다른 색상 계열을 갖도록 제안
 주의: 결과 이미지는 최종 게임 에셋이 아니라 무드/색감 참고용으로만 사용.
 Midjourney v6 형식으로 작성해줘."
 ```
@@ -453,7 +455,7 @@ Inspector 노출 변수: [목록]
 
 ### 5.1 기획 문서 검수
 
-- [ ] GDD의 핵심 게임 루프와 충돌하지 않는가?
+- [ ] 현재 GDD/로드맵의 LANE BREAK -> ROUTE OPEN -> ROUTE HOLD -> ROUTE BONUS / Forward Smash 루프와 충돌하지 않는가?
 - [ ] 수치는 실제 게임 플레이 시간(60~90초) 내에 유효한가?
 - [ ] 유저 아하 모먼트에 기여하는가?
 - [ ] 유료화 모델과 상충되지 않는가?
