@@ -30,7 +30,8 @@ This document tracks the current project state, the next production priorities, 
 - `Assets/Scenes/SampleScene.unity` contains `HudRouteArrow` with child `ArrowText`, and `Tools/AuditSceneEssentialsStatic.ps1` verifies those scene essentials with `0 warning(s)`.
 - Unity-free static map audit passes Stage 1-7 formula checks with `0 warning(s)`.
 - Unity-free ROUTE HOLD tuning audit passes with `0 warning(s)` and reads current default tuning values, including route open beat timing, from runtime C# fields before auditing.
-- `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set.
+- `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set and fails if an expected report is missing or not refreshed during the run.
+- Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
 - `Tools/GenerateStagePlaytestChecklist.ps1` generates `Logs/AlienCrusherStagePlaytestChecklist.md`, combining current validation results, Stage 1-7 map growth, route targets, route pressure, target distances, and hands-on observation prompts.
@@ -66,6 +67,13 @@ Required next artifacts:
 - `Logs/AlienCrusherPlaytestTelemetry.log`
 - regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md` with `Tune Next` based on real run data
 - populated Stage 1 / 4 / 7 notes in `Logs/AlienCrusherStagePlaytestChecklist.md` or linked screenshots/videos
+
+First `F10` sweep minimum markers:
+- `SWEEP_START`
+- `STAGE_START` and `STAGE_END` for Stage 01, Stage 04, and Stage 07
+- `SWEEP_END`
+
+If any marker is missing, fix telemetry/sweep wiring before tuning.
 
 Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 - stage size/grid/destructible counts grow as expected

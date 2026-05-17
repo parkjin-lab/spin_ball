@@ -19,14 +19,15 @@ function Invoke-AuditScript {
         [string]$ScriptPath,
         [string]$ReportPath,
         [int]$MaxStage,
-        [int]$MaxGrowthStage
+        [int]$MaxGrowthStage,
+        [string]$PowerShellExecutable
     )
 
     Write-Host ""
     Write-Host "== $Label =="
 
     $startedAt = Get-Date
-    & powershell -NoProfile -ExecutionPolicy Bypass -File $ScriptPath `
+    & $PowerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $ScriptPath `
         -MaxStage $MaxStage `
         -MaxGrowthStage $MaxGrowthStage `
         -ReportPath $ReportPath `
@@ -62,6 +63,11 @@ function Invoke-AuditScript {
 }
 
 $projectRoot = Resolve-ProjectRoot
+$powerShellExecutable = (Get-Process -Id $PID).Path
+if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
+    $powerShellExecutable = "powershell"
+}
+
 if ([string]::IsNullOrWhiteSpace($ReportDirectory)) {
     $ReportDirectory = Join-Path $projectRoot "Logs"
 }
@@ -83,6 +89,11 @@ $audits = @(
         Label = "ROUTE HOLD tuning"
         ScriptPath = Join-Path $PSScriptRoot "AuditRouteHoldTuningStatic.ps1"
         ReportPath = Join-Path $ReportDirectory "AlienCrusherRouteHoldStaticAudit.log"
+    },
+    [pscustomobject]@{
+        Label = "Playtest telemetry wiring"
+        ScriptPath = Join-Path $PSScriptRoot "AuditPlaytestTelemetryWiringStatic.ps1"
+        ReportPath = Join-Path $ReportDirectory "AlienCrusherPlaytestTelemetryWiringStaticAudit.log"
     }
 )
 
@@ -90,6 +101,7 @@ $failed = 0
 Write-Output "[AlienCrusher][StaticAudits] Running Unity-free audits"
 Write-Output "Project: $projectRoot"
 Write-Output "Reports: $ReportDirectory"
+Write-Output "PowerShell: $powerShellExecutable"
 
 foreach ($audit in $audits) {
     if (-not (Test-Path $audit.ScriptPath)) {
@@ -106,7 +118,8 @@ foreach ($audit in $audits) {
         -ScriptPath $audit.ScriptPath `
         -ReportPath $audit.ReportPath `
         -MaxStage $MaxStage `
-        -MaxGrowthStage $MaxGrowthStage
+        -MaxGrowthStage $MaxGrowthStage `
+        -PowerShellExecutable $powerShellExecutable
 
     if ($exitCode -ne 0) {
         $failed++
