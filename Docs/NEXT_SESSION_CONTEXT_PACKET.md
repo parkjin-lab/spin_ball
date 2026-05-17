@@ -32,7 +32,7 @@ Rule:
 - MCP may still be unreliable, so the project now has a filesystem/Unity-batch validation path.
 - ROUTE HOLD remains wired after LANE BREAK with a `LANE BREAK -> ROUTE OPEN` feedback beat, HUD guidance, route beacon, route trail pips, result badges/advice, and lobby/meta recommendations.
 - Scene readiness validation is no longer menu-only: it can run through Unity `-executeMethod` and writes `Logs/AlienCrusherSceneValidation.log`.
-- Latest completed Unity batch validation against `Assets/Scenes/SampleScene.unity` is the 2026-05-05 wrapper pass; latest static/checklist refresh is 2026-05-10.
+- Latest completed Unity batch validation against `Assets/Scenes/SampleScene.unity` is the 2026-05-05 wrapper pass; latest static/checklist refresh is 2026-05-17.
 - 2026-05-04 follow-up: validation/repair now also covers the ROUTE HOLD HUD arrow scaffold (`HudRouteArrow` with child `ArrowText`).
 - 2026-05-04 map follow-up: runtime stage start now rebuilds the managed city map instead of reusing the same static layout forever. Map bounds, lot grid, target markers, spawn position, camera clamp, density, and prop variety now scale across the early stage ramp.
 - Runtime map generation now opens stage-gated landmark districts: Stage 2 pocket park, Stage 3 market plaza, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
@@ -67,6 +67,7 @@ Rule:
 - Updated `Tools/GenerateStagePlaytestChecklist.ps1` so Stage 1-7 playtests now ask for a rhythm pass and a per-stage rhythm identity note.
 - Updated `Tools/GeneratePlaytestTelemetrySummary.ps1` so telemetry summaries expose a rhythm snapshot and make it obvious when no real sweep evidence exists yet.
 - Refreshed this handoff so the next session can start from checklist -> `F10` sweep -> telemetry summary without reconstructing context.
+- Added first-sweep run-sheet expectations, no-log telemetry gates, and static audit report freshness checks so autonomous prep work can continue without touching gameplay tuning.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`

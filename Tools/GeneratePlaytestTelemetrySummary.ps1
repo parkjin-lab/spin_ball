@@ -721,10 +721,23 @@ $lines.Add("")
 if (-not (Test-Path -Path $resolvedTelemetryLogPath -PathType Leaf)) {
     $lines.Add("No playtest telemetry log exists yet.")
     $lines.Add("")
+    $lines.Add("Manual gate required:")
+    $lines.Add('- `Tune Next` requires real `[AlienCrusher][Playtest]` telemetry; this empty summary is a readiness artifact only.')
+    $lines.Add('- Expected first successful sweep markers: `SWEEP_START`, `STAGE_START`, `STAGE_END`, and `SWEEP_END`.')
+    $lines.Add("- Do not tune stage rhythm presets, payoff layouts, boss windows, or route timing until this log exists.")
+    $lines.Add("")
     $lines.Add("Next step:")
-    $lines.Add("- Run an editor/development playtest or `F10` sweep.")
-    $lines.Add("- Re-run `Tools/GeneratePlaytestTelemetrySummary.ps1` after the run.")
+    $lines.Add('- Run an editor/development playtest or `F10` sweep.')
+    $lines.Add('- Re-run `Tools/GeneratePlaytestTelemetrySummary.ps1` after the run.')
     $lines.Add("- After the first sweep, choose one dominant broken beat and one variable family before making broader tuning changes.")
+    $lines.Add("")
+    $lines.Add('Expected `Tune Next` fields after real telemetry:')
+    $lines.Add("- Primary bottleneck")
+    $lines.Add("- Tune these fields first")
+    $lines.Add("- Current values")
+    $lines.Add("- Chosen first-pass experiment")
+    $lines.Add("- Retest stages")
+    $lines.Add("- Do not touch yet")
 
     $report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine
     Set-Content -Path $resolvedReportPath -Value $report -Encoding UTF8
@@ -742,6 +755,12 @@ Get-Content -Path $resolvedTelemetryLogPath | ForEach-Object {
 
 if ($entries.Count -eq 0) {
     $lines.Add("The playtest telemetry log exists, but no parseable `[AlienCrusher][Playtest]` lines were found.")
+    $lines.Add("")
+    $lines.Add("Debug checklist:")
+    $lines.Add("- Confirm the run was made from an editor/development build with playtest telemetry enabled.")
+    $lines.Add('- Confirm the log contains lines shaped like `[AlienCrusher][Playtest] time=yyyy-MM-dd HH:mm:ss stage=1 event=STAGE_START ...`.')
+    $lines.Add('- If `F10` was used, confirm `SWEEP_START` and `SWEEP_END` are present in the raw log.')
+    $lines.Add("- Fix telemetry formatting or sweep wiring before making balance changes.")
     $report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine
     Set-Content -Path $resolvedReportPath -Value $report -Encoding UTF8
     Write-Output $report

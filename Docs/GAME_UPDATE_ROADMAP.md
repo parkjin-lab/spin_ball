@@ -213,6 +213,7 @@ Success signal:
 
 #### 6. Stage Rhythm Presets
 After the first real Stage 1-7 sweep, test small stage-specific rhythm presets instead of one global tempo profile:
+- Guardrail: do not implement these presets before real `F10` telemetry and Stage 1/4/7 notes identify the dominant broken beat.
 - Stage 2: slightly longer `routeOpenBeatSeconds`
 - Stage 3-4: faster opening pressure and denser sustain
 - Stage 5: larger payoff spacing and louder release

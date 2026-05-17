@@ -25,6 +25,7 @@ function Invoke-AuditScript {
     Write-Host ""
     Write-Host "== $Label =="
 
+    $startedAt = Get-Date
     & powershell -NoProfile -ExecutionPolicy Bypass -File $ScriptPath `
         -MaxStage $MaxStage `
         -MaxGrowthStage $MaxGrowthStage `
@@ -40,7 +41,24 @@ function Invoke-AuditScript {
         Write-Host "FAIL: $Label exited with code $exitCode"
     }
 
-    return $exitCode
+    if ($exitCode -ne 0) {
+        return $exitCode
+    }
+
+    if (-not (Test-Path -Path $ReportPath -PathType Leaf)) {
+        Write-Host "FAIL: $Label did not create expected report $ReportPath"
+        return 1
+    }
+
+    $reportItem = Get-Item -Path $ReportPath
+    if ($reportItem.LastWriteTime -lt $startedAt.AddSeconds(-1)) {
+        Write-Host "FAIL: $Label report was not refreshed: $ReportPath"
+        Write-Host ("Report timestamp: {0:yyyy-MM-dd HH:mm:ss K}; audit started: {1:yyyy-MM-dd HH:mm:ss K}" -f $reportItem.LastWriteTime, $startedAt)
+        return 1
+    }
+
+    Write-Host ("Fresh report: {0} ({1:yyyy-MM-dd HH:mm:ss K})" -f $ReportPath, $reportItem.LastWriteTime)
+    return 0
 }
 
 $projectRoot = Resolve-ProjectRoot
