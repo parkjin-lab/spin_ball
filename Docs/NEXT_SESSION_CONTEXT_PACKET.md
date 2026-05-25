@@ -60,7 +60,9 @@ Rule:
 - Added `Tools/TestPlaytestEvidenceGate.ps1` as the blocking Evidence Green check. It verifies real telemetry, summary freshness, Stage 1-7 `STAGE_START`/`STAGE_END` coverage, `SWEEP_START`/`SWEEP_END`, populated stage notes, and optional post-sweep decision fields. Use `-ReportOnly` before the first real sweep.
 - Added `Tools/TestPlaytestEvidenceGateRegression.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the Evidence Green checker itself is tested without requiring a live Unity playtest.
 - Added assignable feedback audio hooks in `FeedbackSystem` for hit/destruction weight, combo rise, route open/hold/bonus, boss warning/break/down, and level-up beats. Hooks are null-safe until clips are assigned.
+- Added dedicated failure beat feedback in `FeedbackSystem` and the stage defeat flow. Ordinary defeat and boss-phase defeat now have separate assignable audio slots with fallback to warning clips, so the result-screen transition gets a clearer rhythm punctuation.
 - Added `Tools/AuditFeedbackAudioHooksStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so rhythm-critical feedback events keep their audio hook surface.
+- Updated `Docs/CURRENT_STAGE_RESOURCE_REQUIREMENTS.md` and `Docs/CURRENT_STAGE_RESOURCE_PRODUCTION_BOARD.md` with the current `FeedbackSystem` audio slot map, including route and failure beat clips.
 - Added first-pass mobile HUD text safeguards: compact route/progress/gauge copy, direction-label abbreviations, and best-fit rules on the main HUD text fields.
 - Added `Tools/AuditMobileHudReadabilityStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the compact HUD copy and best-fit safeguards do not silently regress.
 - Added a Stage 4 Sentinel checkpoint landmark tier to runtime map generation so the boss-approach stage has pylon foreshadowing, barricades, warning beacons, and a gate block before the Stage 4+ boss systems dominate.
@@ -93,6 +95,7 @@ Rule:
 - Added the first Stage 4 boss-approach map identity pass: the runtime layout now generates a Sentinel checkpoint before later construction/power/skyline landmark tiers.
 - Added first-pass ROUTE HOLD route-adherence instrumentation so the first real sweep can distinguish path readability from timer/target-count pressure.
 - Added first-pass landmark value audit scaffolding so the first sweep can judge landmark gameplay role instead of only counting landmark objects.
+- Added the first failure-beat runtime pass and refreshed the required resource list so the next audio production step can assign clips directly to concrete runtime slots.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`

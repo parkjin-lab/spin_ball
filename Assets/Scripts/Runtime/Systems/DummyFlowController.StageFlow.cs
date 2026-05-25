@@ -747,8 +747,20 @@ namespace AlienCrusher.Systems
 			{
 				return false;
 			}
+			PlayStageDefeatFeedback();
 			CompleteStage();
 			return true;
+		}
+
+		private void PlayStageDefeatFeedback()
+		{
+			bool bossRelated = GetLastRunFailureBucket() == "BOSS PHASE" || (stageBossEncounterActive && IsStageBossAlive());
+			Vector3 center = playerTransform != null ? playerTransform.position : Vector3.zero;
+			if (bossRelated && stageBossBlock != null)
+			{
+				center = stageBossBlock.transform.position;
+			}
+			feedbackSystem?.PlayFailureBeatFeedback(center + Vector3.up * 0.25f, bossRelated, bossRelated ? 1f : 0.82f);
 		}
 
 		private void PrepareStageEndForVictoryFlow()

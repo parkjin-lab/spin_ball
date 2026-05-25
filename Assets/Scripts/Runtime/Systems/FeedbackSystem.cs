@@ -31,6 +31,8 @@ namespace AlienCrusher.Systems
         [SerializeField] private AudioClip bossBreakClip;
         [SerializeField] private AudioClip bossDownClip;
         [SerializeField] private AudioClip levelUpClip;
+        [SerializeField] private AudioClip failureWarningClip;
+        [SerializeField] private AudioClip failureBossClip;
 
         [Header("Screen Feedback")]
         [SerializeField] [Range(0f, 0.35f)] private float hitFlashAlpha = 0.12f;
@@ -430,6 +432,49 @@ namespace AlienCrusher.Systems
                 Mathf.Lerp(hudWarningCameraImpulse * 0.6f, hudWarningCameraImpulse, intensity),
                 Mathf.Lerp(hudWarningFovPunch * 0.55f, hudWarningFovPunch, intensity));
             PlayAudio(bossRelated ? bossWarningClip : routeHoldWarningClip, Mathf.Lerp(0.45f, 0.72f, intensity), bossRelated ? 0.92f : 1f);
+        }
+
+        public void PlayFailureBeatFeedback(Vector3 center, bool bossRelated, float intensity = 1f)
+        {
+            intensity = Mathf.Clamp01(intensity);
+            var flashColor = bossRelated
+                ? Color.Lerp(hudBossWarningFlashColor, new Color(1f, 0.1f, 0.06f, 1f), Mathf.Lerp(0.24f, 0.46f, intensity))
+                : Color.Lerp(hudWarningFlashColor, new Color(1f, 0.22f, 0.08f, 1f), Mathf.Lerp(0.18f, 0.38f, intensity));
+            var alpha = Mathf.Lerp(hudWarningFlashAlpha * 1.1f, hudWarningFlashAlpha * 1.65f, intensity);
+            PlayScreenFlash(flashColor, alpha, 0.018f, 0.22f);
+            PlayCustomRing(
+                flashColor,
+                Mathf.Lerp(0.22f, 0.42f, intensity),
+                Mathf.Lerp(0.64f, 0.82f, intensity),
+                Mathf.Lerp(1.18f, 1.72f, intensity),
+                Mathf.Lerp(0.2f, 0.32f, intensity));
+
+            SpawnBurst(center, Mathf.Lerp(0.58f, 0.9f, intensity), heavy: bossRelated);
+            ApplyCameraFeedback(
+                Mathf.Lerp(hudWarningCameraImpulse * 1.15f, hudWarningCameraImpulse * 2.6f, intensity),
+                Mathf.Lerp(hudWarningFovPunch * 1.1f, hudWarningFovPunch * 2.4f, intensity));
+            PlayAudio(ResolveFailureClip(bossRelated), Mathf.Lerp(0.58f, 0.9f, intensity), bossRelated ? 0.84f : 0.92f);
+            PlayHaptic(destroyed: bossRelated, Mathf.Lerp(0.34f, 0.68f, intensity));
+        }
+
+        private AudioClip ResolveFailureClip(bool bossRelated)
+        {
+            if (bossRelated && failureBossClip != null)
+            {
+                return failureBossClip;
+            }
+
+            if (!bossRelated && failureWarningClip != null)
+            {
+                return failureWarningClip;
+            }
+
+            if (failureWarningClip != null)
+            {
+                return failureWarningClip;
+            }
+
+            return bossRelated ? bossWarningClip : routeHoldWarningClip;
         }
 
         private void PlayMilestoneFeedback(

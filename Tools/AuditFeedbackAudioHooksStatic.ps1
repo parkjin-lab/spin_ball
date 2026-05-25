@@ -31,6 +31,7 @@ function Add-RequiredTextCheck {
 $projectRoot = Resolve-ProjectRoot
 $feedbackPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\FeedbackSystem.cs"
 $bossEncounterPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\DummyFlowController.StageEncounter.cs"
+$stageFlowPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\DummyFlowController.StageFlow.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherFeedbackAudioHooksStaticAudit.log"
@@ -55,11 +56,17 @@ if (-not (Test-Path -Path $bossEncounterPath -PathType Leaf)) {
     $errors.Add("Boss encounter partial not found: $bossEncounterPath")
 }
 
+if (-not (Test-Path -Path $stageFlowPath -PathType Leaf)) {
+    $errors.Add("Stage flow partial not found: $stageFlowPath")
+}
+
 $feedbackText = ""
 $bossEncounterText = ""
+$stageFlowText = ""
 if ($errors.Count -eq 0) {
     $feedbackText = Get-Content -Path $feedbackPath -Raw
     $bossEncounterText = Get-Content -Path $bossEncounterPath -Raw
+    $stageFlowText = Get-Content -Path $stageFlowPath -Raw
 
     foreach ($needle in @(
         "private bool allowAudio",
@@ -78,6 +85,8 @@ if ($errors.Count -eq 0) {
         "private AudioClip bossBreakClip",
         "private AudioClip bossDownClip",
         "private AudioClip levelUpClip",
+        "private AudioClip failureWarningClip",
+        "private AudioClip failureBossClip",
         "public bool AllowAudio",
         "private void EnsureAudioSource()",
         "private void PlayAudio(AudioClip clip",
@@ -96,6 +105,9 @@ if ($errors.Count -eq 0) {
         "PlayAudio(swarmBroken ? bossBreakClip : bossWarningClip",
         "PlayAudio(bossCore ? bossBreakClip : hitHeavyClip",
         "PlayAudio(bossRelated ? bossWarningClip : routeHoldWarningClip",
+        "public void PlayFailureBeatFeedback",
+        "private AudioClip ResolveFailureClip",
+        "PlayAudio(ResolveFailureClip(bossRelated)",
         "public void PlayBossDownFeedback",
         "PlayAudio(bossDownClip"
     )) {
@@ -103,12 +115,15 @@ if ($errors.Count -eq 0) {
     }
 
     Add-RequiredTextCheck -Errors $errors -Text $bossEncounterText -Needle "feedbackSystem?.PlayBossDownFeedback" -Label "Boss down audio call"
+    Add-RequiredTextCheck -Errors $errors -Text $stageFlowText -Needle "PlayStageDefeatFeedback()" -Label "Stage defeat feedback call"
+    Add-RequiredTextCheck -Errors $errors -Text $stageFlowText -Needle "feedbackSystem?.PlayFailureBeatFeedback" -Label "Stage defeat feedback call"
 }
 
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("[AlienCrusher][FeedbackAudioHooksStaticAudit] Feedback audio hooks audit")
 $lines.Add("Feedback source: $feedbackPath")
 $lines.Add("Boss encounter source: $bossEncounterPath")
+$lines.Add("Stage flow source: $stageFlowPath")
 
 foreach ($errorMessage in $errors) {
     $lines.Add("ERROR: $errorMessage")

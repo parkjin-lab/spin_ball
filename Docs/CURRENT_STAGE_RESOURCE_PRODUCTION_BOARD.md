@@ -131,18 +131,24 @@ Deliverables:
 - skill set
 - boss set
 - UI set
+- failure beat set
 
 Expected output:
 - impact scale is felt through sound
 - different gameplay states stop feeling samey
 - boss and progression moments gain payoff
+- defeat has a clear audible downbeat before the result screen
 
 Must-cover events:
 - light hit
+- medium hit
 - heavy hit
 - small break
 - heavy collapse
 - chain up
+- route open
+- route hold warning
+- route bonus
 - overdrive start
 - level up open
 - level up confirm
@@ -154,18 +160,31 @@ Must-cover events:
 - boss core open
 - boss phase transition
 - boss down
+- ordinary failure
+- boss-phase failure
 - UI click / locked / confirm / fail
+
+Current `FeedbackSystem` slot map:
+- `hitLightClip`, `hitMediumClip`, `hitHeavyClip`
+- `breakSmallClip`, `breakLargeClip`
+- `comboRiseClip`
+- `routeOpenClip`, `routeHoldWarningClip`, `routeBonusClip`
+- `bossWarningClip`, `bossBreakClip`, `bossDownClip`
+- `levelUpClip`
+- `failureWarningClip`, `failureBossClip`
 
 Suggested file targets:
 - `Assets/Audio/SFX/Impact/`
 - `Assets/Audio/SFX/Skills/`
 - `Assets/Audio/SFX/Boss/`
+- `Assets/Audio/SFX/Failure/`
 - `Assets/Audio/SFX/UI/`
 
 Done when:
 - silent critical moments no longer exist
 - small hit / big hit / collapse are clearly separable by ear
 - boss phase changes are recognizable without looking at UI
+- every current `FeedbackSystem` slot is assigned a clip or has an intentional placeholder noted in the scene/prefab
 
 ---
 
@@ -323,6 +342,8 @@ Use this if tasks need to be split.
 
 ### Juice / Feedback Owner
 - [ ] hit / break / collapse SFX
+- [ ] route open / route hold warning / route bonus SFX
+- [ ] ordinary failure / boss-phase failure SFX
 - [ ] frenzy / panic / seismic / overdrive SFX
 - [ ] boss warning / phase / break / death SFX
 - [ ] VFX variant pass for destruction moments
@@ -336,8 +357,9 @@ Use this if tasks need to be split.
 
 ## 9. Immediate Recommendation
 If we act on this document right away, the best next practical step is:
-1. create primitive-based form silhouette kits and icon placeholders
-2. create destruction material tiers
-3. create street prop primitive kit
+1. assign temporary clips for every current `FeedbackSystem` slot, especially failure beats
+2. create primitive-based form silhouette kits and icon placeholders
+3. create destruction material tiers
+4. create street prop primitive kit
 
 This is the fastest path to making the current build look more intentional without waiting on a full asset pipeline.

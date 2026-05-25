@@ -138,18 +138,31 @@ Why this matters now:
 Status:
 - current build has many gameplay states that should sound different
 - audio is now one of the highest leverage missing pieces
+- `FeedbackSystem` now exposes assignable one-shot slots for hit weight, break scale, route beats, boss beats, level-up, and failure beats
+- failure now has a dedicated runtime downbeat, so defeat should sound like a clear rhythm punctuation instead of silently falling into the result screen
 
 Need:
 - distinct audio for hit quality, destruction scale, form actions, progression, and boss danger
+- short failure stingers that distinguish ordinary route/time failure from boss-phase failure
 
 Required assets:
-- light hit
-- medium hit
-- heavy hit
-- small break
-- building collapse
-- chain gain
-- level up open
+- `SFX_Hit_Light` -> `hitLightClip`
+- `SFX_Hit_Medium` -> `hitMediumClip`
+- `SFX_Hit_Heavy` -> `hitHeavyClip`
+- `SFX_Break_Small` -> `breakSmallClip`
+- `SFX_Break_LargeCollapse` -> `breakLargeClip`
+- `SFX_Combo_Rise` -> `comboRiseClip`
+- `SFX_Route_Open` -> `routeOpenClip`
+- `SFX_Route_HoldWarning` -> `routeHoldWarningClip`
+- `SFX_Route_Bonus` -> `routeBonusClip`
+- `SFX_Boss_Warning` -> `bossWarningClip`
+- `SFX_Boss_Break` -> `bossBreakClip`
+- `SFX_Boss_Down` -> `bossDownClip`
+- `SFX_LevelUp_Open` -> `levelUpClip`
+- `SFX_Failure_Warning` -> `failureWarningClip`
+- `SFX_Failure_Boss` -> `failureBossClip`
+
+Next audio slots still needed after the current hook surface:
 - level up confirm
 - DP reward / outgame reward
 - form unlock
@@ -161,12 +174,12 @@ Required assets:
 - boss shield up
 - boss core exposed
 - boss phase transition
-- boss down
 - UI tap / confirm / locked / purchase fail
 
 Why this matters now:
 - code already contains many important moments, but silent or under-defined moments reduce impact
 - destruction pleasure scales dramatically with sound even when visuals remain simple
+- rhythm depends on contrast: warning, payoff, and failure beats must be audibly different
 
 ---
 
@@ -363,6 +376,9 @@ This section can be used as a working production checklist.
 - [ ] form action SFX set
 - [ ] progression / reward SFX set
 - [ ] boss warning / phase / break / death SFX set
+- [ ] route open / route hold warning / route bonus SFX set
+- [ ] ordinary failure warning stinger
+- [ ] boss-phase failure stinger
 - [ ] UI feedback SFX set
 
 ### UI
