@@ -35,7 +35,7 @@ The weak points are:
 
 - Real `F10` Stage 1-7 telemetry is still missing, so rhythm quality is unproven.
 - ROUTE HOLD may feel like a timed destruction count instead of a true route-reading test; first-pass route-adherence telemetry now exists, but evidence has not been captured yet.
-- Landmarks are counted and placed, but their gameplay value is not yet audited.
+- Landmarks now have first-pass static value records for role, route relationship, payoff mix, entry lane, and exit lane, but this still needs playtest/screenshot confirmation.
 - Stage 4 now has a first-pass Sentinel checkpoint landmark, but its boss-approach readability is still unproven until screenshot/playtest evidence confirms it reads without HUD text.
 - Audio hooks now exist as a first-pass runtime layer, but clips/assets and balance are still missing.
 - HUD has first-pass mobile text safeguards, but real device/screenshot readability is still unproven.
@@ -180,7 +180,7 @@ Fail the pass if:
 
 ## P1 Policy - Map Growth Must Create New Decisions
 
-Static map audits currently prove map growth, target bounds, landmark counts, and minimum density. That is necessary but not sufficient.
+Static map audits currently prove map growth, target bounds, landmark counts, minimum density, and first-pass landmark value records. That is necessary but not sufficient.
 
 Landmark policy:
 
@@ -203,6 +203,7 @@ Future audit policy:
 
 - do not only count landmarks
 - record landmark role, route proximity, payoff object mix, entry lane, exit lane, and target relationship
+- treat static landmark value records as a review scaffold, not as proof that the landmark reads in motion
 
 ## P1 Policy - Stage 4 Needs Its Own Identity
 
@@ -286,7 +287,7 @@ Do not tune boss pressure until the base Stage 1-7 route loop has real evidence.
 
 ### P1
 
-- Add landmark value audit criteria beyond object count.
+- Confirm landmark value records against real screenshots/playtest notes and refine the audit only from evidence.
 - Confirm Stage 4 Sentinel checkpoint readability with screenshot/playtest evidence and refine only from evidence.
 - Use the new route-adherence telemetry fields during the first sweep review, then decide whether ROUTE HOLD is a path-readability problem or a timer/target-count problem.
 - Convert HUD state priority toward icon/gauge recognition.

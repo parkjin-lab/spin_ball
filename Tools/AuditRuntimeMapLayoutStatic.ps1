@@ -118,6 +118,92 @@ function Format-Point {
     return "({0:0.0},{1:0.0})" -f $X, $Z
 }
 
+function Get-Distance {
+    param([double]$AX, [double]$AZ, [double]$BX, [double]$BZ)
+    return [Math]::Sqrt([Math]::Pow($AX - $BX, 2.0) + [Math]::Pow($AZ - $BZ, 2.0))
+}
+
+function Resolve-LandmarkValueProfile {
+    param([int]$Index)
+
+    switch ($Index) {
+        0 {
+            return [pscustomobject]@{
+                Role = "breathing-space"
+                EntryLane = "starter-lane-side"
+                ExitLane = "park-cut-to-target"
+                PayoffMix = "trees/benches/statue"
+                TargetRelation = "early-route-openness"
+                MaxRouteDistance = 30.0
+            }
+        }
+        1 {
+            return [pscustomobject]@{
+                Role = "chain-density"
+                EntryLane = "commercial-strip"
+                ExitLane = "market-to-forward-target"
+                PayoffMix = "kiosks/vending/bus-stop"
+                TargetRelation = "mid-route-density"
+                MaxRouteDistance = 32.0
+            }
+        }
+        2 {
+            return [pscustomobject]@{
+                Role = "boss-approach"
+                EntryLane = "central-defense-front"
+                ExitLane = "checkpoint-to-boss-route"
+                PayoffMix = "pylons/barricades/beacons/gate"
+                TargetRelation = "pylon-foreshadow"
+                MaxRouteDistance = 24.0
+            }
+        }
+        3 {
+            return [pscustomobject]@{
+                Role = "explosive-payoff"
+                EntryLane = "wide-yard-entry"
+                ExitLane = "yard-blast-to-target"
+                PayoffMix = "containers/barrels/crane"
+                TargetRelation = "payoff-cluster"
+                MaxRouteDistance = 22.0
+            }
+        }
+        4 {
+            return [pscustomobject]@{
+                Role = "utility-risk"
+                EntryLane = "power-block-side"
+                ExitLane = "transformer-chain-exit"
+                PayoffMix = "transformers/fences/barrels"
+                TargetRelation = "hazard-chain-near-return"
+                MaxRouteDistance = 18.0
+            }
+        }
+        default {
+            return [pscustomobject]@{
+                Role = "late-anchor"
+                EntryLane = "skyline-plaza-entry"
+                ExitLane = "tower-breach-exit"
+                PayoffMix = "towers/signs/benches"
+                TargetRelation = "late-route-anchor"
+                MaxRouteDistance = 32.0
+            }
+        }
+    }
+}
+
+function Format-LandmarkValue {
+    param($Center, $Profile, [string]$ClosestTarget, [double]$ClosestDistance)
+
+    return "{0}[role={1}; target={2}:{3:0.0}m; relation={4}; payoff={5}; entry={6}; exit={7}]" -f `
+        $Center.Name, `
+        $Profile.Role, `
+        $ClosestTarget, `
+        $ClosestDistance, `
+        $Profile.TargetRelation, `
+        $Profile.PayoffMix, `
+        $Profile.EntryLane, `
+        $Profile.ExitLane
+}
+
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $projectRoot = Split-Path -Parent $PSScriptRoot
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherMapLayoutStaticAudit.log"
@@ -166,6 +252,7 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
     if ($distB -lt 9.0) { $warnings.Add("Target_B too close to spawn") }
 
     $activeLandmarks = [System.Collections.Generic.List[string]]::new()
+    $landmarkValueRecords = [System.Collections.Generic.List[string]]::new()
     $landmarkIndexes = @()
     if ($stage -ge 2) { $landmarkIndexes += 0 }
     if ($stage -ge 3) { $landmarkIndexes += 1 }
@@ -177,7 +264,13 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
     foreach ($index in $landmarkIndexes) {
         $center = Resolve-LandmarkCenter -Layout $layout -Index $index
         $half = Resolve-LandmarkHalfExtents -Index $index
+        $profile = Resolve-LandmarkValueProfile -Index $index
+        $targetADistance = Get-Distance -AX $center.X -AZ $center.Z -BX $targetAX -BZ $targetAZ
+        $targetBDistance = Get-Distance -AX $center.X -AZ $center.Z -BX $targetBX -BZ $targetBZ
+        $closestTarget = if ($targetADistance -le $targetBDistance) { "Target_A" } else { "Target_B" }
+        $closestTargetDistance = [Math]::Min($targetADistance, $targetBDistance)
         $activeLandmarks.Add(("{0}{1}" -f $center.Name, (Format-Point -X $center.X -Z $center.Z)))
+        $landmarkValueRecords.Add((Format-LandmarkValue -Center $center -Profile $profile -ClosestTarget $closestTarget -ClosestDistance $closestTargetDistance))
 
         $limitX = $layout.HalfExtent - 1.15 - $half.X
         $limitZ = $layout.HalfExtent - 1.15 - $half.Z
@@ -190,19 +283,23 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
         if ((Test-InsideLandmark -X $targetAX -Z $targetAZ -Center $center -HalfExtents $half) -or (Test-InsideLandmark -X $targetBX -Z $targetBZ -Center $center -HalfExtents $half)) {
             $warnings.Add("$($center.Name) overlaps route target")
         }
+        if ($closestTargetDistance -gt $profile.MaxRouteDistance) {
+            $warnings.Add("$($center.Name) too far from route target for $($profile.TargetRelation)")
+        }
     }
 
     $minimumDestructibles = [Math]::Max(52, [Math]::Round($layout.XCells * $layout.ZCells * (Lerp 0.34 0.42 $layout.Growth01)))
     $minimumOpening = Clamp-Int -Value (14 + ($layout.GrowthTier * 2)) -Min 14 -Max 24
     $minimumLandmarks = Resolve-MinimumLandmarkObjects -Layout $layout
     $landmarkText = if ($activeLandmarks.Count -gt 0) { [string]::Join(", ", $activeLandmarks) } else { "none" }
+    $landmarkValueText = if ($landmarkValueRecords.Count -gt 0) { [string]::Join(" | ", $landmarkValueRecords) } else { "none" }
     $warningText = if ($warnings.Count -gt 0) { [string]::Join("; ", $warnings) } else { "OK" }
 
     if ($warnings.Count -gt 0) {
         $warningCount += $warnings.Count
     }
 
-    $lines.Add(("{0}: stage={1:00} size={2:0.0}m grid={3}x{4} minDestructibles={5} minOpening={6} minLandmarks={7} spawn={8} targetA={9} targetB={10} landmarks={11} warnings={12}" -f `
+    $lines.Add(("{0}: stage={1:00} size={2:0.0}m grid={3}x{4} minDestructibles={5} minOpening={6} minLandmarks={7} spawn={8} targetA={9} targetB={10} landmarks={11} landmarkValue={12} warnings={13}" -f `
         ($(if ($warnings.Count -gt 0) { "WARN" } else { "OK" })), `
         $stage, `
         $layout.MapSize, `
@@ -215,6 +312,7 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
         (Format-Point -X $targetAX -Z $targetAZ), `
         (Format-Point -X $targetBX -Z $targetBZ), `
         $landmarkText, `
+        $landmarkValueText, `
         $warningText))
 
     $previousSize = $layout.MapSize

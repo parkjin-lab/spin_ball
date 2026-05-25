@@ -111,6 +111,7 @@ function Resolve-Landmarks {
     $landmarks = [System.Collections.Generic.List[string]]::new()
     if ($Layout.Stage -ge 2) { $landmarks.Add("Pocket park") }
     if ($Layout.Stage -ge 3) { $landmarks.Add("Market plaza") }
+    if ($Layout.Stage -ge 4) { $landmarks.Add("Sentinel checkpoint") }
     if ($Layout.Stage -ge 5) { $landmarks.Add("Construction yard") }
     if ($Layout.Stage -ge 6) { $landmarks.Add("Power block") }
     if ($Layout.Stage -ge 7) { $landmarks.Add("Skyline block") }
@@ -120,6 +121,24 @@ function Resolve-Landmarks {
     }
 
     return [string]::Join(", ", $landmarks)
+}
+
+function Resolve-LandmarkValueNotes {
+    param([int]$Stage)
+
+    $notes = [System.Collections.Generic.List[string]]::new()
+    if ($Stage -ge 2) { $notes.Add("Pocket park: breathing-space landmark, starter-side entry, park-cut exit, tree/bench/statue payoff") }
+    if ($Stage -ge 3) { $notes.Add("Market plaza: chain-density landmark, commercial-strip entry, forward-target exit, kiosk/vending payoff") }
+    if ($Stage -ge 4) { $notes.Add("Sentinel checkpoint: boss-approach landmark, central defense-front entry, pylon/gate foreshadow payoff") }
+    if ($Stage -ge 5) { $notes.Add("Construction yard: explosive-payoff landmark, wide-yard entry, barrel/container/crane payoff") }
+    if ($Stage -ge 6) { $notes.Add("Power block: utility-risk landmark, side entry, transformer-chain exit") }
+    if ($Stage -ge 7) { $notes.Add("Skyline block: late-anchor landmark, plaza entry, tower-breach exit") }
+
+    if ($notes.Count -eq 0) {
+        return "none"
+    }
+
+    return [string]::Join("; ", $notes)
 }
 
 function Resolve-StageFocus {
@@ -376,6 +395,7 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
         DistA = $distA
         DistB = $distB
         Landmarks = Resolve-Landmarks -Layout $layout
+        LandmarkValue = Resolve-LandmarkValueNotes -Stage $stage
         RoutePayoff = Resolve-RoutePayoff -Stage $stage
     }
     $stageRows.Add($row)
@@ -406,6 +426,7 @@ foreach ($row in $stageRows) {
     $lines.Add("Expected setup:")
     $lines.Add("- Map/grid: $("{0:0.0}" -f $row.Layout.MapSize)m, $($row.Layout.XCells)x$($row.Layout.ZCells)")
     $lines.Add("- Landmarks: $($row.Landmarks)")
+    $lines.Add("- Landmark value: $($row.LandmarkValue)")
     $lines.Add("- Route payoff: $($row.RoutePayoff)")
     $lines.Add("- Rhythm goal: $(Resolve-StageRhythmProfile -Stage $row.Stage)")
     $lines.Add("- Route target: $($row.RouteTarget)/$($row.StageTarget) by $("{0:0.#}" -f $deadlineSeconds)s")
@@ -419,6 +440,7 @@ foreach ($row in $stageRows) {
     $lines.Add("- [ ] ROUTE HOLD pressure feels fair for the target distance.")
     $lines.Add("- [ ] Route reward opens about $routeRewardClusterPropCount payoff props around the next smash cluster.")
     $lines.Add("- [ ] Route payoff identity matches the expected district.")
+    $lines.Add("- [ ] Each active landmark has a readable role, entry lane, exit lane, and payoff object mix.")
     $lines.Add("- [ ] Rhythm identity matches the expected stage profile.")
     $lines.Add("- [ ] The run has a readable opener -> pivot -> sustain -> payoff sequence, even if one beat is intentionally short.")
     $lines.Add("- [ ] There is a short release or recommit beat after the main payoff instead of flat pressure to the end.")

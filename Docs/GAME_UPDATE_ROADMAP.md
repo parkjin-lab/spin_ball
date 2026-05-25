@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-05-25
+Last updated: 2026-05-26
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -39,7 +39,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
 - `Tools/GenerateStagePlaytestChecklist.ps1` generates disposable readiness output at `Logs/AlienCrusherStagePlaytestChecklist.md`, while durable human observations should be recorded in `Docs/AlienCrusherStagePlaytestNotes.md`.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
-- As of 2026-05-25, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`.
+- As of 2026-05-26, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`.
 - `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
 - `Tools/TestPlaytestEvidenceGate.ps1` now provides the blocking Evidence Green check for real telemetry, summary freshness, Stage 1-7 marker coverage, and populated playtest notes. Use `-ReportOnly` when checking readiness before evidence exists.
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
@@ -47,6 +47,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/AuditMobileHudReadabilityStatic.ps1` now checks that core HUD route/progress/gauge copy stays compact and that main HUD text fields keep mobile best-fit safeguards.
 - Stage 4 now has a Sentinel checkpoint landmark in the runtime map layout and the static map audit tracks the new landmark tier/count expectations.
 - `Tools/AuditPlaytestTelemetryWiringStatic.ps1` now protects the route-adherence telemetry contract so route distance metrics stay wired into both runtime logs and summary output.
+- `Tools/AuditRuntimeMapLayoutStatic.ps1` now records landmark value metadata beyond count: role, target relationship, payoff object mix, entry lane, and exit lane for every active landmark.
 
 ### Current Main Risk
 The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure. The current design policy treats this as an evidence problem first and blocks rhythm/payoff/boss tuning until real Stage 1-7 playtest telemetry exists.
@@ -309,7 +310,7 @@ Includes:
 - stage landmark behavior rules
 - target marker distance bands
 - district-specific prop payoff
-- map overlay/audit thresholds for landmark value, not only count
+- map overlay/audit thresholds and value records for landmark role, target relationship, payoff object mix, entry lane, and exit lane
 
 ### Milestone 4 - Resource Feedback Pass
 Goal:
@@ -355,6 +356,7 @@ Extraction candidates:
 - ROUTE HOLD route-adherence telemetry now exists, but it still needs the first real Stage 1-7 sweep before any tuning decision can use it.
 - Audio assets are still missing, but the runtime hook points now exist; mobile HUD readability has first-pass text safeguards but still needs device/screenshot review.
 - Stage 4 has first-pass Sentinel checkpoint identity, but it still needs playtest/screenshot confirmation that the boss approach reads without HUD text.
+- Landmark value records now exist in static audit/checklist output, but they still need real visual confirmation that the roles are legible during play.
 - Route trail pips may be visually noisy on small Android screens.
 - Current implementation form names differ from older GDD form fantasy names; status documents should use runtime names until the design naming pass is resolved.
 - `DummyFlowController` remains a large partial mega-controller and should not absorb more route/gameplay surface indefinitely.
