@@ -116,6 +116,11 @@ $audits = @(
         ReportPath = Join-Path $ReportDirectory "AlienCrusherFeedbackAudioHooksStaticAudit.log"
     },
     [pscustomobject]@{
+        Label = "Resource slot docs"
+        ScriptPath = Join-Path $PSScriptRoot "AuditResourceSlotDocsStatic.ps1"
+        ReportPath = Join-Path $ReportDirectory "AlienCrusherResourceSlotDocsStaticAudit.log"
+    },
+    [pscustomobject]@{
         Label = "Mobile HUD readability"
         ScriptPath = Join-Path $PSScriptRoot "AuditMobileHudReadabilityStatic.ps1"
         ReportPath = Join-Path $ReportDirectory "AlienCrusherMobileHudReadabilityStaticAudit.log"

@@ -44,6 +44,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/TestPlaytestEvidenceGate.ps1` now provides the blocking Evidence Green check for real telemetry, summary freshness, Stage 1-7 marker coverage, and populated playtest notes. Use `-ReportOnly` when checking readiness before evidence exists.
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
 - `Tools/AuditFeedbackAudioHooksStatic.ps1` now checks that rhythm-critical feedback events still have assignable audio clip hooks, and `Tools/RunStaticAudits.ps1` includes it in the Unity-free audit chain.
+- `Tools/AuditResourceSlotDocsStatic.ps1` now checks that current `FeedbackSystem` audio clip fields stay documented in the resource requirements and production board, so code-side audio slots and production needs do not drift apart.
 - `Tools/AuditMobileHudReadabilityStatic.ps1` now checks that core HUD route/progress/gauge copy stays compact and that main HUD text fields keep mobile best-fit safeguards.
 - Stage 4 now has a Sentinel checkpoint landmark in the runtime map layout and the static map audit tracks the new landmark tier/count expectations.
 - `Tools/AuditPlaytestTelemetryWiringStatic.ps1` now protects the route-adherence telemetry contract so route distance metrics stay wired into both runtime logs and summary output.

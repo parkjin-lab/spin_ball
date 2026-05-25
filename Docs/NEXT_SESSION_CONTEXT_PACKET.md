@@ -63,6 +63,7 @@ Rule:
 - Added dedicated failure beat feedback in `FeedbackSystem` and the stage defeat flow. Ordinary defeat and boss-phase defeat now have separate assignable audio slots with fallback to warning clips, so the result-screen transition gets a clearer rhythm punctuation.
 - Added `Tools/AuditFeedbackAudioHooksStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so rhythm-critical feedback events keep their audio hook surface.
 - Updated `Docs/CURRENT_STAGE_RESOURCE_REQUIREMENTS.md` and `Docs/CURRENT_STAGE_RESOURCE_PRODUCTION_BOARD.md` with the current `FeedbackSystem` audio slot map, including route and failure beat clips.
+- Added `Tools/AuditResourceSlotDocsStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so current `FeedbackSystem` audio slots stay reflected in the resource requirement and production board docs.
 - Added first-pass mobile HUD text safeguards: compact route/progress/gauge copy, direction-label abbreviations, and best-fit rules on the main HUD text fields.
 - Added `Tools/AuditMobileHudReadabilityStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the compact HUD copy and best-fit safeguards do not silently regress.
 - Added a Stage 4 Sentinel checkpoint landmark tier to runtime map generation so the boss-approach stage has pylon foreshadowing, barricades, warning beacons, and a gate block before the Stage 4+ boss systems dominate.
@@ -96,6 +97,7 @@ Rule:
 - Added first-pass ROUTE HOLD route-adherence instrumentation so the first real sweep can distinguish path readability from timer/target-count pressure.
 - Added first-pass landmark value audit scaffolding so the first sweep can judge landmark gameplay role instead of only counting landmark objects.
 - Added the first failure-beat runtime pass and refreshed the required resource list so the next audio production step can assign clips directly to concrete runtime slots.
+- Added a resource-slot documentation audit so future audio hook changes fail static validation if the needed resource list is not updated with them.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`
