@@ -22,7 +22,7 @@ This document tracks the current project state, the next production priorities, 
 - Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines and append the same route telemetry to `Logs/AlienCrusherPlaytestTelemetry.log` for `SWEEP_START`, stage start, route open, route hold clear, route bonus, forward smash, stage end, and `SWEEP_END`.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` can convert the telemetry log into a markdown report with a current tuning snapshot, rhythm snapshot, `Tune Next` decision block, sweep-level summaries, stage trend rollups, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdowns for faster Stage 1-7 review.
 - Runtime map rebuilds happen at stage start. Stage 1-7 currently grow from a compact starter layout into wider, denser maps with expanded target marker spacing and stage-gated landmarks.
-- Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
+- Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 4 Sentinel checkpoint, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
 - Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
 - FeedbackSystem now exposes assignable audio hooks for hit weight, destruction size, combo rise, route open/hold/bonus beats, boss warnings/break/down, and level-up moments. The hooks are silent-safe until clips are assigned, so rhythm work can proceed without blocking on final assets.
 - HUD route/progress/gauge text now uses shorter mobile-safe runtime copy with best-fit safeguards for the main HUD readouts.
@@ -45,6 +45,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
 - `Tools/AuditFeedbackAudioHooksStatic.ps1` now checks that rhythm-critical feedback events still have assignable audio clip hooks, and `Tools/RunStaticAudits.ps1` includes it in the Unity-free audit chain.
 - `Tools/AuditMobileHudReadabilityStatic.ps1` now checks that core HUD route/progress/gauge copy stays compact and that main HUD text fields keep mobile best-fit safeguards.
+- Stage 4 now has a Sentinel checkpoint landmark in the runtime map layout and the static map audit tracks the new landmark tier/count expectations.
 
 ### Current Main Risk
 The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure. The current design policy treats this as an evidence problem first and blocks rhythm/payoff/boss tuning until real Stage 1-7 playtest telemetry exists.
@@ -144,7 +145,7 @@ Immediate policy requirements:
 
 Done when:
 - `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`
-- Stage 4 has a documented boss-approach identity instead of sharing only the market escalation feel
+- Stage 4 has a runtime Sentinel checkpoint landmark and documented boss-approach identity instead of sharing only the market escalation feel
 - HUD/audio/failure feedback tasks are tracked as P0/P1 design work
 
 ---
@@ -351,7 +352,7 @@ Extraction candidates:
 - The route loop may still flatten into uniform pressure if district-to-district rhythm variation is too weak.
 - ROUTE HOLD may still feel like a timed destruction count unless route adherence is measured separately from destroyed count.
 - Audio assets are still missing, but the runtime hook points now exist; mobile HUD readability has first-pass text safeguards but still needs device/screenshot review.
-- Stage 4 may lack its own map identity between market escalation and boss approach.
+- Stage 4 has first-pass Sentinel checkpoint identity, but it still needs playtest/screenshot confirmation that the boss approach reads without HUD text.
 - Route trail pips may be visually noisy on small Android screens.
 - Current implementation form names differ from older GDD form fantasy names; status documents should use runtime names until the design naming pass is resolved.
 - `DummyFlowController` remains a large partial mega-controller and should not absorb more route/gameplay surface indefinitely.

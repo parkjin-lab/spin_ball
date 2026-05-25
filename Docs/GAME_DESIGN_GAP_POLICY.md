@@ -36,9 +36,9 @@ The weak points are:
 - Real `F10` Stage 1-7 telemetry is still missing, so rhythm quality is unproven.
 - ROUTE HOLD may feel like a timed destruction count instead of a true route-reading test.
 - Landmarks are counted and placed, but their gameplay value is not yet audited.
-- Stage 4 lacks a strong map identity between market escalation and boss approach.
-- Audio hooks are not yet a first-class runtime layer, even though sound is one of the highest-value missing resources.
-- HUD is still text-heavy for a mobile portrait game.
+- Stage 4 now has a first-pass Sentinel checkpoint landmark, but its boss-approach readability is still unproven until screenshot/playtest evidence confirms it reads without HUD text.
+- Audio hooks now exist as a first-pass runtime layer, but clips/assets and balance are still missing.
+- HUD has first-pass mobile text safeguards, but real device/screenshot readability is still unproven.
 - Failure feedback explains the problem, but does not yet make the failure beat strongly felt through sound/haptics/screen rhythm.
 - Production rules say "do not tune before evidence", but the evidence gate is not yet enforced by a dedicated script.
 
@@ -206,7 +206,13 @@ Future audit policy:
 
 Stage 4 is a design risk because it sits between Stage 3 market identity and Stage 4+ boss systems.
 
-Stage 4 should become the "boss approach" stage:
+Stage 4 should become the "boss approach" stage. Current first pass:
+
+- runtime map generation adds a Sentinel checkpoint landmark tier at Stage 4
+- checkpoint pieces include pylon foreshadowing, barricades, warning beacons, and a gate block
+- static map audit now mirrors the Stage 4 landmark center and minimum landmark-count tier
+
+Stage 4 still needs evidence that it achieves the goal:
 
 - introduce defense-front silhouettes or pylon foreshadow props
 - leave more deliberate breathing space near the central route
@@ -273,13 +279,13 @@ Do not tune boss pressure until the base Stage 1-7 route loop has real evidence.
 - Run the first real Stage 1-7 `F10` sweep.
 - Keep `Tools/TestPlaytestEvidenceGate.ps1` as the blocking gate for telemetry/summary/notes coverage.
 - Keep tuning lock active until evidence exists.
-- Add runtime audio hook plan or minimal sound event interface before sourcing final audio.
-- Define HUD mobile overflow checks for route/result/boss text.
+- Source temporary clips for the existing runtime audio hook surface.
+- Confirm HUD mobile overflow/readability with screenshots after the new static text safeguards.
 
 ### P1
 
 - Add landmark value audit criteria beyond object count.
-- Design Stage 4 boss-approach landmark/defense-front identity.
+- Confirm Stage 4 Sentinel checkpoint readability with screenshot/playtest evidence and refine only from evidence.
 - Add route telemetry for marker distance and route adherence.
 - Convert HUD state priority toward icon/gauge recognition.
 - Add failure beat sensory policy to implementation backlog.

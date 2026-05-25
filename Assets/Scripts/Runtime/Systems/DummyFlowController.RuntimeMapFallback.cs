@@ -945,6 +945,11 @@ namespace AlienCrusher.Systems
 				EnsureMarketLandmarkRuntime(landmarksRoot, groundDetailsRoot, footprints, layout, sidewalkColor, stripeColor, accentA, accentB, mapPadding);
 			}
 
+			if (layout.Stage >= 4)
+			{
+				EnsureSentinelApproachLandmarkRuntime(landmarksRoot, groundDetailsRoot, footprints, layout, asphaltColor, routeColor, hazardA, hazardB, neutralA, accentB, mapPadding);
+			}
+
 			if (layout.Stage >= 5)
 			{
 				EnsureConstructionLandmarkRuntime(landmarksRoot, footprints, layout, theme, asphaltColor, stripeColor, hazardA, hazardB, neutralA, mapPadding);
@@ -958,6 +963,52 @@ namespace AlienCrusher.Systems
 			if (layout.Stage >= 7)
 			{
 				EnsureSkylineLandmarkRuntime(landmarksRoot, groundDetailsRoot, footprints, layout, sidewalkColor, stripeColor, neutralA, neutralB, accentA, accentB, mapPadding);
+			}
+		}
+
+		private static void EnsureSentinelApproachLandmarkRuntime(Transform landmarksRoot, Transform groundDetailsRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, Color asphaltColor, Color routeColor, Color hazardA, Color hazardB, Color neutralColor, Color accentColor, float mapPadding)
+		{
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 2);
+			Vector3 center = new Vector3(center2.x, 0f, center2.y);
+			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage04_SentinelCheckpoint");
+			EnsurePrimitive(groundDetailsRoot, "Landmark_Sentinel_CheckpointPad", (PrimitiveType)3, new Vector3(center.x, -0.003f, center.z), new Vector3(8.2f, 0.018f, 5.6f), Color.Lerp(asphaltColor, hazardB, 0.2f));
+			EnsurePrimitive(groundDetailsRoot, "Landmark_Sentinel_RouteStripe", (PrimitiveType)3, new Vector3(center.x, 0.005f, center.z - 2.28f), new Vector3(6.7f, 0.014f, 0.18f), routeColor);
+			EnsurePrimitive(groundDetailsRoot, "Landmark_Sentinel_StopLine", (PrimitiveType)3, new Vector3(center.x, 0.007f, center.z + 1.95f), new Vector3(5.8f, 0.014f, 0.22f), Color.Lerp(hazardA, Color.white, 0.08f));
+
+			for (int i = 0; i < 3; i++)
+			{
+				Vector3 pylon = new Vector3(center.x - 2.5f + i * 2.5f, 0.8f, center.z + 0.55f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref pylon, 0.46f, 0.46f, mapPadding))
+				{
+					GameObject marker = EnsureDestructiblePrimitive(root, $"SentinelPylonForeshadow_{i:00}", (PrimitiveType)2, pylon, new Vector3(0.48f, 1.6f, 0.48f), Color.Lerp(hazardB, accentColor, 0.2f + i * 0.12f), 3);
+					EnsurePrimitive(marker.transform, "WarningCap", (PrimitiveType)3, new Vector3(0f, 0.58f, 0f), new Vector3(0.62f, 0.12f, 0.62f), Color.Lerp(hazardA, Color.white, 0.12f));
+				}
+			}
+
+			for (int i = 0; i < 4; i++)
+			{
+				float x = center.x - 3.15f + i * 2.1f;
+				Vector3 barricade = new Vector3(x, 0.22f, center.z - 1.65f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref barricade, 0.5f, 0.18f, mapPadding))
+				{
+					EnsureResidentialFenceRuntime(root, $"SentinelBarricade_{i:00}", barricade, Color.Lerp(hazardA, hazardB, 0.35f + i * 0.08f));
+				}
+			}
+
+			for (int i = 0; i < 2; i++)
+			{
+				Vector3 beacon = new Vector3(center.x + (i == 0 ? -3.25f : 3.25f), 0f, center.z + 2.1f);
+				if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref beacon, 0.34f, 0.34f, mapPadding))
+				{
+					EnsureExplosiveBarrelRuntime(root, $"SentinelWarningBeacon_{i:00}", beacon, Color.Lerp(hazardA, hazardB, 0.24f + i * 0.28f));
+				}
+			}
+
+			Vector3 gate = new Vector3(center.x, 0.72f, center.z + 2.35f);
+			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref gate, 0.72f, 0.28f, mapPadding))
+			{
+				GameObject gateBlock = EnsureDestructiblePrimitive(root, "SentinelGateBlock", (PrimitiveType)3, gate, new Vector3(1.42f, 1.1f, 0.42f), Color.Lerp(neutralColor, hazardB, 0.28f), 4);
+				EnsurePrimitive(gateBlock.transform, "GateSignal", (PrimitiveType)3, new Vector3(0f, 0.64f, -0.24f), new Vector3(1.05f, 0.18f, 0.08f), Color.Lerp(hazardA, Color.white, 0.18f));
 			}
 		}
 
@@ -1036,7 +1087,7 @@ namespace AlienCrusher.Systems
 
 		private static void EnsureConstructionLandmarkRuntime(Transform landmarksRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, RuntimeCityThemeProfile theme, Color asphaltColor, Color stripeColor, Color hazardA, Color hazardB, Color neutralColor, float mapPadding)
 		{
-			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 2);
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 3);
 			Vector3 center = new Vector3(center2.x, 0f, center2.y);
 			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage05_ConstructionYard");
 			Color yardColor = theme == RuntimeCityThemeProfile.IndustrialHarbor ? Color.Lerp(asphaltColor, hazardA, 0.24f) : Color.Lerp(asphaltColor, neutralColor, 0.18f);
@@ -1073,7 +1124,7 @@ namespace AlienCrusher.Systems
 
 		private static void EnsurePowerLandmarkRuntime(Transform landmarksRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, Color asphaltColor, Color routeColor, Color hazardA, Color hazardB, float mapPadding)
 		{
-			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 3);
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 4);
 			Vector3 center = new Vector3(center2.x, 0f, center2.y);
 			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage06_PowerBlock");
 			EnsurePrimitive(root, "PowerPad", (PrimitiveType)3, new Vector3(center.x, -0.002f, center.z), new Vector3(6.8f, 0.018f, 5.8f), Color.Lerp(asphaltColor, hazardB, 0.18f));
@@ -1110,7 +1161,7 @@ namespace AlienCrusher.Systems
 
 		private static void EnsureSkylineLandmarkRuntime(Transform landmarksRoot, Transform groundDetailsRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, Color sidewalkColor, Color stripeColor, Color neutralA, Color neutralB, Color accentA, Color accentB, float mapPadding)
 		{
-			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 4);
+			Vector2 center2 = ResolveRuntimeLandmarkCenter(layout, 5);
 			Vector3 center = new Vector3(center2.x, 0f, center2.y);
 			Transform root = GetOrCreateDirectChild(landmarksRoot, "Stage07_SkylineBlock");
 			EnsurePrimitive(groundDetailsRoot, "Landmark_Skyline_Plaza", (PrimitiveType)3, new Vector3(center.x, -0.004f, center.z), new Vector3(8.6f, 0.018f, 6.2f), sidewalkColor);
@@ -1144,9 +1195,10 @@ namespace AlienCrusher.Systems
 		{
 			return (layout.Stage >= 2 && IsInsideRuntimeLandmarkClearance(x, z, layout, 0))
 				|| (layout.Stage >= 3 && IsInsideRuntimeLandmarkClearance(x, z, layout, 1))
-				|| (layout.Stage >= 5 && IsInsideRuntimeLandmarkClearance(x, z, layout, 2))
-				|| (layout.Stage >= 6 && IsInsideRuntimeLandmarkClearance(x, z, layout, 3))
-				|| (layout.Stage >= 7 && IsInsideRuntimeLandmarkClearance(x, z, layout, 4));
+				|| (layout.Stage >= 4 && IsInsideRuntimeLandmarkClearance(x, z, layout, 2))
+				|| (layout.Stage >= 5 && IsInsideRuntimeLandmarkClearance(x, z, layout, 3))
+				|| (layout.Stage >= 6 && IsInsideRuntimeLandmarkClearance(x, z, layout, 4))
+				|| (layout.Stage >= 7 && IsInsideRuntimeLandmarkClearance(x, z, layout, 5));
 		}
 
 		private static bool IsInsideRuntimeLandmarkClearance(float x, float z, RuntimeStageMapLayout layout, int landmarkIndex)
@@ -1165,8 +1217,10 @@ namespace AlienCrusher.Systems
 			case 1:
 				return new Vector2(Mathf.Lerp(5.8f, 9.8f, layout.Growth01), Mathf.Lerp(2.5f, 7.8f, layout.Growth01));
 			case 2:
-				return new Vector2(0f - Mathf.Lerp(8.8f, 13.4f, layout.Growth01), Mathf.Lerp(9.5f, 15.6f, layout.Growth01));
+				return new Vector2(0f - Mathf.Lerp(3.0f, 5.4f, layout.Growth01), Mathf.Lerp(7.0f, 12.4f, layout.Growth01));
 			case 3:
+				return new Vector2(0f - Mathf.Lerp(8.8f, 13.4f, layout.Growth01), Mathf.Lerp(9.5f, 15.6f, layout.Growth01));
+			case 4:
 				return new Vector2(Mathf.Lerp(8.4f, 14.2f, layout.Growth01), Mathf.Lerp(-8.4f, -14.4f, layout.Growth01));
 			default:
 				return new Vector2(Mathf.Lerp(1.8f, 4.2f, layout.Growth01), Mathf.Lerp(13.6f, 18.8f, layout.Growth01));
@@ -1182,8 +1236,10 @@ namespace AlienCrusher.Systems
 			case 1:
 				return new Vector2(3.8f, 3.1f);
 			case 2:
-				return new Vector2(4.2f, 3.4f);
+				return new Vector2(4.4f, 3.2f);
 			case 3:
+				return new Vector2(4.2f, 3.4f);
+			case 4:
 				return new Vector2(3.8f, 3.4f);
 			default:
 				return new Vector2(4.8f, 3.8f);
@@ -1194,15 +1250,19 @@ namespace AlienCrusher.Systems
 		{
 			if (layout.Stage >= 7)
 			{
-				return 70;
+				return 84;
 			}
 			if (layout.Stage >= 6)
 			{
-				return 50;
+				return 64;
 			}
 			if (layout.Stage >= 5)
 			{
-				return 36;
+				return 50;
+			}
+			if (layout.Stage >= 4)
+			{
+				return 34;
 			}
 			if (layout.Stage >= 3)
 			{

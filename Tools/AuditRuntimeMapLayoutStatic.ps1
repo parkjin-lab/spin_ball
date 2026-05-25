@@ -68,8 +68,9 @@ function Resolve-LandmarkCenter {
     switch ($Index) {
         0 { return [pscustomobject]@{ X = -(Lerp 7.2 10.2 $Layout.Growth01); Z = Lerp -1.8 -5.8 $Layout.Growth01; Name = "PocketPark" } }
         1 { return [pscustomobject]@{ X = Lerp 5.8 9.8 $Layout.Growth01; Z = Lerp 2.5 7.8 $Layout.Growth01; Name = "MarketPlaza" } }
-        2 { return [pscustomobject]@{ X = -(Lerp 8.8 13.4 $Layout.Growth01); Z = Lerp 9.5 15.6 $Layout.Growth01; Name = "ConstructionYard" } }
-        3 { return [pscustomobject]@{ X = Lerp 8.4 14.2 $Layout.Growth01; Z = Lerp -8.4 -14.4 $Layout.Growth01; Name = "PowerBlock" } }
+        2 { return [pscustomobject]@{ X = -(Lerp 3.0 5.4 $Layout.Growth01); Z = Lerp 7.0 12.4 $Layout.Growth01; Name = "SentinelCheckpoint" } }
+        3 { return [pscustomobject]@{ X = -(Lerp 8.8 13.4 $Layout.Growth01); Z = Lerp 9.5 15.6 $Layout.Growth01; Name = "ConstructionYard" } }
+        4 { return [pscustomobject]@{ X = Lerp 8.4 14.2 $Layout.Growth01; Z = Lerp -8.4 -14.4 $Layout.Growth01; Name = "PowerBlock" } }
         default { return [pscustomobject]@{ X = Lerp 1.8 4.2 $Layout.Growth01; Z = Lerp 13.6 18.8 $Layout.Growth01; Name = "SkylineBlock" } }
     }
 }
@@ -80,8 +81,9 @@ function Resolve-LandmarkHalfExtents {
     switch ($Index) {
         0 { return [pscustomobject]@{ X = 3.6; Z = 2.8 } }
         1 { return [pscustomobject]@{ X = 3.8; Z = 3.1 } }
-        2 { return [pscustomobject]@{ X = 4.2; Z = 3.4 } }
-        3 { return [pscustomobject]@{ X = 3.8; Z = 3.4 } }
+        2 { return [pscustomobject]@{ X = 4.4; Z = 3.2 } }
+        3 { return [pscustomobject]@{ X = 4.2; Z = 3.4 } }
+        4 { return [pscustomobject]@{ X = 3.8; Z = 3.4 } }
         default { return [pscustomobject]@{ X = 4.8; Z = 3.8 } }
     }
 }
@@ -89,9 +91,10 @@ function Resolve-LandmarkHalfExtents {
 function Resolve-MinimumLandmarkObjects {
     param($Layout)
 
-    if ($Layout.Stage -ge 7) { return 70 }
-    if ($Layout.Stage -ge 6) { return 50 }
-    if ($Layout.Stage -ge 5) { return 36 }
+    if ($Layout.Stage -ge 7) { return 84 }
+    if ($Layout.Stage -ge 6) { return 64 }
+    if ($Layout.Stage -ge 5) { return 50 }
+    if ($Layout.Stage -ge 4) { return 34 }
     if ($Layout.Stage -ge 3) { return 22 }
     if ($Layout.Stage -ge 2) { return 10 }
     return 0
@@ -166,9 +169,10 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
     $landmarkIndexes = @()
     if ($stage -ge 2) { $landmarkIndexes += 0 }
     if ($stage -ge 3) { $landmarkIndexes += 1 }
-    if ($stage -ge 5) { $landmarkIndexes += 2 }
-    if ($stage -ge 6) { $landmarkIndexes += 3 }
-    if ($stage -ge 7) { $landmarkIndexes += 4 }
+    if ($stage -ge 4) { $landmarkIndexes += 2 }
+    if ($stage -ge 5) { $landmarkIndexes += 3 }
+    if ($stage -ge 6) { $landmarkIndexes += 4 }
+    if ($stage -ge 7) { $landmarkIndexes += 5 }
 
     foreach ($index in $landmarkIndexes) {
         $center = Resolve-LandmarkCenter -Layout $layout -Index $index
