@@ -2,10 +2,10 @@
 
 ## Validation Snapshot
 - Latest Unity batch validation: 2026-05-05 (`Tools/RunUnityBatchChecks.ps1` passed; scene and map audit logs refreshed)
-- Latest static audit refresh: 2026-05-25 (`Tools/RunStaticAudits.ps1`, feedback audio hook audit, playtest evidence gate regression)
+- Latest static audit refresh: 2026-05-25 (`Tools/RunStaticAudits.ps1`, feedback audio hook audit, mobile HUD readability audit, playtest evidence gate regression)
 - Real Stage 1-7 playtest telemetry: still not captured as of 2026-05-25; the summary pipeline is ready but still waiting on the first true `F10` sweep
 - No telemetry log or unparseable telemetry means the summary is a readiness artifact only; do not tune rhythm, payoff, boss, or route timing from it.
-- Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points now exist in `FeedbackSystem`, but audio clips/assets still need selection and playtest balancing. Treat mobile HUD readability, ROUTE HOLD route-adherence evidence, landmark gameplay value, Stage 4 boss-approach identity, and real evidence gates as the next design policy backlog.
+- Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points and first-pass mobile HUD text safeguards now exist, but audio clips/assets and device/screenshot readability still need selection and playtest balancing. Treat ROUTE HOLD route-adherence evidence, landmark gameplay value, Stage 4 boss-approach identity, and real evidence gates as the next design policy backlog.
 
 ## Immediate First Action
 1. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`
@@ -61,6 +61,8 @@ Rule:
 - Added `Tools/TestPlaytestEvidenceGateRegression.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the Evidence Green checker itself is tested without requiring a live Unity playtest.
 - Added assignable feedback audio hooks in `FeedbackSystem` for hit/destruction weight, combo rise, route open/hold/bonus, boss warning/break/down, and level-up beats. Hooks are null-safe until clips are assigned.
 - Added `Tools/AuditFeedbackAudioHooksStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so rhythm-critical feedback events keep their audio hook surface.
+- Added first-pass mobile HUD text safeguards: compact route/progress/gauge copy, direction-label abbreviations, and best-fit rules on the main HUD text fields.
+- Added `Tools/AuditMobileHudReadabilityStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the compact HUD copy and best-fit safeguards do not silently regress.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
 - `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, route open beat, route reward cluster, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
 - Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
@@ -81,6 +83,7 @@ Rule:
 - Added sub-agent design gap policy so future work can distinguish evidence-required tuning from autonomous readiness/design-policy work.
 - Added a playtest evidence gate script so tuning lock can be enforced by tooling, not only by reading docs.
 - Added the first audio-hook scaffold for the sensory rhythm pass: feedback events can now trigger assignable one-shot clips, and the boss defeat flow has a dedicated downbeat call.
+- Added the first mobile-HUD readability scaffold for the rhythm pass: core HUD text is shorter and guarded by static audit, while real device/screenshot review remains required.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`
@@ -155,6 +158,12 @@ Rule:
   - Unity-free audit for the feedback audio hook surface and boss-down wiring.
 - `Tools/RunStaticAudits.ps1`
   - Now includes the feedback audio hook audit in the Unity-free audit chain.
+- `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`
+  - Adds compact mobile-safe HUD copy and best-fit safeguards for route/progress/gauge readouts.
+- `Tools/AuditMobileHudReadabilityStatic.ps1`
+  - Unity-free audit for compact mobile HUD copy and main HUD text safeguards.
+- `Tools/RunStaticAudits.ps1`
+  - Now includes the mobile HUD readability audit in the Unity-free audit chain.
 - `Logs/AlienCrusherSceneValidation.log`
   - Current validation report from 2026-05-05 21:14: `0 error(s), 0 warning(s)`.
 - `Logs/AlienCrusherBatchValidationEditor.log`
@@ -227,6 +236,7 @@ Useful playtest evidence gate command: `powershell -ExecutionPolicy Bypass -File
 Useful playtest evidence readiness command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGate.ps1 -ReportOnly`
 Useful playtest evidence gate regression command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGateRegression.ps1`
 Useful feedback audio hook audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditFeedbackAudioHooksStatic.ps1`
+Useful mobile HUD readability audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditMobileHudReadabilityStatic.ps1`
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
 Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`

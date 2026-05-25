@@ -317,6 +317,63 @@ namespace AlienCrusher.Systems
 			return hint;
 		}
 
+		private static string CompactDirectionLabel(string directionLabel)
+		{
+			if (string.IsNullOrEmpty(directionLabel))
+			{
+				return string.Empty;
+			}
+			switch (directionLabel)
+			{
+				case "AHEAD-RIGHT":
+					return "A-R";
+				case "AHEAD-LEFT":
+					return "A-L";
+				case "TURN RIGHT":
+					return "T-R";
+				case "TURN LEFT":
+					return "T-L";
+				default:
+					return directionLabel;
+			}
+		}
+
+		private static string FormatHudRouteIndicatorText(string stateLabel, string directionLabel, float distanceMeters)
+		{
+			string distance = $"{Mathf.RoundToInt(distanceMeters):0}m";
+			if (string.IsNullOrEmpty(directionLabel))
+			{
+				return $"{stateLabel}  {distance}";
+			}
+			return $"{stateLabel} {directionLabel}  {distance}";
+		}
+
+		private static void ConfigureMobileSafeText(Text text, int maxFontSize, int minFontSize, bool wrap)
+		{
+			if ((Object)(object)text == (Object)null)
+			{
+				return;
+			}
+			text.resizeTextForBestFit = true;
+			text.resizeTextMaxSize = Mathf.Max(minFontSize, maxFontSize);
+			text.resizeTextMinSize = Mathf.Clamp(minFontSize, 8, text.resizeTextMaxSize);
+			text.horizontalOverflow = wrap ? HorizontalWrapMode.Wrap : HorizontalWrapMode.Overflow;
+			text.verticalOverflow = VerticalWrapMode.Truncate;
+			text.lineSpacing = Mathf.Min(text.lineSpacing, 1.08f);
+		}
+
+		private void ApplyMobileHudTextSafeguards()
+		{
+			ConfigureMobileSafeText(hudInfoText, 18, 11, wrap: false);
+			ConfigureMobileSafeText(hudObjectiveText, 20, 12, wrap: true);
+			ConfigureMobileSafeText(hudHintText, 18, 11, wrap: true);
+			ConfigureMobileSafeText(hudProgressText, 18, 11, wrap: false);
+			ConfigureMobileSafeText(hudChainText, 24, 13, wrap: false);
+			ConfigureMobileSafeText(hudStageGoalText, 20, 11, wrap: false);
+			ConfigureMobileSafeText(hudRouteIndicatorText, 20, 11, wrap: false);
+			ConfigureMobileSafeText(hudBossStatusText, 18, 11, wrap: true);
+		}
+
 		private void UpdateHudGuidanceTexts()
 		{
 			//IL_009f: Unknown result type (might be due to invalid IL or missing references)
@@ -397,12 +454,12 @@ namespace AlienCrusher.Systems
 				if (!flag && IsRouteHoldObjectiveActive(num))
 				{
 					float routeHoldProgress = GetRouteHoldProgress01(num);
-					hudProgressText.text = $"ROUTE HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {GetRouteHoldRemainingWrecks(num):0} TO CLUSTER  /  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
+					hudProgressText.text = $"HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {GetRouteHoldRemainingWrecks(num):0} LEFT  /  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
 					hudProgressText.color = Color.Lerp(new Color(0.64f, 1f, 0.88f, 1f), new Color(1f, 0.86f, 0.36f, 1f), routeHoldProgress + Mathf.PingPong(Time.time * 5.4f, 1f) * 0.18f);
 				}
 				else
 				{
-					hudProgressText.text = flag2 ? $"DESTRUCTION {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  ({Mathf.RoundToInt(num3 * 100f)}%)  /  NEXT STEP" : $"DESTRUCTION {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  ({Mathf.RoundToInt(num3 * 100f)}%)";
+					hudProgressText.text = flag2 ? $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  {Mathf.RoundToInt(num3 * 100f)}%  /  NEXT" : $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  {Mathf.RoundToInt(num3 * 100f)}%";
 					hudProgressText.color = flag2 ? Color.Lerp(Color.white, new Color(1f, 0.72f, 0.36f, 1f), Mathf.PingPong(Time.time * 5.6f, 1f)) : Color.white;
 				}
 			}
@@ -443,7 +500,7 @@ namespace AlienCrusher.Systems
 				}
 				else if (IsRouteHoldObjectiveActive(num))
 				{
-					text4 = $"NEXT STEP  /  ROUTE HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%, {GetRouteHoldRemainingWrecks(num):0} to cluster";
+					text4 = $"NEXT  /  HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%, {GetRouteHoldRemainingWrecks(num):0} left";
 				}
 				else if (overdriveActive)
 				{
@@ -985,15 +1042,8 @@ namespace AlienCrusher.Systems
 			Vector3 position2 = val.position;
 			Vector3 val3 = position2 - position;
 			float num = new Vector2(val3.x, val3.z).magnitude;
-			string text2 = GetDirectionLabel(val3, val2);
-			if (!string.IsNullOrEmpty(text2))
-			{
-				hudRouteIndicatorText.text = $"{text} {text2}  {Mathf.RoundToInt(num):0}m";
-			}
-			else
-			{
-				hudRouteIndicatorText.text = $"{text}  {Mathf.RoundToInt(num):0}m";
-			}
+			string text2 = CompactDirectionLabel(GetDirectionLabel(val3, val2));
+			hudRouteIndicatorText.text = FormatHudRouteIndicatorText(text, text2, num);
 			bool flag2 = IsEarlyOnboardingWindow((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0));
 			bool flag3 = IsLatePressureWindow((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0), stageBossEncounterActive && IsStageBossAlive());
 			bool flag4 = IsBossApproachWindow();
@@ -1190,23 +1240,23 @@ namespace AlienCrusher.Systems
 				}
 				else if (routeHoldActive)
 				{
-					hudStageGoalText.text = $"ROUTE HOLD  {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {routeHoldRemaining:0} TO CLUSTER";
+					hudStageGoalText.text = $"HOLD  {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {routeHoldRemaining:0} LEFT";
 				}
 				else if (flag)
 				{
-					hudStageGoalText.text = $"NEXT STAGE  {num:0}/{num2:0}  /  BOSS BLOCKING";
+					hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  BOSS";
 				}
 				else if (flag2)
 				{
-					hudStageGoalText.text = $"NEXT STAGE  {num:0}/{num2:0}  /  FINAL PUSH";
+					hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  PUSH";
 				}
 				else if (flag2a)
 				{
-					hudStageGoalText.text = $"NEXT STAGE  {num:0}/{num2:0}  /  GOOD START";
+					hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  START";
 				}
 				else
 				{
-					hudStageGoalText.text = $"NEXT STAGE  {num:0}/{num2:0}";
+					hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}";
 				}
 				hudStageGoalText.color = stageAdvanceGoalReached
 					? new Color(1f, 0.9f, 0.56f, 1f)
@@ -1379,6 +1429,7 @@ namespace AlienCrusher.Systems
 			EnsureHudRouteIndicatorUi();
 			EnsureHudRouteArrowUi();
 			EnsureHudBossStatusUi();
+			ApplyMobileHudTextSafeguards();
 			lobbyDpText = FindText(canvasRootTransform, "MetaDpText");
 			lobbyMissionText = FindText(canvasRootTransform, "MissionText");
 			if ((Object)(object)lobbyMissionText != (Object)null)
