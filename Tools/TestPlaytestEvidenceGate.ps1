@@ -87,7 +87,7 @@ function Test-StageNoteField {
     }
 
     $body = $stageMatch.Groups["body"].Value
-    $fieldPattern = "(?m)^- $([regex]::Escape($Field)):[ \t]*(?<value>[^\r\n]*)$"
+    $fieldPattern = "(?m)^- $([regex]::Escape($Field)):[ \t]*(?<value>[^\r\n]*)\r?$"
     $fieldMatch = [regex]::Match($body, $fieldPattern)
     if (-not $fieldMatch.Success) {
         return $false
@@ -109,7 +109,7 @@ function Test-DecisionField {
     }
 
     $body = $decisionMatch.Groups["body"].Value
-    $fieldPattern = "(?m)^- $([regex]::Escape($Field)):[ \t]*(?<value>[^\r\n]*)$"
+    $fieldPattern = "(?m)^- $([regex]::Escape($Field)):[ \t]*(?<value>[^\r\n]*)\r?$"
     $fieldMatch = [regex]::Match($body, $fieldPattern)
     if (-not $fieldMatch.Success) {
         return $false

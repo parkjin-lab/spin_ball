@@ -5,7 +5,7 @@
 - Latest static/checklist refresh: 2026-05-20 (`Tools/RunStaticAudits.ps1`, `Tools/GenerateStagePlaytestChecklist.ps1`, `Tools/GeneratePlaytestTelemetrySummary.ps1`, readiness report regression)
 - Real Stage 1-7 playtest telemetry: still not captured as of 2026-05-25; the summary pipeline is ready but still waiting on the first true `F10` sweep
 - No telemetry log or unparseable telemetry means the summary is a readiness artifact only; do not tune rhythm, payoff, boss, or route timing from it.
-- Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate. Treat audio hooks, mobile HUD readability, ROUTE HOLD route-adherence evidence, landmark gameplay value, Stage 4 boss-approach identity, and real evidence gates as the next design policy backlog.
+- Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Treat audio hooks, mobile HUD readability, ROUTE HOLD route-adherence evidence, landmark gameplay value, Stage 4 boss-approach identity, and real evidence gates as the next design policy backlog.
 
 ## Immediate First Action
 1. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`
@@ -58,6 +58,7 @@ Rule:
 - No real Stage 1-7 sweep telemetry has been captured yet, so the next important evidence is still the first true `F10` playtest pass.
 - 2026-05-25 design gap review: four sub-agent roles reviewed rhythm/core loop, map/content growth, feedback/sensory design, and production/validation policy. The result is `Docs/GAME_DESIGN_GAP_POLICY.md`, which turns the findings into guardrails: evidence before tuning, one broken beat at a time, ROUTE HOLD as route-readability plus count goal, audio/HUD/failure feedback as rhythm work, landmark gameplay value audits, Stage 4 boss-approach identity, and evidence gate automation.
 - Added `Tools/TestPlaytestEvidenceGate.ps1` as the blocking Evidence Green check. It verifies real telemetry, summary freshness, Stage 1-7 `STAGE_START`/`STAGE_END` coverage, `SWEEP_START`/`SWEEP_END`, populated stage notes, and optional post-sweep decision fields. Use `-ReportOnly` before the first real sweep.
+- Added `Tools/TestPlaytestEvidenceGateRegression.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the Evidence Green checker itself is tested without requiring a live Unity playtest.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
 - `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, route open beat, route reward cluster, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
 - Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
@@ -139,6 +140,10 @@ Rule:
   - Generates a Stage 1-7 playtest checklist with validation status, map/grid growth, landmarks, ROUTE HOLD targets, route open beat timing, district reward identity, reward cluster expectations, route progress readability, failure-advice checks, route pressure, target distances, and observation prompts.
 - `Tools/TestPlaytestEvidenceGate.ps1`
   - Verifies Evidence Green after a real sweep: telemetry log exists, telemetry summary is fresh, Stage 1-7 markers are present, notes are populated, and optional decision fields are filled.
+- `Tools/TestPlaytestEvidenceGateRegression.ps1`
+  - Uses fixture telemetry, generated summary output, and temporary playtest notes to verify the Evidence Green checker continues to accept valid evidence.
+- `Tools/RunStaticAudits.ps1`
+  - Now includes the playtest evidence gate regression in the Unity-free audit chain.
 - `Logs/AlienCrusherSceneValidation.log`
   - Current validation report from 2026-05-05 21:14: `0 error(s), 0 warning(s)`.
 - `Logs/AlienCrusherBatchValidationEditor.log`
@@ -209,6 +214,7 @@ Useful playtest telemetry summary regression command: `powershell -ExecutionPoli
 Useful readiness report regression command: `powershell -ExecutionPolicy Bypass -File Tools/TestReadinessReports.ps1`
 Useful playtest evidence gate command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGate.ps1`
 Useful playtest evidence readiness command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGate.ps1 -ReportOnly`
+Useful playtest evidence gate regression command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGateRegression.ps1`
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
 Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
