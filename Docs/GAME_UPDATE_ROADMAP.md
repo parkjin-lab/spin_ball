@@ -24,6 +24,7 @@ This document tracks the current project state, the next production priorities, 
 - Runtime map rebuilds happen at stage start. Stage 1-7 currently grow from a compact starter layout into wider, denser maps with expanded target marker spacing and stage-gated landmarks.
 - Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
 - Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
+- FeedbackSystem now exposes assignable audio hooks for hit weight, destruction size, combo rise, route open/hold/bonus beats, boss warnings/break/down, and level-up moments. The hooks are silent-safe until clips are assigned, so rhythm work can proceed without blocking on final assets.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status
@@ -41,6 +42,7 @@ This document tracks the current project state, the next production priorities, 
 - `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
 - `Tools/TestPlaytestEvidenceGate.ps1` now provides the blocking Evidence Green check for real telemetry, summary freshness, Stage 1-7 marker coverage, and populated playtest notes. Use `-ReportOnly` when checking readiness before evidence exists.
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
+- `Tools/AuditFeedbackAudioHooksStatic.ps1` now checks that rhythm-critical feedback events still have assignable audio clip hooks, and `Tools/RunStaticAudits.ps1` includes it in the Unity-free audit chain.
 
 ### Current Main Risk
 The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure. The current design policy treats this as an evidence problem first and blocks rhythm/payoff/boss tuning until real Stage 1-7 playtest telemetry exists.
@@ -310,7 +312,7 @@ Goal:
 - make the existing systems feel intentional and juicy with minimal asset cost
 
 Highest-return resources:
-- core audio starter pack
+- core audio starter pack, now mapped to the assignable `FeedbackSystem` clip slots
 - form silhouettes and icons
 - destruction material tiers
 - street prop variety
@@ -346,7 +348,7 @@ Extraction candidates:
 - Real-evidence gate automation exists, but it will fail until a real Stage 1-7 sweep and populated notes exist.
 - The route loop may still flatten into uniform pressure if district-to-district rhythm variation is too weak.
 - ROUTE HOLD may still feel like a timed destruction count unless route adherence is measured separately from destroyed count.
-- Audio hooks and mobile HUD icon/readability work are now core rhythm risks, not polish-only tasks.
+- Audio assets are still missing, but the runtime hook points now exist; mobile HUD icon/readability remains a core rhythm risk, not polish-only work.
 - Stage 4 may lack its own map identity between market escalation and boss approach.
 - Route trail pips may be visually noisy on small Android screens.
 - Current implementation form names differ from older GDD form fantasy names; status documents should use runtime names until the design naming pass is resolved.

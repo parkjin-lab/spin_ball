@@ -13,6 +13,24 @@ namespace AlienCrusher.Systems
         [Header("Policy")]
         [SerializeField] private bool allowDotween = true;
         [SerializeField] private bool allowFeel = true;
+        [SerializeField] private bool allowAudio = true;
+
+        [Header("Audio Hooks")]
+        [SerializeField] private AudioSource audioSource;
+        [SerializeField] [Range(0f, 1f)] private float audioVolume = 0.8f;
+        [SerializeField] private AudioClip hitLightClip;
+        [SerializeField] private AudioClip hitMediumClip;
+        [SerializeField] private AudioClip hitHeavyClip;
+        [SerializeField] private AudioClip breakSmallClip;
+        [SerializeField] private AudioClip breakLargeClip;
+        [SerializeField] private AudioClip comboRiseClip;
+        [SerializeField] private AudioClip routeOpenClip;
+        [SerializeField] private AudioClip routeHoldWarningClip;
+        [SerializeField] private AudioClip routeBonusClip;
+        [SerializeField] private AudioClip bossWarningClip;
+        [SerializeField] private AudioClip bossBreakClip;
+        [SerializeField] private AudioClip bossDownClip;
+        [SerializeField] private AudioClip levelUpClip;
 
         [Header("Screen Feedback")]
         [SerializeField] [Range(0f, 0.35f)] private float hitFlashAlpha = 0.12f;
@@ -115,6 +133,7 @@ namespace AlienCrusher.Systems
 
         public bool AllowDotween => allowDotween;
         public bool AllowFeel => allowFeel;
+        public bool AllowAudio => allowAudio;
         public string Guideline => guideline;
 
         private void Awake()
@@ -142,6 +161,7 @@ namespace AlienCrusher.Systems
             ApplyCameraFeedback(Mathf.Lerp(hitCameraImpulse * 0.6f, hitCameraImpulse, normalizedImpact),
                 Mathf.Lerp(fovPunchOnHit * 0.55f, fovPunchOnHit, normalizedImpact));
 
+            PlayAudio(normalizedImpact > 0.62f ? hitMediumClip : hitLightClip, Mathf.Lerp(0.62f, 0.86f, normalizedImpact), Mathf.Lerp(0.96f, 1.05f, normalizedImpact));
             PlayHaptic(destroyed: false, normalizedImpact);
         }
 
@@ -156,6 +176,7 @@ namespace AlienCrusher.Systems
             ApplyCameraFeedback(Mathf.Lerp(destroyCameraImpulse * 0.7f, destroyCameraImpulse, normalizedImpact),
                 Mathf.Lerp(fovPunchOnDestroy * 0.65f, fovPunchOnDestroy, normalizedImpact));
 
+            PlayAudio(normalizedImpact > 0.7f ? breakLargeClip : breakSmallClip, Mathf.Lerp(0.72f, 1f, normalizedImpact), Mathf.Lerp(0.94f, 1.02f, normalizedImpact));
             PlayHaptic(destroyed: true, normalizedImpact);
         }
         public void PlayComboRushFeedback(Vector3 worldCenter, float normalizedIntensity, float radius)
@@ -177,6 +198,7 @@ namespace AlienCrusher.Systems
             SpawnBurst(worldCenter + Vector3.up * 0.4f, Mathf.Clamp01(0.8f + normalizedIntensity * 0.2f), heavy: true);
             ApplyCameraFeedback(Mathf.Lerp(comboRushCameraImpulse * 0.68f, comboRushCameraImpulse, normalizedIntensity),
                 Mathf.Lerp(comboRushFovPunch * 0.6f, comboRushFovPunch, normalizedIntensity));
+            PlayAudio(comboRiseClip, Mathf.Lerp(0.72f, 1f, normalizedIntensity), Mathf.Lerp(1f, 1.12f, normalizedIntensity));
             PlayHaptic(destroyed: true, Mathf.Clamp01(0.75f + normalizedIntensity * 0.25f));
         }
 
@@ -207,6 +229,7 @@ namespace AlienCrusher.Systems
             ApplyCameraFeedback(
                 Mathf.Lerp(retailFrenzyCameraImpulse * 0.72f, retailFrenzyCameraImpulse, normalizedIntensity),
                 Mathf.Lerp(retailFrenzyFovPunch * 0.64f, retailFrenzyFovPunch, normalizedIntensity));
+            PlayAudio(comboRiseClip, Mathf.Lerp(0.68f, 0.96f, normalizedIntensity), Mathf.Lerp(1.02f, 1.14f, normalizedIntensity));
             PlayHaptic(destroyed: true, Mathf.Clamp01(0.72f + normalizedIntensity * 0.28f));
         }
 
@@ -240,6 +263,7 @@ namespace AlienCrusher.Systems
                 heavyBursts: false,
                 destroyedHaptic: false,
                 hapticIntensity: 0.32f);
+            PlayAudio(levelUpClip, 0.86f, 1.04f);
         }
 
         public void PlayTotalDestructionFeedback(Vector3 center, float intensity)
@@ -257,6 +281,14 @@ namespace AlienCrusher.Systems
                 heavyBursts: true,
                 destroyedHaptic: true,
                 hapticIntensity: Mathf.Lerp(0.7f, 1f, intensity));
+            PlayAudio(routeBonusClip, Mathf.Lerp(0.78f, 1f, intensity), Mathf.Lerp(0.96f, 1.04f, intensity));
+        }
+
+        public void PlayBossDownFeedback(Vector3 center, float intensity)
+        {
+            intensity = Mathf.Clamp01(intensity);
+            PlayTotalDestructionFeedback(center, intensity);
+            PlayAudio(bossDownClip, Mathf.Lerp(0.82f, 1f, intensity), Mathf.Lerp(0.88f, 0.98f, intensity));
         }
 
 
@@ -294,6 +326,7 @@ namespace AlienCrusher.Systems
                 ApplyCameraFeedback(
                     Mathf.Lerp(counterSurgeCameraImpulseMajor * 0.75f, counterSurgeCameraImpulseMajor, normalizedIntensity),
                     Mathf.Lerp(counterSurgeFovPunchMajor * 0.72f, counterSurgeFovPunchMajor, normalizedIntensity));
+                PlayAudio(routeOpenClip, Mathf.Lerp(0.72f, 0.96f, normalizedIntensity), Mathf.Lerp(1f, 1.08f, normalizedIntensity));
                 PlayHaptic(destroyed: false, Mathf.Lerp(0.35f, 0.7f, normalizedIntensity));
             }
         }
@@ -332,6 +365,7 @@ namespace AlienCrusher.Systems
                 swarmBroken ? Mathf.Lerp(0.22f, 0.54f, normalizedIntensity) : Mathf.Lerp(0.08f, 0.2f, normalizedIntensity),
                 swarmBroken ? Mathf.Lerp(0.8f, 1.9f, normalizedIntensity) : Mathf.Lerp(0.25f, 0.7f, normalizedIntensity));
 
+            PlayAudio(swarmBroken ? bossBreakClip : bossWarningClip, Mathf.Lerp(0.62f, 0.95f, normalizedIntensity), swarmBroken ? 1f : 0.94f);
             PlayHaptic(destroyed: swarmBroken, swarmBroken ? Mathf.Lerp(0.45f, 0.82f, normalizedIntensity) : Mathf.Lerp(0.2f, 0.4f, normalizedIntensity));
         }
 
@@ -380,6 +414,7 @@ namespace AlienCrusher.Systems
                 bossCore ? Mathf.Lerp(0.22f, 0.58f, normalizedIntensity) : Mathf.Lerp(0.08f, 0.24f, normalizedIntensity),
                 bossCore ? Mathf.Lerp(0.95f, 2.2f, normalizedIntensity) : Mathf.Lerp(0.25f, 0.75f, normalizedIntensity));
 
+            PlayAudio(bossCore ? bossBreakClip : hitHeavyClip, Mathf.Lerp(0.62f, 1f, normalizedIntensity), bossCore ? 0.96f : 1.05f);
             PlayHaptic(destroyed: bossCore, bossCore ? Mathf.Lerp(0.44f, 0.84f, normalizedIntensity) : Mathf.Lerp(0.18f, 0.36f, normalizedIntensity));
         }
 
@@ -394,6 +429,7 @@ namespace AlienCrusher.Systems
             ApplyCameraFeedback(
                 Mathf.Lerp(hudWarningCameraImpulse * 0.6f, hudWarningCameraImpulse, intensity),
                 Mathf.Lerp(hudWarningFovPunch * 0.55f, hudWarningFovPunch, intensity));
+            PlayAudio(bossRelated ? bossWarningClip : routeHoldWarningClip, Mathf.Lerp(0.45f, 0.72f, intensity), bossRelated ? 0.92f : 1f);
         }
 
         private void PlayMilestoneFeedback(
@@ -449,6 +485,40 @@ namespace AlienCrusher.Systems
             }
 
             cameraFollowSystem = UnityEngine.Object.FindFirstObjectByType<CameraFollowSystem>();
+            EnsureAudioSource();
+        }
+
+        private void EnsureAudioSource()
+        {
+            if (!allowAudio || audioSource != null)
+            {
+                return;
+            }
+
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.playOnAwake = false;
+                audioSource.spatialBlend = 0f;
+            }
+        }
+
+        private void PlayAudio(AudioClip clip, float volumeScale = 1f, float pitch = 1f)
+        {
+            if (!allowAudio || clip == null)
+            {
+                return;
+            }
+
+            EnsureAudioSource();
+            if (audioSource == null)
+            {
+                return;
+            }
+
+            audioSource.pitch = Mathf.Clamp(pitch, 0.5f, 1.5f);
+            audioSource.PlayOneShot(clip, Mathf.Clamp01(audioVolume * Mathf.Max(0f, volumeScale)));
         }
 
         private void EnsureFlashOverlay()

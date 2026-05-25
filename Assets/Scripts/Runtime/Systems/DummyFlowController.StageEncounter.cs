@@ -238,7 +238,7 @@ namespace AlienCrusher.Systems
 					PushAnnouncement("JUSTICE SENTINEL DOWN", AnnouncementTone.BossMajor, 1.45f);
 					Vector3 val = (((Object)(object)stageBossBlock != (Object)null) ? ((Component)stageBossBlock).transform.position : (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero));
 					damageNumberSystem?.ShowTag(val + Vector3.up * 1.8f, "SENTINEL DOWN", true);
-					feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.4f, 1f, major: true);
+					feedbackSystem?.PlayBossDownFeedback(val + Vector3.up * 0.4f, 1f);
 					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.PlayFinishShot(val + Vector3.up * 0.85f, 1f);
 					TriggerBossFinishSlowMotion();
