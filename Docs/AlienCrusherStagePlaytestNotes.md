@@ -1,6 +1,6 @@
 # Alien Crusher Stage Playtest Notes
 
-Last updated: 2026-05-17
+Last updated: 2026-05-25
 
 Use this tracked file for human observations from the first real Stage 1-7 `F10` sweep. The generated checklist in `Logs/AlienCrusherStagePlaytestChecklist.md` is a disposable readiness artifact and can be regenerated at any time.
 
@@ -19,9 +19,14 @@ Use this tracked file for human observations from the first real Stage 1-7 `F10`
 - [ ] `Logs/AlienCrusherPlaytestTelemetrySummary.md` was regenerated after the telemetry log.
 - [ ] `SWEEP_START` exists.
 - [ ] `STAGE_START` and `STAGE_END` exist for Stage 01.
+- [ ] `STAGE_START` and `STAGE_END` exist for Stage 02.
+- [ ] `STAGE_START` and `STAGE_END` exist for Stage 03.
 - [ ] `STAGE_START` and `STAGE_END` exist for Stage 04.
+- [ ] `STAGE_START` and `STAGE_END` exist for Stage 05.
+- [ ] `STAGE_START` and `STAGE_END` exist for Stage 06.
 - [ ] `STAGE_START` and `STAGE_END` exist for Stage 07.
 - [ ] `SWEEP_END` exists.
+- [ ] `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`.
 
 ## Stage Notes
 

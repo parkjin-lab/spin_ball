@@ -1,10 +1,11 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-05-17
+Last updated: 2026-05-25
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
 - `Docs/NEXT_SESSION_CONTEXT_PACKET.md`
+- `Docs/GAME_DESIGN_GAP_POLICY.md`
 - `Docs/CURRENT_STAGE_RESOURCE_REQUIREMENTS.md`
 - `Docs/CURRENT_STAGE_RESOURCE_PRODUCTION_BOARD.md`
 
@@ -36,10 +37,12 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
 - `Tools/GenerateStagePlaytestChecklist.ps1` generates disposable readiness output at `Logs/AlienCrusherStagePlaytestChecklist.md`, while durable human observations should be recorded in `Docs/AlienCrusherStagePlaytestNotes.md`.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
-- As of 2026-05-17, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`.
+- As of 2026-05-25, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`.
+- `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
+- `Tools/TestPlaytestEvidenceGate.ps1` now provides the blocking Evidence Green check for real telemetry, summary freshness, Stage 1-7 marker coverage, and populated playtest notes. Use `-ReportOnly` when checking readiness before evidence exists.
 
 ### Current Main Risk
-The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure.
+The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure. The current design policy treats this as an evidence problem first and blocks rhythm/payoff/boss tuning until real Stage 1-7 playtest telemetry exists.
 
 ---
 
@@ -123,6 +126,21 @@ Done when:
 - close-range route pips hide cleanly
 - far target guidance remains readable
 - route pressure feels urgent without turning into pure distance tax
+
+### P0 - Game Design Gap Policy
+Use `Docs/GAME_DESIGN_GAP_POLICY.md` as the guardrail for any next gameplay/design work.
+
+Immediate policy requirements:
+1. Keep the tuning lock active until real Stage 1-7 evidence exists.
+2. Choose one broken beat and one variable family per tuning pass.
+3. Treat ROUTE HOLD as both a count goal and a route-reading goal.
+4. Prioritize audio hooks, mobile HUD readability, and failure beat feedback as core rhythm work, not polish.
+5. Expand map validation from landmark count to landmark gameplay value.
+
+Done when:
+- `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`
+- Stage 4 has a documented boss-approach identity instead of sharing only the market escalation feel
+- HUD/audio/failure feedback tasks are tracked as P0/P1 design work
 
 ---
 
@@ -324,7 +342,11 @@ Extraction candidates:
 
 - Unity batch has recently shown stale log, lock, and timeout behavior, although the 2026-05-05 wrapper run passed cleanly.
 - Static audits pass formula checks but cannot validate real play feel.
+- Real-evidence gate automation exists, but it will fail until a real Stage 1-7 sweep and populated notes exist.
 - The route loop may still flatten into uniform pressure if district-to-district rhythm variation is too weak.
+- ROUTE HOLD may still feel like a timed destruction count unless route adherence is measured separately from destroyed count.
+- Audio hooks and mobile HUD icon/readability work are now core rhythm risks, not polish-only tasks.
+- Stage 4 may lack its own map identity between market escalation and boss approach.
 - Route trail pips may be visually noisy on small Android screens.
 - Current implementation form names differ from older GDD form fantasy names; status documents should use runtime names until the design naming pass is resolved.
 - `DummyFlowController` remains a large partial mega-controller and should not absorb more route/gameplay surface indefinitely.
@@ -336,5 +358,6 @@ Extraction candidates:
 When this roadmap changes:
 - update `Docs/NEXT_SESSION_CONTEXT_PACKET.md` with the latest validation status
 - keep `Docs/GDD_ALIEN_CRUSHER.md` focused on product design, not every temporary validation issue
+- keep `Docs/GAME_DESIGN_GAP_POLICY.md` focused on current design gaps, guardrails, and decision policy
 - keep resource priorities in `Docs/CURRENT_STAGE_RESOURCE_REQUIREMENTS.md` and `Docs/CURRENT_STAGE_RESOURCE_PRODUCTION_BOARD.md`
 - avoid declaring a Unity batch pass unless the report file timestamp advanced during that run
