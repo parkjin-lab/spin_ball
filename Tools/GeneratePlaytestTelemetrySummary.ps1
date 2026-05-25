@@ -111,6 +111,27 @@ function Format-EntryLine {
     return "{0}  /  {1}" -f $Entry.Time.ToString("HH:mm:ss"), $Entry.Detail
 }
 
+function Format-RouteTelemetryLine {
+    param($Entry)
+
+    if ($null -eq $Entry) {
+        return "not observed"
+    }
+
+    $samples = Get-DetailField -Detail $Entry.Detail -FieldName 'routeSamples'
+    if ([string]::IsNullOrWhiteSpace($samples) -or $samples -eq '0') {
+        return "not sampled"
+    }
+
+    $closest = Get-DetailField -Detail $Entry.Detail -FieldName 'routeClosest'
+    $average = Get-DetailField -Detail $Entry.Detail -FieldName 'routeAvg'
+    $farthest = Get-DetailField -Detail $Entry.Detail -FieldName 'routeFarthest'
+    $inRange = Get-DetailField -Detail $Entry.Detail -FieldName 'routeInRange'
+    $elapsed = Get-DetailField -Detail $Entry.Detail -FieldName 'routeElapsed'
+
+    return "samples=$samples closest=$closest avg=$average farthest=$farthest inRange=$inRange elapsed=$elapsed"
+}
+
 function Get-StageEndResult {
     param([string]$Detail)
 
@@ -1090,6 +1111,8 @@ foreach ($run in $runs) {
     $lines.Add("- Sequence: $sequence")
     $lines.Add("- Route open: $(Format-EntryLine -Entry $openEntry)")
     $lines.Add("- Route hold clear: $(Format-EntryLine -Entry $holdEntry)")
+    $routeTelemetryEntry = if ($null -ne $holdEntry) { $holdEntry } else { $endEntry }
+    $lines.Add("- Route adherence: $(Format-RouteTelemetryLine -Entry $routeTelemetryEntry)")
     $lines.Add("- Route bonus: $(Format-EntryLine -Entry $bonusEntry)")
     $lines.Add("- Forward smash: $(Format-EntryLine -Entry $smashEntry)")
     $lines.Add("- End: $(Format-EntryLine -Entry $endEntry)")

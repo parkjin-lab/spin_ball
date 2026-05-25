@@ -118,6 +118,7 @@ namespace AlienCrusher.Systems
 			stageAdvanceRouteGuidanceActive = false;
 			stageAdvanceRouteRewardGranted = false;
 			routeOpenBeatRemaining = 0f;
+			ResetRouteHoldTelemetryState();
 			activeStageAdvanceRouteMarker = null;
 			forwardSmashTargetBlock = null;
 			forwardSmashBonusPending = false;
@@ -344,6 +345,7 @@ namespace AlienCrusher.Systems
 				{
 					ActivateStageAdvanceRouteGuidance(resetReward: false);
 					StartRouteOpenBeat();
+					StartRouteHoldTelemetry();
 					LogPlaytestRouteOpen((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : bonusIndex));
 					ResolvePlayerController();
 					cachedPlayerController?.ApplyCounterSurge(1.08f, 1.12f, 1.15f);
@@ -378,6 +380,7 @@ namespace AlienCrusher.Systems
 			PushAnnouncement((num4 > 0) ? $"ROUTE HOLD +{num4:0}" : "ROUTE HOLD", AnnouncementTone.Milestone, 0.88f);
 			damageNumberSystem?.ShowTag(val + Vector3.up * 1.25f, "ROUTE HOLD", false);
 			LogPlaytestRouteHoldSuccess(destroyedCount);
+			routeHoldTelemetryActive = false;
 			ResolvePlayerController();
 			cachedPlayerController?.ApplyCounterSurge(1.05f, 1.1f, Mathf.Max(0.3f, routeHoldCounterDuration));
 			feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.2f, 0.58f, major: false);

@@ -98,7 +98,7 @@ namespace AlienCrusher.Systems
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 			EmitPlaytestTelemetry(
 				"ROUTE_OPEN",
-				$"destroyed={Mathf.Max(0, destroyedCount):0} laneBreak={GetEarlyCrushLaneBreakTarget():0} routeTarget={GetRouteHoldTarget():0} deadlineLeft={GetRouteHoldRemainingSeconds():0.#}s target={FormatPlaytestActiveTarget()}");
+				$"destroyed={Mathf.Max(0, destroyedCount):0} laneBreak={GetEarlyCrushLaneBreakTarget():0} routeTarget={GetRouteHoldTarget():0} deadlineLeft={GetRouteHoldRemainingSeconds():0.#}s target={FormatPlaytestActiveTarget()} {FormatRouteHoldTelemetrySnapshot()}");
 #endif
 		}
 
@@ -107,7 +107,7 @@ namespace AlienCrusher.Systems
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 			EmitPlaytestTelemetry(
 				"ROUTE_HOLD_CLEAR",
-				$"destroyed={Mathf.Max(0, destroyedCount):0} routeTarget={GetRouteHoldTarget():0} rewardScore={Mathf.Max(0, routeHoldBonusScore):0} payoff={GetRouteDistrictPayoffLabel()} next={FormatPlaytestActiveTarget()}");
+				$"destroyed={Mathf.Max(0, destroyedCount):0} routeTarget={GetRouteHoldTarget():0} rewardScore={Mathf.Max(0, routeHoldBonusScore):0} payoff={GetRouteDistrictPayoffLabel()} next={FormatPlaytestActiveTarget()} {FormatRouteHoldTelemetrySnapshot()}");
 #endif
 		}
 
@@ -143,7 +143,8 @@ namespace AlienCrusher.Systems
 			string bucket = string.IsNullOrWhiteSpace(GetLastRunFailureBucket()) ? "NONE" : GetLastRunFailureBucket();
 			EmitPlaytestTelemetry(
 				"STAGE_END",
-				$"result={resultLabel} reason={GetStageEndReasonLabel().ToUpperInvariant()} bucket={bucket} destroyed={destroyedCount:0}/{Mathf.Max(0, stageTotalDestructibleCount):0} pct={destroyedPercent:0} chain={highestChain:0} laneBreakTier={earlyCrushFlowBonusIndex:0} routeHold={(routeHoldBonusGranted ? "yes" : "no")} routeBonus={(stageAdvanceRouteRewardGranted ? "yes" : "no")} boss={bossLabel} payoff={GetRouteDistrictPayoffLabel()}");
+				$"result={resultLabel} reason={GetStageEndReasonLabel().ToUpperInvariant()} bucket={bucket} destroyed={destroyedCount:0}/{Mathf.Max(0, stageTotalDestructibleCount):0} pct={destroyedPercent:0} chain={highestChain:0} laneBreakTier={earlyCrushFlowBonusIndex:0} routeHold={(routeHoldBonusGranted ? "yes" : "no")} routeBonus={(stageAdvanceRouteRewardGranted ? "yes" : "no")} boss={bossLabel} payoff={GetRouteDistrictPayoffLabel()} {FormatRouteHoldTelemetrySnapshot()}");
+			routeHoldTelemetryActive = false;
 #endif
 		}
 
@@ -187,6 +188,74 @@ namespace AlienCrusher.Systems
 				distanceText = $"{Vector3.Distance(playerTransform.position, position):0.#}m";
 			}
 			return $"{marker.name}({position.x:0.#},{position.z:0.#},{distanceText})";
+		}
+
+		private void ResetRouteHoldTelemetryState()
+		{
+			routeHoldTelemetryActive = false;
+			routeHoldTelemetrySamples = 0;
+			routeHoldTelemetryInTrailRangeSamples = 0;
+			routeHoldTelemetryElapsed = 0f;
+			routeHoldTelemetryDistanceSum = 0f;
+			routeHoldTelemetryClosestDistance = float.MaxValue;
+			routeHoldTelemetryFarthestDistance = 0f;
+		}
+
+		private void StartRouteHoldTelemetry()
+		{
+			ResetRouteHoldTelemetryState();
+			routeHoldTelemetryActive = stageAdvanceRouteGuidanceActive
+				&& (Object)(object)activeStageAdvanceRouteMarker != (Object)null
+				&& (Object)(object)playerTransform != (Object)null;
+			if (routeHoldTelemetryActive)
+			{
+				SampleRouteHoldTelemetry(0f);
+			}
+		}
+
+		private void UpdateRouteHoldTelemetry(float deltaTime)
+		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			if (!routeHoldTelemetryActive || routeHoldBonusGranted || !stageRunning || levelUpOpen || stagePaused)
+			{
+				return;
+			}
+			SampleRouteHoldTelemetry(deltaTime);
+#endif
+		}
+
+		private void SampleRouteHoldTelemetry(float deltaTime)
+		{
+			if ((Object)(object)activeStageAdvanceRouteMarker == (Object)null || (Object)(object)playerTransform == (Object)null)
+			{
+				return;
+			}
+			Vector3 target = activeStageAdvanceRouteMarker.position;
+			Vector3 player = playerTransform.position;
+			float dx = target.x - player.x;
+			float dz = target.z - player.z;
+			float distance = Mathf.Sqrt(dx * dx + dz * dz);
+			routeHoldTelemetrySamples++;
+			routeHoldTelemetryElapsed += Mathf.Max(0f, deltaTime);
+			routeHoldTelemetryDistanceSum += distance;
+			routeHoldTelemetryClosestDistance = Mathf.Min(routeHoldTelemetryClosestDistance, distance);
+			routeHoldTelemetryFarthestDistance = Mathf.Max(routeHoldTelemetryFarthestDistance, distance);
+			float readableRouteRange = Mathf.Max(stageAdvanceRouteRewardDistance, routeHoldTrailMaxDistance);
+			if (distance <= readableRouteRange)
+			{
+				routeHoldTelemetryInTrailRangeSamples++;
+			}
+		}
+
+		private string FormatRouteHoldTelemetrySnapshot()
+		{
+			if (routeHoldTelemetrySamples <= 0)
+			{
+				return "routeSamples=0 routeClosest=n/a routeAvg=n/a routeFarthest=n/a routeInRange=n/a routeElapsed=0s";
+			}
+			float averageDistance = routeHoldTelemetryDistanceSum / Mathf.Max(1, routeHoldTelemetrySamples);
+			float inRangePercent = routeHoldTelemetryInTrailRangeSamples / (float)Mathf.Max(1, routeHoldTelemetrySamples) * 100f;
+			return $"routeSamples={routeHoldTelemetrySamples:0} routeClosest={routeHoldTelemetryClosestDistance:0.#}m routeAvg={averageDistance:0.#}m routeFarthest={routeHoldTelemetryFarthestDistance:0.#}m routeInRange={inRangePercent:0}% routeElapsed={routeHoldTelemetryElapsed:0.#}s";
 		}
 	}
 }

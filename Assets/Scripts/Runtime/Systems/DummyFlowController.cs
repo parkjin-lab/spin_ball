@@ -1492,6 +1492,20 @@ namespace AlienCrusher.Systems
 
 		private float routeOpenBeatRemaining;
 
+		private bool routeHoldTelemetryActive;
+
+		private int routeHoldTelemetrySamples;
+
+		private int routeHoldTelemetryInTrailRangeSamples;
+
+		private float routeHoldTelemetryElapsed;
+
+		private float routeHoldTelemetryDistanceSum;
+
+		private float routeHoldTelemetryClosestDistance;
+
+		private float routeHoldTelemetryFarthestDistance;
+
 		private DummyDestructibleBlock forwardSmashTargetBlock;
 
 		private bool forwardSmashBonusPending;

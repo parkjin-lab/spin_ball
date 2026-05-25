@@ -5,7 +5,7 @@
 - Latest static audit refresh: 2026-05-25 (`Tools/RunStaticAudits.ps1`, feedback audio hook audit, mobile HUD readability audit, playtest evidence gate regression)
 - Real Stage 1-7 playtest telemetry: still not captured as of 2026-05-25; the summary pipeline is ready but still waiting on the first true `F10` sweep
 - No telemetry log or unparseable telemetry means the summary is a readiness artifact only; do not tune rhythm, payoff, boss, or route timing from it.
-- Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points, first-pass mobile HUD text safeguards, and a Stage 4 Sentinel checkpoint landmark now exist, but audio clips/assets, device/screenshot readability, and Stage 4 boss-approach readability still need playtest confirmation. Treat ROUTE HOLD route-adherence evidence, landmark gameplay value, and real evidence gates as the next design policy backlog.
+- Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points, first-pass mobile HUD text safeguards, a Stage 4 Sentinel checkpoint landmark, and ROUTE HOLD route-adherence telemetry now exist, but audio clips/assets, device/screenshot readability, Stage 4 boss-approach readability, and route-adherence evidence still need playtest confirmation. Treat landmark gameplay value and real evidence gates as the next design policy backlog.
 
 ## Immediate First Action
 1. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`
@@ -65,6 +65,8 @@ Rule:
 - Added `Tools/AuditMobileHudReadabilityStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the compact HUD copy and best-fit safeguards do not silently regress.
 - Added a Stage 4 Sentinel checkpoint landmark tier to runtime map generation so the boss-approach stage has pylon foreshadowing, barricades, warning beacons, and a gate block before the Stage 4+ boss systems dominate.
 - Updated `Tools/AuditRuntimeMapLayoutStatic.ps1` to mirror the new Stage 4 landmark center, clearance, and minimum landmark-count expectations.
+- Added route-adherence telemetry for ROUTE HOLD: samples, closest/average/farthest distance, in-range percentage, and elapsed route time now appear on route open/clear/stage end telemetry and in the markdown summary.
+- Updated `Tools/AuditPlaytestTelemetryWiringStatic.ps1` so the route-adherence telemetry contract is protected by the Unity-free audit chain.
 - Added `Tools/AuditRouteHoldTuningStatic.ps1` as a Unity-free audit for ROUTE HOLD targets, pressure, deadlines, and distance-aware trail pip counts.
 - `Tools/AuditRouteHoldTuningStatic.ps1` now reads its ROUTE HOLD, route open beat, route reward cluster, stage gate, boss stage, and stage timer defaults from the runtime C# fields before auditing, so tuning changes in `DummyFlowController`/`GameFlowSystem` do not silently drift from the audit.
 - Added `Tools/RunStaticAudits.ps1` to run all Unity-free audits in one command and fail the process if any audit reports warnings.
@@ -87,6 +89,7 @@ Rule:
 - Added the first audio-hook scaffold for the sensory rhythm pass: feedback events can now trigger assignable one-shot clips, and the boss defeat flow has a dedicated downbeat call.
 - Added the first mobile-HUD readability scaffold for the rhythm pass: core HUD text is shorter and guarded by static audit, while real device/screenshot review remains required.
 - Added the first Stage 4 boss-approach map identity pass: the runtime layout now generates a Sentinel checkpoint before later construction/power/skyline landmark tiers.
+- Added first-pass ROUTE HOLD route-adherence instrumentation so the first real sweep can distinguish path readability from timer/target-count pressure.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`
@@ -171,6 +174,16 @@ Rule:
   - Adds the Stage 4 Sentinel checkpoint landmark and shifts later landmark tiers to Stage 5+.
 - `Tools/AuditRuntimeMapLayoutStatic.ps1`
   - Mirrors the Stage 4 Sentinel checkpoint landmark and updated landmark-count thresholds.
+- `Assets/Scripts/Runtime/Systems/DummyFlowController.PlaytestTelemetry.cs`
+  - Samples ROUTE HOLD marker distance and emits route adherence metrics in playtest telemetry.
+- `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`
+  - Updates ROUTE HOLD telemetry sampling during stage updates.
+- `Assets/Scripts/Runtime/Systems/DummyFlowController.ProgressionCore.cs`
+  - Starts and stops ROUTE HOLD telemetry around route open and hold clear.
+- `Tools/GeneratePlaytestTelemetrySummary.ps1`
+  - Shows per-run route adherence metrics in the markdown summary.
+- `Tools/AuditPlaytestTelemetryWiringStatic.ps1`
+  - Checks that route-adherence telemetry remains wired into runtime logs and summary output.
 - `Logs/AlienCrusherSceneValidation.log`
   - Current validation report from 2026-05-05 21:14: `0 error(s), 0 warning(s)`.
 - `Logs/AlienCrusherBatchValidationEditor.log`

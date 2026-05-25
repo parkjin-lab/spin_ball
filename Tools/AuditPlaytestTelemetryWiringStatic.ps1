@@ -143,6 +143,41 @@ if ($telemetrySourceText -notmatch 'Logs",\s*"AlienCrusherPlaytestTelemetry\.log
     $warnings.Add("Editor telemetry log path no longer clearly targets Logs\AlienCrusherPlaytestTelemetry.log.")
 }
 
+$telemetryContractText = $telemetrySourceText
+foreach ($contract in $eventContracts) {
+    $callerPath = Join-Path $resolvedRuntimeSystemsPath $contract.Caller
+    $telemetryContractText = "$telemetryContractText`n$(Read-RequiredText -Path $callerPath -Label "Telemetry caller $($contract.Caller)" -Errors $errors)"
+}
+
+foreach ($needle in @(
+    "StartRouteHoldTelemetry();",
+    "UpdateRouteHoldTelemetry(Time.deltaTime);",
+    "FormatRouteHoldTelemetrySnapshot()",
+    "routeClosest=",
+    "routeAvg=",
+    "routeFarthest=",
+    "routeInRange=",
+    "routeElapsed="
+)) {
+    if (-not $telemetryContractText.Contains($needle)) {
+        $errors.Add("Route adherence telemetry contract missing required text: $needle")
+    }
+}
+
+foreach ($needle in @(
+    "Format-RouteTelemetryLine",
+    "routeSamples",
+    "routeClosest",
+    "routeAvg",
+    "routeFarthest",
+    "routeInRange",
+    "Route adherence:"
+)) {
+    if (-not $summaryScriptText.Contains($needle)) {
+        $errors.Add("Summary script missing route adherence output text: $needle")
+    }
+}
+
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("[AlienCrusher][PlaytestTelemetryWiringStaticAudit] Playtest telemetry wiring audit")
 $lines.Add("Telemetry source: $resolvedTelemetrySourcePath")

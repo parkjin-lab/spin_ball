@@ -128,6 +128,7 @@ namespace AlienCrusher.Systems
 			}
 			ProcessActionSkillInput();
 			UpdateHudInfo();
+			UpdateRouteHoldTelemetry(Time.deltaTime);
 			EvaluateStageAdvanceRouteReward();
 			if (!stageRunning)
 			{

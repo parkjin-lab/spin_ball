@@ -34,7 +34,7 @@ Alien Crusher is close to a stronger prototype because its current loop is no lo
 The weak points are:
 
 - Real `F10` Stage 1-7 telemetry is still missing, so rhythm quality is unproven.
-- ROUTE HOLD may feel like a timed destruction count instead of a true route-reading test.
+- ROUTE HOLD may feel like a timed destruction count instead of a true route-reading test; first-pass route-adherence telemetry now exists, but evidence has not been captured yet.
 - Landmarks are counted and placed, but their gameplay value is not yet audited.
 - Stage 4 now has a first-pass Sentinel checkpoint landmark, but its boss-approach readability is still unproven until screenshot/playtest evidence confirms it reads without HUD text.
 - Audio hooks now exist as a first-pass runtime layer, but clips/assets and balance are still missing.
@@ -54,6 +54,7 @@ Required evidence:
 - Stage 01-07 each have `STAGE_START` and `STAGE_END`.
 - Stage 01, Stage 04, and Stage 07 have screenshot/video references or concrete written observations.
 - `Docs/AlienCrusherStagePlaytestNotes.md` contains notes for readability, route pressure, map identity, and rhythm identity.
+- `Logs/AlienCrusherPlaytestTelemetrySummary.md` route-adherence lines are reviewed for closest target distance, average distance, farthest distance, in-range percentage, and elapsed route time.
 
 Allowed before evidence:
 
@@ -107,12 +108,13 @@ Future implementation should separate two concepts:
 - Count goal: how many objects must be destroyed to clear the hold.
 - Route goal: whether the player is reading, approaching, and staying oriented around the beacon.
 
-Recommended telemetry additions:
+Telemetry now records:
 
 - distance to active route marker at `ROUTE_OPEN`
 - closest distance reached before `ROUTE_HOLD_CLEAR`
-- time from `ROUTE_OPEN` to first close approach
-- time spent far from route marker during active hold
+- average and farthest marker distance during active hold
+- in-range sample percentage during active hold
+- elapsed route time before clear or stage end
 - whether reward cluster was reached after `ROUTE_BONUS`
 
 Design rule:
@@ -286,7 +288,7 @@ Do not tune boss pressure until the base Stage 1-7 route loop has real evidence.
 
 - Add landmark value audit criteria beyond object count.
 - Confirm Stage 4 Sentinel checkpoint readability with screenshot/playtest evidence and refine only from evidence.
-- Add route telemetry for marker distance and route adherence.
+- Use the new route-adherence telemetry fields during the first sweep review, then decide whether ROUTE HOLD is a path-readability problem or a timer/target-count problem.
 - Convert HUD state priority toward icon/gauge recognition.
 - Add failure beat sensory policy to implementation backlog.
 
