@@ -31,6 +31,7 @@ function Add-Check {
 $projectRoot = Resolve-ProjectRoot
 $checklistScriptPath = Join-Path $PSScriptRoot "GenerateStagePlaytestChecklist.ps1"
 $summaryScriptPath = Join-Path $PSScriptRoot "GeneratePlaytestTelemetrySummary.ps1"
+$audioChecklistScriptPath = Join-Path $PSScriptRoot "GenerateAudioResourceAssignmentChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -55,9 +56,14 @@ if (-not (Test-Path -Path $summaryScriptPath -PathType Leaf)) {
     $errors.Add("Telemetry summary generator not found: $summaryScriptPath")
 }
 
+if (-not (Test-Path -Path $audioChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("Audio resource checklist generator not found: $audioChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
+$tempAudioChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherAudioResourceAssignmentChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -106,9 +112,29 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $summaryText -Needle 'Expected `Tune Next` fields after real telemetry:' -Label "No-log summary"
         Add-Check -Errors $errors -ReportText $summaryText -Needle "Do not tune stage rhythm presets, payoff layouts, boss windows, or route timing until this log exists." -Label "No-log summary"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $audioChecklistScriptPath `
+        -ReportPath $tempAudioChecklistPath |
+        Out-Null
+
+    $audioChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($audioChecklistExitCode -ne 0) {
+        $errors.Add("Audio resource checklist generator exited with code $audioChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempAudioChecklistPath -PathType Leaf)) {
+        $errors.Add("Audio resource checklist generator did not create expected report: $tempAudioChecklistPath")
+    }
+    else {
+        $audioChecklistText = Get-Content -Path $tempAudioChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "## Assignment Pass Order" -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "## Current FeedbackSystem Audio Slots" -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'failureWarningClip' -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'failureBossClip' -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'SFX_Route_Open' -Label "Audio checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -118,6 +144,7 @@ $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("[AlienCrusher][ReadinessReportsRegression] Readiness report generator regression")
 $lines.Add("Checklist script: $checklistScriptPath")
 $lines.Add("Summary script: $summaryScriptPath")
+$lines.Add("Audio checklist script: $audioChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {
