@@ -32,6 +32,7 @@ $projectRoot = Resolve-ProjectRoot
 $checklistScriptPath = Join-Path $PSScriptRoot "GenerateStagePlaytestChecklist.ps1"
 $summaryScriptPath = Join-Path $PSScriptRoot "GeneratePlaytestTelemetrySummary.ps1"
 $audioChecklistScriptPath = Join-Path $PSScriptRoot "GenerateAudioResourceAssignmentChecklist.ps1"
+$formChecklistScriptPath = Join-Path $PSScriptRoot "GenerateFormIdentityProductionChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -60,10 +61,15 @@ if (-not (Test-Path -Path $audioChecklistScriptPath -PathType Leaf)) {
     $errors.Add("Audio resource checklist generator not found: $audioChecklistScriptPath")
 }
 
+if (-not (Test-Path -Path $formChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("Form identity checklist generator not found: $formChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
 $tempAudioChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherAudioResourceAssignmentChecklistReadiness-{0}.md" -f $tempId)
+$tempFormChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherFormIdentityProductionChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -132,9 +138,31 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'failureBossClip' -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'SFX_Route_Open' -Label "Audio checklist"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $formChecklistScriptPath `
+        -ReportPath $tempFormChecklistPath |
+        Out-Null
+
+    $formChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($formChecklistExitCode -ne 0) {
+        $errors.Add("Form identity checklist generator exited with code $formChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempFormChecklistPath -PathType Leaf)) {
+        $errors.Add("Form identity checklist generator did not create expected report: $tempFormChecklistPath")
+    }
+    else {
+        $formChecklistText = Get-Content -Path $tempFormChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle "## Production Pass Order" -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle "## Current Runtime Form Identity Targets" -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Sphere' -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Spike' -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Ram' -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Saucer' -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Crusher' -Label "Form checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -145,6 +173,7 @@ $lines.Add("[AlienCrusher][ReadinessReportsRegression] Readiness report generato
 $lines.Add("Checklist script: $checklistScriptPath")
 $lines.Add("Summary script: $summaryScriptPath")
 $lines.Add("Audio checklist script: $audioChecklistScriptPath")
+$lines.Add("Form checklist script: $formChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {

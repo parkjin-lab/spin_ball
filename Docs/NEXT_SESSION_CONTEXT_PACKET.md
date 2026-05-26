@@ -10,10 +10,11 @@
 ## Immediate First Action
 1. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`
 2. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateAudioResourceAssignmentChecklist.ps1`
-3. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
-4. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
-5. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
-6. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
+3. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateFormIdentityProductionChecklist.ps1`
+4. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
+5. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
+6. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
+7. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
 
 Done only when:
 - `Logs/AlienCrusherPlaytestTelemetry.log` exists
@@ -66,6 +67,7 @@ Rule:
 - Updated `Docs/CURRENT_STAGE_RESOURCE_REQUIREMENTS.md` and `Docs/CURRENT_STAGE_RESOURCE_PRODUCTION_BOARD.md` with the current `FeedbackSystem` audio slot map, including route and failure beat clips.
 - Added `Tools/AuditResourceSlotDocsStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so current `FeedbackSystem` audio slots stay reflected in the resource requirement and production board docs.
 - Added `Tools/GenerateAudioResourceAssignmentChecklist.ps1` so the next audio pass can generate a concrete slot-by-slot assignment sheet from the current `FeedbackSystem` clip fields.
+- Added `Tools/GenerateFormIdentityProductionChecklist.ps1` so the next form-art pass can generate a runtime-form-based sheet for silhouette, icon, material, unlock, skill, and failure-problem targets.
 - Added first-pass mobile HUD text safeguards: compact route/progress/gauge copy, direction-label abbreviations, and best-fit rules on the main HUD text fields.
 - Added `Tools/AuditMobileHudReadabilityStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the compact HUD copy and best-fit safeguards do not silently regress.
 - Added a Stage 4 Sentinel checkpoint landmark tier to runtime map generation so the boss-approach stage has pylon foreshadowing, barricades, warning beacons, and a gate block before the Stage 4+ boss systems dominate.
@@ -101,6 +103,7 @@ Rule:
 - Added the first failure-beat runtime pass and refreshed the required resource list so the next audio production step can assign clips directly to concrete runtime slots.
 - Added a resource-slot documentation audit so future audio hook changes fail static validation if the needed resource list is not updated with them.
 - Added the audio resource assignment checklist generator and covered it in the readiness report regression.
+- Added the form identity production checklist generator and covered it in the readiness report regression.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`
