@@ -121,6 +121,7 @@ Rule:
 - Added the district palette production checklist generator and covered it in the readiness report regression.
 - Added the outgame progression checklist generator and covered it in the readiness report regression.
 - Added the route payoff layout checklist generator and covered it in the readiness report regression.
+- Hardened progression save loading so a corrupt primary JSON can still fall back to the backup JSON, then added a Unity-free save safety audit to the static audit chain.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`
@@ -289,6 +290,7 @@ Useful boss identity checklist command: `powershell -ExecutionPolicy Bypass -Fil
 Useful district palette checklist command: `powershell -ExecutionPolicy Bypass -File Tools/GenerateDistrictPaletteProductionChecklist.ps1`
 Useful outgame progression checklist command: `powershell -ExecutionPolicy Bypass -File Tools/GenerateOutgameProgressionChecklist.ps1`
 Useful route payoff layout checklist command: `powershell -ExecutionPolicy Bypass -File Tools/GenerateRoutePayoffLayoutChecklist.ps1`
+Useful progression save safety audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditProgressionSaveSafetyStatic.ps1`
 Useful playtest evidence gate command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGate.ps1`
 Useful playtest evidence readiness command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGate.ps1 -ReportOnly`
 Useful playtest evidence gate regression command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGateRegression.ps1`

@@ -68,31 +68,35 @@ namespace AlienCrusher.Systems
 
         private PlayerProgressionData TryLoadFromDisk()
         {
+            var savedProgression = TryLoadProgressionFile(SavePath);
+            if (savedProgression != null)
+            {
+                return savedProgression;
+            }
+
+            return TryLoadProgressionFile(BackupPath);
+        }
+
+        private static PlayerProgressionData TryLoadProgressionFile(string path)
+        {
             try
             {
-                if (File.Exists(SavePath))
+                if (!File.Exists(path))
                 {
-                    var json = File.ReadAllText(SavePath);
-                    if (!string.IsNullOrWhiteSpace(json))
-                    {
-                        return JsonUtility.FromJson<PlayerProgressionData>(json);
-                    }
+                    return null;
                 }
 
-                if (File.Exists(BackupPath))
-                {
-                    var json = File.ReadAllText(BackupPath);
-                    if (!string.IsNullOrWhiteSpace(json))
-                    {
-                        return JsonUtility.FromJson<PlayerProgressionData>(json);
-                    }
-                }
+                var json = File.ReadAllText(path);
+                return string.IsNullOrWhiteSpace(json) ? null : JsonUtility.FromJson<PlayerProgressionData>(json);
             }
             catch (IOException)
             {
+                return null;
             }
-
-            return null;
+            catch (System.Exception exception) when (exception is System.ArgumentException || exception is System.InvalidOperationException)
+            {
+                return null;
+            }
         }
 
         private static void Sanitize(PlayerProgressionData data)

@@ -311,6 +311,8 @@ Why this matters now:
 ### 3.2 Save / Progression Confirmation Resources
 Need:
 - lightweight UI moments that confirm long-term progress
+- smoke-test evidence that stage unlock, DP balance, form unlocks, and meta upgrades survive save/load
+- corrupt-primary save recovery check before any release-style playtest build
 
 Required assets:
 - stage clear banner style
@@ -319,6 +321,9 @@ Required assets:
 - new form target marker
 - meta upgrade purchased pulse
 - save/progression confirmation toast
+
+Validation support:
+- `powershell -ExecutionPolicy Bypass -File Tools/AuditProgressionSaveSafetyStatic.ps1`
 
 ---
 
