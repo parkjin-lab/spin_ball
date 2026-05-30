@@ -37,6 +37,7 @@ $destructionChecklistScriptPath = Join-Path $PSScriptRoot "GenerateDestructionRe
 $streetPropChecklistScriptPath = Join-Path $PSScriptRoot "GenerateStreetPropVarietyChecklist.ps1"
 $uiIconChecklistScriptPath = Join-Path $PSScriptRoot "GenerateUiIconStatusChecklist.ps1"
 $bossIdentityChecklistScriptPath = Join-Path $PSScriptRoot "GenerateBossIdentityProductionChecklist.ps1"
+$districtPaletteChecklistScriptPath = Join-Path $PSScriptRoot "GenerateDistrictPaletteProductionChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -85,6 +86,10 @@ if (-not (Test-Path -Path $bossIdentityChecklistScriptPath -PathType Leaf)) {
     $errors.Add("Boss identity checklist generator not found: $bossIdentityChecklistScriptPath")
 }
 
+if (-not (Test-Path -Path $districtPaletteChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("District palette checklist generator not found: $districtPaletteChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
@@ -94,6 +99,7 @@ $tempDestructionChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("Al
 $tempStreetPropChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStreetPropVarietyChecklistReadiness-{0}.md" -f $tempId)
 $tempUiIconChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherUiIconStatusChecklistReadiness-{0}.md" -f $tempId)
 $tempBossIdentityChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherBossIdentityProductionChecklistReadiness-{0}.md" -f $tempId)
+$tempDistrictPaletteChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherDistrictPaletteProductionChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -270,9 +276,31 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'BOSS_Phase2_Drone_Kit' -Label "Boss identity checklist"
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'SFX_Boss_Down' -Label "Boss identity checklist"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $districtPaletteChecklistScriptPath `
+        -ReportPath $tempDistrictPaletteChecklistPath |
+        Out-Null
+
+    $districtPaletteChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($districtPaletteChecklistExitCode -ne 0) {
+        $errors.Add("District palette checklist generator exited with code $districtPaletteChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempDistrictPaletteChecklistPath -PathType Leaf)) {
+        $errors.Add("District palette checklist generator did not create expected report: $tempDistrictPaletteChecklistPath")
+    }
+    else {
+        $districtPaletteChecklistText = Get-Content -Path $tempDistrictPaletteChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "## Production Pass Order" -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "## District Rhythm Palette Contract" -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "## Current District Palette Targets" -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle 'PAL_District_StarterResidential' -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle 'PAL_District_SentinelCheckpoint' -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle 'PAL_District_SkylineBlock' -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle 'PAL_RouteMarker_Tints' -Label "District palette checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempBossIdentityChecklistPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempBossIdentityChecklistPath, $tempDistrictPaletteChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -288,6 +316,7 @@ $lines.Add("Destruction checklist script: $destructionChecklistScriptPath")
 $lines.Add("Street prop checklist script: $streetPropChecklistScriptPath")
 $lines.Add("UI icon checklist script: $uiIconChecklistScriptPath")
 $lines.Add("Boss identity checklist script: $bossIdentityChecklistScriptPath")
+$lines.Add("District palette checklist script: $districtPaletteChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {

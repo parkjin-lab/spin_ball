@@ -243,6 +243,7 @@ Recommended sets:
 - district 2: commercial strip / signage-heavy zone
 - district 3: industrial utility zone / heavy traffic zone
 - district 4+: fortified civic or defense zone
+- named runtime landmark palettes: pocket park, market plaza, Sentinel checkpoint, construction yard, power block, skyline block
 
 Required assets per district:
 - ground material variant
@@ -251,8 +252,12 @@ Required assets per district:
 - route marker tint
 - fog / ambient tint preset
 
+Generated production checklist:
+- `powershell -ExecutionPolicy Bypass -File Tools/GenerateDistrictPaletteProductionChecklist.ps1`
+
 Why this matters now:
 - stage progression is more satisfying when the world tone changes with difficulty
+- route rhythm needs different visual tones, not only different object counts
 
 ---
 

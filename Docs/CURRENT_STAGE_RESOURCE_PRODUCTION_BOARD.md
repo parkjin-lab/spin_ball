@@ -232,17 +232,26 @@ Done when:
 - result and lobby states scan faster on mobile
 
 ### B3. District Palette Pass
-Priority: `P1`
+Priority: `P0`
 
 Deliverables:
-- district 1 palette
-- district 2 palette
-- district 3 palette
-- district 4+ fortified palette
+- starter residential palette
+- pocket park palette
+- market plaza palette
+- Sentinel checkpoint palette
+- construction yard palette
+- power block palette
+- skyline block palette
+- global route marker tint set
+- ambient stage-band tone set
+
+Generated checklist:
+- `powershell -ExecutionPolicy Bypass -File Tools/GenerateDistrictPaletteProductionChecklist.ps1`
 
 Done when:
 - stage difficulty also feels like spatial escalation
 - screenshots from different stage bands no longer look interchangeable
+- route markers and HOLD trail pips stay readable over every palette
 
 ---
 

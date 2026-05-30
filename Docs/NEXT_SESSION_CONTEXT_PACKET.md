@@ -15,10 +15,11 @@
 5. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateStreetPropVarietyChecklist.ps1`
 6. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateUiIconStatusChecklist.ps1`
 7. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
-8. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
-9. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
-10. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
-11. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
+8. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateDistrictPaletteProductionChecklist.ps1`
+9. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
+10. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
+11. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
+12. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
 
 Done only when:
 - `Logs/AlienCrusherPlaytestTelemetry.log` exists
@@ -115,6 +116,7 @@ Rule:
 - Added the street prop variety checklist generator and covered it in the readiness report regression.
 - Added the UI icon/status checklist generator and covered it in the readiness report regression.
 - Added the boss identity production checklist generator and covered it in the readiness report regression.
+- Added the district palette production checklist generator and covered it in the readiness report regression.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`
@@ -280,6 +282,7 @@ Useful playtest telemetry wiring audit command: `powershell -ExecutionPolicy Byp
 Useful playtest telemetry summary regression command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestTelemetrySummary.ps1`
 Useful readiness report regression command: `powershell -ExecutionPolicy Bypass -File Tools/TestReadinessReports.ps1`
 Useful boss identity checklist command: `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
+Useful district palette checklist command: `powershell -ExecutionPolicy Bypass -File Tools/GenerateDistrictPaletteProductionChecklist.ps1`
 Useful playtest evidence gate command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGate.ps1`
 Useful playtest evidence readiness command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGate.ps1 -ReportOnly`
 Useful playtest evidence gate regression command: `powershell -ExecutionPolicy Bypass -File Tools/TestPlaytestEvidenceGateRegression.ps1`

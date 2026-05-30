@@ -44,6 +44,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/GenerateStreetPropVarietyChecklist.ps1` generates disposable street prop variety output at `Logs/AlienCrusherStreetPropVarietyChecklist.md`, mapping traffic, roadside, commercial, utility, and residential prop targets to current runtime map/traffic hooks.
 - `Tools/GenerateUiIconStatusChecklist.ps1` generates disposable UI icon/status output at `Logs/AlienCrusherUiIconStatusChecklist.md`, mapping HUD, route, upgrade, boss, result, and recommendation states to icon and badge targets.
 - `Tools/GenerateBossIdentityProductionChecklist.ps1` generates disposable boss identity output at `Logs/AlienCrusherBossIdentityProductionChecklist.md`, mapping Justice Sentinel, shield pylon, core exposure, phase 2 drone, warning, break, and defeat beats to production targets.
+- `Tools/GenerateDistrictPaletteProductionChecklist.ps1` generates disposable district palette output at `Logs/AlienCrusherDistrictPaletteProductionChecklist.md`, mapping starter, park, market, Sentinel checkpoint, construction, power, skyline, route tint, and ambient palette targets to runtime districts.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
 - As of 2026-05-26, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`.
 - `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
@@ -85,6 +86,7 @@ powershell -ExecutionPolicy Bypass -File Tools/GenerateDestructionReadabilityChe
 powershell -ExecutionPolicy Bypass -File Tools/GenerateStreetPropVarietyChecklist.ps1
 powershell -ExecutionPolicy Bypass -File Tools/GenerateUiIconStatusChecklist.ps1
 powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1
+powershell -ExecutionPolicy Bypass -File Tools/GenerateDistrictPaletteProductionChecklist.ps1
 ```
 
 Required next artifacts:
@@ -96,6 +98,7 @@ Required next artifacts:
 - optional street prop variety pass in `Logs/AlienCrusherStreetPropVarietyChecklist.md`
 - optional UI icon/status pass in `Logs/AlienCrusherUiIconStatusChecklist.md`
 - optional boss identity pass in `Logs/AlienCrusherBossIdentityProductionChecklist.md`
+- optional district palette pass in `Logs/AlienCrusherDistrictPaletteProductionChecklist.md`
 - populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md` or linked screenshots/videos
 
 First `F10` sweep minimum markers:
