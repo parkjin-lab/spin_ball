@@ -12,10 +12,11 @@
 2. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateAudioResourceAssignmentChecklist.ps1`
 3. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateFormIdentityProductionChecklist.ps1`
 4. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateDestructionReadabilityChecklist.ps1`
-5. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
-6. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
-7. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
-8. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
+5. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateStreetPropVarietyChecklist.ps1`
+6. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
+7. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
+8. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
+9. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
 
 Done only when:
 - `Logs/AlienCrusherPlaytestTelemetry.log` exists
@@ -70,6 +71,7 @@ Rule:
 - Added `Tools/GenerateAudioResourceAssignmentChecklist.ps1` so the next audio pass can generate a concrete slot-by-slot assignment sheet from the current `FeedbackSystem` clip fields.
 - Added `Tools/GenerateFormIdentityProductionChecklist.ps1` so the next form-art pass can generate a runtime-form-based sheet for silhouette, icon, material, unlock, skill, and failure-problem targets.
 - Added `Tools/GenerateDestructionReadabilityChecklist.ps1` so the next destruction-art pass can generate material, VFX, weak-point, shield, exposed-core, and break-audio targets from the current runtime destruction systems.
+- Added `Tools/GenerateStreetPropVarietyChecklist.ps1` so the next prop-art pass can generate traffic, roadside, commercial, utility, and residential prop targets from the current runtime map/traffic hooks.
 - Added first-pass mobile HUD text safeguards: compact route/progress/gauge copy, direction-label abbreviations, and best-fit rules on the main HUD text fields.
 - Added `Tools/AuditMobileHudReadabilityStatic.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the compact HUD copy and best-fit safeguards do not silently regress.
 - Added a Stage 4 Sentinel checkpoint landmark tier to runtime map generation so the boss-approach stage has pylon foreshadowing, barricades, warning beacons, and a gate block before the Stage 4+ boss systems dominate.
@@ -107,6 +109,7 @@ Rule:
 - Added the audio resource assignment checklist generator and covered it in the readiness report regression.
 - Added the form identity production checklist generator and covered it in the readiness report regression.
 - Added the destruction readability checklist generator and covered it in the readiness report regression.
+- Added the street prop variety checklist generator and covered it in the readiness report regression.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`

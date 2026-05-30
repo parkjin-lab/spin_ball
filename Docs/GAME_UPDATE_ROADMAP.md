@@ -41,6 +41,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/GenerateAudioResourceAssignmentChecklist.ps1` generates disposable audio assignment output at `Logs/AlienCrusherAudioResourceAssignmentChecklist.md`, mapping current `FeedbackSystem` slots to suggested SFX names, folders, and assignment priority.
 - `Tools/GenerateFormIdentityProductionChecklist.ps1` generates disposable form identity output at `Logs/AlienCrusherFormIdentityProductionChecklist.md`, mapping runtime forms to unlock cost, skill fantasy, silhouette, icon, material, and failure-problem targets.
 - `Tools/GenerateDestructionReadabilityChecklist.ps1` generates disposable destruction readability output at `Logs/AlienCrusherDestructionReadabilityChecklist.md`, mapping material, VFX, weak-point, shield, exposed-core, and break-audio targets to current runtime destruction systems.
+- `Tools/GenerateStreetPropVarietyChecklist.ps1` generates disposable street prop variety output at `Logs/AlienCrusherStreetPropVarietyChecklist.md`, mapping traffic, roadside, commercial, utility, and residential prop targets to current runtime map/traffic hooks.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
 - As of 2026-05-26, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`.
 - `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
@@ -79,6 +80,7 @@ powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps
 powershell -ExecutionPolicy Bypass -File Tools/GenerateAudioResourceAssignmentChecklist.ps1
 powershell -ExecutionPolicy Bypass -File Tools/GenerateFormIdentityProductionChecklist.ps1
 powershell -ExecutionPolicy Bypass -File Tools/GenerateDestructionReadabilityChecklist.ps1
+powershell -ExecutionPolicy Bypass -File Tools/GenerateStreetPropVarietyChecklist.ps1
 ```
 
 Required next artifacts:
@@ -87,6 +89,7 @@ Required next artifacts:
 - optional audio assignment pass in `Logs/AlienCrusherAudioResourceAssignmentChecklist.md`
 - optional form identity production pass in `Logs/AlienCrusherFormIdentityProductionChecklist.md`
 - optional destruction readability pass in `Logs/AlienCrusherDestructionReadabilityChecklist.md`
+- optional street prop variety pass in `Logs/AlienCrusherStreetPropVarietyChecklist.md`
 - populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md` or linked screenshots/videos
 
 First `F10` sweep minimum markers:

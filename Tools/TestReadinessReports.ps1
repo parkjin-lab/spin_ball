@@ -34,6 +34,7 @@ $summaryScriptPath = Join-Path $PSScriptRoot "GeneratePlaytestTelemetrySummary.p
 $audioChecklistScriptPath = Join-Path $PSScriptRoot "GenerateAudioResourceAssignmentChecklist.ps1"
 $formChecklistScriptPath = Join-Path $PSScriptRoot "GenerateFormIdentityProductionChecklist.ps1"
 $destructionChecklistScriptPath = Join-Path $PSScriptRoot "GenerateDestructionReadabilityChecklist.ps1"
+$streetPropChecklistScriptPath = Join-Path $PSScriptRoot "GenerateStreetPropVarietyChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -70,12 +71,17 @@ if (-not (Test-Path -Path $destructionChecklistScriptPath -PathType Leaf)) {
     $errors.Add("Destruction readability checklist generator not found: $destructionChecklistScriptPath")
 }
 
+if (-not (Test-Path -Path $streetPropChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("Street prop variety checklist generator not found: $streetPropChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
 $tempAudioChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherAudioResourceAssignmentChecklistReadiness-{0}.md" -f $tempId)
 $tempFormChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherFormIdentityProductionChecklistReadiness-{0}.md" -f $tempId)
 $tempDestructionChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherDestructionReadabilityChecklistReadiness-{0}.md" -f $tempId)
+$tempStreetPropChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStreetPropVarietyChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -187,9 +193,30 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle 'MAT_Exposed_Core' -Label "Destruction checklist"
         Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle 'SFX_Break_LargeCollapse' -Label "Destruction checklist"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $streetPropChecklistScriptPath `
+        -ReportPath $tempStreetPropChecklistPath |
+        Out-Null
+
+    $streetPropChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($streetPropChecklistExitCode -ne 0) {
+        $errors.Add("Street prop variety checklist generator exited with code $streetPropChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempStreetPropChecklistPath -PathType Leaf)) {
+        $errors.Add("Street prop variety checklist generator did not create expected report: $tempStreetPropChecklistPath")
+    }
+    else {
+        $streetPropChecklistText = Get-Content -Path $tempStreetPropChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "## Production Pass Order" -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "## Current Street Prop Variety Targets" -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle 'PROP_Car_Compact_A' -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle 'PROP_Kiosk' -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle 'PROP_Transformer' -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle 'PROP_ExplosiveBarrel' -Label "Street prop checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -202,6 +229,7 @@ $lines.Add("Summary script: $summaryScriptPath")
 $lines.Add("Audio checklist script: $audioChecklistScriptPath")
 $lines.Add("Form checklist script: $formChecklistScriptPath")
 $lines.Add("Destruction checklist script: $destructionChecklistScriptPath")
+$lines.Add("Street prop checklist script: $streetPropChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {
