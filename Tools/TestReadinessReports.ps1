@@ -33,6 +33,7 @@ $checklistScriptPath = Join-Path $PSScriptRoot "GenerateStagePlaytestChecklist.p
 $summaryScriptPath = Join-Path $PSScriptRoot "GeneratePlaytestTelemetrySummary.ps1"
 $audioChecklistScriptPath = Join-Path $PSScriptRoot "GenerateAudioResourceAssignmentChecklist.ps1"
 $formChecklistScriptPath = Join-Path $PSScriptRoot "GenerateFormIdentityProductionChecklist.ps1"
+$destructionChecklistScriptPath = Join-Path $PSScriptRoot "GenerateDestructionReadabilityChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -65,11 +66,16 @@ if (-not (Test-Path -Path $formChecklistScriptPath -PathType Leaf)) {
     $errors.Add("Form identity checklist generator not found: $formChecklistScriptPath")
 }
 
+if (-not (Test-Path -Path $destructionChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("Destruction readability checklist generator not found: $destructionChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
 $tempAudioChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherAudioResourceAssignmentChecklistReadiness-{0}.md" -f $tempId)
 $tempFormChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherFormIdentityProductionChecklistReadiness-{0}.md" -f $tempId)
+$tempDestructionChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherDestructionReadabilityChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -160,9 +166,30 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Saucer' -Label "Form checklist"
         Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Crusher' -Label "Form checklist"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $destructionChecklistScriptPath `
+        -ReportPath $tempDestructionChecklistPath |
+        Out-Null
+
+    $destructionChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($destructionChecklistExitCode -ne 0) {
+        $errors.Add("Destruction readability checklist generator exited with code $destructionChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempDestructionChecklistPath -PathType Leaf)) {
+        $errors.Add("Destruction readability checklist generator did not create expected report: $tempDestructionChecklistPath")
+    }
+    else {
+        $destructionChecklistText = Get-Content -Path $tempDestructionChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "## Production Pass Order" -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "## Current Destruction Readability Targets" -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle 'MAT_WeakPoint_Glow' -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle 'MAT_Shielded_Pylon' -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle 'MAT_Exposed_Core' -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle 'SFX_Break_LargeCollapse' -Label "Destruction checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -174,6 +201,7 @@ $lines.Add("Checklist script: $checklistScriptPath")
 $lines.Add("Summary script: $summaryScriptPath")
 $lines.Add("Audio checklist script: $audioChecklistScriptPath")
 $lines.Add("Form checklist script: $formChecklistScriptPath")
+$lines.Add("Destruction checklist script: $destructionChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {
