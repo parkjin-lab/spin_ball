@@ -35,6 +35,7 @@ $audioChecklistScriptPath = Join-Path $PSScriptRoot "GenerateAudioResourceAssign
 $formChecklistScriptPath = Join-Path $PSScriptRoot "GenerateFormIdentityProductionChecklist.ps1"
 $destructionChecklistScriptPath = Join-Path $PSScriptRoot "GenerateDestructionReadabilityChecklist.ps1"
 $streetPropChecklistScriptPath = Join-Path $PSScriptRoot "GenerateStreetPropVarietyChecklist.ps1"
+$uiIconChecklistScriptPath = Join-Path $PSScriptRoot "GenerateUiIconStatusChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -75,6 +76,10 @@ if (-not (Test-Path -Path $streetPropChecklistScriptPath -PathType Leaf)) {
     $errors.Add("Street prop variety checklist generator not found: $streetPropChecklistScriptPath")
 }
 
+if (-not (Test-Path -Path $uiIconChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("UI icon/status checklist generator not found: $uiIconChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
@@ -82,6 +87,7 @@ $tempAudioChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCru
 $tempFormChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherFormIdentityProductionChecklistReadiness-{0}.md" -f $tempId)
 $tempDestructionChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherDestructionReadabilityChecklistReadiness-{0}.md" -f $tempId)
 $tempStreetPropChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStreetPropVarietyChecklistReadiness-{0}.md" -f $tempId)
+$tempUiIconChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherUiIconStatusChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -214,9 +220,31 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle 'PROP_Transformer' -Label "Street prop checklist"
         Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle 'PROP_ExplosiveBarrel' -Label "Street prop checklist"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $uiIconChecklistScriptPath `
+        -ReportPath $tempUiIconChecklistPath |
+        Out-Null
+
+    $uiIconChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($uiIconChecklistExitCode -ne 0) {
+        $errors.Add("UI icon/status checklist generator exited with code $uiIconChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempUiIconChecklistPath -PathType Leaf)) {
+        $errors.Add("UI icon/status checklist generator did not create expected report: $tempUiIconChecklistPath")
+    }
+    else {
+        $uiIconChecklistText = Get-Content -Path $tempUiIconChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "## Production Pass Order" -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "## Current UI Icon And Status Targets" -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Icon_DP' -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Icon_Route' -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Icon_Shield' -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Icon_Boss' -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Badge_Recommended' -Label "UI icon checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -230,6 +258,7 @@ $lines.Add("Audio checklist script: $audioChecklistScriptPath")
 $lines.Add("Form checklist script: $formChecklistScriptPath")
 $lines.Add("Destruction checklist script: $destructionChecklistScriptPath")
 $lines.Add("Street prop checklist script: $streetPropChecklistScriptPath")
+$lines.Add("UI icon checklist script: $uiIconChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {
