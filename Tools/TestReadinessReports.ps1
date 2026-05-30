@@ -39,6 +39,7 @@ $uiIconChecklistScriptPath = Join-Path $PSScriptRoot "GenerateUiIconStatusCheckl
 $bossIdentityChecklistScriptPath = Join-Path $PSScriptRoot "GenerateBossIdentityProductionChecklist.ps1"
 $districtPaletteChecklistScriptPath = Join-Path $PSScriptRoot "GenerateDistrictPaletteProductionChecklist.ps1"
 $outgameProgressionChecklistScriptPath = Join-Path $PSScriptRoot "GenerateOutgameProgressionChecklist.ps1"
+$routePayoffChecklistScriptPath = Join-Path $PSScriptRoot "GenerateRoutePayoffLayoutChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -95,6 +96,10 @@ if (-not (Test-Path -Path $outgameProgressionChecklistScriptPath -PathType Leaf)
     $errors.Add("Outgame progression checklist generator not found: $outgameProgressionChecklistScriptPath")
 }
 
+if (-not (Test-Path -Path $routePayoffChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("Route payoff layout checklist generator not found: $routePayoffChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
@@ -106,6 +111,7 @@ $tempUiIconChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCr
 $tempBossIdentityChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherBossIdentityProductionChecklistReadiness-{0}.md" -f $tempId)
 $tempDistrictPaletteChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherDistrictPaletteProductionChecklistReadiness-{0}.md" -f $tempId)
 $tempOutgameProgressionChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherOutgameProgressionChecklistReadiness-{0}.md" -f $tempId)
+$tempRoutePayoffChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherRoutePayoffLayoutChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -326,9 +332,31 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'UI_DP_GainBurst' -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'Banner_StageUnlocked' -Label "Outgame progression checklist"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $routePayoffChecklistScriptPath `
+        -ReportPath $tempRoutePayoffChecklistPath |
+        Out-Null
+
+    $routePayoffChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($routePayoffChecklistExitCode -ne 0) {
+        $errors.Add("Route payoff layout checklist generator exited with code $routePayoffChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempRoutePayoffChecklistPath -PathType Leaf)) {
+        $errors.Add("Route payoff layout checklist generator did not create expected report: $tempRoutePayoffChecklistPath")
+    }
+    else {
+        $routePayoffChecklistText = Get-Content -Path $tempRoutePayoffChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "## Production Pass Order" -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "## Route Payoff Rhythm Contract" -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "## Current Route Payoff Layout Targets" -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'PAYOFF_ParkCut_Layout' -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'PAYOFF_MarketChain_Layout' -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'PAYOFF_SkylineBreach_Layout' -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'VFX_ForwardSmash_Confirm' -Label "Route payoff checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempBossIdentityChecklistPath, $tempDistrictPaletteChecklistPath, $tempOutgameProgressionChecklistPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempBossIdentityChecklistPath, $tempDistrictPaletteChecklistPath, $tempOutgameProgressionChecklistPath, $tempRoutePayoffChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -346,6 +374,7 @@ $lines.Add("UI icon checklist script: $uiIconChecklistScriptPath")
 $lines.Add("Boss identity checklist script: $bossIdentityChecklistScriptPath")
 $lines.Add("District palette checklist script: $districtPaletteChecklistScriptPath")
 $lines.Add("Outgame progression checklist script: $outgameProgressionChecklistScriptPath")
+$lines.Add("Route payoff checklist script: $routePayoffChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {

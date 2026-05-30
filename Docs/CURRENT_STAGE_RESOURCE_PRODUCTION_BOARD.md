@@ -211,6 +211,26 @@ Done when:
 - recommended form/meta spend targets read visually before reading detailed text
 - insufficient DP and locked states are unmistakable on mobile
 
+### B0.5 Route Payoff Layout Pass
+Priority: `P0`
+
+Deliverables:
+- park cut payoff layout
+- market chain payoff layout
+- construction yard blast payoff layout
+- power surge payoff layout
+- skyline breach payoff layout
+- route cluster marker VFX
+- Forward Smash confirmation VFX/SFX
+
+Generated checklist:
+- `powershell -ExecutionPolicy Bypass -File Tools/GenerateRoutePayoffLayoutChecklist.ps1`
+
+Done when:
+- ROUTE BONUS visibly opens a district-specific reward cluster
+- Forward Smash payoff feels earned by route reading, not like a random extra explosion
+- Stage 5/6/7 payoff layouts differ by spacing and chase direction, not only by prop names
+
 ### B1. Boss Identity Pass
 Priority: `P0`
 

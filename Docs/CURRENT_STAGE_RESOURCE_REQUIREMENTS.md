@@ -259,6 +259,28 @@ Why this matters now:
 - stage progression is more satisfying when the world tone changes with difficulty
 - route rhythm needs different visual tones, not only different object counts
 
+### 2.4 Route Payoff Layout Set
+Need:
+- district-specific reward cluster layouts for ROUTE BONUS and Forward Smash
+- payoff spacing rules that make each district feel like a different route problem
+- a route cluster marker that frames the opened cluster without hiding target guidance
+
+Required assets:
+- park cut payoff layout
+- market chain payoff layout
+- construction yard blast payoff layout
+- power surge payoff layout
+- skyline breach payoff layout
+- route cluster marker VFX
+- Forward Smash confirmation VFX/SFX
+
+Generated production checklist:
+- `powershell -ExecutionPolicy Bypass -File Tools/GenerateRoutePayoffLayoutChecklist.ps1`
+
+Why this matters now:
+- ROUTE HOLD needs a visible reward, not only a counter or score bonus
+- the payoff beat is where rhythm turns route reading into destructive pleasure
+
 ---
 
 ## 3. Resources Needed For Outgame Motivation

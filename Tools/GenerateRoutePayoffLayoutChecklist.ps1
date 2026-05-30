@@ -1,0 +1,194 @@
+[CmdletBinding()]
+param(
+    [string]$ReportPath = "",
+    [string]$ProgressionCorePath = "",
+    [string]$RuntimeMapPath = "",
+    [string]$UiFlowPath = "",
+    [string]$StageChecklistPath = ""
+)
+
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
+
+function Resolve-ProjectRoot {
+    return Split-Path -Parent $PSScriptRoot
+}
+
+function Resolve-ProjectPath {
+    param([string]$ProjectRoot, [string]$OverridePath, [string]$RelativePath)
+
+    if (-not [string]::IsNullOrWhiteSpace($OverridePath)) {
+        if ([System.IO.Path]::IsPathRooted($OverridePath)) {
+            return $OverridePath
+        }
+
+        return Join-Path $ProjectRoot $OverridePath
+    }
+
+    return Join-Path $ProjectRoot $RelativePath
+}
+
+function Read-SourceText {
+    param([string]$Path)
+
+    if (-not (Test-Path -Path $Path -PathType Leaf)) {
+        throw "Required source not found: $Path"
+    }
+
+    return Get-Content -Path $Path -Raw
+}
+
+function Add-MissingMarker {
+    param(
+        [System.Collections.Generic.List[string]]$Missing,
+        [string]$Source,
+        [string]$Needle
+    )
+
+    if (-not $Source.Contains($Needle)) {
+        $Missing.Add($Needle)
+    }
+}
+
+$projectRoot = Resolve-ProjectRoot
+$progressionCoreSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ProgressionCorePath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.ProgressionCore.cs"
+$runtimeMapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RuntimeMapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RuntimeMapFallback.cs"
+$uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UiFlowPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UIFlow.cs"
+$stageChecklistSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageChecklistPath -RelativePath "Tools\GenerateStagePlaytestChecklist.ps1"
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherRoutePayoffLayoutChecklist.md"
+}
+elseif (-not [System.IO.Path]::IsPathRooted($ReportPath)) {
+    $ReportPath = Join-Path $projectRoot $ReportPath
+}
+
+$reportDirectory = Split-Path -Parent $ReportPath
+if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
+    New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
+}
+
+$progressionCoreText = Read-SourceText -Path $progressionCoreSourcePath
+$runtimeMapText = Read-SourceText -Path $runtimeMapSourcePath
+$uiFlowText = Read-SourceText -Path $uiFlowSourcePath
+$stageChecklistText = Read-SourceText -Path $stageChecklistSourcePath
+
+$missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
+foreach ($needle in @(
+    "EvaluateStageAdvanceRouteReward",
+    "ROUTE BONUS ->",
+    "GetRouteDistrictPayoffLabel",
+    "GetRouteDistrictPayoffColor",
+    "SpawnStageAdvanceRewardProps",
+    "PreviewStageAdvanceFollowupTarget",
+    "SpawnForwardSmashRewardCluster",
+    "SpawnSkylineRouteClusterAnchor",
+    "EvaluateForwardSmashBonus",
+    "FORWARD SMASH +",
+    "RouteClusterMarker",
+    "routeRewardClusterRadius",
+    "routeRewardClusterPropCount"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $progressionCoreText -Needle $needle
+}
+
+foreach ($needle in @(
+    "EnsureCommercialBenchRuntime",
+    "EnsureStreetTreeRuntime",
+    "EnsureCommercialKioskRuntime",
+    "EnsureCommercialVendingRuntime",
+    "EnsureExplosiveBarrelRuntime",
+    "EnsureTransformerRuntime",
+    "Stage02_PocketPark",
+    "Stage03_MarketPlaza",
+    "Stage05_ConstructionYard",
+    "Stage06_PowerBlock",
+    "Stage07_SkylineBlock"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $runtimeMapText -Needle $needle
+}
+
+foreach ($needle in @(
+    "Smash opened cluster",
+    "FORWARD TARGET",
+    "SMASH"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $uiFlowText -Needle $needle
+}
+
+foreach ($needle in @(
+    "Resolve-RoutePayoff",
+    "Route reward opens about",
+    "Route payoff identity matches the expected district"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $stageChecklistText -Needle $needle
+}
+
+$layoutCatalog = @(
+    [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 1"; Payoff = "Starter Cluster"; RuntimeLabel = "CLUSTER OPEN"; LayoutRule = "small clear cluster close to route target"; Asset = "PAYOFF_StarterCluster_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
+    [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 2"; Payoff = "Park Cut"; RuntimeLabel = "PARK CUT OPEN"; LayoutRule = "bench/tree/barrel recovery cut with low clutter"; Asset = "PAYOFF_ParkCut_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
+    [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 3-4"; Payoff = "Market Chain"; RuntimeLabel = "MARKET CHAIN OPEN"; LayoutRule = "tight kiosk/vending/barrel chainable cluster"; Asset = "PAYOFF_MarketChain_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
+    [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 5"; Payoff = "Yard Blast"; RuntimeLabel = "YARD BLAST OPEN"; LayoutRule = "wider barrel-heavy blast spacing plus one utility target"; Asset = "PAYOFF_YardBlast_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
+    [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 6"; Payoff = "Power Surge"; RuntimeLabel = "POWER SURGE OPEN"; LayoutRule = "transformer corridor with one barrel punctuation"; Asset = "PAYOFF_PowerSurge_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
+    [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 7"; Payoff = "Skyline Breach"; RuntimeLabel = "SKYLINE BREACH OPEN"; LayoutRule = "asymmetric anchor-first tower plus transformer/barrel ring"; Asset = "PAYOFF_SkylineBreach_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Route Cluster Marker"; RuntimeLabel = "RouteClusterMarker"; LayoutRule = "floor read that frames the opened cluster without hiding props"; Asset = "VFX_RouteCluster_Marker"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Smash Confirmation"; RuntimeLabel = "FORWARD SMASH"; LayoutRule = "impact ring and camera beat stronger than route open, weaker than boss down"; Asset = "VFX_ForwardSmash_Confirm"; Folder = "Assets/Art/VFX/Route/" }
+)
+
+$rhythmRows = @(
+    [pscustomobject]@{ Beat = "Open"; RuntimeSignal = "LANE BREAK -> ROUTE OPEN"; ProductionRule = "show the next target before reward props appear" },
+    [pscustomobject]@{ Beat = "Hold"; RuntimeSignal = "ROUTE HOLD meter and beacon"; ProductionRule = "cluster should not steal attention until the hold succeeds" },
+    [pscustomobject]@{ Beat = "Reveal"; RuntimeSignal = "ROUTE BONUS -> district label"; ProductionRule = "spawn/mark the district payoff cluster as a visible reward" },
+    [pscustomobject]@{ Beat = "Chase"; RuntimeSignal = "SMASH / FORWARD TARGET"; ProductionRule = "make the opened cluster pull the player forward, not sideways into noise" },
+    [pscustomobject]@{ Beat = "Cash Out"; RuntimeSignal = "FORWARD SMASH + score"; ProductionRule = "confirmation must feel bigger than normal destruction but shorter than stage clear" }
+)
+
+$lines = [System.Collections.Generic.List[string]]::new()
+$lines.Add("# Alien Crusher Route Payoff Layout Checklist")
+$lines.Add("")
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`' -f $progressionCoreSourcePath, $runtimeMapSourcePath, $uiFlowSourcePath, $stageChecklistSourcePath))
+$lines.Add("")
+$lines.Add("Purpose: turn ROUTE BONUS, district payoff props, cluster markers, and Forward Smash into concrete layout/readability production targets.")
+$lines.Add("")
+$lines.Add("## Validation")
+$lines.Add("- Runtime markers missing: $(if ($missingRuntimeMarkers.Count -eq 0) { 'none' } else { [string]::Join(', ', $missingRuntimeMarkers) })")
+$lines.Add("- Checklist rows: $($layoutCatalog.Count)")
+$lines.Add("")
+$lines.Add("## Production Pass Order")
+$lines.Add("1. Preserve target and beacon readability first; route payoff props should appear after ROUTE HOLD succeeds.")
+$lines.Add("2. Produce Stage 2, Stage 3-4, Stage 5, Stage 6, and Stage 7 payoff layout prefabs or layout rules from the current runtime prop mix.")
+$lines.Add("3. Add a subtle route cluster floor marker so the opened cluster reads as intentional.")
+$lines.Add("4. Add Forward Smash confirmation VFX/SFX after the cluster is visually readable.")
+$lines.Add("5. Verify Stage 1 / 4 / 7 screenshots before changing `routeRewardClusterRadius` or `routeRewardClusterPropCount`.")
+$lines.Add("")
+$lines.Add("## Route Payoff Rhythm Contract")
+$lines.Add("| Beat | Runtime signal | Production rule | Done? |")
+$lines.Add("|---|---|---|---|")
+foreach ($row in $rhythmRows) {
+    $lines.Add(("| {0} | {1} | {2} | [ ] |" -f $row.Beat, $row.RuntimeSignal, $row.ProductionRule))
+}
+
+$lines.Add("")
+$lines.Add("## Current Route Payoff Layout Targets")
+$lines.Add("| Priority | Stage band | Payoff | Runtime label | Layout rule | Asset | Folder | Done? |")
+$lines.Add("|---|---|---|---|---|---|---|---|")
+foreach ($layout in $layoutCatalog) {
+    $lines.Add(("| {0} | {1} | {2} | `{3}` | {4} | `{5}` | `{6}` | [ ] |" -f $layout.Priority, $layout.StageBand, $layout.Payoff, $layout.RuntimeLabel, $layout.LayoutRule, $layout.Asset, $layout.Folder))
+}
+
+$lines.Add("")
+$lines.Add("## Review Notes")
+$lines.Add("- ROUTE BONUS must read as the city opening up, not just a floating score number.")
+$lines.Add("- Market, construction, power, and skyline payoff layouts should differ by spacing, not only by prop type.")
+$lines.Add("- Do not increase cluster radius/count until playtest evidence says the current cluster is invisible or cramped.")
+$lines.Add("- Route cluster VFX must not hide Target_A/Target_B, HOLD trail pips, or the next Forward Smash target.")
+
+$report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine
+Set-Content -Path $ReportPath -Value $report -Encoding UTF8
+Write-Output "Route payoff layout checklist written: $ReportPath"
+
+if ($missingRuntimeMarkers.Count -gt 0) {
+    exit 1
+}
+
+exit 0
