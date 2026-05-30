@@ -278,9 +278,13 @@ Required assets:
 - stage unlocked banner element
 - progression toast badge element
 
+Generated production checklist:
+- `powershell -ExecutionPolicy Bypass -File Tools/GenerateOutgameProgressionChecklist.ps1`
+
 Why this matters now:
 - the outgame flow is present in code
 - visual motivation is still lighter than the actual system depth
+- every clear should create a readable next-run reason, not only add DP silently
 
 ### 3.2 Save / Progression Confirmation Resources
 Need:
@@ -292,6 +296,7 @@ Required assets:
 - DP gain burst
 - new form target marker
 - meta upgrade purchased pulse
+- save/progression confirmation toast
 
 ---
 

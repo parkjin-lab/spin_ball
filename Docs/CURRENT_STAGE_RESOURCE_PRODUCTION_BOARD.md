@@ -191,6 +191,26 @@ Done when:
 ## 3. Secondary Queue
 These should start after the immediate queue is stable.
 
+### B0. Outgame Progression UX Pass
+Priority: `P0`
+
+Deliverables:
+- form card state set
+- meta node state set for Size Core / Impact Core / DP Amplifier
+- DP gain / spend / insufficient feedback
+- form ready and meta ready badges
+- stage unlocked banner
+- lightweight progression saved toast
+- confirm / locked audio cues
+
+Generated checklist:
+- `powershell -ExecutionPolicy Bypass -File Tools/GenerateOutgameProgressionChecklist.ps1`
+
+Done when:
+- result and lobby answer what was earned, what can be bought, and why the next run is different
+- recommended form/meta spend targets read visually before reading detailed text
+- insufficient DP and locked states are unmistakable on mobile
+
 ### B1. Boss Identity Pass
 Priority: `P0`
 

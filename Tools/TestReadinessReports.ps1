@@ -38,6 +38,7 @@ $streetPropChecklistScriptPath = Join-Path $PSScriptRoot "GenerateStreetPropVari
 $uiIconChecklistScriptPath = Join-Path $PSScriptRoot "GenerateUiIconStatusChecklist.ps1"
 $bossIdentityChecklistScriptPath = Join-Path $PSScriptRoot "GenerateBossIdentityProductionChecklist.ps1"
 $districtPaletteChecklistScriptPath = Join-Path $PSScriptRoot "GenerateDistrictPaletteProductionChecklist.ps1"
+$outgameProgressionChecklistScriptPath = Join-Path $PSScriptRoot "GenerateOutgameProgressionChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -90,6 +91,10 @@ if (-not (Test-Path -Path $districtPaletteChecklistScriptPath -PathType Leaf)) {
     $errors.Add("District palette checklist generator not found: $districtPaletteChecklistScriptPath")
 }
 
+if (-not (Test-Path -Path $outgameProgressionChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("Outgame progression checklist generator not found: $outgameProgressionChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
@@ -100,6 +105,7 @@ $tempStreetPropChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("Ali
 $tempUiIconChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherUiIconStatusChecklistReadiness-{0}.md" -f $tempId)
 $tempBossIdentityChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherBossIdentityProductionChecklistReadiness-{0}.md" -f $tempId)
 $tempDistrictPaletteChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherDistrictPaletteProductionChecklistReadiness-{0}.md" -f $tempId)
+$tempOutgameProgressionChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherOutgameProgressionChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -298,9 +304,31 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle 'PAL_District_SkylineBlock' -Label "District palette checklist"
         Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle 'PAL_RouteMarker_Tints' -Label "District palette checklist"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $outgameProgressionChecklistScriptPath `
+        -ReportPath $tempOutgameProgressionChecklistPath |
+        Out-Null
+
+    $outgameProgressionChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($outgameProgressionChecklistExitCode -ne 0) {
+        $errors.Add("Outgame progression checklist generator exited with code $outgameProgressionChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempOutgameProgressionChecklistPath -PathType Leaf)) {
+        $errors.Add("Outgame progression checklist generator did not create expected report: $tempOutgameProgressionChecklistPath")
+    }
+    else {
+        $outgameProgressionChecklistText = Get-Content -Path $tempOutgameProgressionChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "## Production Pass Order" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "## Outgame Loop Contract" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "## Current Outgame Progression Targets" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'UI_FormCard_StateSet' -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'UI_MetaNode_SizeCore' -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'UI_DP_GainBurst' -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'Banner_StageUnlocked' -Label "Outgame progression checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempBossIdentityChecklistPath, $tempDistrictPaletteChecklistPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempBossIdentityChecklistPath, $tempDistrictPaletteChecklistPath, $tempOutgameProgressionChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -317,6 +345,7 @@ $lines.Add("Street prop checklist script: $streetPropChecklistScriptPath")
 $lines.Add("UI icon checklist script: $uiIconChecklistScriptPath")
 $lines.Add("Boss identity checklist script: $bossIdentityChecklistScriptPath")
 $lines.Add("District palette checklist script: $districtPaletteChecklistScriptPath")
+$lines.Add("Outgame progression checklist script: $outgameProgressionChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {
