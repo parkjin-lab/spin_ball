@@ -36,6 +36,7 @@ $formChecklistScriptPath = Join-Path $PSScriptRoot "GenerateFormIdentityProducti
 $destructionChecklistScriptPath = Join-Path $PSScriptRoot "GenerateDestructionReadabilityChecklist.ps1"
 $streetPropChecklistScriptPath = Join-Path $PSScriptRoot "GenerateStreetPropVarietyChecklist.ps1"
 $uiIconChecklistScriptPath = Join-Path $PSScriptRoot "GenerateUiIconStatusChecklist.ps1"
+$bossIdentityChecklistScriptPath = Join-Path $PSScriptRoot "GenerateBossIdentityProductionChecklist.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log"
@@ -80,6 +81,10 @@ if (-not (Test-Path -Path $uiIconChecklistScriptPath -PathType Leaf)) {
     $errors.Add("UI icon/status checklist generator not found: $uiIconChecklistScriptPath")
 }
 
+if (-not (Test-Path -Path $bossIdentityChecklistScriptPath -PathType Leaf)) {
+    $errors.Add("Boss identity checklist generator not found: $bossIdentityChecklistScriptPath")
+}
+
 $tempId = [guid]::NewGuid().ToString("N")
 $tempChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStagePlaytestChecklistReadiness-{0}.md" -f $tempId)
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestTelemetrySummaryReadiness-{0}.md" -f $tempId)
@@ -88,6 +93,7 @@ $tempFormChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrus
 $tempDestructionChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherDestructionReadabilityChecklistReadiness-{0}.md" -f $tempId)
 $tempStreetPropChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherStreetPropVarietyChecklistReadiness-{0}.md" -f $tempId)
 $tempUiIconChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherUiIconStatusChecklistReadiness-{0}.md" -f $tempId)
+$tempBossIdentityChecklistPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherBossIdentityProductionChecklistReadiness-{0}.md" -f $tempId)
 $tempMissingTelemetryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherMissingTelemetry-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
@@ -242,9 +248,31 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Icon_Boss' -Label "UI icon checklist"
         Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Badge_Recommended' -Label "UI icon checklist"
     }
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $bossIdentityChecklistScriptPath `
+        -ReportPath $tempBossIdentityChecklistPath |
+        Out-Null
+
+    $bossIdentityChecklistExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($bossIdentityChecklistExitCode -ne 0) {
+        $errors.Add("Boss identity checklist generator exited with code $bossIdentityChecklistExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempBossIdentityChecklistPath -PathType Leaf)) {
+        $errors.Add("Boss identity checklist generator did not create expected report: $tempBossIdentityChecklistPath")
+    }
+    else {
+        $bossIdentityChecklistText = Get-Content -Path $tempBossIdentityChecklistPath -Raw
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "## Production Pass Order" -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "## Boss Rhythm Contract" -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "## Current Boss Identity Targets" -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'BOSS_Sentinel_Body_Kit' -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'BOSS_Shield_Pylon_Kit' -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'BOSS_Phase2_Drone_Kit' -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'SFX_Boss_Down' -Label "Boss identity checklist"
+    }
 }
 
-foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempMissingTelemetryPath)) {
+foreach ($tempFilePath in @($tempChecklistPath, $tempSummaryPath, $tempAudioChecklistPath, $tempFormChecklistPath, $tempDestructionChecklistPath, $tempStreetPropChecklistPath, $tempUiIconChecklistPath, $tempBossIdentityChecklistPath, $tempMissingTelemetryPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
@@ -259,6 +287,7 @@ $lines.Add("Form checklist script: $formChecklistScriptPath")
 $lines.Add("Destruction checklist script: $destructionChecklistScriptPath")
 $lines.Add("Street prop checklist script: $streetPropChecklistScriptPath")
 $lines.Add("UI icon checklist script: $uiIconChecklistScriptPath")
+$lines.Add("Boss identity checklist script: $bossIdentityChecklistScriptPath")
 $lines.Add("PowerShell: $powerShellExecutable")
 
 foreach ($errorMessage in $errors) {

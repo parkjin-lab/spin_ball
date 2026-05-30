@@ -220,10 +220,15 @@ Required assets:
 - sentinel body silhouette kit
 - shield pylon silhouette kit
 - phase 2 drone silhouette kit
+- boss armor / shield pylon / exposed-core material set
 - core exposed material / emissive state
 - boss-only ring / warning particle set
+- boss core expose burst and defeat cascade VFX
 - boss-only audio set
 - boss-only HUD icon or badge
+
+Generated production checklist:
+- `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
 
 Why this matters now:
 - the boss is a major progression promise
