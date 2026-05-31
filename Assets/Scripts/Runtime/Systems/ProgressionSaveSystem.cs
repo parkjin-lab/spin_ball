@@ -128,8 +128,8 @@ namespace AlienCrusher.Systems
             }
 
             data.stage.highestStageReached = Mathf.Max(1, data.stage.highestStageReached);
-            data.stage.currentLobbyStage = Mathf.Max(1, data.stage.currentLobbyStage);
-            data.stage.highestStageCleared = Mathf.Clamp(data.stage.highestStageCleared, 0, Mathf.Max(data.stage.highestStageReached, 1));
+            data.stage.highestStageCleared = Mathf.Clamp(data.stage.highestStageCleared, 0, Mathf.Max(0, data.stage.highestStageReached - 1));
+            data.stage.currentLobbyStage = Mathf.Clamp(data.stage.currentLobbyStage, 1, data.stage.highestStageReached);
         }
     }
 }

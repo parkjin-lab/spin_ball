@@ -71,7 +71,8 @@ if ($errors.Count -eq 0) {
         'catch (System.Exception exception) when',
         'Sanitize(Current)',
         'data.stage.highestStageReached = Mathf.Max(1, data.stage.highestStageReached)',
-        'data.stage.highestStageCleared = Mathf.Clamp'
+        'data.stage.highestStageCleared = Mathf.Clamp(data.stage.highestStageCleared, 0, Mathf.Max(0, data.stage.highestStageReached - 1))',
+        'data.stage.currentLobbyStage = Mathf.Clamp(data.stage.currentLobbyStage, 1, data.stage.highestStageReached)'
     )) {
         Add-MissingTextCheck -Errors $errors -Text $saveSystemText -Needle $needle -Label "ProgressionSaveSystem"
     }
@@ -103,7 +104,7 @@ $lines.Add("[AlienCrusher][ProgressionSaveSafetyStaticAudit] Progression save sa
 $lines.Add("Save system: $saveSystemPath")
 $lines.Add("Form unlock bridge: $formUnlockPath")
 $lines.Add("Progression data: $dataPath")
-$lines.Add("Contract: primary JSON can fail, backup JSON is still attempted, defaults are sanitized, and legacy PlayerPrefs can migrate into the JSON save.")
+$lines.Add("Contract: primary JSON can fail, backup JSON is still attempted, stage bounds are sanitized, and legacy PlayerPrefs can migrate into the JSON save.")
 
 foreach ($errorMessage in $errors) {
     $lines.Add("ERROR: $errorMessage")

@@ -313,6 +313,7 @@ Need:
 - lightweight UI moments that confirm long-term progress
 - smoke-test evidence that stage unlock, DP balance, form unlocks, and meta upgrades survive save/load
 - corrupt-primary save recovery check before any release-style playtest build
+- stage-bound recovery check that rejects impossible lobby/current/cleared stage values from edited or corrupted saves
 
 Required assets:
 - stage clear banner style
