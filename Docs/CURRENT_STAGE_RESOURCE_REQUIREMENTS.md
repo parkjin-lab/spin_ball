@@ -314,6 +314,7 @@ Need:
 - smoke-test evidence that stage unlock, DP balance, form unlocks, and meta upgrades survive save/load
 - corrupt-primary save recovery check before any release-style playtest build
 - stage-bound recovery check that rejects impossible lobby/current/cleared stage values from edited or corrupted saves
+- meta-bound recovery check that rejects negative DP, invalid selected forms, duplicate/invalid unlocked forms, and negative upgrade levels
 
 Required assets:
 - stage clear banner style

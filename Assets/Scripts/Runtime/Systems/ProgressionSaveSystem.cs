@@ -7,6 +7,8 @@ namespace AlienCrusher.Systems
     {
         private const string SaveFileName = "aliencrusher_progression.json";
         private const string BackupFileName = "aliencrusher_progression.bak.json";
+        private const int DefaultFormIndex = 0;
+        private const int MaxKnownFormIndex = 4;
 
         public PlayerProgressionData Current { get; private set; }
 
@@ -127,9 +129,51 @@ namespace AlienCrusher.Systems
                 data.meta.metaUpgradeLevels = new System.Collections.Generic.List<MetaUpgradeLevelEntry>();
             }
 
+            data.meta.dpBalance = Mathf.Max(0, data.meta.dpBalance);
+            data.meta.selectedForm = Mathf.Clamp(data.meta.selectedForm, DefaultFormIndex, MaxKnownFormIndex);
+            SanitizeUnlockedForms(data.meta);
+            SanitizeMetaUpgradeLevels(data.meta);
             data.stage.highestStageReached = Mathf.Max(1, data.stage.highestStageReached);
             data.stage.highestStageCleared = Mathf.Clamp(data.stage.highestStageCleared, 0, Mathf.Max(0, data.stage.highestStageReached - 1));
             data.stage.currentLobbyStage = Mathf.Clamp(data.stage.currentLobbyStage, 1, data.stage.highestStageReached);
+        }
+
+        private static void SanitizeUnlockedForms(MetaProgressionData meta)
+        {
+            var seenForms = new System.Collections.Generic.HashSet<int>();
+            for (var i = meta.unlockedForms.Count - 1; i >= 0; i--)
+            {
+                var formIndex = meta.unlockedForms[i];
+                if (formIndex < DefaultFormIndex || formIndex > MaxKnownFormIndex || !seenForms.Add(formIndex))
+                {
+                    meta.unlockedForms.RemoveAt(i);
+                }
+            }
+
+            if (!meta.unlockedForms.Contains(DefaultFormIndex))
+            {
+                meta.unlockedForms.Add(DefaultFormIndex);
+            }
+
+            if (!meta.unlockedForms.Contains(meta.selectedForm))
+            {
+                meta.selectedForm = DefaultFormIndex;
+            }
+        }
+
+        private static void SanitizeMetaUpgradeLevels(MetaProgressionData meta)
+        {
+            for (var i = meta.metaUpgradeLevels.Count - 1; i >= 0; i--)
+            {
+                var entry = meta.metaUpgradeLevels[i];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.upgradeId))
+                {
+                    meta.metaUpgradeLevels.RemoveAt(i);
+                    continue;
+                }
+
+                entry.level = Mathf.Max(0, entry.level);
+            }
         }
     }
 }
