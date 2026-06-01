@@ -76,7 +76,8 @@ function Test-StageNoteField {
     param(
         [string]$NotesText,
         [int]$Stage,
-        [string]$Field
+        [string]$Field,
+        [int]$MinLength = 12
     )
 
     $stageLabel = "Stage {0:00}" -f $Stage
@@ -94,7 +95,7 @@ function Test-StageNoteField {
     }
 
     $value = $fieldMatch.Groups["value"].Value.Trim()
-    return -not [string]::IsNullOrWhiteSpace($value)
+    return $value.Length -ge $MinLength
 }
 
 function Test-DecisionField {
@@ -122,7 +123,8 @@ function Test-DecisionField {
 function Test-ProgressionSaveSmokeField {
     param(
         [string]$NotesText,
-        [string]$Field
+        [string]$Field,
+        [int]$MinLength = 12
     )
 
     $saveSmokeMatch = [regex]::Match($NotesText, '(?ms)^## Progression Save Smoke Pass\s*(?<body>.*?)(?=^## |\z)')
@@ -138,7 +140,7 @@ function Test-ProgressionSaveSmokeField {
     }
 
     $value = $fieldMatch.Groups["value"].Value.Trim()
-    return -not [string]::IsNullOrWhiteSpace($value)
+    return $value.Length -ge $MinLength
 }
 
 $projectRoot = Resolve-ProjectRoot
@@ -220,7 +222,7 @@ else {
     foreach ($stage in 1..$MaxStage) {
         foreach ($field in @("Readability", "Route pressure", "Map identity", "Rhythm identity")) {
             if (-not (Test-StageNoteField -NotesText $notesText -Stage $stage -Field $field)) {
-                Add-Error -Errors $errors -Message ("Stage {0:00} missing note field: {1}." -f $stage, $field)
+                Add-Error -Errors $errors -Message ("Stage {0:00} missing meaningful note field: {1}." -f $stage, $field)
             }
         }
     }
@@ -232,7 +234,7 @@ else {
     }
 
     if (-not (Test-ProgressionSaveSmokeField -NotesText $notesText -Field "Save/load result")) {
-        Add-Error -Errors $errors -Message "Progression Save Smoke Pass missing Save/load result."
+        Add-Error -Errors $errors -Message "Progression Save Smoke Pass missing meaningful Save/load result."
     }
 
     if ($RequireDecision) {

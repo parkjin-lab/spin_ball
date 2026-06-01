@@ -124,10 +124,10 @@ if ($errors.Count -eq 0) {
     for ($stage = 1; $stage -le $fixtureMaxStage; $stage++) {
         $notesLines.Add(("### Stage {0:00}" -f $stage))
         $notesLines.Add("")
-        $notesLines.Add("- Readability: fixture readability note")
-        $notesLines.Add("- Route pressure: fixture route pressure note")
-        $notesLines.Add("- Map identity: fixture map identity note")
-        $notesLines.Add("- Rhythm identity: fixture rhythm identity note")
+        $notesLines.Add("- Readability: fixture readability note has enough detail")
+        $notesLines.Add("- Route pressure: fixture route pressure note has enough detail")
+        $notesLines.Add("- Map identity: fixture map identity note has enough detail")
+        $notesLines.Add("- Rhythm identity: fixture rhythm identity note has enough detail")
         $notesLines.Add("- Screenshot/video reference: fixture capture")
         $notesLines.Add("")
     }

@@ -39,6 +39,8 @@ Use this tracked file for human observations from the first real Stage 1-7 `F10`
 
 ## Stage Notes
 
+Each note field should be a short observation, not a one-word status. Write enough detail to explain what was readable, confusing, fair, unfair, distinct, or flat.
+
 ### Stage 01
 
 - Readability:

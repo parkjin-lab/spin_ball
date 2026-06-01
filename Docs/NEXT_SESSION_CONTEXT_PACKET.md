@@ -125,7 +125,7 @@ Rule:
 - Added the route payoff layout checklist generator and covered it in the readiness report regression.
 - Hardened progression save loading so a corrupt primary JSON can still fall back to the backup JSON, clamped corrupted meta/stage progression bounds during save sanitization, deduped meta-upgrade entries, persisted repaired saves after load, then added a Unity-free save safety audit to the static audit chain.
 - Added the progression save smoke pass to the generated Stage 1-7 checklist and readiness report regression so the first hands-on pass verifies save persistence before rhythm tuning.
-- Wired the progression save smoke result into `Tools/TestPlaytestEvidenceGate.ps1` and its regression fixture, so Evidence Green fails when save/load persistence notes are missing.
+- Wired the progression save smoke result into `Tools/TestPlaytestEvidenceGate.ps1` and its regression fixture, so Evidence Green fails when save/load persistence notes are missing or too shallow.
 - Refreshed this handoff to the 2026-06-02 validation state after the save-smoke Evidence Gate pass.
 
 ## Changed Files

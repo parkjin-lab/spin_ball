@@ -53,7 +53,7 @@ Required evidence:
 - `SWEEP_START` and `SWEEP_END` exist.
 - Stage 01-07 each have `STAGE_START` and `STAGE_END`.
 - Stage 01, Stage 04, and Stage 07 have screenshot/video references or concrete written observations.
-- `Docs/AlienCrusherStagePlaytestNotes.md` contains notes for readability, route pressure, map identity, and rhythm identity.
+- `Docs/AlienCrusherStagePlaytestNotes.md` contains meaningful notes for readability, route pressure, map identity, and rhythm identity.
 - `Docs/AlienCrusherStagePlaytestNotes.md` contains a completed Progression Save Smoke Pass `Save/load result`.
 - `Logs/AlienCrusherPlaytestTelemetrySummary.md` route-adherence lines are reviewed for closest target distance, average distance, farthest distance, in-range percentage, and elapsed route time.
 - `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`.
