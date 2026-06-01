@@ -18,10 +18,11 @@
 8. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateDistrictPaletteProductionChecklist.ps1`
 9. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateOutgameProgressionChecklist.ps1`
 10. Run `powershell -ExecutionPolicy Bypass -File Tools/GenerateRoutePayoffLayoutChecklist.ps1`
-11. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
-12. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
-13. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
-14. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
+11. Run the progression save smoke pass from the generated stage checklist.
+12. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
+13. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then compare the rhythm snapshot against the checklist notes
+14. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
+15. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
 
 Done only when:
 - `Logs/AlienCrusherPlaytestTelemetry.log` exists
@@ -29,6 +30,7 @@ Done only when:
 - Stage 1 / 4 / 7 notes or screenshot/video references exist in `Docs/AlienCrusherStagePlaytestNotes.md`
 - the chosen tuning pass satisfies the evidence/tuning-lock policy in `Docs/GAME_DESIGN_GAP_POLICY.md`
 - `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`
+- DP, selected form, stage unlock, and meta upgrade state survive exit/re-enter play mode
 
 ## After First Sweep, Tune In This Order
 1. opening / first pivot readability
@@ -122,6 +124,7 @@ Rule:
 - Added the outgame progression checklist generator and covered it in the readiness report regression.
 - Added the route payoff layout checklist generator and covered it in the readiness report regression.
 - Hardened progression save loading so a corrupt primary JSON can still fall back to the backup JSON, clamped corrupted meta/stage progression bounds during save sanitization, deduped meta-upgrade entries, persisted repaired saves after load, then added a Unity-free save safety audit to the static audit chain.
+- Added the progression save smoke pass to the generated Stage 1-7 checklist and readiness report regression so the first hands-on pass verifies save persistence before rhythm tuning.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`

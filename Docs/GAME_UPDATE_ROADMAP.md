@@ -38,6 +38,7 @@ This document tracks the current project state, the next production priorities, 
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
 - `Tools/GenerateStagePlaytestChecklist.ps1` generates disposable readiness output at `Logs/AlienCrusherStagePlaytestChecklist.md`, while durable human observations should be recorded in `Docs/AlienCrusherStagePlaytestNotes.md`.
+- The Stage 1-7 checklist now includes a progression save smoke pass so DP, selected form, stage unlock, meta upgrade state, and repaired save persistence are checked before rhythm tuning.
 - `Tools/GenerateAudioResourceAssignmentChecklist.ps1` generates disposable audio assignment output at `Logs/AlienCrusherAudioResourceAssignmentChecklist.md`, mapping current `FeedbackSystem` slots to suggested SFX names, folders, and assignment priority.
 - `Tools/GenerateFormIdentityProductionChecklist.ps1` generates disposable form identity output at `Logs/AlienCrusherFormIdentityProductionChecklist.md`, mapping runtime forms to unlock cost, skill fantasy, silhouette, icon, material, and failure-problem targets.
 - `Tools/GenerateDestructionReadabilityChecklist.ps1` generates disposable destruction readability output at `Logs/AlienCrusherDestructionReadabilityChecklist.md`, mapping material, VFX, weak-point, shield, exposed-core, and break-audio targets to current runtime destruction systems.
@@ -107,6 +108,7 @@ Required next artifacts:
 - optional outgame progression pass in `Logs/AlienCrusherOutgameProgressionChecklist.md`
 - optional route payoff layout pass in `Logs/AlienCrusherRoutePayoffLayoutChecklist.md`
 - populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md` or linked screenshots/videos
+- progression save smoke result for DP, selected form, stage unlock, meta upgrade state, and repaired save persistence
 
 First `F10` sweep minimum markers:
 - `SWEEP_START`
@@ -128,6 +130,7 @@ Use `F10` sweep or manual `F6/F7/F8/F9` controls to verify:
 - console filter `[AlienCrusher][Playtest]` shows the expected route event order per run
 - `Logs/AlienCrusherPlaytestTelemetry.log` keeps the same event order from `SWEEP_START` through `SWEEP_END`
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` produces a readable current tuning snapshot, rhythm snapshot, sweep summary, stage trend rollup, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdown after the sweep
+- DP, selected form, highest unlocked stage, and meta upgrade state survive exit/re-enter play mode before tuning decisions are made
 
 Done when:
 - each stage band has one short note on readability, route pressure, map identity, and rhythm identity

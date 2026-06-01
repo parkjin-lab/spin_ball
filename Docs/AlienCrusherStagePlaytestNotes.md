@@ -28,6 +28,15 @@ Use this tracked file for human observations from the first real Stage 1-7 `F10`
 - [ ] `SWEEP_END` exists.
 - [ ] `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`.
 
+## Progression Save Smoke Pass
+
+- [ ] Starting DP / selected form / highest unlocked stage / previewed meta upgrade noted.
+- [ ] DP or stage progress changes after a clear.
+- [ ] Affordable form unlock or meta upgrade purchase persists, or locked/need-DP state is readable when not affordable.
+- [ ] Exit and re-enter play mode keeps DP, selected form, stage unlock, and meta upgrade state.
+- [ ] Edited/restored save data with impossible values is repaired and does not reappear after reload.
+- [ ] Save/load result:
+
 ## Stage Notes
 
 ### Stage 01
