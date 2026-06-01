@@ -1,6 +1,6 @@
 # Alien Crusher - Game Design Gap Policy
 
-Last updated: 2026-05-25
+Last updated: 2026-06-02
 
 ## Purpose
 
@@ -40,7 +40,7 @@ The weak points are:
 - Audio hooks now exist as a first-pass runtime layer, but clips/assets and balance are still missing.
 - HUD has first-pass mobile text safeguards, but real device/screenshot readability is still unproven.
 - Failure feedback explains the problem, but does not yet make the failure beat strongly felt through sound/haptics/screen rhythm.
-- Production rules say "do not tune before evidence", but the evidence gate is not yet enforced by a dedicated script.
+- Production rules now enforce "do not tune before evidence" through `Tools/TestPlaytestEvidenceGate.ps1`, including telemetry, notes, and progression save smoke results.
 
 ## P0 Policy - Evidence Before Rhythm Tuning
 
@@ -54,7 +54,9 @@ Required evidence:
 - Stage 01-07 each have `STAGE_START` and `STAGE_END`.
 - Stage 01, Stage 04, and Stage 07 have screenshot/video references or concrete written observations.
 - `Docs/AlienCrusherStagePlaytestNotes.md` contains notes for readability, route pressure, map identity, and rhythm identity.
+- `Docs/AlienCrusherStagePlaytestNotes.md` contains a completed Progression Save Smoke Pass `Save/load result`.
 - `Logs/AlienCrusherPlaytestTelemetrySummary.md` route-adherence lines are reviewed for closest target distance, average distance, farthest distance, in-range percentage, and elapsed route time.
+- `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`.
 
 Allowed before evidence:
 
@@ -254,7 +256,7 @@ Recommended gate tiers:
 
 - Readiness Green: `Tools/RunStaticAudits.ps1` passes.
 - Runtime Green: `Tools/RunUnityBatchChecks.ps1` refreshes scene and map reports.
-- Evidence Green: `Tools/TestPlaytestEvidenceGate.ps1` verifies real telemetry, summary freshness, Stage 1-7 markers, and notes.
+- Evidence Green: `Tools/TestPlaytestEvidenceGate.ps1` verifies real telemetry, summary freshness, Stage 1-7 markers, stage notes, and progression save smoke result.
 - Decision Green: `Post-Sweep Decision` is filled with bottleneck, variable family, current values, experiment, retest stages, and do-not-touch list.
 
 Tuning should require Readiness Green and Evidence Green.
@@ -281,6 +283,7 @@ Do not tune boss pressure until the base Stage 1-7 route loop has real evidence.
 
 - Run the first real Stage 1-7 `F10` sweep.
 - Keep `Tools/TestPlaytestEvidenceGate.ps1` as the blocking gate for telemetry/summary/notes coverage.
+- Fill the Progression Save Smoke Pass before accepting Evidence Green.
 - Keep tuning lock active until evidence exists.
 - Source temporary clips for the existing runtime audio hook surface.
 - Confirm HUD mobile overflow/readability with screenshots after the new static text safeguards.
