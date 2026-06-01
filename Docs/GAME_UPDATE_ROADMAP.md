@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-05-26
+Last updated: 2026-06-02
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -49,7 +49,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/GenerateOutgameProgressionChecklist.ps1` generates disposable outgame progression output at `Logs/AlienCrusherOutgameProgressionChecklist.md`, mapping DP gain, form card states, meta nodes, result badges, stage unlock banners, and save confirmation targets to the current lobby/result systems.
 - `Tools/GenerateRoutePayoffLayoutChecklist.ps1` generates disposable route payoff layout output at `Logs/AlienCrusherRoutePayoffLayoutChecklist.md`, mapping ROUTE BONUS, district payoff layouts, cluster markers, and Forward Smash confirmation to current route reward code paths.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
-- As of 2026-05-26, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, and populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`.
+- As of 2026-06-02, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`, and a completed progression save smoke result.
 - `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
 - `Tools/TestPlaytestEvidenceGate.ps1` now provides the blocking Evidence Green check for real telemetry, summary freshness, Stage 1-7 marker coverage, and populated playtest notes. Use `-ReportOnly` when checking readiness before evidence exists.
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
