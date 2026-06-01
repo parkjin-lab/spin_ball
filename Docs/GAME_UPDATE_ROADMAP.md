@@ -384,7 +384,7 @@ Extraction candidates:
 - ROUTE HOLD may still feel like a timed destruction count unless route adherence is measured separately from destroyed count.
 - ROUTE HOLD route-adherence telemetry now exists, but it still needs the first real Stage 1-7 sweep before any tuning decision can use it.
 - Audio assets are still missing, but the runtime hook points now exist; mobile HUD readability has first-pass text safeguards but still needs device/screenshot review.
-- Progression save recovery now falls back per file, persists sanitized repairs after load, and clamps meta/stage bounds; this still needs an in-editor smoke test with a real save file before release.
+- Progression save recovery now falls back per file, persists sanitized repairs after load, clamps meta/stage bounds, and removes duplicate meta-upgrade entries; this still needs an in-editor smoke test with a real save file before release.
 - Stage 4 has first-pass Sentinel checkpoint identity, but it still needs playtest/screenshot confirmation that the boss approach reads without HUD text.
 - Landmark value records now exist in static audit/checklist output, but they still need real visual confirmation that the roles are legible during play.
 - Route trail pips may be visually noisy on small Android screens.

@@ -315,6 +315,7 @@ Need:
 - corrupt-primary save recovery check before any release-style playtest build
 - stage-bound recovery check that rejects impossible lobby/current/cleared stage values from edited or corrupted saves
 - meta-bound recovery check that rejects negative DP, invalid selected forms, duplicate/invalid unlocked forms, and negative upgrade levels
+- meta-upgrade recovery check that trims upgrade IDs and rejects duplicate upgrade entries
 - repair persistence check that confirms sanitized save data is written back after load
 
 Required assets:

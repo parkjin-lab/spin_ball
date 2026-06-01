@@ -80,6 +80,9 @@ if ($errors.Count -eq 0) {
         'SanitizeMetaUpgradeLevels(data.meta)',
         'meta.unlockedForms.Add(DefaultFormIndex)',
         'meta.selectedForm = DefaultFormIndex',
+        'var seenUpgradeIds = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal)',
+        'entry.upgradeId = entry.upgradeId.Trim()',
+        'if (!seenUpgradeIds.Add(entry.upgradeId))',
         'entry.level = Mathf.Max(0, entry.level)',
         'data.stage.highestStageReached = Mathf.Max(1, data.stage.highestStageReached)',
         'data.stage.highestStageCleared = Mathf.Clamp(data.stage.highestStageCleared, 0, Mathf.Max(0, data.stage.highestStageReached - 1))',
@@ -115,7 +118,7 @@ $lines.Add("[AlienCrusher][ProgressionSaveSafetyStaticAudit] Progression save sa
 $lines.Add("Save system: $saveSystemPath")
 $lines.Add("Form unlock bridge: $formUnlockPath")
 $lines.Add("Progression data: $dataPath")
-$lines.Add("Contract: primary JSON can fail, backup JSON is still attempted, repaired meta/stage bounds are persisted, and legacy PlayerPrefs can migrate into the JSON save.")
+$lines.Add("Contract: primary JSON can fail, backup JSON is still attempted, repaired meta/stage bounds and unique upgrade entries are persisted, and legacy PlayerPrefs can migrate into the JSON save.")
 
 foreach ($errorMessage in $errors) {
     $lines.Add("ERROR: $errorMessage")

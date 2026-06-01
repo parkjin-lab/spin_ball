@@ -171,10 +171,18 @@ namespace AlienCrusher.Systems
 
         private static void SanitizeMetaUpgradeLevels(MetaProgressionData meta)
         {
+            var seenUpgradeIds = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
             for (var i = meta.metaUpgradeLevels.Count - 1; i >= 0; i--)
             {
                 var entry = meta.metaUpgradeLevels[i];
                 if (entry == null || string.IsNullOrWhiteSpace(entry.upgradeId))
+                {
+                    meta.metaUpgradeLevels.RemoveAt(i);
+                    continue;
+                }
+
+                entry.upgradeId = entry.upgradeId.Trim();
+                if (!seenUpgradeIds.Add(entry.upgradeId))
                 {
                     meta.metaUpgradeLevels.RemoveAt(i);
                     continue;
