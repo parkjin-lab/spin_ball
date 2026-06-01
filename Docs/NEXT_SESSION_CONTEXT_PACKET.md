@@ -121,7 +121,7 @@ Rule:
 - Added the district palette production checklist generator and covered it in the readiness report regression.
 - Added the outgame progression checklist generator and covered it in the readiness report regression.
 - Added the route payoff layout checklist generator and covered it in the readiness report regression.
-- Hardened progression save loading so a corrupt primary JSON can still fall back to the backup JSON, clamped corrupted meta/stage progression bounds during save sanitization, then added a Unity-free save safety audit to the static audit chain.
+- Hardened progression save loading so a corrupt primary JSON can still fall back to the backup JSON, clamped corrupted meta/stage progression bounds during save sanitization, persisted repaired saves after load, then added a Unity-free save safety audit to the static audit chain.
 
 ## Changed Files
 - `Assets/Scripts/Editor/AlienCrusherSceneValidator.cs`

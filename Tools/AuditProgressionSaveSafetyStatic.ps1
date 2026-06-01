@@ -69,9 +69,13 @@ if ($errors.Count -eq 0) {
         'TryLoadProgressionFile(BackupPath)',
         'catch (IOException)',
         'catch (System.Exception exception) when',
-        'Sanitize(Current)',
+        'if (Sanitize(Current))',
+        'Save();',
+        'private static bool Sanitize',
         'data.meta.dpBalance = Mathf.Max(0, data.meta.dpBalance)',
         'data.meta.selectedForm = Mathf.Clamp(data.meta.selectedForm, DefaultFormIndex, MaxKnownFormIndex)',
+        'private const int DefaultFormIndex = (int)FormType.Sphere',
+        'private const int MaxKnownFormIndex = (int)FormType.Crusher',
         'SanitizeUnlockedForms(data.meta)',
         'SanitizeMetaUpgradeLevels(data.meta)',
         'meta.unlockedForms.Add(DefaultFormIndex)',
@@ -111,7 +115,7 @@ $lines.Add("[AlienCrusher][ProgressionSaveSafetyStaticAudit] Progression save sa
 $lines.Add("Save system: $saveSystemPath")
 $lines.Add("Form unlock bridge: $formUnlockPath")
 $lines.Add("Progression data: $dataPath")
-$lines.Add("Contract: primary JSON can fail, backup JSON is still attempted, meta/stage bounds are sanitized, and legacy PlayerPrefs can migrate into the JSON save.")
+$lines.Add("Contract: primary JSON can fail, backup JSON is still attempted, repaired meta/stage bounds are persisted, and legacy PlayerPrefs can migrate into the JSON save.")
 
 foreach ($errorMessage in $errors) {
     $lines.Add("ERROR: $errorMessage")

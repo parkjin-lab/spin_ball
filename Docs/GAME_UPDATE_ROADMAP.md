@@ -54,7 +54,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
 - `Tools/AuditFeedbackAudioHooksStatic.ps1` now checks that rhythm-critical feedback events still have assignable audio clip hooks, and `Tools/RunStaticAudits.ps1` includes it in the Unity-free audit chain.
 - `Tools/AuditResourceSlotDocsStatic.ps1` now checks that current `FeedbackSystem` audio clip fields stay documented in the resource requirements and production board, so code-side audio slots and production needs do not drift apart.
-- `Tools/AuditProgressionSaveSafetyStatic.ps1` now checks the JSON save/backup/meta-bound/stage-bound/default/migration contract so long-term progression cannot silently lose backup fallback, safe progression bounds, or legacy PlayerPrefs migration coverage.
+- `Tools/AuditProgressionSaveSafetyStatic.ps1` now checks the JSON save/backup/meta-bound/stage-bound/default/migration contract so long-term progression cannot silently lose backup fallback, persisted save repair, safe progression bounds, or legacy PlayerPrefs migration coverage.
 - `Tools/AuditMobileHudReadabilityStatic.ps1` now checks that core HUD route/progress/gauge copy stays compact and that main HUD text fields keep mobile best-fit safeguards.
 - Stage 4 now has a Sentinel checkpoint landmark in the runtime map layout and the static map audit tracks the new landmark tier/count expectations.
 - `Tools/AuditPlaytestTelemetryWiringStatic.ps1` now protects the route-adherence telemetry contract so route distance metrics stay wired into both runtime logs and summary output.
@@ -384,7 +384,7 @@ Extraction candidates:
 - ROUTE HOLD may still feel like a timed destruction count unless route adherence is measured separately from destroyed count.
 - ROUTE HOLD route-adherence telemetry now exists, but it still needs the first real Stage 1-7 sweep before any tuning decision can use it.
 - Audio assets are still missing, but the runtime hook points now exist; mobile HUD readability has first-pass text safeguards but still needs device/screenshot review.
-- Progression save recovery now falls back per file, so a corrupted primary JSON can still attempt the backup JSON; this still needs an in-editor smoke test with a real save file before release.
+- Progression save recovery now falls back per file, persists sanitized repairs after load, and clamps meta/stage bounds; this still needs an in-editor smoke test with a real save file before release.
 - Stage 4 has first-pass Sentinel checkpoint identity, but it still needs playtest/screenshot confirmation that the boss approach reads without HUD text.
 - Landmark value records now exist in static audit/checklist output, but they still need real visual confirmation that the roles are legible during play.
 - Route trail pips may be visually noisy on small Android screens.

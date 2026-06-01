@@ -1,4 +1,5 @@
 using System.IO;
+using AlienCrusher.Gameplay;
 using UnityEngine;
 
 namespace AlienCrusher.Systems
@@ -7,8 +8,8 @@ namespace AlienCrusher.Systems
     {
         private const string SaveFileName = "aliencrusher_progression.json";
         private const string BackupFileName = "aliencrusher_progression.bak.json";
-        private const int DefaultFormIndex = 0;
-        private const int MaxKnownFormIndex = 4;
+        private const int DefaultFormIndex = (int)FormType.Sphere;
+        private const int MaxKnownFormIndex = (int)FormType.Crusher;
 
         public PlayerProgressionData Current { get; private set; }
 
@@ -29,7 +30,10 @@ namespace AlienCrusher.Systems
                 Save();
             }
 
-            Sanitize(Current);
+            if (Sanitize(Current))
+            {
+                Save();
+            }
         }
 
         public void Save()
@@ -101,12 +105,14 @@ namespace AlienCrusher.Systems
             }
         }
 
-        private static void Sanitize(PlayerProgressionData data)
+        private static bool Sanitize(PlayerProgressionData data)
         {
             if (data == null)
             {
-                return;
+                return false;
             }
+
+            var beforeJson = JsonUtility.ToJson(data);
 
             data.schemaVersion = Mathf.Max(1, data.schemaVersion);
             if (data.meta == null)
@@ -136,6 +142,8 @@ namespace AlienCrusher.Systems
             data.stage.highestStageReached = Mathf.Max(1, data.stage.highestStageReached);
             data.stage.highestStageCleared = Mathf.Clamp(data.stage.highestStageCleared, 0, Mathf.Max(0, data.stage.highestStageReached - 1));
             data.stage.currentLobbyStage = Mathf.Clamp(data.stage.currentLobbyStage, 1, data.stage.highestStageReached);
+
+            return beforeJson != JsonUtility.ToJson(data);
         }
 
         private static void SanitizeUnlockedForms(MetaProgressionData meta)
