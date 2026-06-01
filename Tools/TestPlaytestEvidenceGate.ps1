@@ -119,6 +119,28 @@ function Test-DecisionField {
     return -not [string]::IsNullOrWhiteSpace($value)
 }
 
+function Test-ProgressionSaveSmokeField {
+    param(
+        [string]$NotesText,
+        [string]$Field
+    )
+
+    $saveSmokeMatch = [regex]::Match($NotesText, '(?ms)^## Progression Save Smoke Pass\s*(?<body>.*?)(?=^## |\z)')
+    if (-not $saveSmokeMatch.Success) {
+        return $false
+    }
+
+    $body = $saveSmokeMatch.Groups["body"].Value
+    $fieldPattern = "(?m)^- \[[ xX]\] $([regex]::Escape($Field)):[ \t]*(?<value>[^\r\n]*)\r?$"
+    $fieldMatch = [regex]::Match($body, $fieldPattern)
+    if (-not $fieldMatch.Success) {
+        return $false
+    }
+
+    $value = $fieldMatch.Groups["value"].Value.Trim()
+    return -not [string]::IsNullOrWhiteSpace($value)
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedTelemetryLogPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TelemetryLogPath -RelativePath "Logs\AlienCrusherPlaytestTelemetry.log"
 $resolvedSummaryPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $SummaryPath -RelativePath "Logs\AlienCrusherPlaytestTelemetrySummary.md"
@@ -207,6 +229,10 @@ else {
         if ($stage -le $MaxStage -and -not (Test-StageNoteField -NotesText $notesText -Stage $stage -Field "Screenshot/video reference")) {
             Add-Warning -Warnings $warnings -Message ("Stage {0:00} has no screenshot/video reference." -f $stage)
         }
+    }
+
+    if (-not (Test-ProgressionSaveSmokeField -NotesText $notesText -Field "Save/load result")) {
+        Add-Error -Errors $errors -Message "Progression Save Smoke Pass missing Save/load result."
     }
 
     if ($RequireDecision) {
