@@ -83,7 +83,9 @@ if (-not (Test-Path -Path $evidenceGateScriptPath -PathType Leaf)) {
 $tempId = [guid]::NewGuid().ToString("N")
 $tempSummaryPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestEvidenceGateSummary-{0}.md" -f $tempId)
 $tempNotesPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestEvidenceGateNotes-{0}.md" -f $tempId)
+$tempShallowNotesPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestEvidenceGateShallowNotes-{0}.md" -f $tempId)
 $tempGateReportPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestEvidenceGateReport-{0}.log" -f $tempId)
+$tempShallowGateReportPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestEvidenceGateShallowReport-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
     $powerShellExecutable = "powershell"
@@ -174,7 +176,52 @@ if ($errors.Count -eq 0) {
     }
 }
 
-foreach ($tempFilePath in @($tempSummaryPath, $tempNotesPath, $tempGateReportPath)) {
+if ($errors.Count -eq 0) {
+    $shallowLines = [System.Collections.Generic.List[string]]::new()
+    $shallowLines.Add("# Alien Crusher Stage Playtest Notes")
+    $shallowLines.Add("")
+    $shallowLines.Add("## Progression Save Smoke Pass")
+    $shallowLines.Add("")
+    $shallowLines.Add("- [x] Save/load result: ok")
+    $shallowLines.Add("")
+    $shallowLines.Add("## Stage Notes")
+    $shallowLines.Add("")
+    for ($stage = 1; $stage -le $fixtureMaxStage; $stage++) {
+        $shallowLines.Add(("### Stage {0:00}" -f $stage))
+        $shallowLines.Add("")
+        $shallowLines.Add("- Readability: ok")
+        $shallowLines.Add("- Route pressure: ok")
+        $shallowLines.Add("- Map identity: ok")
+        $shallowLines.Add("- Rhythm identity: ok")
+        $shallowLines.Add("- Screenshot/video reference: ok")
+        $shallowLines.Add("")
+    }
+
+    Set-Content -Path $tempShallowNotesPath -Value ([string]::Join([Environment]::NewLine, $shallowLines) + [Environment]::NewLine) -Encoding UTF8
+
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $evidenceGateScriptPath `
+        -MaxStage $fixtureMaxStage `
+        -TelemetryLogPath $resolvedFixturePath `
+        -SummaryPath $tempSummaryPath `
+        -NotesPath $tempShallowNotesPath `
+        -ReportPath $tempShallowGateReportPath |
+        Out-Null
+
+    $shallowGateExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($shallowGateExitCode -eq 0) {
+        $errors.Add("Evidence gate accepted shallow playtest notes.")
+    }
+    elseif (-not (Test-Path -Path $tempShallowGateReportPath -PathType Leaf)) {
+        $errors.Add("Evidence gate did not create expected shallow-note report: $tempShallowGateReportPath")
+    }
+    else {
+        $shallowGateReportText = Get-Content -Path $tempShallowGateReportPath -Raw
+        Add-Check -Errors $errors -ReportText $shallowGateReportText -Needle "missing meaningful note field" -Label "Shallow-note gate report"
+        Add-Check -Errors $errors -ReportText $shallowGateReportText -Needle "missing meaningful Save/load result" -Label "Shallow-note gate report"
+    }
+}
+
+foreach ($tempFilePath in @($tempSummaryPath, $tempNotesPath, $tempShallowNotesPath, $tempGateReportPath, $tempShallowGateReportPath)) {
     if (Test-Path -Path $tempFilePath -PathType Leaf) {
         Remove-Item -Path $tempFilePath -Force
     }
