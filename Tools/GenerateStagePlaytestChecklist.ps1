@@ -341,6 +341,8 @@ $lines.Add("- [ ] If the log is missing or markers are absent, fix telemetry/swe
 $lines.Add("")
 $lines.Add("## Progression Save Smoke Pass")
 $lines.Add("")
+$lines.Add("Evidence note quality: write a concrete save/load observation, not a one-word status. The Evidence Gate rejects shallow entries.")
+$lines.Add("")
 $lines.Add("- [ ] Before the sweep, note current DP, selected form, highest unlocked stage, and previewed meta upgrade level.")
 $lines.Add("- [ ] Clear one stage or earn DP, then confirm the result/lobby UI reflects the updated progression state.")
 $lines.Add("- [ ] Buy one affordable meta upgrade or form unlock if possible; if not affordable, confirm the locked/need-DP state is readable.")
@@ -429,6 +431,8 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
 
 $lines.Add("")
 $lines.Add("## Observation Checklist")
+$lines.Add("")
+$lines.Add('Evidence note quality: each stage note should explain what was readable, confusing, fair, unfair, distinct, or flat. One-word notes such as `ok` are rejected by the Evidence Gate.')
 $lines.Add("")
 foreach ($row in $stageRows) {
     $lines.Add("### Stage $("{0:00}" -f $row.Stage) - $($row.Focus)")

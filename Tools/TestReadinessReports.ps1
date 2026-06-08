@@ -138,8 +138,10 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $checklistText -Needle 'Manual notes file: `Docs/AlienCrusherStagePlaytestNotes.md`' -Label "Checklist"
         Add-Check -Errors $errors -ReportText $checklistText -Needle "## First F10 Sweep Run Sheet" -Label "Checklist"
         Add-Check -Errors $errors -ReportText $checklistText -Needle "## Progression Save Smoke Pass" -Label "Checklist"
+        Add-Check -Errors $errors -ReportText $checklistText -Needle "Evidence note quality: write a concrete save/load observation, not a one-word status." -Label "Checklist"
         Add-Check -Errors $errors -ReportText $checklistText -Needle "Progression save safety audit:" -Label "Checklist"
         Add-Check -Errors $errors -ReportText $checklistText -Needle "## Rhythm Pass" -Label "Checklist"
+        Add-Check -Errors $errors -ReportText $checklistText -Needle 'One-word notes such as `ok` are rejected by the Evidence Gate.' -Label "Checklist"
         Add-Check -Errors $errors -ReportText $checklistText -Needle "## Post-Sweep Decision" -Label "Checklist"
     }
 
