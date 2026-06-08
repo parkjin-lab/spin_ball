@@ -111,6 +111,11 @@ $audits = @(
         ReportPath = Join-Path $ReportDirectory "AlienCrusherPlaytestEvidenceGateRegression.log"
     },
     [pscustomobject]@{
+        Label = "Playtest readiness prep regression"
+        ScriptPath = Join-Path $PSScriptRoot "TestPlaytestReadinessPrep.ps1"
+        ReportPath = Join-Path $ReportDirectory "AlienCrusherPlaytestReadinessPrepRegression.log"
+    },
+    [pscustomobject]@{
         Label = "Feedback audio hooks"
         ScriptPath = Join-Path $PSScriptRoot "AuditFeedbackAudioHooksStatic.ps1"
         ReportPath = Join-Path $ReportDirectory "AlienCrusherFeedbackAudioHooksStaticAudit.log"

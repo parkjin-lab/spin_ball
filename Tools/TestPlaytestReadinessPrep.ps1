@@ -1,0 +1,114 @@
+[CmdletBinding()]
+param(
+    [int]$MaxStage = 7,
+    [int]$MaxGrowthStage = 7,
+    [string]$ReportPath = "",
+    [switch]$FailOnWarnings
+)
+
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
+
+function Resolve-ProjectRoot {
+    return Split-Path -Parent $PSScriptRoot
+}
+
+function Add-Check {
+    param(
+        [System.Collections.Generic.List[string]]$Errors,
+        [string]$ReportText,
+        [string]$Needle,
+        [string]$Label
+    )
+
+    if ($ReportText.Contains($Needle)) {
+        return
+    }
+
+    $Errors.Add("$Label missing expected marker: $Needle")
+}
+
+$projectRoot = Resolve-ProjectRoot
+$prepScriptPath = Join-Path $PSScriptRoot "RunPlaytestReadinessPrep.ps1"
+
+if ([string]::IsNullOrWhiteSpace($ReportPath)) {
+    $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestReadinessPrepRegression.log"
+}
+elseif (-not [System.IO.Path]::IsPathRooted($ReportPath)) {
+    $ReportPath = Join-Path $projectRoot $ReportPath
+}
+
+$reportDirectory = Split-Path -Parent $ReportPath
+if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
+    New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
+}
+
+$errors = [System.Collections.Generic.List[string]]::new()
+$warnings = [System.Collections.Generic.List[string]]::new()
+
+if (-not (Test-Path -Path $prepScriptPath -PathType Leaf)) {
+    $errors.Add("Playtest readiness prep runner not found: $prepScriptPath")
+}
+
+$tempId = [guid]::NewGuid().ToString("N")
+$tempPrepReportPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestReadinessPrepRegression-{0}.log" -f $tempId)
+$powerShellExecutable = (Get-Process -Id $PID).Path
+if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
+    $powerShellExecutable = "powershell"
+}
+
+if ($errors.Count -eq 0) {
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $prepScriptPath `
+        -MaxStage $MaxStage `
+        -MaxGrowthStage $MaxGrowthStage `
+        -ReportPath $tempPrepReportPath `
+        -SkipStaticAudits |
+        Out-Null
+
+    $prepExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($prepExitCode -ne 0) {
+        $errors.Add("Playtest readiness prep runner exited with code $prepExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempPrepReportPath -PathType Leaf)) {
+        $errors.Add("Playtest readiness prep runner did not create expected report: $tempPrepReportPath")
+    }
+    else {
+        $prepReportText = Get-Content -Path $tempPrepReportPath -Raw
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "[AlienCrusher][PlaytestReadinessPrep] Playtest readiness prep" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "SkipStaticAudits: True" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Stage playtest checklist" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Playtest telemetry summary" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Evidence gate readiness report" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "Evidence gate readiness: Result:" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "Result: playtest readiness prep completed" -Label "Prep report"
+    }
+}
+
+if (Test-Path -Path $tempPrepReportPath -PathType Leaf) {
+    Remove-Item -Path $tempPrepReportPath -Force
+}
+
+$lines = [System.Collections.Generic.List[string]]::new()
+$lines.Add("[AlienCrusher][PlaytestReadinessPrepRegression] Playtest readiness prep regression")
+$lines.Add("Prep script: $prepScriptPath")
+$lines.Add("PowerShell: $powerShellExecutable")
+
+foreach ($errorMessage in $errors) {
+    $lines.Add("ERROR: $errorMessage")
+}
+
+foreach ($warningMessage in $warnings) {
+    $lines.Add("WARN: $warningMessage")
+}
+
+$lines.Add("Result: $($errors.Count) error(s), $($warnings.Count) warning(s)")
+
+$report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine
+Set-Content -Path $ReportPath -Value $report -Encoding UTF8
+Write-Output $report
+
+if ($errors.Count -gt 0 -or ($FailOnWarnings -and $warnings.Count -gt 0)) {
+    exit 1
+}
+
+exit 0
