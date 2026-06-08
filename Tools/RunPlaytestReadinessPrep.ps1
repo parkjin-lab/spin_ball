@@ -53,6 +53,31 @@ function Add-ResultLine {
     $Lines.Add("$Label`: $($result.Line)")
 }
 
+function Add-NextHumanEvidenceAction {
+    param(
+        [System.Collections.Generic.List[string]]$Lines,
+        [string]$TelemetryLogPath,
+        [string]$EvidenceGateReportPath
+    )
+
+    $needsHumanEvidence = -not (Test-Path -Path $TelemetryLogPath -PathType Leaf)
+    if (-not $needsHumanEvidence -and (Test-Path -Path $EvidenceGateReportPath -PathType Leaf)) {
+        $gateResult = Select-String -Path $EvidenceGateReportPath -Pattern "Result:" | Select-Object -Last 1
+        $needsHumanEvidence = $null -ne $gateResult -and $gateResult.Line -notmatch "Result: 0 error\(s\)"
+    }
+
+    if (-not $needsHumanEvidence) {
+        return
+    }
+
+    $Lines.Add("")
+    $Lines.Add("## Next Required Human Evidence")
+    $Lines.Add('- Run one real editor/development `F10` Stage 1-7 sweep.')
+    $Lines.Add('- Fill `Docs/AlienCrusherStagePlaytestNotes.md` with meaningful Stage 1-7 readability, route pressure, map identity, and rhythm identity notes.')
+    $Lines.Add("- Complete the Progression Save Smoke Pass with a concrete save/load result.")
+    $Lines.Add("- Re-run this prep after the sweep and notes are captured.")
+}
+
 function Invoke-PrepStep {
     param(
         [string]$Label,
@@ -190,6 +215,8 @@ if ($IncludeProductionChecklists) {
 }
 $lines.Add("Telemetry summary: $telemetrySummaryPath")
 $lines.Add("Evidence gate report: $evidenceGateReportPath")
+
+Add-NextHumanEvidenceAction -Lines $lines -TelemetryLogPath (Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetry.log") -EvidenceGateReportPath $evidenceGateReportPath
 
 if ($failed -gt 0) {
     $lines.Add("")
