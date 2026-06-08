@@ -106,8 +106,22 @@ function Invoke-PrepStep {
         $Lines.Add(($resultLines | Select-Object -Last 1))
     }
 
+    $maxIssueLines = 12
+    $issueLineCount = 0
     foreach ($line in $warningLines) {
+        if ($line -match '^(ERROR:|WARN:)' -and $issueLineCount -ge $maxIssueLines) {
+            continue
+        }
+
         $Lines.Add($line)
+        if ($line -match '^(ERROR:|WARN:)') {
+            $issueLineCount++
+        }
+    }
+
+    $omittedIssueCount = @($warningLines | Where-Object { $_ -match '^(ERROR:|WARN:)' }).Count - $issueLineCount
+    if ($omittedIssueCount -gt 0) {
+        $Lines.Add("... $omittedIssueCount more issue(s) omitted from prep console summary; see the generated report for full details.")
     }
 
     if ($exitCode -eq 0) {
