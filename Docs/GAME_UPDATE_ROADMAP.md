@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-06-02
+Last updated: 2026-06-08
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -34,6 +34,7 @@ This document tracks the current project state, the next production priorities, 
 - Unity-free static map audit passes Stage 1-7 formula checks with `0 warning(s)`.
 - Unity-free ROUTE HOLD tuning audit passes with `0 warning(s)` and reads current default tuning values, including route open beat timing, from runtime C# fields before auditing.
 - `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set and fails if an expected report is missing or not refreshed during the run.
+- `Tools/RunPlaytestReadinessPrep.ps1` now runs the autonomous pre-playtest prep loop in one command: static audits, Stage 1-7 checklist generation, telemetry summary generation, and Evidence Gate report-only readiness.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
@@ -49,7 +50,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/GenerateOutgameProgressionChecklist.ps1` generates disposable outgame progression output at `Logs/AlienCrusherOutgameProgressionChecklist.md`, mapping DP gain, form card states, meta nodes, result badges, stage unlock banners, and save confirmation targets to the current lobby/result systems.
 - `Tools/GenerateRoutePayoffLayoutChecklist.ps1` generates disposable route payoff layout output at `Logs/AlienCrusherRoutePayoffLayoutChecklist.md`, mapping ROUTE BONUS, district payoff layouts, cluster markers, and Forward Smash confirmation to current route reward code paths.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
-- As of 2026-06-02, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`, and a completed progression save smoke result.
+- As of 2026-06-08, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`, and a completed progression save smoke result.
 - `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
 - `Tools/TestPlaytestEvidenceGate.ps1` now provides the blocking Evidence Green check for real telemetry, summary freshness, Stage 1-7 marker coverage, and populated playtest notes. Use `-ReportOnly` when checking readiness before evidence exists.
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
@@ -81,7 +82,13 @@ Done when:
 - Unity batch logs are from the current run, not stale files.
 
 ### P0 - Stage 1-7 Editor Playtest
-Before entering play mode, generate the checklist:
+Before entering play mode, run the autonomous readiness prep:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1
+```
+
+Or generate individual checklists:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1

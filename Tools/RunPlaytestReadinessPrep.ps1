@@ -1,0 +1,182 @@
+[CmdletBinding()]
+param(
+    [int]$MaxStage = 7,
+    [int]$MaxGrowthStage = 7,
+    [string]$ReportPath = "",
+    [switch]$SkipStaticAudits
+)
+
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
+
+function Resolve-ProjectRoot {
+    return Split-Path -Parent $PSScriptRoot
+}
+
+function Resolve-ProjectPath {
+    param(
+        [string]$ProjectRoot,
+        [string]$OverridePath,
+        [string]$RelativePath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($OverridePath)) {
+        if ([System.IO.Path]::IsPathRooted($OverridePath)) {
+            return $OverridePath
+        }
+
+        return Join-Path $ProjectRoot $OverridePath
+    }
+
+    return Join-Path $ProjectRoot $RelativePath
+}
+
+function Add-ResultLine {
+    param(
+        [System.Collections.Generic.List[string]]$Lines,
+        [string]$Path,
+        [string]$Label
+    )
+
+    if (-not (Test-Path -Path $Path -PathType Leaf)) {
+        $Lines.Add("$Label`: missing")
+        return
+    }
+
+    $result = Select-String -Path $Path -Pattern "Result:" | Select-Object -Last 1
+    if ($null -eq $result) {
+        $Lines.Add("$Label`: no Result line")
+        return
+    }
+
+    $Lines.Add("$Label`: $($result.Line)")
+}
+
+function Invoke-PrepStep {
+    param(
+        [string]$Label,
+        [string]$ScriptPath,
+        [string[]]$Arguments,
+        [string]$PowerShellExecutable,
+        [System.Collections.Generic.List[string]]$Lines
+    )
+
+    $Lines.Add("")
+    $Lines.Add("== $Label ==")
+
+    if (-not (Test-Path -Path $ScriptPath -PathType Leaf)) {
+        $Lines.Add("FAIL: missing script $ScriptPath")
+        return 1
+    }
+
+    $output = & $PowerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Arguments 2>&1
+    $exitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+
+    $outputLines = @($output | ForEach-Object { [string]$_ })
+    $resultLines = @($outputLines | Where-Object { $_ -match '^Result:' })
+    $warningLines = @($outputLines | Where-Object { $_ -match '^(No playtest telemetry log exists yet\.|ReportOnly:|ERROR:|WARN:)' })
+
+    if ($resultLines.Count -gt 0) {
+        $Lines.Add(($resultLines | Select-Object -Last 1))
+    }
+
+    foreach ($line in $warningLines) {
+        $Lines.Add($line)
+    }
+
+    if ($exitCode -eq 0) {
+        $Lines.Add("PASS: $Label")
+    }
+    else {
+        $Lines.Add("FAIL: $Label exited with code $exitCode")
+    }
+
+    return $exitCode
+}
+
+$projectRoot = Resolve-ProjectRoot
+$resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherPlaytestReadinessPrep.log"
+$reportDirectory = Split-Path -Parent $resolvedReportPath
+if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
+    New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
+}
+
+$powerShellExecutable = (Get-Process -Id $PID).Path
+if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
+    $powerShellExecutable = "powershell"
+}
+
+$stageChecklistPath = Join-Path $projectRoot "Logs\AlienCrusherStagePlaytestChecklist.md"
+$telemetrySummaryPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetrySummary.md"
+$evidenceGateReportPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestEvidenceGate.log"
+
+$lines = [System.Collections.Generic.List[string]]::new()
+$lines.Add("[AlienCrusher][PlaytestReadinessPrep] Playtest readiness prep")
+$lines.Add("Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm K")")
+$lines.Add("Project: $projectRoot")
+$lines.Add("PowerShell: $powerShellExecutable")
+$lines.Add("MaxStage: $MaxStage")
+$lines.Add("MaxGrowthStage: $MaxGrowthStage")
+$lines.Add("SkipStaticAudits: $SkipStaticAudits")
+
+$failed = 0
+if (-not $SkipStaticAudits) {
+    $failed += Invoke-PrepStep `
+        -Label "Static audits" `
+        -ScriptPath (Join-Path $PSScriptRoot "RunStaticAudits.ps1") `
+        -Arguments @("-MaxStage", "$MaxStage", "-MaxGrowthStage", "$MaxGrowthStage") `
+        -PowerShellExecutable $powerShellExecutable `
+        -Lines $lines
+}
+
+$failed += Invoke-PrepStep `
+    -Label "Stage playtest checklist" `
+    -ScriptPath (Join-Path $PSScriptRoot "GenerateStagePlaytestChecklist.ps1") `
+    -Arguments @("-MaxStage", "$MaxStage", "-MaxGrowthStage", "$MaxGrowthStage", "-ReportPath", $stageChecklistPath) `
+    -PowerShellExecutable $powerShellExecutable `
+    -Lines $lines
+
+$failed += Invoke-PrepStep `
+    -Label "Playtest telemetry summary" `
+    -ScriptPath (Join-Path $PSScriptRoot "GeneratePlaytestTelemetrySummary.ps1") `
+    -Arguments @("-ReportPath", $telemetrySummaryPath) `
+    -PowerShellExecutable $powerShellExecutable `
+    -Lines $lines
+
+$evidenceExitCode = Invoke-PrepStep `
+    -Label "Evidence gate readiness report" `
+    -ScriptPath (Join-Path $PSScriptRoot "TestPlaytestEvidenceGate.ps1") `
+    -Arguments @("-MaxStage", "$MaxStage", "-ReportPath", $evidenceGateReportPath, "-ReportOnly") `
+    -PowerShellExecutable $powerShellExecutable `
+    -Lines $lines
+
+if ($evidenceExitCode -ne 0) {
+    $failed += $evidenceExitCode
+}
+
+$lines.Add("")
+$lines.Add("## Output Summary")
+Add-ResultLine -Lines $lines -Path (Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log") -Label "Readiness report regression"
+Add-ResultLine -Lines $lines -Path $evidenceGateReportPath -Label "Evidence gate readiness"
+$lines.Add("Stage checklist: $stageChecklistPath")
+$lines.Add("Telemetry summary: $telemetrySummaryPath")
+$lines.Add("Evidence gate report: $evidenceGateReportPath")
+
+if ($failed -gt 0) {
+    $lines.Add("")
+    $lines.Add("Result: $failed prep step(s) failed")
+}
+else {
+    $lines.Add("")
+    $lines.Add("Result: playtest readiness prep completed")
+}
+
+$report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine
+Set-Content -Path $resolvedReportPath -Value $report -Encoding UTF8
+Write-Output $report
+
+if ($failed -gt 0) {
+    exit 1
+}
+
+exit 0
