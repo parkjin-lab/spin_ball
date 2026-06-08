@@ -52,6 +52,7 @@ if (-not (Test-Path -Path $prepScriptPath -PathType Leaf)) {
 
 $tempId = [guid]::NewGuid().ToString("N")
 $tempPrepReportPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestReadinessPrepRegression-{0}.log" -f $tempId)
+$tempProductionPrepReportPath = Join-Path ([System.IO.Path]::GetTempPath()) ("AlienCrusherPlaytestReadinessPrepProductionRegression-{0}.log" -f $tempId)
 $powerShellExecutable = (Get-Process -Id $PID).Path
 if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
     $powerShellExecutable = "powershell"
@@ -76,6 +77,7 @@ if ($errors.Count -eq 0) {
         $prepReportText = Get-Content -Path $tempPrepReportPath -Raw
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "[AlienCrusher][PlaytestReadinessPrep] Playtest readiness prep" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "SkipStaticAudits: True" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "IncludeProductionChecklists: False" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Stage playtest checklist" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Playtest telemetry summary" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Evidence gate readiness report" -Label "Prep report"
@@ -84,8 +86,37 @@ if ($errors.Count -eq 0) {
     }
 }
 
-if (Test-Path -Path $tempPrepReportPath -PathType Leaf) {
-    Remove-Item -Path $tempPrepReportPath -Force
+if ($errors.Count -eq 0) {
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $prepScriptPath `
+        -MaxStage $MaxStage `
+        -MaxGrowthStage $MaxGrowthStage `
+        -ReportPath $tempProductionPrepReportPath `
+        -SkipStaticAudits `
+        -IncludeProductionChecklists |
+        Out-Null
+
+    $productionPrepExitCode = if ($null -eq $global:LASTEXITCODE) { 0 } else { [int]$global:LASTEXITCODE }
+    if ($productionPrepExitCode -ne 0) {
+        $errors.Add("Playtest readiness prep production checklist run exited with code $productionPrepExitCode")
+    }
+    elseif (-not (Test-Path -Path $tempProductionPrepReportPath -PathType Leaf)) {
+        $errors.Add("Playtest readiness prep production checklist run did not create expected report: $tempProductionPrepReportPath")
+    }
+    else {
+        $productionPrepReportText = Get-Content -Path $tempProductionPrepReportPath -Raw
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "IncludeProductionChecklists: True" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "PASS: Audio resource assignment checklist" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "PASS: Route payoff layout checklist" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Audio resource assignment checklist:" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Route payoff layout checklist:" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Result: playtest readiness prep completed" -Label "Production prep report"
+    }
+}
+
+foreach ($tempFilePath in @($tempPrepReportPath, $tempProductionPrepReportPath)) {
+    if (Test-Path -Path $tempFilePath -PathType Leaf) {
+        Remove-Item -Path $tempFilePath -Force
+    }
 }
 
 $lines = [System.Collections.Generic.List[string]]::new()

@@ -2,14 +2,14 @@
 
 ## Validation Snapshot
 - Latest Unity batch validation: 2026-05-05 (`Tools/RunUnityBatchChecks.ps1` passed; scene and map audit logs refreshed)
-- Latest static audit refresh: 2026-06-08 (`Tools/RunPlaytestReadinessPrep.ps1` ran `Tools/RunStaticAudits.ps1`, generated the stage checklist, regenerated the telemetry summary readiness artifact, and refreshed Evidence Gate report-only readiness)
+- Latest static audit refresh: 2026-06-08 (`Tools/RunPlaytestReadinessPrep.ps1` ran `Tools/RunStaticAudits.ps1`, generated the stage checklist, can optionally generate all production checklists, regenerated the telemetry summary readiness artifact, and refreshed Evidence Gate report-only readiness)
 - Real Stage 1-7 playtest telemetry: still not captured as of 2026-06-08; the summary pipeline is ready but still waiting on the first true `F10` sweep
 - No telemetry log or unparseable telemetry means the summary is a readiness artifact only; do not tune rhythm, payoff, boss, or route timing from it.
 - Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points, first-pass mobile HUD text safeguards, a Stage 4 Sentinel checkpoint landmark, ROUTE HOLD route-adherence telemetry, static landmark value records, and progression save smoke gating now exist, but audio clips/assets, device/screenshot readability, Stage 4 boss-approach readability, route-adherence evidence, landmark value evidence, and real save/load smoke evidence still need playtest confirmation. Treat real evidence gates as the next design policy backlog.
 
 ## Immediate First Action
 1. Run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`
-2. Optionally run the remaining production checklist generators if an asset/resource pass is next: audio, form identity, destruction readability, street prop variety, UI icon/status, boss identity, district palette, outgame progression, and route payoff layout.
+2. If an asset/resource pass is next, run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists`
 3. Run the progression save smoke pass from the generated stage checklist.
 4. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
 5. Re-run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`, then compare the rhythm snapshot against the checklist notes
@@ -280,6 +280,7 @@ Changed files: `Assets/Scripts/Runtime/Systems/DummyFlowController.cs`, `Assets/
 Useful Unity batch command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1`
 Useful stale-lock retry command: `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1 -ClearStaleUnityLock`
 Useful autonomous playtest readiness prep command: `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`
+Useful autonomous prep with production checklists command: `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists`
 Useful playtest checklist command: `powershell -ExecutionPolicy Bypass -File Tools/GenerateStagePlaytestChecklist.ps1`
 Useful playtest telemetry summary command: `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`
 Useful playtest telemetry wiring audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditPlaytestTelemetryWiringStatic.ps1`

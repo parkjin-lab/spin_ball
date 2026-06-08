@@ -34,7 +34,7 @@ This document tracks the current project state, the next production priorities, 
 - Unity-free static map audit passes Stage 1-7 formula checks with `0 warning(s)`.
 - Unity-free ROUTE HOLD tuning audit passes with `0 warning(s)` and reads current default tuning values, including route open beat timing, from runtime C# fields before auditing.
 - `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set and fails if an expected report is missing or not refreshed during the run.
-- `Tools/RunPlaytestReadinessPrep.ps1` now runs the autonomous pre-playtest prep loop in one command: static audits, Stage 1-7 checklist generation, telemetry summary generation, and Evidence Gate report-only readiness.
+- `Tools/RunPlaytestReadinessPrep.ps1` now runs the autonomous pre-playtest prep loop in one command: static audits, Stage 1-7 checklist generation, optional production checklist generation, telemetry summary generation, and Evidence Gate report-only readiness.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
@@ -87,6 +87,12 @@ Before entering play mode, run the autonomous readiness prep:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1
+```
+
+If an asset/resource pass is next, include the production checklists in the same run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists
 ```
 
 Or generate individual checklists:

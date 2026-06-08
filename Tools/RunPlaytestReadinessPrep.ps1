@@ -3,7 +3,8 @@ param(
     [int]$MaxStage = 7,
     [int]$MaxGrowthStage = 7,
     [string]$ReportPath = "",
-    [switch]$SkipStaticAudits
+    [switch]$SkipStaticAudits,
+    [switch]$IncludeProductionChecklists
 )
 
 $ErrorActionPreference = "Stop"
@@ -109,6 +110,17 @@ if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
 $stageChecklistPath = Join-Path $projectRoot "Logs\AlienCrusherStagePlaytestChecklist.md"
 $telemetrySummaryPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetrySummary.md"
 $evidenceGateReportPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestEvidenceGate.log"
+$productionChecklistSpecs = @(
+    [pscustomobject]@{ Label = "Audio resource assignment checklist"; Script = "GenerateAudioResourceAssignmentChecklist.ps1"; Report = "AlienCrusherAudioResourceAssignmentChecklist.md" },
+    [pscustomobject]@{ Label = "Form identity production checklist"; Script = "GenerateFormIdentityProductionChecklist.ps1"; Report = "AlienCrusherFormIdentityProductionChecklist.md" },
+    [pscustomobject]@{ Label = "Destruction readability checklist"; Script = "GenerateDestructionReadabilityChecklist.ps1"; Report = "AlienCrusherDestructionReadabilityChecklist.md" },
+    [pscustomobject]@{ Label = "Street prop variety checklist"; Script = "GenerateStreetPropVarietyChecklist.ps1"; Report = "AlienCrusherStreetPropVarietyChecklist.md" },
+    [pscustomobject]@{ Label = "UI icon status checklist"; Script = "GenerateUiIconStatusChecklist.ps1"; Report = "AlienCrusherUiIconStatusChecklist.md" },
+    [pscustomobject]@{ Label = "Boss identity production checklist"; Script = "GenerateBossIdentityProductionChecklist.ps1"; Report = "AlienCrusherBossIdentityProductionChecklist.md" },
+    [pscustomobject]@{ Label = "District palette production checklist"; Script = "GenerateDistrictPaletteProductionChecklist.ps1"; Report = "AlienCrusherDistrictPaletteProductionChecklist.md" },
+    [pscustomobject]@{ Label = "Outgame progression checklist"; Script = "GenerateOutgameProgressionChecklist.ps1"; Report = "AlienCrusherOutgameProgressionChecklist.md" },
+    [pscustomobject]@{ Label = "Route payoff layout checklist"; Script = "GenerateRoutePayoffLayoutChecklist.ps1"; Report = "AlienCrusherRoutePayoffLayoutChecklist.md" }
+)
 
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("[AlienCrusher][PlaytestReadinessPrep] Playtest readiness prep")
@@ -118,6 +130,7 @@ $lines.Add("PowerShell: $powerShellExecutable")
 $lines.Add("MaxStage: $MaxStage")
 $lines.Add("MaxGrowthStage: $MaxGrowthStage")
 $lines.Add("SkipStaticAudits: $SkipStaticAudits")
+$lines.Add("IncludeProductionChecklists: $IncludeProductionChecklists")
 
 $failed = 0
 if (-not $SkipStaticAudits) {
@@ -135,6 +148,17 @@ $failed += Invoke-PrepStep `
     -Arguments @("-MaxStage", "$MaxStage", "-MaxGrowthStage", "$MaxGrowthStage", "-ReportPath", $stageChecklistPath) `
     -PowerShellExecutable $powerShellExecutable `
     -Lines $lines
+
+if ($IncludeProductionChecklists) {
+    foreach ($spec in $productionChecklistSpecs) {
+        $failed += Invoke-PrepStep `
+            -Label $spec.Label `
+            -ScriptPath (Join-Path $PSScriptRoot $spec.Script) `
+            -Arguments @("-ReportPath", (Join-Path $projectRoot "Logs\$($spec.Report)")) `
+            -PowerShellExecutable $powerShellExecutable `
+            -Lines $lines
+    }
+}
 
 $failed += Invoke-PrepStep `
     -Label "Playtest telemetry summary" `
@@ -159,6 +183,11 @@ $lines.Add("## Output Summary")
 Add-ResultLine -Lines $lines -Path (Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log") -Label "Readiness report regression"
 Add-ResultLine -Lines $lines -Path $evidenceGateReportPath -Label "Evidence gate readiness"
 $lines.Add("Stage checklist: $stageChecklistPath")
+if ($IncludeProductionChecklists) {
+    foreach ($spec in $productionChecklistSpecs) {
+        $lines.Add("$($spec.Label): $(Join-Path $projectRoot "Logs\$($spec.Report)")")
+    }
+}
 $lines.Add("Telemetry summary: $telemetrySummaryPath")
 $lines.Add("Evidence gate report: $evidenceGateReportPath")
 
