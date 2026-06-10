@@ -1,6 +1,6 @@
 # Alien Crusher Stage Playtest Notes
 
-Last updated: 2026-05-25
+Last updated: 2026-06-10
 
 Use this tracked file for human observations from the first real Stage 1-7 `F10` sweep. The generated checklist in `Logs/AlienCrusherStagePlaytestChecklist.md` is a disposable readiness artifact and can be regenerated at any time.
 
@@ -40,6 +40,13 @@ Use this tracked file for human observations from the first real Stage 1-7 `F10`
 ## Stage Notes
 
 Each note field should be a short observation, not a one-word status. Write enough detail to explain what was readable, confusing, fair, unfair, distinct, or flat.
+
+Evidence-quality examples:
+- Readability: "Opening lane was readable because the low-rise row pulled forward, but the route marker disappeared behind tall props after LANE BREAK."
+- Route pressure: "HOLD felt fair until the last 10 seconds; the player reached the beacon but ran out of nearby crushable objects."
+- Map identity: "Stage 4 reads as a Sentinel checkpoint because pylons and barricades frame the route before the boss beat."
+- Rhythm identity: "Opener is calm, pivot is clear, sustain is noisy, payoff lands late; this stage's broken beat is sustain."
+- Screenshot/video reference: "screenshot path, video timestamp, or short capture note that can be checked later."
 
 ### Stage 01
 

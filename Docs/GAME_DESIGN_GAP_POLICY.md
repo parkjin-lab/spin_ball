@@ -1,6 +1,6 @@
 # Alien Crusher - Game Design Gap Policy
 
-Last updated: 2026-06-02
+Last updated: 2026-06-10
 
 ## Purpose
 
@@ -66,6 +66,7 @@ Allowed before evidence:
 - readiness/report generator fixes
 - scene validation/repair work
 - non-tuning UI bug fixes
+- autonomous backlog/runbook updates that make the next safe unattended task clearer
 
 Blocked before evidence:
 

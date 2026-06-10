@@ -1,10 +1,11 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-06-08
+Last updated: 2026-06-10
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
 - `Docs/NEXT_SESSION_CONTEXT_PACKET.md`
+- `Docs/AUTOMATION_RUNBOOK.md`
 - `Docs/GAME_DESIGN_GAP_POLICY.md`
 - `Docs/CURRENT_STAGE_RESOURCE_REQUIREMENTS.md`
 - `Docs/CURRENT_STAGE_RESOURCE_PRODUCTION_BOARD.md`
@@ -35,6 +36,8 @@ This document tracks the current project state, the next production priorities, 
 - Unity-free ROUTE HOLD tuning audit passes with `0 warning(s)` and reads current default tuning values, including route open beat timing, from runtime C# fields before auditing.
 - `Tools/RunStaticAudits.ps1` passes the current Unity-free audit set and fails if an expected report is missing or not refreshed during the run.
 - `Tools/RunPlaytestReadinessPrep.ps1` now runs the autonomous pre-playtest prep loop in one command: static audits, Stage 1-7 checklist generation, optional production checklist generation, telemetry summary generation, and Evidence Gate report-only readiness.
+- `Tools/RunPlaytestReadinessPrep.ps1` now ends with a "Next Autonomous Work While Waiting" block so recurring agents can keep improving readiness, reports, resource planning, and handoff docs without violating the no-evidence tuning lock.
+- `Tools/GenerateAutonomousWorkBacklog.ps1` generates `Logs/AlienCrusherAutonomousWorkBacklog.md`, a current safe-work list for unattended agents while real playtest evidence is still missing.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
@@ -196,6 +199,23 @@ Done when:
 - `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`
 - Stage 4 has a runtime Sentinel checkpoint landmark and documented boss-approach identity instead of sharing only the market escalation feel
 - HUD/audio/failure feedback tasks are tracked as P0/P1 design work
+
+### P0 - Autonomous Continuity While The Creator Is Away
+
+Recurring agents may continue work without new creator input only inside the safe pre-evidence lanes:
+
+1. Keep readiness automation readable and green.
+2. Improve generated checklist/report diagnostics.
+3. Update handoff docs with the latest verified next step.
+4. Expand resource planning from existing runtime hooks and generated checklist gaps.
+5. Add static/regression coverage for tooling changes.
+
+Do not use autonomous time to tune route timing, payoff counts, target placement, stage rhythm presets, or boss pressure before Evidence Green.
+
+Done when:
+- `Tools/RunPlaytestReadinessPrep.ps1` clearly prints both the required human evidence and safe autonomous work.
+- `Docs/NEXT_SESSION_CONTEXT_PACKET.md` names the next safe task for an unattended agent.
+- readiness prep regression protects those instructions.
 
 ---
 

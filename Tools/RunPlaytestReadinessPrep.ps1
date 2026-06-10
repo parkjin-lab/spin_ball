@@ -78,6 +78,24 @@ function Add-NextHumanEvidenceAction {
     $Lines.Add("- Re-run this prep after the sweep and notes are captured.")
 }
 
+function Add-NextAutonomousWorkAction {
+    param(
+        [System.Collections.Generic.List[string]]$Lines,
+        [bool]$IncludeProductionChecklists
+    )
+
+    $Lines.Add("")
+    $Lines.Add("## Next Autonomous Work While Waiting")
+    $Lines.Add("- Keep ``Tools/RunStaticAudits.ps1`` and ``Tools/TestPlaytestReadinessPrep.ps1 -FailOnWarnings`` green after every readiness/tooling change.")
+    $Lines.Add("- Improve checklist/report readability, evidence-gate diagnostics, and handoff docs without changing rhythm tuning values.")
+    $Lines.Add("- Expand resource production planning from generated checklist gaps: audio slots, HUD/status icons, district palettes, boss identity, and route payoff readability.")
+    $Lines.Add("- Update ``Docs/NEXT_SESSION_CONTEXT_PACKET.md`` and ``Docs/GAME_UPDATE_ROADMAP.md`` whenever automation changes the next safe task.")
+
+    if (-not $IncludeProductionChecklists) {
+        $Lines.Add("- If the next run is resource-focused, re-run this prep with ``-IncludeProductionChecklists`` before assigning asset work.")
+    }
+}
+
 function Invoke-PrepStep {
     param(
         [string]$Label,
@@ -147,6 +165,7 @@ if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
 }
 
 $stageChecklistPath = Join-Path $projectRoot "Logs\AlienCrusherStagePlaytestChecklist.md"
+$autonomousBacklogPath = Join-Path $projectRoot "Logs\AlienCrusherAutonomousWorkBacklog.md"
 $telemetrySummaryPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetrySummary.md"
 $evidenceGateReportPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestEvidenceGate.log"
 $productionChecklistSpecs = @(
@@ -200,6 +219,13 @@ if ($IncludeProductionChecklists) {
 }
 
 $failed += Invoke-PrepStep `
+    -Label "Autonomous work backlog" `
+    -ScriptPath (Join-Path $PSScriptRoot "GenerateAutonomousWorkBacklog.ps1") `
+    -Arguments @("-ReportPath", $autonomousBacklogPath) `
+    -PowerShellExecutable $powerShellExecutable `
+    -Lines $lines
+
+$failed += Invoke-PrepStep `
     -Label "Playtest telemetry summary" `
     -ScriptPath (Join-Path $PSScriptRoot "GeneratePlaytestTelemetrySummary.ps1") `
     -Arguments @("-ReportPath", $telemetrySummaryPath) `
@@ -222,6 +248,7 @@ $lines.Add("## Output Summary")
 Add-ResultLine -Lines $lines -Path (Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log") -Label "Readiness report regression"
 Add-ResultLine -Lines $lines -Path $evidenceGateReportPath -Label "Evidence gate readiness"
 $lines.Add("Stage checklist: $stageChecklistPath")
+$lines.Add("Autonomous work backlog: $autonomousBacklogPath")
 if ($IncludeProductionChecklists) {
     foreach ($spec in $productionChecklistSpecs) {
         $lines.Add("$($spec.Label): $(Join-Path $projectRoot "Logs\$($spec.Report)")")
@@ -231,6 +258,7 @@ $lines.Add("Telemetry summary: $telemetrySummaryPath")
 $lines.Add("Evidence gate report: $evidenceGateReportPath")
 
 Add-NextHumanEvidenceAction -Lines $lines -TelemetryLogPath (Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetry.log") -EvidenceGateReportPath $evidenceGateReportPath
+Add-NextAutonomousWorkAction -Lines $lines -IncludeProductionChecklists $IncludeProductionChecklists
 
 if ($failed -gt 0) {
     $lines.Add("")
