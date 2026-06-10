@@ -28,10 +28,11 @@ Evidence Green means:
    powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists
    ```
 3. Read `Logs/AlienCrusherAutonomousWorkBacklog.md`.
-4. Choose one safe autonomous task from the backlog.
-5. Make the smallest useful tooling, documentation, checklist, or static-audit improvement.
-6. Run focused validation, then `Tools/RunStaticAudits.ps1`.
-7. Update `Docs/NEXT_SESSION_CONTEXT_PACKET.md` and `Docs/GAME_UPDATE_ROADMAP.md` if the next safe task changed.
+4. Read `Logs/AlienCrusherResourceProductionBacklog.md` if the next safe lane is resource planning.
+5. Choose one safe autonomous task from the backlog.
+6. Make the smallest useful tooling, documentation, checklist, or static-audit improvement.
+7. Run focused validation, then `Tools/RunStaticAudits.ps1`.
+8. Update `Docs/NEXT_SESSION_CONTEXT_PACKET.md` and `Docs/GAME_UPDATE_ROADMAP.md` if the next safe task changed.
 
 ## Safe Work Before Evidence Green
 
@@ -39,6 +40,7 @@ Evidence Green means:
 - Improve generated checklist wording and missing-evidence instructions.
 - Keep `Tools/RunStaticAudits.ps1` and readiness regression tests green.
 - Expand resource production planning from existing runtime hooks.
+- Generate or refine `Logs/AlienCrusherResourceProductionBacklog.md` from existing production checklists.
 - Add static or regression coverage for scripts and reports.
 - Prepare architecture extraction notes for `DummyFlowController` ownership boundaries.
 - Refresh handoff docs so the next agent starts from current facts.

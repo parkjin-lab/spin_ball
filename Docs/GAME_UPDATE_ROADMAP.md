@@ -38,6 +38,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/RunPlaytestReadinessPrep.ps1` now runs the autonomous pre-playtest prep loop in one command: static audits, Stage 1-7 checklist generation, optional production checklist generation, telemetry summary generation, and Evidence Gate report-only readiness.
 - `Tools/RunPlaytestReadinessPrep.ps1` now ends with a "Next Autonomous Work While Waiting" block so recurring agents can keep improving readiness, reports, resource planning, and handoff docs without violating the no-evidence tuning lock.
 - `Tools/GenerateAutonomousWorkBacklog.ps1` generates `Logs/AlienCrusherAutonomousWorkBacklog.md`, a current safe-work list for unattended agents while real playtest evidence is still missing.
+- `Tools/GenerateResourceProductionBacklog.ps1` merges generated production checklists into `Logs/AlienCrusherResourceProductionBacklog.md`, so unattended agents can prioritize audio, route payoff, boss identity, district palette, and UI/icon work without touching tuning.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
@@ -214,6 +215,7 @@ Do not use autonomous time to tune route timing, payoff counts, target placement
 
 Done when:
 - `Tools/RunPlaytestReadinessPrep.ps1` clearly prints both the required human evidence and safe autonomous work.
+- `Logs/AlienCrusherResourceProductionBacklog.md` exists and identifies the highest-value resource tasks that support rhythm readability without changing gameplay numbers.
 - `Docs/NEXT_SESSION_CONTEXT_PACKET.md` names the next safe task for an unattended agent.
 - readiness prep regression protects those instructions.
 

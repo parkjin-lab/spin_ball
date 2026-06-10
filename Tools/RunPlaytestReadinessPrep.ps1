@@ -166,6 +166,7 @@ if ([string]::IsNullOrWhiteSpace($powerShellExecutable)) {
 
 $stageChecklistPath = Join-Path $projectRoot "Logs\AlienCrusherStagePlaytestChecklist.md"
 $autonomousBacklogPath = Join-Path $projectRoot "Logs\AlienCrusherAutonomousWorkBacklog.md"
+$resourceProductionBacklogPath = Join-Path $projectRoot "Logs\AlienCrusherResourceProductionBacklog.md"
 $telemetrySummaryPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetrySummary.md"
 $evidenceGateReportPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestEvidenceGate.log"
 $productionChecklistSpecs = @(
@@ -226,6 +227,13 @@ $failed += Invoke-PrepStep `
     -Lines $lines
 
 $failed += Invoke-PrepStep `
+    -Label "Resource production backlog" `
+    -ScriptPath (Join-Path $PSScriptRoot "GenerateResourceProductionBacklog.ps1") `
+    -Arguments @("-ReportPath", $resourceProductionBacklogPath) `
+    -PowerShellExecutable $powerShellExecutable `
+    -Lines $lines
+
+$failed += Invoke-PrepStep `
     -Label "Playtest telemetry summary" `
     -ScriptPath (Join-Path $PSScriptRoot "GeneratePlaytestTelemetrySummary.ps1") `
     -Arguments @("-ReportPath", $telemetrySummaryPath) `
@@ -249,6 +257,7 @@ Add-ResultLine -Lines $lines -Path (Join-Path $projectRoot "Logs\AlienCrusherRea
 Add-ResultLine -Lines $lines -Path $evidenceGateReportPath -Label "Evidence gate readiness"
 $lines.Add("Stage checklist: $stageChecklistPath")
 $lines.Add("Autonomous work backlog: $autonomousBacklogPath")
+$lines.Add("Resource production backlog: $resourceProductionBacklogPath")
 if ($IncludeProductionChecklists) {
     foreach ($spec in $productionChecklistSpecs) {
         $lines.Add("$($spec.Label): $(Join-Path $projectRoot "Logs\$($spec.Report)")")
