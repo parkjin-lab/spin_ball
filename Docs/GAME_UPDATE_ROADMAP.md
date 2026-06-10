@@ -40,6 +40,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/GenerateAutonomousWorkBacklog.ps1` generates `Logs/AlienCrusherAutonomousWorkBacklog.md`, a current safe-work list for unattended agents while real playtest evidence is still missing.
 - `Tools/GenerateResourceProductionBacklog.ps1` merges generated production checklists into `Logs/AlienCrusherResourceProductionBacklog.md`, so unattended agents can prioritize audio, route payoff, boss identity, district palette, and UI/icon work without touching tuning.
 - `Tools/GenerateArchitectureExtractionPlan.ps1` maps `DummyFlowController` partial ownership into `Logs/AlienCrusherArchitectureExtractionPlan.md`, so architecture planning can proceed without changing gameplay behavior before Evidence Green.
+- `Tools/GenerateAutomationStatusSummary.ps1` writes `Logs/AlienCrusherAutomationStatusSummary.md`, a one-page heartbeat artifact for progress, validation, current blockers, and next safe work.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
@@ -218,6 +219,7 @@ Done when:
 - `Tools/RunPlaytestReadinessPrep.ps1` clearly prints both the required human evidence and safe autonomous work.
 - `Logs/AlienCrusherResourceProductionBacklog.md` exists and identifies the highest-value resource tasks that support rhythm readability without changing gameplay numbers.
 - `Logs/AlienCrusherArchitectureExtractionPlan.md` exists and identifies safe extraction order before any `DummyFlowController` behavior refactor.
+- `Logs/AlienCrusherAutomationStatusSummary.md` exists and summarizes progress, validation, blockers, resource order, and architecture order for the next unattended agent.
 - `Docs/NEXT_SESSION_CONTEXT_PACKET.md` names the next safe task for an unattended agent.
 - readiness prep regression protects those instructions.
 

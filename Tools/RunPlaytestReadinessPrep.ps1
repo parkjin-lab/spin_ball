@@ -168,6 +168,7 @@ $stageChecklistPath = Join-Path $projectRoot "Logs\AlienCrusherStagePlaytestChec
 $autonomousBacklogPath = Join-Path $projectRoot "Logs\AlienCrusherAutonomousWorkBacklog.md"
 $resourceProductionBacklogPath = Join-Path $projectRoot "Logs\AlienCrusherResourceProductionBacklog.md"
 $architectureExtractionPlanPath = Join-Path $projectRoot "Logs\AlienCrusherArchitectureExtractionPlan.md"
+$automationStatusSummaryPath = Join-Path $projectRoot "Logs\AlienCrusherAutomationStatusSummary.md"
 $telemetrySummaryPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetrySummary.md"
 $evidenceGateReportPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestEvidenceGate.log"
 $productionChecklistSpecs = @(
@@ -259,6 +260,13 @@ if ($evidenceExitCode -ne 0) {
     $failed += $evidenceExitCode
 }
 
+$failed += Invoke-PrepStep `
+    -Label "Automation status summary" `
+    -ScriptPath (Join-Path $PSScriptRoot "GenerateAutomationStatusSummary.ps1") `
+    -Arguments @("-ReportPath", $automationStatusSummaryPath) `
+    -PowerShellExecutable $powerShellExecutable `
+    -Lines $lines
+
 $lines.Add("")
 $lines.Add("## Output Summary")
 Add-ResultLine -Lines $lines -Path (Join-Path $projectRoot "Logs\AlienCrusherReadinessReportsRegression.log") -Label "Readiness report regression"
@@ -267,6 +275,7 @@ $lines.Add("Stage checklist: $stageChecklistPath")
 $lines.Add("Autonomous work backlog: $autonomousBacklogPath")
 $lines.Add("Resource production backlog: $resourceProductionBacklogPath")
 $lines.Add("Architecture extraction plan: $architectureExtractionPlanPath")
+$lines.Add("Automation status summary: $automationStatusSummaryPath")
 if ($IncludeProductionChecklists) {
     foreach ($spec in $productionChecklistSpecs) {
         $lines.Add("$($spec.Label): $(Join-Path $projectRoot "Logs\$($spec.Report)")")

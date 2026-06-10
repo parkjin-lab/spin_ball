@@ -2,7 +2,7 @@
 
 ## Validation Snapshot
 - Latest Unity batch validation: 2026-05-05 (`Tools/RunUnityBatchChecks.ps1` passed; scene and map audit logs refreshed)
-- Latest static audit refresh: 2026-06-10 (`Tools/RunPlaytestReadinessPrep.ps1` now refreshes static audits, stage checklist, autonomous work backlog, resource production backlog, architecture extraction plan, optional production checklists, telemetry summary readiness artifact, and Evidence Gate report-only readiness)
+- Latest static audit refresh: 2026-06-10 (`Tools/RunPlaytestReadinessPrep.ps1` now refreshes static audits, stage checklist, autonomous work backlog, resource production backlog, architecture extraction plan, automation status summary, optional production checklists, telemetry summary readiness artifact, and Evidence Gate report-only readiness)
 - Real Stage 1-7 playtest telemetry: still not captured as of 2026-06-10; the summary pipeline is ready but still waiting on the first true `F10` sweep
 - No telemetry log or unparseable telemetry means the summary is a readiness artifact only; do not tune rhythm, payoff, boss, or route timing from it.
 - Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points, first-pass mobile HUD text safeguards, a Stage 4 Sentinel checkpoint landmark, ROUTE HOLD route-adherence telemetry, static landmark value records, and progression save smoke gating now exist, but audio clips/assets, device/screenshot readability, Stage 4 boss-approach readability, route-adherence evidence, landmark value evidence, and real save/load smoke evidence still need playtest confirmation. Treat real evidence gates as the next design policy backlog.
@@ -12,7 +12,7 @@
 - `Docs/AlienCrusherStagePlaytestNotes.md` still needs Stage 01-07 evidence-quality notes and screenshot/video references.
 - Progression Save Smoke Pass still needs a concrete save/load result.
 - Rhythm/payoff/boss tuning remains locked until `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`.
-- While waiting, unattended agents should use `Logs/AlienCrusherAutonomousWorkBacklog.md`, `Logs/AlienCrusherResourceProductionBacklog.md`, `Logs/AlienCrusherArchitectureExtractionPlan.md`, and `Docs/AUTOMATION_RUNBOOK.md` for safe non-tuning work.
+- While waiting, unattended agents should use `Logs/AlienCrusherAutonomousWorkBacklog.md`, `Logs/AlienCrusherResourceProductionBacklog.md`, `Logs/AlienCrusherArchitectureExtractionPlan.md`, `Logs/AlienCrusherAutomationStatusSummary.md`, and `Docs/AUTOMATION_RUNBOOK.md` for safe non-tuning work.
 
 ## Immediate First Action
 1. Run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`
@@ -20,11 +20,12 @@
 3. Inspect `Logs/AlienCrusherAutonomousWorkBacklog.md` for safe non-tuning work if the creator is not available.
 4. Inspect `Logs/AlienCrusherResourceProductionBacklog.md` if the next unattended lane is asset/resource planning.
 5. Inspect `Logs/AlienCrusherArchitectureExtractionPlan.md` if the next unattended lane is architecture planning.
-6. Run the progression save smoke pass from the generated stage checklist.
-7. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
-8. Re-run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`, then compare the rhythm snapshot against the checklist notes
-9. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
-10. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
+6. Inspect `Logs/AlienCrusherAutomationStatusSummary.md` for the current progress, validation, blockers, and next to-do snapshot.
+7. Run the progression save smoke pass from the generated stage checklist.
+8. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
+9. Re-run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`, then compare the rhythm snapshot against the checklist notes
+10. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
+11. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
 
 Done only when:
 - `Logs/AlienCrusherPlaytestTelemetry.log` exists

@@ -30,10 +30,11 @@ Evidence Green means:
 3. Read `Logs/AlienCrusherAutonomousWorkBacklog.md`.
 4. Read `Logs/AlienCrusherResourceProductionBacklog.md` if the next safe lane is resource planning.
 5. Read `Logs/AlienCrusherArchitectureExtractionPlan.md` if the next safe lane is architecture planning.
-6. Choose one safe autonomous task from the backlog.
-7. Make the smallest useful tooling, documentation, checklist, or static-audit improvement.
-8. Run focused validation, then `Tools/RunStaticAudits.ps1`.
-9. Update `Docs/NEXT_SESSION_CONTEXT_PACKET.md` and `Docs/GAME_UPDATE_ROADMAP.md` if the next safe task changed.
+6. Read `Logs/AlienCrusherAutomationStatusSummary.md` for the current progress, validation, blocker, and next to-do snapshot.
+7. Choose one safe autonomous task from the backlog.
+8. Make the smallest useful tooling, documentation, checklist, or static-audit improvement.
+9. Run focused validation, then `Tools/RunStaticAudits.ps1`.
+10. Update `Docs/NEXT_SESSION_CONTEXT_PACKET.md` and `Docs/GAME_UPDATE_ROADMAP.md` if the next safe task changed.
 
 ## Safe Work Before Evidence Green
 
@@ -43,6 +44,7 @@ Evidence Green means:
 - Expand resource production planning from existing runtime hooks.
 - Generate or refine `Logs/AlienCrusherResourceProductionBacklog.md` from existing production checklists.
 - Generate or refine `Logs/AlienCrusherArchitectureExtractionPlan.md` from `DummyFlowController` partial ownership.
+- Generate or refine `Logs/AlienCrusherAutomationStatusSummary.md` so heartbeats have one concise current-state artifact.
 - Add static or regression coverage for scripts and reports.
 - Prepare architecture extraction notes for `DummyFlowController` ownership boundaries.
 - Refresh handoff docs so the next agent starts from current facts.

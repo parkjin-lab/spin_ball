@@ -84,6 +84,7 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Architecture extraction plan" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Playtest telemetry summary" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Evidence gate readiness report" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "PASS: Automation status summary" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Evidence gate readiness: Result:" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "more issue(s) omitted from prep console summary" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "## Next Required Human Evidence" -Label "Prep report"
@@ -93,6 +94,7 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Autonomous work backlog:" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Resource production backlog:" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Architecture extraction plan:" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "Automation status summary:" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Result: playtest readiness prep completed" -Label "Prep report"
     }
 }
@@ -121,6 +123,7 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "PASS: Autonomous work backlog" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "PASS: Resource production backlog" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "PASS: Architecture extraction plan" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "PASS: Automation status summary" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Audio resource assignment checklist:" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Route payoff layout checklist:" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "more issue(s) omitted from prep console summary" -Label "Production prep report"
