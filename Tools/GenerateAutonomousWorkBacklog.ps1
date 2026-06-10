@@ -58,6 +58,7 @@ $stageNotesPath = Join-Path $projectRoot "Docs\AlienCrusherStagePlaytestNotes.md
 $readinessPrepPath = Join-Path $projectRoot "Tools\RunPlaytestReadinessPrep.ps1"
 $staticAuditsPath = Join-Path $projectRoot "Tools\RunStaticAudits.ps1"
 $resourceBacklogPath = Join-Path $projectRoot "Logs\AlienCrusherResourceProductionBacklog.md"
+$architecturePlanPath = Join-Path $projectRoot "Logs\AlienCrusherArchitectureExtractionPlan.md"
 $roadmapPath = Join-Path $projectRoot "Docs\GAME_UPDATE_ROADMAP.md"
 $contextPath = Join-Path $projectRoot "Docs\NEXT_SESSION_CONTEXT_PACKET.md"
 $policyPath = Join-Path $projectRoot "Docs\GAME_DESIGN_GAP_POLICY.md"
@@ -124,7 +125,7 @@ $lines.Add("2. Keep ``$staticAuditsPath`` green after every tooling or documenta
 $lines.Add("3. Improve checklist/report wording when the next human action is buried or ambiguous.")
 $lines.Add("4. Update ``$contextPath`` and ``$roadmapPath`` whenever the next safe unattended task changes.")
 $lines.Add("5. Inspect ``$resourceBacklogPath`` for audio, HUD/status icon, boss identity, district palette, and route payoff priorities.")
-$lines.Add("6. Prepare architecture extraction notes for ROUTE HOLD / stage route / telemetry ownership, but do not refactor gameplay behavior before evidence.")
+$lines.Add("6. Inspect ``$architecturePlanPath`` for ROUTE HOLD / stage route / telemetry ownership, but do not refactor gameplay behavior before evidence.")
 $lines.Add("")
 $lines.Add("## Missing Production Checklist Outputs")
 if ($missingProductionReports.Count -eq 0) {
