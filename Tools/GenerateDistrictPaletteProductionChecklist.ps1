@@ -132,6 +132,33 @@ $paletteCatalog = @(
     [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; District = "Ambient/Fog Set"; RuntimeAnchor = "RenderSettings.ambientLight"; Asset = "PAL_Ambient_StageBands"; PaletteNeed = "subtle progression tone without hiding gameplay silhouettes"; Folder = "Assets/Art/Palettes/Lighting/" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. Route tint readability"
+        Goal = "protect Target_A/Target_B, routeColor, and HOLD trail pips across every district"
+        Targets = @("PAL_RouteMarker_Tints", "Target_A", "Target_B", "routeColor")
+        Acceptance = "route markers remain the highest-contrast navigation signal in Stage 1, 4, and 7 screenshots"
+    },
+    [pscustomobject]@{
+        Batch = "B. Core rhythm palettes"
+        Goal = "separate opener, density pivot, boss approach, and late climax first"
+        Targets = @("PAL_District_StarterResidential", "PAL_District_MarketPlaza", "PAL_District_SentinelCheckpoint", "PAL_District_SkylineBlock")
+        Acceptance = "Stage 1/3/4/7 screenshots do not look interchangeable before reading HUD text"
+    },
+    [pscustomobject]@{
+        Batch = "C. Secondary variation palettes"
+        Goal = "give breathing-space, explosive payoff, and utility risk their own color language"
+        Targets = @("PAL_District_PocketPark", "PAL_District_ConstructionYard", "PAL_District_PowerBlock")
+        Acceptance = "Stage 2/5/6 palettes signal calmer route cut, blast payoff, and transformer risk respectively"
+    },
+    [pscustomobject]@{
+        Batch = "D. Ambient stage bands"
+        Goal = "add broad progression tone only after target and prop readability survives"
+        Targets = @("PAL_Ambient_StageBands", "RenderSettings.ambientLight")
+        Acceptance = "ambient changes never reduce building tier, route target, or payoff prop readability"
+    }
+)
+
 $stageRhythmRows = @(
     [pscustomobject]@{ StageBand = "Stage 1"; RhythmRole = "opener"; PaletteRule = "low clutter, clear starter lane, high contrast easy targets" },
     [pscustomobject]@{ StageBand = "Stage 2"; RhythmRole = "breathing variation"; PaletteRule = "park greens should feel calmer than the starter street" },
@@ -159,6 +186,15 @@ $lines.Add("2. Produce Stage 1, Stage 3, Stage 4, and Stage 7 palettes first bec
 $lines.Add("3. Add Stage 2/5/6 palette variants to make breathing-space, explosive-payoff, and utility-risk beats feel different.")
 $lines.Add("4. Add ambient/fog presets only after ground/building/prop contrast is readable.")
 $lines.Add("5. Verify screenshots from Stage 1 / 4 / 7 do not look interchangeable before tuning stage rhythm values.")
+$lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Targets | Acceptance check |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $targetNames = @($batch.Targets | ForEach-Object { "``$_``" })
+    $lines.Add(('| {0} | {1} | {2} | {3} |' -f $batch.Batch, $batch.Goal, ([string]::Join(", ", $targetNames)), $batch.Acceptance))
+}
+
 $lines.Add("")
 $lines.Add("## District Rhythm Palette Contract")
 $lines.Add("| Stage band | Rhythm role | Palette rule | Done? |")

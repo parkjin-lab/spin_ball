@@ -316,6 +316,11 @@ if ($errors.Count -eq 0) {
     else {
         $districtPaletteChecklistText = Get-Content -Path $tempDistrictPaletteChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "## Production Pass Order" -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "## Production Batches" -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "A. Route tint readability" -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "B. Core rhythm palettes" -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "C. Secondary variation palettes" -Label "District palette checklist"
+        Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "D. Ambient stage bands" -Label "District palette checklist"
         Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "## District Rhythm Palette Contract" -Label "District palette checklist"
         Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle "## Current District Palette Targets" -Label "District palette checklist"
         Add-Check -Errors $errors -ReportText $districtPaletteChecklistText -Needle 'PAL_District_StarterResidential' -Label "District palette checklist"
