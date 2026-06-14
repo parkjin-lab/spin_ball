@@ -267,6 +267,11 @@ if ($errors.Count -eq 0) {
     else {
         $uiIconChecklistText = Get-Content -Path $tempUiIconChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "## Production Pass Order" -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "## Production Batches" -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "A. Run essentials" -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "B. Route and boss readability" -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "C. Upgrade and chaos status" -Label "UI icon checklist"
+        Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "D. Result and recommendation badges" -Label "UI icon checklist"
         Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle "## Current UI Icon And Status Targets" -Label "UI icon checklist"
         Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Icon_DP' -Label "UI icon checklist"
         Add-Check -Errors $errors -ReportText $uiIconChecklistText -Needle 'Icon_Route' -Label "UI icon checklist"

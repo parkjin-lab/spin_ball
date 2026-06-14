@@ -133,6 +133,33 @@ $iconCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Recommended"; RuntimeUse = "recommended next upgrade/form"; Shape = "small focus chevron"; Folder = "Assets/Resources/UI/Badges/" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. Run essentials"
+        Goal = "replace repeated HUD/lobby/result reading with fast universal symbols"
+        Targets = @("Icon_DP", "Icon_Stage", "Icon_NextStep", "Icon_Route")
+        Acceptance = "player can identify money, current stage, next action, and route state before reading text"
+    },
+    [pscustomobject]@{
+        Batch = "B. Route and boss readability"
+        Goal = "make high-pressure targets and boss states scannable on mobile"
+        Targets = @("Icon_BreakWindow", "Icon_Shield", "Icon_WeakPoint", "Icon_Boss")
+        Acceptance = "route target, shield, weak point, break window, and boss state do not share silhouettes"
+    },
+    [pscustomobject]@{
+        Batch = "C. Upgrade and chaos status"
+        Goal = "compress upgrade/status words into recognizable gameplay mode symbols"
+        Targets = @("Icon_Overdrive", "Icon_Panic", "Icon_Seismic", "Icon_Retail", "Icon_Traffic")
+        Acceptance = "upgrade/status icons remain readable beside short HUD labels without crowding"
+    },
+    [pscustomobject]@{
+        Batch = "D. Result and recommendation badges"
+        Goal = "make clear, failure, locked, and recommended states visible before reading breakdown copy"
+        Targets = @("Badge_Result_Clear", "Badge_Result_Failure", "Badge_Locked", "Badge_Recommended")
+        Acceptance = "result/lobby cards show success, failure, lock, and recommendation states at a glance"
+    }
+)
+
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher UI Icon And Status Checklist")
 $lines.Add("")
@@ -150,6 +177,15 @@ $lines.Add("2. Create weak point, shield, break window, and boss icons for Stage
 $lines.Add("3. Create overdrive, panic, seismic, retail, and traffic icons for upgrade/status scanning.")
 $lines.Add("4. Create result and recommendation badges after the icon silhouettes are stable.")
 $lines.Add("5. Verify mobile HUD readability with icons present, not only text best-fit.")
+$lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Targets | Acceptance check |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $targetNames = @($batch.Targets | ForEach-Object { "``$_``" })
+    $lines.Add(('| {0} | {1} | {2} | {3} |' -f $batch.Batch, $batch.Goal, ([string]::Join(", ", $targetNames)), $batch.Acceptance))
+}
+
 $lines.Add("")
 $lines.Add("## Current UI Icon And Status Targets")
 $lines.Add("| Priority | Asset | Runtime use | Shape target | Folder | Done? |")
