@@ -289,6 +289,11 @@ if ($errors.Count -eq 0) {
     else {
         $bossIdentityChecklistText = Get-Content -Path $tempBossIdentityChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "## Production Pass Order" -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "## Production Batches" -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "A. Boss silhouette hierarchy" -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "B. Shield and core state readability" -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "C. Climax feedback package" -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'bossBreakWindowDuration' -Label "Boss identity checklist"
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "## Boss Rhythm Contract" -Label "Boss identity checklist"
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "## Current Boss Identity Targets" -Label "Boss identity checklist"
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'BOSS_Sentinel_Body_Kit' -Label "Boss identity checklist"

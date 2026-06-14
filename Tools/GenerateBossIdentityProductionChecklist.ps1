@@ -123,6 +123,27 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Category = "UI"; Asset = "Badge_Boss_Clear"; RuntimeMoment = "result and stage clear"; ReadabilityTarget = "separates boss victory from normal clear"; Folder = "Assets/Resources/UI/Badges/" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. Boss silhouette hierarchy"
+        Goal = "separate Sentinel body, shield pylons, and phase 2 drones from ordinary city targets"
+        Targets = @("BOSS_Sentinel_Body_Kit", "BOSS_Shield_Pylon_Kit", "BOSS_Phase2_Drone_Kit")
+        Acceptance = "Stage 4 screenshots make main boss, blockers, and drones countable before reading HUD text"
+    },
+    [pscustomobject]@{
+        Batch = "B. Shield and core state readability"
+        Goal = "make protected, exposed, and broken states visually opposite"
+        Targets = @("MAT_Boss_Sentinel_Armor", "MAT_Boss_Shield_Pylon", "MAT_Boss_Core_Exposed", "VFX_Boss_Core_Expose_Burst")
+        Acceptance = "players can identify when to stop hitting shields and when to burst the core"
+    },
+    [pscustomobject]@{
+        Batch = "C. Climax feedback package"
+        Goal = "punctuate warning, break, and down beats without changing boss timing"
+        Targets = @("VFX_Boss_Warning_Ring", "VFX_Boss_Defeat_Cascade", "SFX_Boss_Warning", "SFX_Boss_Break", "SFX_Boss_Down")
+        Acceptance = "boss warning, break window, and defeat release have distinct audio/visual weight"
+    }
+)
+
 $beatRows = @(
     [pscustomobject]@{ Beat = "Breathe"; RuntimeSignal = "shield pylons, drone recovery, or post-break recovery"; ProductionRule = "reduce warning density and make the next actionable target obvious" },
     [pscustomobject]@{ Beat = "Burst"; RuntimeSignal = "CORE EXPOSED, DRONE SWARM BROKEN, break window"; ProductionRule = "use the brightest core material and boss break sound here" },
@@ -148,6 +169,15 @@ $lines.Add("3. Add warning ring, core-expose burst, and defeat cascade VFX so th
 $lines.Add("4. Assign boss warning, break, and down audio clips to the current `FeedbackSystem` boss slots.")
 $lines.Add("5. Verify Stage 4 and Stage 7 in a real sweep before changing boss window timing.")
 $lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Targets | Acceptance check |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $targetNames = @($batch.Targets | ForEach-Object { "``$_``" })
+    $lines.Add(('| {0} | {1} | {2} | {3} |' -f $batch.Batch, $batch.Goal, ([string]::Join(", ", $targetNames)), $batch.Acceptance))
+}
+
+$lines.Add("")
 $lines.Add("## Boss Rhythm Contract")
 $lines.Add("| Beat | Runtime signal | Production rule | Done? |")
 $lines.Add("|---|---|---|---|")
@@ -166,7 +196,7 @@ foreach ($asset in $assetCatalog) {
 $lines.Add("")
 $lines.Add("## Review Notes")
 $lines.Add("- Treat boss identity as a climax-readability task, not only an art task.")
-$lines.Add("- Do not tune `bossBreakWindowDuration`, `bossPressurePulseInterval`, or shield regen until real Stage 1-7 evidence identifies a boss rhythm problem.")
+$lines.Add('- Do not tune `bossBreakWindowDuration`, `bossPressurePulseInterval`, or shield regen until real Stage 1-7 evidence identifies a boss rhythm problem.')
 $lines.Add("- Shielded and exposed states must be visually opposite at mobile distance.")
 $lines.Add("- Drone respawn preview should warn the player without looking like a live target.")
 $lines.Add("- Defeat cascade must feel like the final release after pressure, not another normal destruction burst.")
