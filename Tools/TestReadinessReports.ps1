@@ -203,6 +203,11 @@ if ($errors.Count -eq 0) {
     else {
         $formChecklistText = Get-Content -Path $tempFormChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $formChecklistText -Needle "## Production Pass Order" -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle "## Production Batches" -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle "A. Starter baseline" -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle "B. Route helper silhouettes" -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle "C. Damage fantasy silhouettes" -Label "Form checklist"
+        Add-Check -Errors $errors -ReportText $formChecklistText -Needle "D. Icon and material parity" -Label "Form checklist"
         Add-Check -Errors $errors -ReportText $formChecklistText -Needle "## Current Runtime Form Identity Targets" -Label "Form checklist"
         Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Sphere' -Label "Form checklist"
         Add-Check -Errors $errors -ReportText $formChecklistText -Needle 'Spike' -Label "Form checklist"

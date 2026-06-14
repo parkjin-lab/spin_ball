@@ -93,6 +93,33 @@ $formCatalog = @(
     [pscustomobject]@{ Form = "Crusher"; Skill = "CRUSHER SLAM"; Role = "heavy finish, boss pressure, and collapse payoff"; FailureProblem = "boss phase or late-stage pressure"; Silhouette = "layered heavy shell and frontal plate"; Icon = "blocky mass with impact crack"; Material = "deep steel body with bright blue pressure seams"; Priority = "P0" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. Starter baseline"
+        Goal = "make Sphere read intentional before comparing unlocked forms"
+        Targets = @("Sphere", "SPHERE PULSE")
+        Acceptance = "Sphere is simple but still has a clear belt/icon/material identity in lobby and run camera"
+    },
+    [pscustomobject]@{
+        Batch = "B. Route helper silhouettes"
+        Goal = "separate forward recovery from lateral reach"
+        Targets = @("Ram", "Saucer")
+        Acceptance = "Ram reads as forward force while Saucer reads as wide navigation at gameplay distance"
+    },
+    [pscustomobject]@{
+        Batch = "C. Damage fantasy silhouettes"
+        Goal = "separate sharp weak-point aggression from heavy collapse pressure"
+        Targets = @("Spike", "Crusher")
+        Acceptance = "Spike reads sharp/fast and Crusher reads heavy/slow without relying on text labels"
+    },
+    [pscustomobject]@{
+        Batch = "D. Icon and material parity"
+        Goal = "make every form selectable and memorable in lobby/result UI"
+        Targets = @("Form icons", "Form material families", "Lobby card thumbnails")
+        Acceptance = "all five forms have matching silhouette, icon, and material language before balance tuning"
+    }
+)
+
 $catalogForms = @($formCatalog | ForEach-Object { $_.Form } | Sort-Object -Unique)
 $missingFromCatalog = @($runtimeForms | Where-Object { $catalogForms -notcontains $_ })
 $missingFromRuntime = @($catalogForms | Where-Object { $runtimeForms -notcontains $_ })
@@ -122,6 +149,15 @@ $lines.Add("1. Build readable primitive silhouette addons for all five forms.")
 $lines.Add("2. Capture temporary icon placeholders from the same silhouettes.")
 $lines.Add("3. Assign one material/color family per form.")
 $lines.Add("4. Verify the lobby buttons and in-run camera distance still distinguish each form.")
+$lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Targets | Acceptance check |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $targetNames = @($batch.Targets | ForEach-Object { "``$_``" })
+    $lines.Add(('| {0} | {1} | {2} | {3} |' -f $batch.Batch, $batch.Goal, ([string]::Join(", ", $targetNames)), $batch.Acceptance))
+}
+
 $lines.Add("")
 $lines.Add("## Current Runtime Form Identity Targets")
 $lines.Add("| Priority | Form | Unlock DP | Runtime skill | Gameplay role | Failure problem it should answer | Primitive silhouette target | Icon target | Material target | Done? |")
