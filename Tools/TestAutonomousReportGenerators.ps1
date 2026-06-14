@@ -118,7 +118,7 @@ Invoke-GeneratorCheck `
     -Label "Automation status summary" `
     -ScriptPath (Join-Path $PSScriptRoot "GenerateAutomationStatusSummary.ps1") `
     -ReportPath $tempReports[3] `
-    -Needles @("## Progress", "## Validation", "## Next To-Do", "Result: automation status summary generated") `
+    -Needles @("## Progress", "## Validation", "Meaningful stage notes:", "fields)", "## Next To-Do", "Result: automation status summary generated") `
     -PowerShellExecutable $powerShellExecutable `
     -Errors $errors
 

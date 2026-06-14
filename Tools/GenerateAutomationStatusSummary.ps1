@@ -59,6 +59,23 @@ function Get-FirstMatchingLines {
     return @(Select-String -Path $Path -Pattern $Pattern | Select-Object -First $Count | ForEach-Object { $_.Line })
 }
 
+function Test-StageMeaningfulNoteField {
+    param(
+        [string]$NotesText,
+        [int]$StageNumber,
+        [string]$FieldName
+    )
+
+    $stagePattern = "(?ms)^### Stage {0:00}\s*(?<section>.*?)(?=^### Stage |\z)" -f $StageNumber
+    $stageMatch = [regex]::Match($NotesText, $stagePattern)
+    if (-not $stageMatch.Success) {
+        return $false
+    }
+
+    $match = [regex]::Match($stageMatch.Groups["section"].Value, "(?m)^- $([regex]::Escape($FieldName)):[ \t]*(.+)$")
+    return $match.Success -and $match.Groups[1].Value.Trim().Length -ge 12
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherAutomationStatusSummary.md"
 $reportDirectory = Split-Path -Parent $resolvedReportPath
@@ -77,6 +94,27 @@ $stageNotesPath = Join-Path $projectRoot "Docs\AlienCrusherStagePlaytestNotes.md
 
 $realTelemetryStatus = if (Test-Path -Path $telemetryLogPath -PathType Leaf) { "present" } else { "missing" }
 $stageNotesText = if (Test-Path -Path $stageNotesPath -PathType Leaf) { Get-Content -Path $stageNotesPath -Raw } else { "" }
+$requiredNoteFields = @("Readability", "Route pressure", "Map identity", "Rhythm identity")
+$requiredStageNoteCount = 7 * $requiredNoteFields.Count
+$meaningfulStageNoteCount = 0
+foreach ($stageNumber in 1..7) {
+    foreach ($fieldName in $requiredNoteFields) {
+        if (Test-StageMeaningfulNoteField -NotesText $stageNotesText -StageNumber $stageNumber -FieldName $fieldName) {
+            $meaningfulStageNoteCount++
+        }
+    }
+}
+
+$stageNoteStatus = if ($meaningfulStageNoteCount -eq 0) {
+    "missing"
+}
+elseif ($meaningfulStageNoteCount -lt $requiredStageNoteCount) {
+    "partial"
+}
+else {
+    "complete"
+}
+
 $saveSmokeStatus = if ($stageNotesText -match "(?m)^- \[x\] Save/load result:\s*\S") { "present" } else { "missing" }
 $resourceResult = Get-LastResultLine -Path $resourceBacklogPath
 $architectureResult = Get-LastResultLine -Path $architecturePlanPath
@@ -103,6 +141,7 @@ $lines.Add("## Validation")
 $lines.Add("- Readiness prep: $prepResult")
 $lines.Add("- Evidence gate readiness: $evidenceResult")
 $lines.Add("- Real playtest telemetry: $realTelemetryStatus")
+$lines.Add("- Meaningful stage notes: $stageNoteStatus ($meaningfulStageNoteCount / $requiredStageNoteCount fields)")
 $lines.Add("- Progression save smoke result: $saveSmokeStatus")
 $lines.Add("- Static audits should remain the commit gate for tooling/documentation changes.")
 $lines.Add("")
