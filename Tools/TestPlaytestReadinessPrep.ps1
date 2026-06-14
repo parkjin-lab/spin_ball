@@ -88,6 +88,9 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Evidence gate readiness: Result:" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "more issue(s) omitted from prep console summary" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "## Next Required Human Evidence" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "Evidence gate snapshot: Result:" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "Missing stage note fields:" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "Missing save smoke result:" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle 'Run one real editor/development `F10` Stage 1-7 sweep.' -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "## Next Autonomous Work While Waiting" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Improve checklist/report readability, evidence-gate diagnostics, and handoff docs without changing rhythm tuning values." -Label "Prep report"
@@ -128,6 +131,8 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Route payoff layout checklist:" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "more issue(s) omitted from prep console summary" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "## Next Required Human Evidence" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Evidence gate snapshot: Result:" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Missing screenshot/video references:" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "## Next Autonomous Work While Waiting" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Result: playtest readiness prep completed" -Label "Production prep report"
     }

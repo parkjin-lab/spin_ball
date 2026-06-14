@@ -72,6 +72,22 @@ function Add-NextHumanEvidenceAction {
 
     $Lines.Add("")
     $Lines.Add("## Next Required Human Evidence")
+    if (Test-Path -Path $EvidenceGateReportPath -PathType Leaf) {
+        $evidenceGateLines = @(Get-Content -Path $EvidenceGateReportPath)
+        $resultLine = $evidenceGateLines | Where-Object { $_ -match '^Result:' } | Select-Object -Last 1
+        $missingNoteCount = @($evidenceGateLines | Where-Object { $_ -match '^ERROR: Stage \d{2} missing meaningful note field:' }).Count
+        $missingScreenshotCount = @($evidenceGateLines | Where-Object { $_ -match '^WARN: Stage \d{2} has no screenshot/video reference\.' }).Count
+        $missingTelemetry = @($evidenceGateLines | Where-Object { $_ -match '^ERROR: Missing telemetry log\.' }).Count -gt 0
+        $missingSaveSmoke = @($evidenceGateLines | Where-Object { $_ -match '^ERROR: Progression Save Smoke Pass missing meaningful Save/load result\.' }).Count -gt 0
+
+        $Lines.Add("Evidence gate snapshot: $(if ($null -ne $resultLine) { $resultLine } else { 'Result line missing' })")
+        $Lines.Add("- Missing telemetry sweep: $(if ($missingTelemetry) { 'yes' } else { 'no' })")
+        $Lines.Add("- Missing stage note fields: $missingNoteCount")
+        $Lines.Add("- Missing save smoke result: $(if ($missingSaveSmoke) { 'yes' } else { 'no' })")
+        $Lines.Add("- Missing screenshot/video references: $missingScreenshotCount")
+        $Lines.Add("")
+    }
+
     $Lines.Add('- Run one real editor/development `F10` Stage 1-7 sweep.')
     $Lines.Add('- Fill `Docs/AlienCrusherStagePlaytestNotes.md` with meaningful Stage 1-7 readability, route pressure, map identity, and rhythm identity notes.')
     $Lines.Add("- Complete the Progression Save Smoke Pass with a concrete save/load result.")
