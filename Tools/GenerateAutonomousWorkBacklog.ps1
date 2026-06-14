@@ -71,18 +71,25 @@ else {
     ""
 }
 
-$hasStageNotes = $false
+$requiredNoteFields = @("Readability", "Route pressure", "Map identity", "Rhythm identity")
+$requiredStageNoteCount = 7 * $requiredNoteFields.Count
+$meaningfulStageNoteCount = 0
 foreach ($stageNumber in 1..7) {
-    foreach ($fieldName in @("Readability", "Route pressure", "Map identity", "Rhythm identity")) {
+    foreach ($fieldName in $requiredNoteFields) {
         if (Test-StageMeaningfulNoteField -NotesText $notesText -StageNumber $stageNumber -FieldName $fieldName) {
-            $hasStageNotes = $true
-            break
+            $meaningfulStageNoteCount++
         }
     }
+}
 
-    if ($hasStageNotes) {
-        break
-    }
+$stageNoteStatus = if ($meaningfulStageNoteCount -eq 0) {
+    "missing"
+}
+elseif ($meaningfulStageNoteCount -lt $requiredStageNoteCount) {
+    "partial"
+}
+else {
+    "complete"
 }
 
 $saveSmokeComplete = $notesText -match "(?m)^- \[x\] Exit and re-enter play mode keeps" -and $notesText -match "(?m)^- \[x\] Edited/restored save data" -and $notesText -match "(?m)^- \[x\] Save/load result:\s*\S"
@@ -116,7 +123,7 @@ $lines.Add("")
 $lines.Add("## Current Blocking State")
 $lines.Add("- Real telemetry log: $(if (Test-Path -Path $telemetryLogPath -PathType Leaf) { "present" } else { "missing" })")
 $lines.Add("- Telemetry summary: $(if (Test-Path -Path $telemetrySummaryPath -PathType Leaf) { "present" } else { "missing" })")
-$lines.Add("- Meaningful stage notes: $(if ($hasStageNotes) { "partially present" } else { "missing" })")
+$lines.Add("- Meaningful stage notes: $stageNoteStatus ($meaningfulStageNoteCount / $requiredStageNoteCount fields)")
 $lines.Add("- Progression save smoke result: $(if ($saveSmokeComplete) { "complete" } else { "missing" })")
 $lines.Add("- Rhythm/payoff/boss tuning: locked until Evidence Green")
 $lines.Add("")
