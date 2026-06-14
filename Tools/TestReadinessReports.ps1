@@ -179,6 +179,10 @@ if ($errors.Count -eq 0) {
     else {
         $audioChecklistText = Get-Content -Path $tempAudioChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "## Assignment Pass Order" -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "## Production Batches" -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "A. Route and failure rhythm" -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "B. Impact and destruction weight" -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "C. Climax and progression payoff" -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "## Current FeedbackSystem Audio Slots" -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'failureWarningClip' -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'failureBossClip' -Label "Audio checklist"

@@ -70,6 +70,27 @@ $slotCatalog = @(
     [pscustomobject]@{ Field = "failureBossClip"; AssetName = "SFX_Failure_Boss"; Category = "Failure"; Folder = "Assets/Audio/SFX/Failure/"; RuntimeMoment = "boss-phase failure"; Priority = "P0" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. Route and failure rhythm"
+        Goal = "make opener, pivot, urgency, payoff, and defeat audible before tuning"
+        Fields = @("routeOpenClip", "routeHoldWarningClip", "routeBonusClip", "failureWarningClip", "failureBossClip")
+        Acceptance = "route open, route hold warning, route bonus, ordinary failure, and boss failure are distinguishable without looking at UI"
+    },
+    [pscustomobject]@{
+        Batch = "B. Impact and destruction weight"
+        Goal = "separate light contact, committed hit, heavy hit, small break, and collapse"
+        Fields = @("hitLightClip", "hitMediumClip", "hitHeavyClip", "breakSmallClip", "breakLargeClip")
+        Acceptance = "players can hear whether they grazed, connected, broke a prop, or collapsed a large object"
+    },
+    [pscustomobject]@{
+        Batch = "C. Climax and progression payoff"
+        Goal = "give boss pressure, boss break, boss defeat, combo rise, and level-up their own punctuation"
+        Fields = @("bossWarningClip", "bossBreakClip", "bossDownClip", "comboRiseClip", "levelUpClip")
+        Acceptance = "boss warning/break/down and progression payoff do not share the same emotional color or tail length"
+    }
+)
+
 $catalogFields = @($slotCatalog | ForEach-Object { $_.Field } | Sort-Object -Unique)
 $missingFromCatalog = @($runtimeSlots | Where-Object { $catalogFields -notcontains $_ })
 $missingFromRuntime = @($catalogFields | Where-Object { $runtimeSlots -notcontains $_ })
@@ -92,6 +113,15 @@ $lines.Add("1. Assign route and failure beats first: they carry the current rhyt
 $lines.Add("2. Assign hit and break weight next: they carry destruction pleasure.")
 $lines.Add("3. Assign boss and level-up beats after that: they carry climax and progression payoff.")
 $lines.Add("4. Use short temporary clips if final assets do not exist yet; do not leave critical beats silent.")
+$lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Slots | Acceptance check |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $slotNames = @($batch.Fields | ForEach-Object { "``$_``" })
+    $lines.Add(('| {0} | {1} | {2} | {3} |' -f $batch.Batch, $batch.Goal, ([string]::Join(", ", $slotNames)), $batch.Acceptance))
+}
+
 $lines.Add("")
 $lines.Add("## Current FeedbackSystem Audio Slots")
 $lines.Add("| Priority | Category | Field | Suggested asset name | Folder | Runtime moment | Assigned? | Notes |")
