@@ -348,6 +348,11 @@ if ($errors.Count -eq 0) {
     else {
         $outgameProgressionChecklistText = Get-Content -Path $tempOutgameProgressionChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "## Production Pass Order" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "## Production Batches" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "A. DP economy signal" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "B. Form and meta choice states" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "C. Result-to-lobby payoff" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "D. Persistence and confirmation feedback" -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "## Outgame Loop Contract" -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "## Current Outgame Progression Targets" -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'UI_FormCard_StateSet' -Label "Outgame progression checklist"

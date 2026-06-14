@@ -150,6 +150,33 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Category = "Audio"; Asset = "SFX_Progression_Locked"; RuntimeUse = "not enough DP or stage locked"; State = "locked, insufficient DP"; Folder = "Assets/Audio/SFX/UI/" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. DP economy signal"
+        Goal = "make earn, spend, total, and insufficient DP states obvious"
+        Targets = @("UI_DP_GainBurst", "Icon_DP", "SFX_Progression_Locked")
+        Acceptance = "result and lobby clearly show what was earned, what was spent, and why a purchase failed"
+    },
+    [pscustomobject]@{
+        Batch = "B. Form and meta choice states"
+        Goal = "make the recommended next spend target louder than secondary options"
+        Targets = @("UI_FormCard_StateSet", "UI_MetaNode_SizeCore", "UI_MetaNode_ImpactCore", "UI_MetaNode_DpAmplifier")
+        Acceptance = "locked, affordable, equipped/purchased, maxed, and recommended states read without long copy"
+    },
+    [pscustomobject]@{
+        Batch = "C. Result-to-lobby payoff"
+        Goal = "connect run outcome to the next run's concrete change"
+        Targets = @("Badge_FormReady", "Badge_MetaReady", "Banner_StageUnlocked")
+        Acceptance = "result screen points to one next action and lobby confirms the new option/state"
+    },
+    [pscustomobject]@{
+        Batch = "D. Persistence and confirmation feedback"
+        Goal = "confirm unlocks, purchases, equips, and save safety without slowing the run-return rhythm"
+        Targets = @("Toast_ProgressionSaved", "SFX_Progression_Confirm", "SFX_Progression_Locked")
+        Acceptance = "positive/locked/save feedback is noticeable but does not require modal acknowledgement"
+    }
+)
+
 $loopRows = @(
     [pscustomobject]@{ Beat = "Earn"; RuntimeSignal = "DP +, TOTAL DP, BIG DP"; ProductionRule = "DP gain should visibly travel from result to next lobby decision" },
     [pscustomobject]@{ Beat = "Read"; RuntimeSignal = "NEXT FORM, NEXT META, recommendation text"; ProductionRule = "one primary spend target must be visually louder than secondary options" },
@@ -175,6 +202,15 @@ $lines.Add("2. Build form card states for locked, affordable, equipped, and reco
 $lines.Add("3. Build meta node states for Size Core, Impact Core, and DP Amplifier with a strong recommended focus state.")
 $lines.Add("4. Add result badges and stage-unlocked banners so a run clearly creates an outgame consequence.")
 $lines.Add("5. Add confirmation/locked audio and save toasts after visual states are readable.")
+$lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Targets | Acceptance check |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $targetNames = @($batch.Targets | ForEach-Object { "``$_``" })
+    $lines.Add(('| {0} | {1} | {2} | {3} |' -f $batch.Batch, $batch.Goal, ([string]::Join(", ", $targetNames)), $batch.Acceptance))
+}
+
 $lines.Add("")
 $lines.Add("## Outgame Loop Contract")
 $lines.Add("| Beat | Runtime signal | Production rule | Done? |")
