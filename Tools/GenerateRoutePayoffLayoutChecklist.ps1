@@ -135,6 +135,27 @@ $layoutCatalog = @(
     [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Smash Confirmation"; RuntimeLabel = "FORWARD SMASH"; LayoutRule = "impact ring and camera beat stronger than route open, weaker than boss down"; Asset = "VFX_ForwardSmash_Confirm"; Folder = "Assets/Art/VFX/Route/" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. District payoff layouts"
+        Goal = "make each ROUTE BONUS cluster read as a district-specific reward"
+        Targets = @("PAYOFF_ParkCut_Layout", "PAYOFF_MarketChain_Layout", "PAYOFF_YardBlast_Layout", "PAYOFF_PowerSurge_Layout", "PAYOFF_SkylineBreach_Layout")
+        Acceptance = "Stage 2/3-4/5/6/7 payoff screenshots differ by spacing, silhouette, and chase direction"
+    },
+    [pscustomobject]@{
+        Batch = "B. Cluster marker readability"
+        Goal = "frame the opened cluster without hiding route targets or HOLD pips"
+        Targets = @("VFX_RouteCluster_Marker", "RouteClusterMarker")
+        Acceptance = "Target_A/Target_B, the next SMASH target, and route trail pips remain readable over the marker"
+    },
+    [pscustomobject]@{
+        Batch = "C. Forward Smash confirmation"
+        Goal = "make the cash-out beat feel earned after route reading"
+        Targets = @("VFX_ForwardSmash_Confirm", "SFX_Route_Bonus")
+        Acceptance = "Forward Smash feels bigger than a normal break and shorter than boss down or stage clear"
+    }
+)
+
 $rhythmRows = @(
     [pscustomobject]@{ Beat = "Open"; RuntimeSignal = "LANE BREAK -> ROUTE OPEN"; ProductionRule = "show the next target before reward props appear" },
     [pscustomobject]@{ Beat = "Hold"; RuntimeSignal = "ROUTE HOLD meter and beacon"; ProductionRule = "cluster should not steal attention until the hold succeeds" },
@@ -159,7 +180,16 @@ $lines.Add("1. Preserve target and beacon readability first; route payoff props 
 $lines.Add("2. Produce Stage 2, Stage 3-4, Stage 5, Stage 6, and Stage 7 payoff layout prefabs or layout rules from the current runtime prop mix.")
 $lines.Add("3. Add a subtle route cluster floor marker so the opened cluster reads as intentional.")
 $lines.Add("4. Add Forward Smash confirmation VFX/SFX after the cluster is visually readable.")
-$lines.Add("5. Verify Stage 1 / 4 / 7 screenshots before changing `routeRewardClusterRadius` or `routeRewardClusterPropCount`.")
+$lines.Add('5. Verify Stage 1 / 4 / 7 screenshots before changing `routeRewardClusterRadius` or `routeRewardClusterPropCount`.')
+$lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Targets | Acceptance check |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $targetNames = @($batch.Targets | ForEach-Object { "``$_``" })
+    $lines.Add(('| {0} | {1} | {2} | {3} |' -f $batch.Batch, $batch.Goal, ([string]::Join(", ", $targetNames)), $batch.Acceptance))
+}
+
 $lines.Add("")
 $lines.Add("## Route Payoff Rhythm Contract")
 $lines.Add("| Beat | Runtime signal | Production rule | Done? |")

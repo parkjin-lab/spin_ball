@@ -355,6 +355,11 @@ if ($errors.Count -eq 0) {
     else {
         $routePayoffChecklistText = Get-Content -Path $tempRoutePayoffChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "## Production Pass Order" -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'routeRewardClusterRadius' -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "## Production Batches" -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "A. District payoff layouts" -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "B. Cluster marker readability" -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "C. Forward Smash confirmation" -Label "Route payoff checklist"
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "## Route Payoff Rhythm Contract" -Label "Route payoff checklist"
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "## Current Route Payoff Layout Targets" -Label "Route payoff checklist"
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'PAYOFF_ParkCut_Layout' -Label "Route payoff checklist"
