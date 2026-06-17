@@ -188,6 +188,21 @@ else {
 }
 $lines.Add("")
 
+$lines.Add("## Next Recommended Batch Task Card")
+if ($recommendedBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $recommendedBatches[0]
+    $lines.Add("- Source: $($nextBatch.Source)")
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Why now: $($nextBatch.Reason)")
+    $lines.Add("- Targets: $markdownTick$($nextBatch.Targets)$markdownTick")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: every target has a draft asset, assignment note, or placeholder decision that can be reviewed without changing gameplay tuning.")
+}
+$lines.Add("")
+
 $lines.Add("## Production Batch Focus")
 if ($productionBatches.Count -eq 0) {
     $lines.Add("- none")
