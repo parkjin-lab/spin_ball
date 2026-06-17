@@ -120,6 +120,33 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P0"; Category = "Audio"; Asset = "SFX_Break_LargeCollapse"; RuntimeMeaning = "large collapse"; Target = "wide, heavy, longer tail"; Folder = "Assets/Audio/SFX/Impact/" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. Building tier materials"
+        Goal = "make small, mid, large, and boss structures readable before damage state polish"
+        Targets = @("MAT_Building_Small", "MAT_Building_Mid", "MAT_Building_Large", "MAT_Boss_Structure")
+        Acceptance = "players can tell easy targets, standard fillers, durable targets, and boss structures apart at route speed"
+    },
+    [pscustomobject]@{
+        Batch = "B. Combat state materials"
+        Goal = "separate damaged, weak-point, shielded, and exposed-core states"
+        Targets = @("MAT_Damage_CrackOverlay", "MAT_WeakPoint_Glow", "MAT_Shielded_Pylon", "MAT_Exposed_Core")
+        Acceptance = "weak point, shielded pylon, and exposed core never read as the same state"
+    },
+    [pscustomobject]@{
+        Batch = "C. Break feedback package"
+        Goal = "make small hit, heavy break, near-break, and critical hit feedback distinct"
+        Targets = @("VFX_Debris_Light", "VFX_Debris_Heavy", "VFX_Smoke_Damage", "VFX_WeakPoint_Hit")
+        Acceptance = "feedback confirms impact scale without hiding route targets or HOLD pips"
+    },
+    [pscustomobject]@{
+        Batch = "D. Collapse audio pairing"
+        Goal = "match visual break size with current FeedbackSystem break slots"
+        Targets = @("SFX_Break_Small", "SFX_Break_LargeCollapse", "breakSmallClip", "breakLargeClip")
+        Acceptance = "small break and large collapse are separable by ear before final audio polish"
+    }
+)
+
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher Destruction Readability Checklist")
 $lines.Add("")
@@ -137,6 +164,15 @@ $lines.Add("2. Add weak point, shielded pylon, and exposed-core state materials.
 $lines.Add("3. Add damage crack/smoke/debris VFX variants.")
 $lines.Add("4. Pair small break and large collapse audio with the current `FeedbackSystem` break slots.")
 $lines.Add("5. Verify in Stage 1 / 4 / 7 that targets, weak points, and boss states remain readable behind route HUD and feedback.")
+$lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Targets | Acceptance check |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $targetNames = @($batch.Targets | ForEach-Object { "``$_``" })
+    $lines.Add(('| {0} | {1} | {2} | {3} |' -f $batch.Batch, $batch.Goal, ([string]::Join(", ", $targetNames)), $batch.Acceptance))
+}
+
 $lines.Add("")
 $lines.Add("## Current Destruction Readability Targets")
 $lines.Add("| Priority | Category | Asset | Runtime meaning | Readability target | Folder | Done? |")

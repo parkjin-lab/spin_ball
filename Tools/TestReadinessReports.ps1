@@ -230,6 +230,11 @@ if ($errors.Count -eq 0) {
     else {
         $destructionChecklistText = Get-Content -Path $tempDestructionChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "## Production Pass Order" -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "## Production Batches" -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "A. Building tier materials" -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "B. Combat state materials" -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "C. Break feedback package" -Label "Destruction checklist"
+        Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "D. Collapse audio pairing" -Label "Destruction checklist"
         Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle "## Current Destruction Readability Targets" -Label "Destruction checklist"
         Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle 'MAT_WeakPoint_Glow' -Label "Destruction checklist"
         Add-Check -Errors $errors -ReportText $destructionChecklistText -Needle 'MAT_Shielded_Pylon' -Label "Destruction checklist"
