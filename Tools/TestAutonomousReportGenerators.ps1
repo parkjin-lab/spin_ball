@@ -118,7 +118,7 @@ Invoke-GeneratorCheck `
     -Label "Automation status summary" `
     -ScriptPath (Join-Path $PSScriptRoot "GenerateAutomationStatusSummary.ps1") `
     -ReportPath $tempReports[3] `
-    -Needles @("## Progress", "Resource planning is consolidated:", "Resource production batches are consolidated:", "## Validation", "Meaningful stage notes:", "fields)", "## Next To-Do", "Result: automation status summary generated") `
+    -Needles @("## Progress", "Resource planning is consolidated:", "Resource production batches are consolidated:", "Resource production batch order is consolidated:", "## Validation", "Meaningful stage notes:", "fields)", "## Next To-Do", "## Recommended Production Batch Order", "Result: automation status summary generated") `
     -PowerShellExecutable $powerShellExecutable `
     -Errors $errors
 

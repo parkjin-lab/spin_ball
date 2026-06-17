@@ -109,6 +109,7 @@ $resourceBacklogPath = Join-Path $projectRoot "Logs\AlienCrusherResourceProducti
 $architecturePlanPath = Join-Path $projectRoot "Logs\AlienCrusherArchitectureExtractionPlan.md"
 $telemetryLogPath = Join-Path $projectRoot "Logs\AlienCrusherPlaytestTelemetry.log"
 $stageNotesPath = Join-Path $projectRoot "Docs\AlienCrusherStagePlaytestNotes.md"
+$markdownTick = [char]96
 
 $realTelemetryStatus = if (Test-Path -Path $telemetryLogPath -PathType Leaf) { "present" } else { "missing" }
 $stageNotesText = if (Test-Path -Path $stageNotesPath -PathType Leaf) { Get-Content -Path $stageNotesPath -Raw } else { "" }
@@ -136,6 +137,7 @@ else {
 $saveSmokeStatus = if ($stageNotesText -match "(?m)^- \[x\] Save/load result:\s*\S") { "present" } else { "missing" }
 $resourceItemResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: resource production backlog generated"
 $resourceBatchResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: production batch focus generated"
+$resourceBatchOrderResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: recommended production batch order generated"
 $architectureResult = Get-LastResultLine -Path $architecturePlanPath
 $evidenceResult = Get-LastResultLine -Path $evidenceGatePath
 $prepResult = Get-LastResultLine -Path $readinessPrepPath
@@ -155,6 +157,7 @@ $lines.Add("- Core loop direction is implemented around Stage Start -> LANE BREA
 $lines.Add("- Autonomous readiness now generates stage checklist, autonomous work backlog, resource production backlog, architecture extraction plan, telemetry summary readiness, and Evidence Gate readiness.")
 $lines.Add("- Resource planning is consolidated: $resourceItemResult")
 $lines.Add("- Resource production batches are consolidated: $resourceBatchResult")
+$lines.Add("- Resource production batch order is consolidated: $resourceBatchOrderResult")
 $lines.Add("- Architecture planning is consolidated: $architectureResult")
 $lines.Add("")
 $lines.Add("## Validation")
@@ -171,7 +174,7 @@ $lines.Add("- Do not tune route timing, payoff counts, target placement, stage r
 $lines.Add("")
 $lines.Add("## Next To-Do")
 $lines.Add("1. Run `Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists` before any resource-focused unattended work.")
-$lines.Add("2. Use `Logs/AlienCrusherResourceProductionBacklog.md` to start with audio route/failure/boss slots, then route payoff markers.")
+$lines.Add("2. Use ${markdownTick}Logs/AlienCrusherResourceProductionBacklog.md${markdownTick} ${markdownTick}## Recommended Production Batch Order${markdownTick} to pick the next complete production batch.")
 $lines.Add("3. Use `Logs/AlienCrusherArchitectureExtractionPlan.md` for extraction planning only; do not refactor behavior before evidence.")
 $lines.Add("4. When the creator is available, run the real `F10` Stage 1-7 sweep and fill `Docs/AlienCrusherStagePlaytestNotes.md`.")
 $lines.Add("")
