@@ -123,6 +123,30 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next Audio Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $slotNames = @($nextBatch.Fields | ForEach-Object { "``$_``" })
+    $assetNames = @()
+    foreach ($fieldName in $nextBatch.Fields) {
+        $slot = $slotCatalog | Where-Object { $_.Field -eq $fieldName } | Select-Object -First 1
+        if ($null -ne $slot) {
+            $assetNames += "``$($slot.AssetName)``"
+        }
+    }
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Slots: $([string]::Join(', ', $slotNames))")
+    $lines.Add("- Asset drafts: $([string]::Join(', ', $assetNames))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: each slot has a temporary clip, final clip, or explicit placeholder decision before rhythm tuning changes.")
+}
+
+$lines.Add("")
 $lines.Add("## Current FeedbackSystem Audio Slots")
 $lines.Add("| Priority | Category | Field | Suggested asset name | Folder | Runtime moment | Assigned? | Notes |")
 $lines.Add("|---|---|---|---|---|---|---|---|")
