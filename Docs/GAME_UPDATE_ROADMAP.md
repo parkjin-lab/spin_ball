@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-06-10
+Last updated: 2026-06-17
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -39,8 +39,9 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/RunPlaytestReadinessPrep.ps1` now ends with a "Next Autonomous Work While Waiting" block so recurring agents can keep improving readiness, reports, resource planning, and handoff docs without violating the no-evidence tuning lock.
 - `Tools/GenerateAutonomousWorkBacklog.ps1` generates `Logs/AlienCrusherAutonomousWorkBacklog.md`, a current safe-work list for unattended agents while real playtest evidence is still missing.
 - `Tools/GenerateResourceProductionBacklog.ps1` merges generated production checklists into `Logs/AlienCrusherResourceProductionBacklog.md`, so unattended agents can prioritize audio, route payoff, boss identity, district palette, and UI/icon work without touching tuning.
+- `Logs/AlienCrusherResourceProductionBacklog.md` now includes `## Production Batch Focus`, consolidating 33 production batches from the generated checklists alongside the 108 individual resource items. Use the batch view when assigning unattended resource work so assets are produced in readable gameplay groups instead of isolated one-offs.
 - `Tools/GenerateArchitectureExtractionPlan.ps1` maps `DummyFlowController` partial ownership into `Logs/AlienCrusherArchitectureExtractionPlan.md`, so architecture planning can proceed without changing gameplay behavior before Evidence Green.
-- `Tools/GenerateAutomationStatusSummary.ps1` writes `Logs/AlienCrusherAutomationStatusSummary.md`, a one-page heartbeat artifact for progress, validation, current blockers, and next safe work.
+- `Tools/GenerateAutomationStatusSummary.ps1` writes `Logs/AlienCrusherAutomationStatusSummary.md`, a one-page heartbeat artifact for progress, validation, current blockers, next safe work, resource item count, and production batch count.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
 - Runtime Unity map layout batch report from 2026-05-05 21:15 in `Logs/AlienCrusherMapLayoutAudit.log` covers Stage 1-7 with `0 error(s), 0 warning(s)`.
 - `Tools/RunUnityBatchChecks.ps1` passed both scene validation and runtime map layout audit with refreshed report/log timestamps.
@@ -129,6 +130,7 @@ Required next artifacts:
 - optional district palette pass in `Logs/AlienCrusherDistrictPaletteProductionChecklist.md`
 - optional outgame progression pass in `Logs/AlienCrusherOutgameProgressionChecklist.md`
 - optional route payoff layout pass in `Logs/AlienCrusherRoutePayoffLayoutChecklist.md`
+- resource batch focus review in `Logs/AlienCrusherResourceProductionBacklog.md` before starting asset work
 - populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md` or linked screenshots/videos
 - progression save smoke result for DP, selected form, stage unlock, meta upgrade state, and repaired save persistence
 
