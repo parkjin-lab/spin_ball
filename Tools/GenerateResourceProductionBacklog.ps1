@@ -129,6 +129,31 @@ foreach ($checklist in $checklists) {
     }
 }
 
+$recommendedBatchSpecs = @(
+    [pscustomobject]@{ Source = "Audio"; Batch = "A. Route and failure rhythm"; Reason = "route/failure sounds are the fastest way to make run rhythm readable without tuning numbers" },
+    [pscustomobject]@{ Source = "Route Payoff"; Batch = "A. District payoff layouts"; Reason = "ROUTE BONUS should feel like a spatial reward before adding more polish" },
+    [pscustomobject]@{ Source = "Boss Identity"; Batch = "A. Boss silhouette hierarchy"; Reason = "Stage 4+ needs boss, blocker, and drone roles to read before pressure tuning" },
+    [pscustomobject]@{ Source = "District Palette"; Batch = "A. Route tint readability"; Reason = "route markers must survive every palette before district color work expands" },
+    [pscustomobject]@{ Source = "UI Icons"; Batch = "A. Run essentials"; Reason = "mobile HUD should identify money, stage, next action, and route state before long text" }
+)
+
+$recommendedBatches = [System.Collections.Generic.List[object]]::new()
+foreach ($spec in $recommendedBatchSpecs) {
+    $batch = $productionBatches | Where-Object { $_.Source -eq $spec.Source -and $_.Batch -eq $spec.Batch } | Select-Object -First 1
+    if ($null -eq $batch) {
+        continue
+    }
+
+    $recommendedBatches.Add([pscustomobject]@{
+        Source = $batch.Source
+        Batch = $batch.Batch
+        Goal = $batch.Goal
+        Targets = $batch.Targets
+        Acceptance = $batch.Acceptance
+        Reason = $spec.Reason
+    })
+}
+
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher Resource Production Backlog")
 $lines.Add("")
@@ -147,6 +172,19 @@ $lines.Add("## Source Checklist Status")
 foreach ($checklist in $checklists) {
     $status = if (Test-Path -Path $checklist.Path -PathType Leaf) { "present" } else { "missing" }
     $lines.Add("- $($checklist.Label): $status")
+}
+$lines.Add("")
+
+$lines.Add("## Recommended Production Batch Order")
+if ($recommendedBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $batchIndex = 1
+    foreach ($batch in $recommendedBatches) {
+        $lines.Add(("{0}. [{1}] {2} - {3}; targets: {4}{5}{4}; acceptance: {6}" -f $batchIndex, $batch.Source, $batch.Batch, $batch.Reason, $markdownTick, $batch.Targets, $batch.Acceptance))
+        $batchIndex++
+    }
 }
 $lines.Add("")
 
@@ -197,6 +235,7 @@ $lines.Add("")
 $lines.Add("## Result")
 $lines.Add("Result: resource production backlog generated with $($items.Count) item(s)")
 $lines.Add("Result: production batch focus generated with $($productionBatches.Count) batch(es)")
+$lines.Add("Result: recommended production batch order generated with $($recommendedBatches.Count) batch(es)")
 
 $report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine
 Set-Content -Path $resolvedReportPath -Value $report -Encoding UTF8
