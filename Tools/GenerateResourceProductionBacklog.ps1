@@ -45,6 +45,23 @@ function Convert-TableRow {
     return $cells
 }
 
+function Convert-ProductionBatchRow {
+    param(
+        [string]$Line
+    )
+
+    if ($Line -notmatch '^\|\s*[A-Z]\.\s+') {
+        return $null
+    }
+
+    $cells = @($Line.Trim("|").Split("|") | ForEach-Object { $_.Trim().Trim('`') })
+    if ($cells.Count -lt 4) {
+        return $null
+    }
+
+    return $cells
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherResourceProductionBacklog.md"
 $reportDirectory = Split-Path -Parent $resolvedReportPath
@@ -65,6 +82,7 @@ $checklists = @(
 )
 
 $items = [System.Collections.Generic.List[object]]::new()
+$productionBatches = [System.Collections.Generic.List[object]]::new()
 $missing = [System.Collections.Generic.List[string]]::new()
 $markdownTick = [char]96
 
@@ -94,6 +112,21 @@ foreach ($checklist in $checklists) {
             Why = $checklist.Why
         })
     }
+
+    foreach ($line in $lines) {
+        $cells = Convert-ProductionBatchRow -Line $line
+        if ($null -eq $cells) {
+            continue
+        }
+
+        $productionBatches.Add([pscustomobject]@{
+            Source = $checklist.Label
+            Batch = $cells[0]
+            Goal = $cells[1]
+            Targets = $cells[2]
+            Acceptance = $cells[3]
+        })
+    }
 }
 
 $lines = [System.Collections.Generic.List[string]]::new()
@@ -114,6 +147,17 @@ $lines.Add("## Source Checklist Status")
 foreach ($checklist in $checklists) {
     $status = if (Test-Path -Path $checklist.Path -PathType Leaf) { "present" } else { "missing" }
     $lines.Add("- $($checklist.Label): $status")
+}
+$lines.Add("")
+
+$lines.Add("## Production Batch Focus")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    foreach ($batch in $productionBatches) {
+        $lines.Add("- [$($batch.Source)] $($batch.Batch) - $($batch.Goal); targets: $markdownTick$($batch.Targets)$markdownTick; acceptance: $($batch.Acceptance)")
+    }
 }
 $lines.Add("")
 
@@ -152,6 +196,7 @@ else {
 $lines.Add("")
 $lines.Add("## Result")
 $lines.Add("Result: resource production backlog generated with $($items.Count) item(s)")
+$lines.Add("Result: production batch focus generated with $($productionBatches.Count) batch(es)")
 
 $report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine
 Set-Content -Path $resolvedReportPath -Value $report -Encoding UTF8

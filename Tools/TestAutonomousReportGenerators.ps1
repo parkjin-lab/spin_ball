@@ -102,7 +102,7 @@ Invoke-GeneratorCheck `
     -Label "Resource production backlog" `
     -ScriptPath (Join-Path $PSScriptRoot "GenerateResourceProductionBacklog.ps1") `
     -ReportPath $tempReports[1] `
-    -Needles @("## P0 Backlog", "## Recommended Autonomous Order", "Result: resource production backlog generated") `
+    -Needles @("## Production Batch Focus", "A. Route and failure rhythm", "A. Traffic silhouette set", "## P0 Backlog", "## Recommended Autonomous Order", "Result: resource production backlog generated", "Result: production batch focus generated") `
     -PowerShellExecutable $powerShellExecutable `
     -Errors $errors
 
