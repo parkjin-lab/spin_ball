@@ -1,6 +1,6 @@
 # Alien Crusher Automation Runbook
 
-Last updated: 2026-06-10
+Last updated: 2026-06-17
 
 Use this runbook when the creator is busy and agents should keep the project moving without making risky design-tuning decisions.
 
@@ -28,7 +28,7 @@ Evidence Green means:
    powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists
    ```
 3. Read `Logs/AlienCrusherAutonomousWorkBacklog.md`.
-4. Read `Logs/AlienCrusherResourceProductionBacklog.md` if the next safe lane is resource planning.
+4. Read `Logs/AlienCrusherResourceProductionBacklog.md` if the next safe lane is resource planning, starting with `## Production Batch Focus`.
 5. Read `Logs/AlienCrusherArchitectureExtractionPlan.md` if the next safe lane is architecture planning.
 6. Read `Logs/AlienCrusherAutomationStatusSummary.md` for the current progress, validation, blocker, and next to-do snapshot.
 7. Choose one safe autonomous task from the backlog.
@@ -42,6 +42,7 @@ Evidence Green means:
 - Improve generated checklist wording and missing-evidence instructions.
 - Keep `Tools/RunStaticAudits.ps1` and readiness regression tests green.
 - Expand resource production planning from existing runtime hooks.
+- Prefer complete production batches from `## Production Batch Focus` over isolated asset tasks, so unattended work improves a full readable gameplay beat.
 - Generate or refine `Logs/AlienCrusherResourceProductionBacklog.md` from existing production checklists.
 - Generate or refine `Logs/AlienCrusherArchitectureExtractionPlan.md` from `DummyFlowController` partial ownership.
 - Generate or refine `Logs/AlienCrusherAutomationStatusSummary.md` so heartbeats have one concise current-state artifact.

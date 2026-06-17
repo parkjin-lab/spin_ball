@@ -63,6 +63,7 @@ $statusSummaryPath = Join-Path $projectRoot "Logs\AlienCrusherAutomationStatusSu
 $roadmapPath = Join-Path $projectRoot "Docs\GAME_UPDATE_ROADMAP.md"
 $contextPath = Join-Path $projectRoot "Docs\NEXT_SESSION_CONTEXT_PACKET.md"
 $policyPath = Join-Path $projectRoot "Docs\GAME_DESIGN_GAP_POLICY.md"
+$markdownTick = [char]96
 
 $notesText = if (Test-Path -Path $stageNotesPath -PathType Leaf) {
     Get-Content -Path $stageNotesPath -Raw
@@ -114,6 +115,18 @@ foreach ($reportName in $productionReports) {
     }
 }
 
+$resourceBatchStatus = "missing"
+if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
+    $resourceBacklogText = Get-Content -Path $resourceBacklogPath -Raw
+    if ($resourceBacklogText.Contains("## Production Batch Focus")) {
+        $batchResult = Select-String -Path $resourceBacklogPath -Pattern "^Result: production batch focus generated" | Select-Object -First 1
+        $resourceBatchStatus = if ($null -eq $batchResult) { "present" } else { $batchResult.Line }
+    }
+    else {
+        $resourceBatchStatus = "missing Production Batch Focus"
+    }
+}
+
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher Autonomous Work Backlog")
 $lines.Add("")
@@ -125,6 +138,7 @@ $lines.Add("- Real telemetry log: $(if (Test-Path -Path $telemetryLogPath -PathT
 $lines.Add("- Telemetry summary: $(if (Test-Path -Path $telemetrySummaryPath -PathType Leaf) { "present" } else { "missing" })")
 $lines.Add("- Meaningful stage notes: $stageNoteStatus ($meaningfulStageNoteCount / $requiredStageNoteCount fields)")
 $lines.Add("- Progression save smoke result: $(if ($saveSmokeComplete) { "complete" } else { "missing" })")
+$lines.Add("- Resource production batch focus: $resourceBatchStatus")
 $lines.Add("- Rhythm/payoff/boss tuning: locked until Evidence Green")
 $lines.Add("")
 $lines.Add("## Safe Autonomous Work Queue")
@@ -132,7 +146,7 @@ $lines.Add("1. Run ``$readinessPrepPath`` with ``-IncludeProductionChecklists`` 
 $lines.Add("2. Keep ``$staticAuditsPath`` green after every tooling or documentation change.")
 $lines.Add("3. Improve checklist/report wording when the next human action is buried or ambiguous.")
 $lines.Add("4. Update ``$contextPath`` and ``$roadmapPath`` whenever the next safe unattended task changes.")
-$lines.Add("5. Inspect ``$resourceBacklogPath`` for audio, HUD/status icon, boss identity, district palette, and route payoff priorities.")
+$lines.Add("5. Inspect ``$resourceBacklogPath`` $markdownTick## Production Batch Focus$markdownTick first, then choose a complete audio, route payoff, boss identity, district palette, or UI/status batch.")
 $lines.Add("6. Inspect ``$architecturePlanPath`` for ROUTE HOLD / stage route / telemetry ownership, but do not refactor gameplay behavior before evidence.")
 $lines.Add("7. Inspect ``$statusSummaryPath`` for the latest progress, validation, blocker, and next to-do snapshot.")
 $lines.Add("")
@@ -149,6 +163,7 @@ $lines.Add("")
 $lines.Add("## Game Fun Policy For Agents")
 $lines.Add("- Treat fun as rhythm: opener -> pivot -> sustain -> payoff -> climax.")
 $lines.Add("- Before Evidence Green, improve the player's future ability to observe rhythm; do not tune rhythm numbers.")
+$lines.Add("- Prefer complete production batches over isolated assets so each pass improves a readable gameplay beat.")
 $lines.Add("- If an autonomous task does not help the player understand what to smash, what to chase, what changed, or what they earned, defer it.")
 $lines.Add("- Use ``$policyPath`` as the decision guardrail.")
 $lines.Add("")
