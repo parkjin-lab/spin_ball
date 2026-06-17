@@ -45,6 +45,24 @@ function Get-LastResultLine {
     return $result.Line
 }
 
+function Get-FirstResultLineMatching {
+    param(
+        [string]$Path,
+        [string]$Pattern
+    )
+
+    if (-not (Test-Path -Path $Path -PathType Leaf)) {
+        return "missing"
+    }
+
+    $result = Select-String -Path $Path -Pattern $Pattern | Select-Object -First 1
+    if ($null -eq $result) {
+        return "no matching Result line"
+    }
+
+    return $result.Line
+}
+
 function Get-FirstMatchingLines {
     param(
         [string]$Path,
@@ -116,7 +134,8 @@ else {
 }
 
 $saveSmokeStatus = if ($stageNotesText -match "(?m)^- \[x\] Save/load result:\s*\S") { "present" } else { "missing" }
-$resourceResult = Get-LastResultLine -Path $resourceBacklogPath
+$resourceItemResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: resource production backlog generated"
+$resourceBatchResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: production batch focus generated"
 $architectureResult = Get-LastResultLine -Path $architecturePlanPath
 $evidenceResult = Get-LastResultLine -Path $evidenceGatePath
 $prepResult = Get-LastResultLine -Path $readinessPrepPath
@@ -134,7 +153,8 @@ $lines.Add("")
 $lines.Add("## Progress")
 $lines.Add("- Core loop direction is implemented around Stage Start -> LANE BREAK -> ROUTE OPEN -> ROUTE HOLD -> ROUTE BONUS / Forward Smash -> result growth.")
 $lines.Add("- Autonomous readiness now generates stage checklist, autonomous work backlog, resource production backlog, architecture extraction plan, telemetry summary readiness, and Evidence Gate readiness.")
-$lines.Add("- Resource planning is consolidated: $resourceResult")
+$lines.Add("- Resource planning is consolidated: $resourceItemResult")
+$lines.Add("- Resource production batches are consolidated: $resourceBatchResult")
 $lines.Add("- Architecture planning is consolidated: $architectureResult")
 $lines.Add("")
 $lines.Add("## Validation")
