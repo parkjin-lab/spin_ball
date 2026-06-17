@@ -191,6 +191,30 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next Route Payoff Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $targetNames = @($nextBatch.Targets | ForEach-Object { "``$_``" })
+    $stageBands = @()
+    foreach ($targetName in $nextBatch.Targets) {
+        $layout = $layoutCatalog | Where-Object { $_.Asset -eq $targetName } | Select-Object -First 1
+        if ($null -ne $layout) {
+            $stageBands += "$($layout.StageBand): $($layout.Payoff)"
+        }
+    }
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Targets: $([string]::Join(', ', $targetNames))")
+    $lines.Add("- Stage bands: $([string]::Join('; ', $stageBands))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: every district payoff target has a draft layout, screenshot note, or explicit placeholder rule before reward cluster tuning changes.")
+}
+
+$lines.Add("")
 $lines.Add("## Route Payoff Rhythm Contract")
 $lines.Add("| Beat | Runtime signal | Production rule | Done? |")
 $lines.Add("|---|---|---|---|")
