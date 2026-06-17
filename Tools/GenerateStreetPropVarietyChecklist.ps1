@@ -127,6 +127,33 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Category = "Residential"; Asset = "PROP_Shed"; RuntimeHook = "EnsureResidentialShedRuntime"; GameplayUse = "small durable backyard target"; Folder = "Assets/Art/Props/Street/"; Target = "box with roof, larger than mailbox smaller than building" }
 )
 
+$productionBatches = @(
+    [pscustomobject]@{
+        Batch = "A. Traffic silhouette set"
+        Goal = "make moving/parked vehicles readable as crushable rhythm targets"
+        Targets = "PROP_Car_Compact_A, PROP_Car_Compact_B, PROP_Van_Bus"
+        Acceptance = "traffic reads while moving and while parked in panic clusters from chase camera distance"
+    },
+    [pscustomobject]@{
+        Batch = "B. Light roadside rhythm props"
+        Goal = "create quick-break street beats without hiding route pips"
+        Targets = "PROP_StreetLamp, PROP_TrafficLight, PROP_RoadsideTree, PROP_Bench"
+        Acceptance = "light props add small break cadence and never block Target_A/Target_B or HOLD trail pips"
+    },
+    [pscustomobject]@{
+        Batch = "C. Market and utility payoff props"
+        Goal = "support market chains, transformer risk, and explosive route reward clusters"
+        Targets = "PROP_Kiosk, PROP_Vending, PROP_BusStop, PROP_Transformer, PROP_ExplosiveBarrel"
+        Acceptance = "commercial/utility props signal chain density and payoff danger before impact"
+    },
+    [pscustomobject]@{
+        Batch = "D. Residential filler extras"
+        Goal = "add starter/suburb texture after early route readability is stable"
+        Targets = "PROP_Fence, PROP_Mailbox, PROP_Shed"
+        Acceptance = "residential props add identity without making Stage 1 starter lane visually noisy"
+    }
+)
+
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher Street Prop Variety Checklist")
 $lines.Add("")
@@ -144,6 +171,14 @@ $lines.Add("2. Produce five light roadside/commercial props: lamp, tree, kiosk, 
 $lines.Add("3. Produce utility payoff props: transformer and explosive barrel.")
 $lines.Add("4. Add residential extras only after early-stage density reads well.")
 $lines.Add("5. Verify Stage 1 / 3 / 6 that props add crush rhythm without hiding route markers.")
+$lines.Add("")
+$lines.Add("## Production Batches")
+$lines.Add("| Batch | Goal | Targets | Acceptance |")
+$lines.Add("|---|---|---|---|")
+foreach ($batch in $productionBatches) {
+    $lines.Add(("| {0} | {1} | `{2}` | {3} |" -f $batch.Batch, $batch.Goal, $batch.Targets, $batch.Acceptance))
+}
+
 $lines.Add("")
 $lines.Add("## Current Street Prop Variety Targets")
 $lines.Add("| Priority | Category | Asset | Runtime hook | Gameplay use | Readability target | Folder | Done? |")

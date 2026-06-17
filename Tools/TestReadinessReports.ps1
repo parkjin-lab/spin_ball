@@ -256,6 +256,11 @@ if ($errors.Count -eq 0) {
     else {
         $streetPropChecklistText = Get-Content -Path $tempStreetPropChecklistPath -Raw
         Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "## Production Pass Order" -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "## Production Batches" -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "A. Traffic silhouette set" -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "B. Light roadside rhythm props" -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "C. Market and utility payoff props" -Label "Street prop checklist"
+        Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "D. Residential filler extras" -Label "Street prop checklist"
         Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle "## Current Street Prop Variety Targets" -Label "Street prop checklist"
         Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle 'PROP_Car_Compact_A' -Label "Street prop checklist"
         Add-Check -Errors $errors -ReportText $streetPropChecklistText -Needle 'PROP_Kiosk' -Label "Street prop checklist"
