@@ -104,7 +104,7 @@ function Add-NextAutonomousWorkAction {
     $Lines.Add("## Next Autonomous Work While Waiting")
     $Lines.Add("- Keep ``Tools/RunStaticAudits.ps1`` and ``Tools/TestPlaytestReadinessPrep.ps1 -FailOnWarnings`` green after every readiness/tooling change.")
     $Lines.Add("- Improve checklist/report readability, evidence-gate diagnostics, and handoff docs without changing rhythm tuning values.")
-    $Lines.Add("- Start resource work from ``Logs/AlienCrusherResourceProductionBacklog.md`` ``## Production Batch Focus`` and choose one complete audio, route payoff, boss identity, district palette, or UI/status batch.")
+    $Lines.Add("- Start resource work from ``Logs/AlienCrusherResourceProductionBacklog.md`` ``## Recommended Production Batch Order``; use ``## Production Batch Focus`` for the full batch details.")
     $Lines.Add("- Update ``Docs/NEXT_SESSION_CONTEXT_PACKET.md`` and ``Docs/GAME_UPDATE_ROADMAP.md`` whenever automation changes the next safe task.")
 
     if (-not $IncludeProductionChecklists) {

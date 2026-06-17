@@ -94,7 +94,7 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $prepReportText -Needle 'Run one real editor/development `F10` Stage 1-7 sweep.' -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "## Next Autonomous Work While Waiting" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Improve checklist/report readability, evidence-gate diagnostics, and handoff docs without changing rhythm tuning values." -Label "Prep report"
-        Add-Check -Errors $errors -ReportText $prepReportText -Needle "Start resource work from ``Logs/AlienCrusherResourceProductionBacklog.md`` ``## Production Batch Focus``" -Label "Prep report"
+        Add-Check -Errors $errors -ReportText $prepReportText -Needle "Start resource work from ``Logs/AlienCrusherResourceProductionBacklog.md`` ``## Recommended Production Batch Order``" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Autonomous work backlog:" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Resource production backlog:" -Label "Prep report"
         Add-Check -Errors $errors -ReportText $prepReportText -Needle "Architecture extraction plan:" -Label "Prep report"
@@ -135,7 +135,7 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Evidence gate snapshot: Result:" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Missing screenshot/video references:" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "## Next Autonomous Work While Waiting" -Label "Production prep report"
-        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Start resource work from ``Logs/AlienCrusherResourceProductionBacklog.md`` ``## Production Batch Focus``" -Label "Production prep report"
+        Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Start resource work from ``Logs/AlienCrusherResourceProductionBacklog.md`` ``## Recommended Production Batch Order``" -Label "Production prep report"
         Add-Check -Errors $errors -ReportText $productionPrepReportText -Needle "Result: playtest readiness prep completed" -Label "Production prep report"
     }
 }

@@ -1,12 +1,12 @@
-# Alien Crusher Handoff - 2026-06-17
+# Alien Crusher Handoff - 2026-06-18
 
 ## Validation Snapshot
 - Latest Unity batch validation: 2026-05-05 (`Tools/RunUnityBatchChecks.ps1` passed; scene and map audit logs refreshed)
-- Latest static audit refresh: 2026-06-17 (`Tools/RunStaticAudits.ps1` passed after the resource batch/status-summary reporting updates)
-- Real Stage 1-7 playtest telemetry: still not captured as of 2026-06-17; the summary pipeline is ready but still waiting on the first true `F10` sweep
+- Latest static audit refresh: 2026-06-18 (`Tools/RunStaticAudits.ps1` passed after the recommended production batch order reporting updates)
+- Real Stage 1-7 playtest telemetry: still not captured as of 2026-06-18; the summary pipeline is ready but still waiting on the first true `F10` sweep
 - No telemetry log or unparseable telemetry means the summary is a readiness artifact only; do not tune rhythm, payoff, boss, or route timing from it.
 - Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points, first-pass mobile HUD text safeguards, a Stage 4 Sentinel checkpoint landmark, ROUTE HOLD route-adherence telemetry, static landmark value records, and progression save smoke gating now exist, but audio clips/assets, device/screenshot readability, Stage 4 boss-approach readability, route-adherence evidence, landmark value evidence, and real save/load smoke evidence still need playtest confirmation. Treat real evidence gates as the next design policy backlog.
-- Resource production planning now consolidates 108 resource items and 33 production batches through `Logs/AlienCrusherResourceProductionBacklog.md`; unattended agents should use the `## Production Batch Focus` section before choosing isolated asset tasks.
+- Resource production planning now consolidates 108 resource items, 33 production batches, and 5 recommended production batches through `Logs/AlienCrusherResourceProductionBacklog.md`; unattended agents should use `## Recommended Production Batch Order` before choosing isolated asset tasks.
 
 ## Current Blocking State
 - `Logs/AlienCrusherPlaytestTelemetry.log` is still missing, so Evidence Green cannot pass yet.
@@ -22,7 +22,7 @@
 4. Inspect `Logs/AlienCrusherResourceProductionBacklog.md` if the next unattended lane is asset/resource planning.
 5. Inspect `Logs/AlienCrusherArchitectureExtractionPlan.md` if the next unattended lane is architecture planning.
 6. Inspect `Logs/AlienCrusherAutomationStatusSummary.md` for the current progress, validation, blockers, and next to-do snapshot.
-7. If continuing without creator input, start from the `## Production Batch Focus` section and prefer complete batches such as route/failure audio, route payoff markers, boss identity, or district readability over one-off cosmetic assets.
+7. If continuing without creator input, start from `## Recommended Production Batch Order` and prefer complete batches such as route/failure audio, route payoff markers, boss identity, district readability, or run-essential UI icons over one-off cosmetic assets.
 8. Run the progression save smoke pass from the generated stage checklist.
 9. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
 10. Re-run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`, then compare the rhythm snapshot against the checklist notes

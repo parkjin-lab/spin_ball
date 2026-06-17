@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-06-17
+Last updated: 2026-06-18
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -39,7 +39,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/RunPlaytestReadinessPrep.ps1` now ends with a "Next Autonomous Work While Waiting" block so recurring agents can keep improving readiness, reports, resource planning, and handoff docs without violating the no-evidence tuning lock.
 - `Tools/GenerateAutonomousWorkBacklog.ps1` generates `Logs/AlienCrusherAutonomousWorkBacklog.md`, a current safe-work list for unattended agents while real playtest evidence is still missing.
 - `Tools/GenerateResourceProductionBacklog.ps1` merges generated production checklists into `Logs/AlienCrusherResourceProductionBacklog.md`, so unattended agents can prioritize audio, route payoff, boss identity, district palette, and UI/icon work without touching tuning.
-- `Logs/AlienCrusherResourceProductionBacklog.md` now includes `## Production Batch Focus`, consolidating 33 production batches from the generated checklists alongside the 108 individual resource items. Use the batch view when assigning unattended resource work so assets are produced in readable gameplay groups instead of isolated one-offs.
+- `Logs/AlienCrusherResourceProductionBacklog.md` now includes `## Recommended Production Batch Order` and `## Production Batch Focus`, consolidating 5 recommended batches, 33 total production batches, and 108 individual resource items. Use the recommended batch order when assigning unattended resource work so assets are produced in readable gameplay groups instead of isolated one-offs.
 - `Tools/GenerateArchitectureExtractionPlan.ps1` maps `DummyFlowController` partial ownership into `Logs/AlienCrusherArchitectureExtractionPlan.md`, so architecture planning can proceed without changing gameplay behavior before Evidence Green.
 - `Tools/GenerateAutomationStatusSummary.ps1` writes `Logs/AlienCrusherAutomationStatusSummary.md`, a one-page heartbeat artifact for progress, validation, current blockers, next safe work, resource item count, and production batch count.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.

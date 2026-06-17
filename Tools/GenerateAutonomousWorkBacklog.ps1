@@ -116,6 +116,7 @@ foreach ($reportName in $productionReports) {
 }
 
 $resourceBatchStatus = "missing"
+$resourceBatchOrderStatus = "missing"
 if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
     $resourceBacklogText = Get-Content -Path $resourceBacklogPath -Raw
     if ($resourceBacklogText.Contains("## Production Batch Focus")) {
@@ -124,6 +125,14 @@ if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
     }
     else {
         $resourceBatchStatus = "missing Production Batch Focus"
+    }
+
+    if ($resourceBacklogText.Contains("## Recommended Production Batch Order")) {
+        $batchOrderResult = Select-String -Path $resourceBacklogPath -Pattern "^Result: recommended production batch order generated" | Select-Object -First 1
+        $resourceBatchOrderStatus = if ($null -eq $batchOrderResult) { "present" } else { $batchOrderResult.Line }
+    }
+    else {
+        $resourceBatchOrderStatus = "missing Recommended Production Batch Order"
     }
 }
 
@@ -139,6 +148,7 @@ $lines.Add("- Telemetry summary: $(if (Test-Path -Path $telemetrySummaryPath -Pa
 $lines.Add("- Meaningful stage notes: $stageNoteStatus ($meaningfulStageNoteCount / $requiredStageNoteCount fields)")
 $lines.Add("- Progression save smoke result: $(if ($saveSmokeComplete) { "complete" } else { "missing" })")
 $lines.Add("- Resource production batch focus: $resourceBatchStatus")
+$lines.Add("- Recommended production batch order: $resourceBatchOrderStatus")
 $lines.Add("- Rhythm/payoff/boss tuning: locked until Evidence Green")
 $lines.Add("")
 $lines.Add("## Safe Autonomous Work Queue")
@@ -146,7 +156,7 @@ $lines.Add("1. Run ``$readinessPrepPath`` with ``-IncludeProductionChecklists`` 
 $lines.Add("2. Keep ``$staticAuditsPath`` green after every tooling or documentation change.")
 $lines.Add("3. Improve checklist/report wording when the next human action is buried or ambiguous.")
 $lines.Add("4. Update ``$contextPath`` and ``$roadmapPath`` whenever the next safe unattended task changes.")
-$lines.Add("5. Inspect ``$resourceBacklogPath`` $markdownTick## Production Batch Focus$markdownTick first, then choose a complete audio, route payoff, boss identity, district palette, or UI/status batch.")
+$lines.Add("5. Inspect ``$resourceBacklogPath`` $markdownTick## Recommended Production Batch Order$markdownTick first, then use $markdownTick## Production Batch Focus$markdownTick for full batch details.")
 $lines.Add("6. Inspect ``$architecturePlanPath`` for ROUTE HOLD / stage route / telemetry ownership, but do not refactor gameplay behavior before evidence.")
 $lines.Add("7. Inspect ``$statusSummaryPath`` for the latest progress, validation, blocker, and next to-do snapshot.")
 $lines.Add("")
