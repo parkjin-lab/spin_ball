@@ -174,6 +174,30 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next Destruction Readability Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $targetNames = @($nextBatch.Targets | ForEach-Object { "``$_``" })
+    $readabilityTargets = @()
+    foreach ($targetName in $nextBatch.Targets) {
+        $asset = $assetCatalog | Where-Object { $_.Asset -eq $targetName } | Select-Object -First 1
+        if ($null -ne $asset) {
+            $readabilityTargets += "$($asset.Asset): $($asset.Target)"
+        }
+    }
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Targets: $([string]::Join(', ', $targetNames))")
+    $lines.Add("- Readability targets: $([string]::Join('; ', $readabilityTargets))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: small, mid, large, and boss structure tiers have draft material directions, screenshot notes, or explicit placeholder rules before damage-state polish.")
+}
+
+$lines.Add("")
 $lines.Add("## Current Destruction Readability Targets")
 $lines.Add("| Priority | Category | Asset | Runtime meaning | Readability target | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|")
