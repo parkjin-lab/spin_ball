@@ -187,6 +187,30 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next UI Icon Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $targetNames = @($nextBatch.Targets | ForEach-Object { "``$_``" })
+    $runtimeUses = @()
+    foreach ($targetName in $nextBatch.Targets) {
+        $icon = $iconCatalog | Where-Object { $_.Asset -eq $targetName } | Select-Object -First 1
+        if ($null -ne $icon) {
+            $runtimeUses += "$($icon.Asset): $($icon.RuntimeUse)"
+        }
+    }
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Targets: $([string]::Join(', ', $targetNames))")
+    $lines.Add("- Runtime uses: $([string]::Join('; ', $runtimeUses))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: DP, stage, next-step, and route icons have draft silhouettes, mobile readability notes, or explicit placeholder rules before HUD copy changes.")
+}
+
+$lines.Add("")
 $lines.Add("## Current UI Icon And Status Targets")
 $lines.Add("| Priority | Asset | Runtime use | Shape target | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|")
