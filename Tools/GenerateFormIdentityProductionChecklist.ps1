@@ -159,6 +159,31 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next Form Identity Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $targetNames = @($nextBatch.Targets | ForEach-Object { "``$_``" })
+    $formRoles = @()
+    foreach ($targetName in $nextBatch.Targets) {
+        $form = $formCatalog | Where-Object { $_.Form -eq $targetName -or $_.Skill -eq $targetName } | Select-Object -First 1
+        if ($null -ne $form) {
+            $formRoles += "$($form.Form): $($form.Role)"
+        }
+    }
+    $formRoles = @($formRoles | Sort-Object -Unique)
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Targets: $([string]::Join(', ', $targetNames))")
+    $lines.Add("- Form roles: $([string]::Join('; ', $formRoles))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: Sphere has a draft silhouette, icon placeholder, material direction, and lobby/run readability note before unlocked-form comparisons.")
+}
+
+$lines.Add("")
 $lines.Add("## Current Runtime Form Identity Targets")
 $lines.Add("| Priority | Form | Unlock DP | Runtime skill | Gameplay role | Failure problem it should answer | Primitive silhouette target | Icon target | Material target | Done? |")
 $lines.Add("|---|---|---:|---|---|---|---|---|---|---|")
