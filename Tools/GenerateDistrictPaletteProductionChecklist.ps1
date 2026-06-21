@@ -196,6 +196,31 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next District Palette Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $targetNames = @($nextBatch.Targets | ForEach-Object { "``$_``" })
+    $paletteNeeds = @()
+    foreach ($targetName in $nextBatch.Targets) {
+        $palette = $paletteCatalog | Where-Object { $_.Asset -eq $targetName -or $_.RuntimeAnchor -match [regex]::Escape($targetName) } | Select-Object -First 1
+        if ($null -ne $palette) {
+            $paletteNeeds += "$($palette.Asset): $($palette.PaletteNeed)"
+        }
+    }
+    $paletteNeeds = @($paletteNeeds | Sort-Object -Unique)
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Targets: $([string]::Join(', ', $targetNames))")
+    $lines.Add("- Palette needs: $([string]::Join('; ', $paletteNeeds))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: route marker tint, target contrast, and HOLD trail readability have screenshot notes or explicit placeholder rules before district palette expansion.")
+}
+
+$lines.Add("")
 $lines.Add("## District Rhythm Palette Contract")
 $lines.Add("| Stage band | Rhythm role | Palette rule | Done? |")
 $lines.Add("|---|---|---|---|")
