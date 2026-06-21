@@ -178,6 +178,30 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next Boss Identity Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $targetNames = @($nextBatch.Targets | ForEach-Object { "``$_``" })
+    $runtimeMoments = @()
+    foreach ($targetName in $nextBatch.Targets) {
+        $asset = $assetCatalog | Where-Object { $_.Asset -eq $targetName } | Select-Object -First 1
+        if ($null -ne $asset) {
+            $runtimeMoments += "$($asset.Asset): $($asset.RuntimeMoment)"
+        }
+    }
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Targets: $([string]::Join(', ', $targetNames))")
+    $lines.Add("- Runtime moments: $([string]::Join('; ', $runtimeMoments))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: Sentinel body, shield pylons, and phase 2 drones have draft silhouettes, screenshot notes, or explicit placeholder rules before boss timing changes.")
+}
+
+$lines.Add("")
 $lines.Add("## Boss Rhythm Contract")
 $lines.Add("| Beat | Runtime signal | Production rule | Done? |")
 $lines.Add("|---|---|---|---|")
