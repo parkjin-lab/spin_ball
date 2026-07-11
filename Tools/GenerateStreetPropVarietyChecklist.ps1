@@ -180,6 +180,30 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next Street Prop Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $targetNames = @($nextBatch.Targets.Split(",") | ForEach-Object { $_.Trim() })
+    $gameplayUses = @()
+    foreach ($targetName in $targetNames) {
+        $asset = $assetCatalog | Where-Object { $_.Asset -eq $targetName } | Select-Object -First 1
+        if ($null -ne $asset) {
+            $gameplayUses += "$($asset.Asset): $($asset.GameplayUse)"
+        }
+    }
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Targets: $($nextBatch.Targets)")
+    $lines.Add("- Gameplay uses: $([string]::Join('; ', $gameplayUses))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: compact car A/B and van/bus have draft silhouettes, movement readability notes, or explicit placeholder rules before adding more roadside filler.")
+}
+
+$lines.Add("")
 $lines.Add("## Current Street Prop Variety Targets")
 $lines.Add("| Priority | Category | Asset | Runtime hook | Gameplay use | Readability target | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|---|")
