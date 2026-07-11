@@ -212,6 +212,30 @@ foreach ($batch in $productionBatches) {
 }
 
 $lines.Add("")
+$lines.Add("## Next Outgame Progression Batch Task Card")
+if ($productionBatches.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $nextBatch = $productionBatches[0]
+    $targetNames = @($nextBatch.Targets | ForEach-Object { "``$_``" })
+    $runtimeUses = @()
+    foreach ($targetName in $nextBatch.Targets) {
+        $asset = $assetCatalog | Where-Object { $_.Asset -eq $targetName } | Select-Object -First 1
+        if ($null -ne $asset) {
+            $runtimeUses += "$($asset.Asset): $($asset.RuntimeUse)"
+        }
+    }
+
+    $lines.Add("- Batch: $($nextBatch.Batch)")
+    $lines.Add("- Goal: $($nextBatch.Goal)")
+    $lines.Add("- Targets: $([string]::Join(', ', $targetNames))")
+    $lines.Add("- Runtime uses: $([string]::Join('; ', $runtimeUses))")
+    $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
+    $lines.Add("- Done means: DP gain, DP total, spend, and insufficient states have draft visuals, audio note, or explicit placeholder rules before adding broader lobby decoration.")
+}
+
+$lines.Add("")
 $lines.Add("## Outgame Loop Contract")
 $lines.Add("| Beat | Runtime signal | Production rule | Done? |")
 $lines.Add("|---|---|---|---|")
