@@ -1,12 +1,13 @@
-# Alien Crusher Handoff - 2026-06-18
+# Alien Crusher Handoff - 2026-07-12
 
 ## Validation Snapshot
 - Latest Unity batch validation: 2026-05-05 (`Tools/RunUnityBatchChecks.ps1` passed; scene and map audit logs refreshed)
-- Latest static audit refresh: 2026-06-18 (`Tools/RunStaticAudits.ps1` passed after the recommended production batch order reporting updates)
-- Real Stage 1-7 playtest telemetry: still not captured as of 2026-06-18; the summary pipeline is ready but still waiting on the first true `F10` sweep
+- Latest static audit refresh: 2026-07-12 (`Tools/RunStaticAudits.ps1` passed after the automation status summary started reporting 9 / 9 production checklist task-card coverage)
+- Real Stage 1-7 playtest telemetry: still not captured as of 2026-07-12; the summary pipeline is ready but still waiting on the first true `F10` sweep
 - No telemetry log or unparseable telemetry means the summary is a readiness artifact only; do not tune rhythm, payoff, boss, or route timing from it.
 - Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points, first-pass mobile HUD text safeguards, a Stage 4 Sentinel checkpoint landmark, ROUTE HOLD route-adherence telemetry, static landmark value records, and progression save smoke gating now exist, but audio clips/assets, device/screenshot readability, Stage 4 boss-approach readability, route-adherence evidence, landmark value evidence, and real save/load smoke evidence still need playtest confirmation. Treat real evidence gates as the next design policy backlog.
 - Resource production planning now consolidates 108 resource items, 33 production batches, and 5 recommended production batches through `Logs/AlienCrusherResourceProductionBacklog.md`; unattended agents should use `## Recommended Production Batch Order` before choosing isolated asset tasks.
+- Production checklist handoff is now consolidated: all 9 production checklist generators expose a `Next ... Batch Task Card`, and `Logs/AlienCrusherAutomationStatusSummary.md` reports this as 9 / 9 coverage.
 
 ## Current Blocking State
 - `Logs/AlienCrusherPlaytestTelemetry.log` is still missing, so Evidence Green cannot pass yet.

@@ -1,6 +1,6 @@
 # Alien Crusher Automation Runbook
 
-Last updated: 2026-06-18
+Last updated: 2026-07-12
 
 Use this runbook when the creator is busy and agents should keep the project moving without making risky design-tuning decisions.
 
@@ -46,6 +46,7 @@ Evidence Green means:
 - Generate or refine `Logs/AlienCrusherResourceProductionBacklog.md` from existing production checklists.
 - Generate or refine `Logs/AlienCrusherArchitectureExtractionPlan.md` from `DummyFlowController` partial ownership.
 - Generate or refine `Logs/AlienCrusherAutomationStatusSummary.md` so heartbeats have one concise current-state artifact.
+- Keep the automation status summary aligned with production checklist coverage; as of 2026-07-12 all 9 production checklist generators expose a next-batch task card.
 - Add static or regression coverage for scripts and reports.
 - Prepare architecture extraction notes for `DummyFlowController` ownership boundaries.
 - Refresh handoff docs so the next agent starts from current facts.
