@@ -138,6 +138,25 @@ $saveSmokeStatus = if ($stageNotesText -match "(?m)^- \[x\] Save/load result:\s*
 $resourceItemResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: resource production backlog generated"
 $resourceBatchResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: production batch focus generated"
 $resourceBatchOrderResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: recommended production batch order generated"
+$productionChecklistScripts = @(
+    "GenerateAudioResourceAssignmentChecklist.ps1",
+    "GenerateFormIdentityProductionChecklist.ps1",
+    "GenerateDestructionReadabilityChecklist.ps1",
+    "GenerateStreetPropVarietyChecklist.ps1",
+    "GenerateUiIconStatusChecklist.ps1",
+    "GenerateBossIdentityProductionChecklist.ps1",
+    "GenerateDistrictPaletteProductionChecklist.ps1",
+    "GenerateOutgameProgressionChecklist.ps1",
+    "GenerateRoutePayoffLayoutChecklist.ps1"
+)
+$productionChecklistCardCount = 0
+foreach ($scriptName in $productionChecklistScripts) {
+    $scriptPath = Join-Path $PSScriptRoot $scriptName
+    if ((Test-Path -Path $scriptPath -PathType Leaf) -and (Get-Content -Path $scriptPath -Raw).Contains("Batch Task Card")) {
+        $productionChecklistCardCount++
+    }
+}
+$productionChecklistCardStatus = "$productionChecklistCardCount / $($productionChecklistScripts.Count) checklist generators include next-batch task cards"
 $architectureResult = Get-LastResultLine -Path $architecturePlanPath
 $evidenceResult = Get-LastResultLine -Path $evidenceGatePath
 $prepResult = Get-LastResultLine -Path $readinessPrepPath
@@ -158,6 +177,7 @@ $lines.Add("- Autonomous readiness now generates stage checklist, autonomous wor
 $lines.Add("- Resource planning is consolidated: $resourceItemResult")
 $lines.Add("- Resource production batches are consolidated: $resourceBatchResult")
 $lines.Add("- Resource production batch order is consolidated: $resourceBatchOrderResult")
+$lines.Add("- Production checklist task cards are consolidated: $productionChecklistCardStatus")
 $lines.Add("- Architecture planning is consolidated: $architectureResult")
 $lines.Add("")
 $lines.Add("## Validation")
