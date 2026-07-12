@@ -138,6 +138,12 @@ $saveSmokeStatus = if ($stageNotesText -match "(?m)^- \[x\] Save/load result:\s*
 $resourceItemResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: resource production backlog generated"
 $resourceBatchResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: production batch focus generated"
 $resourceBatchOrderResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: recommended production batch order generated"
+$resourceNextBatchBriefStatus = if ((Test-Path -Path $resourceBacklogPath -PathType Leaf) -and (Get-Content -Path $resourceBacklogPath -Raw).Contains("## Next Recommended Batch Briefs")) {
+    "present"
+}
+else {
+    "missing"
+}
 $productionChecklistScripts = @(
     "GenerateAudioResourceAssignmentChecklist.ps1",
     "GenerateFormIdentityProductionChecklist.ps1",
@@ -177,6 +183,7 @@ $lines.Add("- Autonomous readiness now generates stage checklist, autonomous wor
 $lines.Add("- Resource planning is consolidated: $resourceItemResult")
 $lines.Add("- Resource production batches are consolidated: $resourceBatchResult")
 $lines.Add("- Resource production batch order is consolidated: $resourceBatchOrderResult")
+$lines.Add("- Next recommended batch briefs are consolidated: $resourceNextBatchBriefStatus")
 $lines.Add("- Production checklist task cards are consolidated: $productionChecklistCardStatus")
 $lines.Add("- Architecture planning is consolidated: $architectureResult")
 $lines.Add("")
