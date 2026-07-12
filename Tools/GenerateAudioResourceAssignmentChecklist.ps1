@@ -70,6 +70,34 @@ $slotCatalog = @(
     [pscustomobject]@{ Field = "failureBossClip"; AssetName = "SFX_Failure_Boss"; Category = "Failure"; Folder = "Assets/Audio/SFX/Failure/"; RuntimeMoment = "boss-phase failure"; Priority = "P0" }
 )
 
+$slotBriefs = @{
+    routeOpenClip = [pscustomobject]@{
+        Beat = "pivot"
+        Direction = "short upward cue that says the lane just opened"
+        Avoid = "long reward tail or alarm tone"
+    }
+    routeHoldWarningClip = [pscustomobject]@{
+        Beat = "sustain pressure"
+        Direction = "tight pulsing warning that can repeat without fatigue"
+        Avoid = "melodic phrase that masks impact sounds"
+    }
+    routeBonusClip = [pscustomobject]@{
+        Beat = "payoff"
+        Direction = "bright permission-to-smash accent with a slightly wider tail"
+        Avoid = "same pitch family as route open"
+    }
+    failureWarningClip = [pscustomobject]@{
+        Beat = "ordinary defeat punctuation"
+        Direction = "dry low stinger that closes a failed route or timer run"
+        Avoid = "boss-sized impact or victory color"
+    }
+    failureBossClip = [pscustomobject]@{
+        Beat = "climax failure punctuation"
+        Direction = "heavier collapse stinger that clearly belongs to the boss phase"
+        Avoid = "reusing ordinary failure color"
+    }
+}
+
 $productionBatches = @(
     [pscustomobject]@{
         Batch = "A. Route and failure rhythm"
@@ -145,6 +173,21 @@ else {
     $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
     $lines.Add("- Done means: each slot has a temporary clip, final clip, or explicit placeholder decision before rhythm tuning changes.")
 }
+
+$lines.Add("")
+$lines.Add("## Route And Failure Rhythm Slot Briefs")
+$lines.Add("| Slot | Beat role | Sound direction | Avoid |")
+$lines.Add("|---|---|---|---|")
+foreach ($fieldName in $productionBatches[0].Fields) {
+    $brief = $slotBriefs[$fieldName]
+    if ($null -eq $brief) {
+        continue
+    }
+
+    $lines.Add(('| `{0}` | {1} | {2} | {3} |' -f $fieldName, $brief.Beat, $brief.Direction, $brief.Avoid))
+}
+$lines.Add("")
+$lines.Add("Batch A review rule: route open, route warning, route bonus, ordinary failure, and boss failure must form five distinct rhythm punctuation marks before any timing or balance tuning.")
 
 $lines.Add("")
 $lines.Add("## Current FeedbackSystem Audio Slots")

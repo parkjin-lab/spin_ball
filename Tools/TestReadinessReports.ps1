@@ -186,6 +186,8 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "## Next Audio Batch Task Card" -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "Asset drafts: ``SFX_Route_Open``" -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "Done means: each slot has a temporary clip" -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "## Route And Failure Rhythm Slot Briefs" -Label "Audio checklist"
+        Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "five distinct rhythm punctuation marks" -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle "## Current FeedbackSystem Audio Slots" -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'failureWarningClip' -Label "Audio checklist"
         Add-Check -Errors $errors -ReportText $audioChecklistText -Needle 'failureBossClip' -Label "Audio checklist"
