@@ -62,6 +62,21 @@ function Convert-ProductionBatchRow {
     return $cells
 }
 
+function Get-MarkdownSectionLines {
+    param(
+        [string]$Text,
+        [string]$Heading
+    )
+
+    $pattern = "(?ms)^## $([regex]::Escape($Heading))\s*(?<section>.*?)(?=^## |\z)"
+    $match = [regex]::Match($Text, $pattern)
+    if (-not $match.Success) {
+        return @()
+    }
+
+    return @($match.Groups["section"].Value -split "\r?\n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_.Trim()) })
+}
+
 $projectRoot = Resolve-ProjectRoot
 $resolvedReportPath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ReportPath -RelativePath "Logs\AlienCrusherResourceProductionBacklog.md"
 $reportDirectory = Split-Path -Parent $resolvedReportPath
@@ -138,6 +153,7 @@ $recommendedBatchSpecs = @(
 )
 
 $recommendedBatches = [System.Collections.Generic.List[object]]::new()
+$nextBatchBriefLines = @()
 foreach ($spec in $recommendedBatchSpecs) {
     $batch = $productionBatches | Where-Object { $_.Source -eq $spec.Source -and $_.Batch -eq $spec.Batch } | Select-Object -First 1
     if ($null -eq $batch) {
@@ -152,6 +168,15 @@ foreach ($spec in $recommendedBatchSpecs) {
         Acceptance = $batch.Acceptance
         Reason = $spec.Reason
     })
+}
+
+if ($recommendedBatches.Count -gt 0) {
+    $nextRecommendedBatch = $recommendedBatches[0]
+    $nextChecklist = $checklists | Where-Object { $_.Label -eq $nextRecommendedBatch.Source } | Select-Object -First 1
+    if ($null -ne $nextChecklist -and (Test-Path -Path $nextChecklist.Path -PathType Leaf)) {
+        $nextChecklistText = Get-Content -Path $nextChecklist.Path -Raw
+        $nextBatchBriefLines = Get-MarkdownSectionLines -Text $nextChecklistText -Heading "Route And Failure Rhythm Slot Briefs"
+    }
 }
 
 $lines = [System.Collections.Generic.List[string]]::new()
@@ -200,6 +225,18 @@ else {
     $lines.Add("- Targets: $markdownTick$($nextBatch.Targets)$markdownTick")
     $lines.Add("- Acceptance: $($nextBatch.Acceptance)")
     $lines.Add("- Done means: every target has a draft asset, assignment note, or placeholder decision that can be reviewed without changing gameplay tuning.")
+}
+$lines.Add("")
+
+$lines.Add("## Next Recommended Batch Briefs")
+if ($nextBatchBriefLines.Count -eq 0) {
+    $lines.Add("- none")
+}
+else {
+    $lines.Add("- Source: $($recommendedBatches[0].Source) checklist")
+    foreach ($line in $nextBatchBriefLines) {
+        $lines.Add($line.Trim())
+    }
 }
 $lines.Add("")
 

@@ -102,7 +102,7 @@ Invoke-GeneratorCheck `
     -Label "Resource production backlog" `
     -ScriptPath (Join-Path $PSScriptRoot "GenerateResourceProductionBacklog.ps1") `
     -ReportPath $tempReports[1] `
-    -Needles @("## Recommended Production Batch Order", "1. [Audio] A. Route and failure rhythm", "2. [Route Payoff] A. District payoff layouts", "## Next Recommended Batch Task Card", "Source: Audio", "Done means: every target has a draft asset", "## Production Batch Focus", "A. Traffic silhouette set", "## P0 Backlog", "## Recommended Autonomous Order", "Result: resource production backlog generated", "Result: production batch focus generated", "Result: recommended production batch order generated") `
+    -Needles @("## Recommended Production Batch Order", "1. [Audio] A. Route and failure rhythm", "2. [Route Payoff] A. District payoff layouts", "## Next Recommended Batch Task Card", "Source: Audio", "Done means: every target has a draft asset", "## Next Recommended Batch Briefs", "Source: Audio checklist", "short upward cue that says the lane just opened", "five distinct rhythm punctuation marks", "## Production Batch Focus", "A. Traffic silhouette set", "## P0 Backlog", "## Recommended Autonomous Order", "Result: resource production backlog generated", "Result: production batch focus generated", "Result: recommended production batch order generated") `
     -PowerShellExecutable $powerShellExecutable `
     -Errors $errors
 
