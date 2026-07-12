@@ -94,7 +94,7 @@ Invoke-GeneratorCheck `
     -Label "Autonomous work backlog" `
     -ScriptPath (Join-Path $PSScriptRoot "GenerateAutonomousWorkBacklog.ps1") `
     -ReportPath $tempReports[0] `
-    -Needles @("## Current Blocking State", "Resource production batch focus:", "Recommended production batch order:", "## Safe Autonomous Work Queue", "## Recommended Production Batch Order", "## Production Batch Focus", "Prefer complete production batches", "Result: autonomous work backlog generated") `
+    -Needles @("## Current Blocking State", "Resource production batch focus:", "Recommended production batch order:", "## Safe Autonomous Work Queue", "## Next Resource Batch Task Card", "Source: Audio", "Batch: A. Route and failure rhythm", "## Recommended Production Batch Order", "## Production Batch Focus", "Prefer complete production batches", "Result: autonomous work backlog generated") `
     -PowerShellExecutable $powerShellExecutable `
     -Errors $errors
 

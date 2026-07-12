@@ -117,6 +117,7 @@ foreach ($reportName in $productionReports) {
 
 $resourceBatchStatus = "missing"
 $resourceBatchOrderStatus = "missing"
+$nextResourceBatchLines = [System.Collections.Generic.List[string]]::new()
 if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
     $resourceBacklogText = Get-Content -Path $resourceBacklogPath -Raw
     if ($resourceBacklogText.Contains("## Production Batch Focus")) {
@@ -133,6 +134,16 @@ if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
     }
     else {
         $resourceBatchOrderStatus = "missing Recommended Production Batch Order"
+    }
+
+    $nextBatchMatch = [regex]::Match($resourceBacklogText, "(?ms)^## Next Recommended Batch Task Card\s*(?<section>.*?)(?=^## |\z)")
+    if ($nextBatchMatch.Success) {
+        foreach ($line in @($nextBatchMatch.Groups["section"].Value -split "\r?\n")) {
+            $trimmed = $line.Trim()
+            if (-not [string]::IsNullOrWhiteSpace($trimmed)) {
+                $nextResourceBatchLines.Add($trimmed)
+            }
+        }
     }
 }
 
@@ -159,6 +170,16 @@ $lines.Add("4. Update ``$contextPath`` and ``$roadmapPath`` whenever the next sa
 $lines.Add("5. Inspect ``$resourceBacklogPath`` $markdownTick## Recommended Production Batch Order$markdownTick first, then use $markdownTick## Production Batch Focus$markdownTick for full batch details.")
 $lines.Add("6. Inspect ``$architecturePlanPath`` for ROUTE HOLD / stage route / telemetry ownership, but do not refactor gameplay behavior before evidence.")
 $lines.Add("7. Inspect ``$statusSummaryPath`` for the latest progress, validation, blocker, and next to-do snapshot.")
+$lines.Add("")
+$lines.Add("## Next Resource Batch Task Card")
+if ($nextResourceBatchLines.Count -eq 0) {
+    $lines.Add("- missing next resource batch card; regenerate `Tools/GenerateResourceProductionBacklog.ps1` after production checklists.")
+}
+else {
+    foreach ($line in $nextResourceBatchLines) {
+        $lines.Add($line)
+    }
+}
 $lines.Add("")
 $lines.Add("## Missing Production Checklist Outputs")
 if ($missingProductionReports.Count -eq 0) {
