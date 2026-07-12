@@ -118,6 +118,7 @@ foreach ($reportName in $productionReports) {
 $resourceBatchStatus = "missing"
 $resourceBatchOrderStatus = "missing"
 $nextResourceBatchLines = [System.Collections.Generic.List[string]]::new()
+$nextResourceBatchBriefLines = [System.Collections.Generic.List[string]]::new()
 if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
     $resourceBacklogText = Get-Content -Path $resourceBacklogPath -Raw
     if ($resourceBacklogText.Contains("## Production Batch Focus")) {
@@ -142,6 +143,16 @@ if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
             $trimmed = $line.Trim()
             if (-not [string]::IsNullOrWhiteSpace($trimmed)) {
                 $nextResourceBatchLines.Add($trimmed)
+            }
+        }
+    }
+
+    $nextBatchBriefsMatch = [regex]::Match($resourceBacklogText, "(?ms)^## Next Recommended Batch Briefs\s*(?<section>.*?)(?=^## |\z)")
+    if ($nextBatchBriefsMatch.Success) {
+        foreach ($line in @($nextBatchBriefsMatch.Groups["section"].Value -split "\r?\n")) {
+            $trimmed = $line.Trim()
+            if (-not [string]::IsNullOrWhiteSpace($trimmed)) {
+                $nextResourceBatchBriefLines.Add($trimmed)
             }
         }
     }
@@ -177,6 +188,16 @@ if ($nextResourceBatchLines.Count -eq 0) {
 }
 else {
     foreach ($line in $nextResourceBatchLines) {
+        $lines.Add($line)
+    }
+}
+$lines.Add("")
+$lines.Add("## Next Resource Batch Briefs")
+if ($nextResourceBatchBriefLines.Count -eq 0) {
+    $lines.Add("- missing next resource batch briefs; regenerate `Tools/GenerateResourceProductionBacklog.ps1` after production checklists.")
+}
+else {
+    foreach ($line in $nextResourceBatchBriefLines) {
         $lines.Add($line)
     }
 }
