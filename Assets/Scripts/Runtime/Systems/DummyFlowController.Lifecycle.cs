@@ -9,6 +9,7 @@ namespace AlienCrusher.Systems
 	{
 		private void Awake()
 		{
+			InitializeTimeControl();
 			EnsureRuntimeMapFallback();
 			RepairZeroScaleMapObjects();
 			EnsureUiInputModuleMode();
@@ -49,8 +50,9 @@ namespace AlienCrusher.Systems
 			ResetTrafficPanicRuntime();
 			ResetAlleyLineRuntime();
 			UnbindLandingShockwaveEvent();
-			SetPaused(paused: false);
-			Time.timeScale = 1f;
+			StopOverdriveTimePulse();
+			StopBossFinishSlowMotion();
+			ResetTimeControl();
 		}
 
 		private void Start()

@@ -85,6 +85,7 @@ function Get-UnityEditorProcesses {
 function Format-ProcessList {
     param($Processes)
 
+    $Processes = @($Processes)
     if ($Processes.Count -eq 0) {
         return "none"
     }
@@ -155,7 +156,7 @@ elseif (-not [System.IO.Path]::IsPathRooted($ExpectedReportPath)) {
     $ExpectedReportPath = Join-Path $projectRoot $ExpectedReportPath
 }
 
-$unityProcesses = Get-UnityEditorProcesses
+$unityProcesses = @(Get-UnityEditorProcesses)
 $lockPath = Join-Path $projectRoot "Temp\UnityLockfile"
 if (Test-Path -Path $lockPath -PathType Leaf) {
     if ($unityProcesses.Count -gt 0) {

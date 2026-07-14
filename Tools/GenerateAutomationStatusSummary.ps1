@@ -138,7 +138,13 @@ $saveSmokeStatus = if ($stageNotesText -match "(?m)^- \[x\] Save/load result:\s*
 $resourceItemResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: resource production backlog generated"
 $resourceBatchResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: production batch focus generated"
 $resourceBatchOrderResult = Get-FirstResultLineMatching -Path $resourceBacklogPath -Pattern "^Result: recommended production batch order generated"
-$resourceNextBatchBriefStatus = if ((Test-Path -Path $resourceBacklogPath -PathType Leaf) -and (Get-Content -Path $resourceBacklogPath -Raw).Contains("## Next Recommended Batch Briefs")) {
+$resourceBacklogText = if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
+    [string](Get-Content -Path $resourceBacklogPath -Raw)
+}
+else {
+    ""
+}
+$resourceNextBatchBriefStatus = if ($resourceBacklogText.Contains("## Next Recommended Batch Briefs")) {
     "present"
 }
 else {

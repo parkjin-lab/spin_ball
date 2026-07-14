@@ -137,25 +137,14 @@ namespace AlienCrusher.Systems
 				((MonoBehaviour)this).StopCoroutine(overdrivePulseRoutine);
 				overdrivePulseRoutine = null;
 			}
-			if (Mathf.Abs(Time.timeScale - 1f) > 0.0001f)
-			{
-				Time.timeScale = 1f;
-			}
-			if (Mathf.Abs(Time.fixedDeltaTime - 0.02f) > 0.0001f)
-			{
-				Time.fixedDeltaTime = 0.02f;
-			}
+			SetTimeScaleChannel(TimeScaleChannel.OverdrivePulse, active: false);
 		}
 
 		private IEnumerator OverdriveTimePulseRoutine()
 		{
-			float originalTimeScale = Mathf.Max(0.0001f, Time.timeScale);
-			float originalFixedDelta = Time.fixedDeltaTime;
-			Time.timeScale = 0.92f;
-			Time.fixedDeltaTime = originalFixedDelta * (Time.timeScale / originalTimeScale);
+			SetTimeScaleChannel(TimeScaleChannel.OverdrivePulse, active: true, scale: 0.92f);
 			yield return (object)new WaitForSecondsRealtime(0.12f);
-			Time.timeScale = originalTimeScale;
-			Time.fixedDeltaTime = originalFixedDelta;
+			SetTimeScaleChannel(TimeScaleChannel.OverdrivePulse, active: false);
 			overdrivePulseRoutine = null;
 		}
 

@@ -2158,7 +2158,7 @@ namespace AlienCrusher.Systems
 		private void SetPaused(bool paused)
 		{
 			stagePaused = paused && stageRunning;
-			Time.timeScale = stagePaused ? 0f : 1f;
+			SetTimeScaleChannel(TimeScaleChannel.Pause, stagePaused);
 			if (stagePaused)
 			{
 				ApplyUiViewState(UiViewState.Pause);

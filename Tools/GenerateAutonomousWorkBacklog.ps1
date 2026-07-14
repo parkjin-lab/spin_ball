@@ -120,7 +120,7 @@ $resourceBatchOrderStatus = "missing"
 $nextResourceBatchLines = [System.Collections.Generic.List[string]]::new()
 $nextResourceBatchBriefLines = [System.Collections.Generic.List[string]]::new()
 if (Test-Path -Path $resourceBacklogPath -PathType Leaf) {
-    $resourceBacklogText = Get-Content -Path $resourceBacklogPath -Raw
+    $resourceBacklogText = [string](Get-Content -Path $resourceBacklogPath -Raw)
     if ($resourceBacklogText.Contains("## Production Batch Focus")) {
         $batchResult = Select-String -Path $resourceBacklogPath -Pattern "^Result: production batch focus generated" | Select-Object -First 1
         $resourceBatchStatus = if ($null -eq $batchResult) { "present" } else { $batchResult.Line }

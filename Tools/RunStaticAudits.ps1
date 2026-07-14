@@ -136,6 +136,11 @@ $audits = @(
         ReportPath = Join-Path $ReportDirectory "AlienCrusherProgressionSaveSafetyStaticAudit.log"
     },
     [pscustomobject]@{
+        Label = "Global time ownership"
+        ScriptPath = Join-Path $PSScriptRoot "AuditTimeScaleOwnershipStatic.ps1"
+        ReportPath = Join-Path $ReportDirectory "AlienCrusherTimeScaleOwnershipStaticAudit.log"
+    },
+    [pscustomobject]@{
         Label = "Mobile HUD readability"
         ScriptPath = Join-Path $PSScriptRoot "AuditMobileHudReadabilityStatic.ps1"
         ReportPath = Join-Path $ReportDirectory "AlienCrusherMobileHudReadabilityStaticAudit.log"

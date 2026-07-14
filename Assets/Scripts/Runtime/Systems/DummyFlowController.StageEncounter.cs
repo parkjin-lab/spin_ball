@@ -947,28 +947,27 @@ namespace AlienCrusher.Systems
 			{
 				return;
 			}
+			StopBossFinishSlowMotion();
+			bossFinishSlowMotionRoutine = StartCoroutine(BossFinishSlowMotionRoutine());
+		}
+
+		private void StopBossFinishSlowMotion()
+		{
 			if (bossFinishSlowMotionRoutine != null)
 			{
 				StopCoroutine(bossFinishSlowMotionRoutine);
 				bossFinishSlowMotionRoutine = null;
 			}
-			bossFinishSlowMotionRoutine = StartCoroutine(BossFinishSlowMotionRoutine());
+			SetTimeScaleChannel(TimeScaleChannel.BossFinish, active: false);
 		}
 
 		private System.Collections.IEnumerator BossFinishSlowMotionRoutine()
 		{
-			float originalTimeScale = Mathf.Max(0.0001f, Time.timeScale);
-			float originalFixedDelta = Time.fixedDeltaTime;
 			float targetScale = Mathf.Clamp(bossFinishSlowTimeScale, 0.45f, 1f);
 			float duration = Mathf.Max(0.05f, bossFinishSlowDuration);
-			Time.timeScale = Mathf.Min(originalTimeScale, targetScale);
-			Time.fixedDeltaTime = originalFixedDelta * (Time.timeScale / originalTimeScale);
+			SetTimeScaleChannel(TimeScaleChannel.BossFinish, active: true, scale: targetScale);
 			yield return new WaitForSecondsRealtime(duration);
-			if (!stagePaused)
-			{
-				Time.timeScale = originalTimeScale;
-				Time.fixedDeltaTime = originalFixedDelta;
-			}
+			SetTimeScaleChannel(TimeScaleChannel.BossFinish, active: false);
 			bossFinishSlowMotionRoutine = null;
 		}
 
