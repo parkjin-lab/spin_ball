@@ -5,7 +5,8 @@
 - 최신 프로젝트 상태의 **정본은 `Docs/PROJECT_STATE_REVIEW_2026-07-14.md`**다. 목표 충돌, 재미 판정, 코드 위험, 상태 분류, 2주 우선순위와 즉시 업무는 이 문서를 먼저 따른다.
 - 자동화 연속성 구축은 완료되었으며 이제 유지보수 항목이다. 체크리스트·백로그·리포트 생성 확대가 실제 플레이 증거보다 앞서면 안 된다.
 - 실제 우선순위는 **P1 코드 안전성(Time ownership, atomic save/purchase, tests) -> 현재 날짜 Unity Runtime Green -> 실제 `F10` Stage 1-7 evidence**다.
-- Time ownership은 2026-07-14에 pause/overdrive/boss 채널 방식으로 통합했고 정적 감사 `0 errors / 0 warnings`를 확인했다. 다음 코드 안전성 작업은 atomic save/purchase다.
+- Time ownership은 2026-07-14에 pause/overdrive/boss 채널 방식으로 통합했고 정적 감사 `0 errors / 0 warnings`를 확인했다.
+- Atomic save/purchase도 2026-07-14에 완료했다. 진행 변경은 스냅샷 기반 단일 커밋으로 처리하고 실패 시 롤백하며, 저장 파일은 flush·검증 후 atomic replace한다. 다음 코드 안전성 작업은 저장 실패 주입 및 복구 테스트다.
 - 현재 날짜 Unity 배치는 라이선스·캐시 접근 문제를 해결했지만 IL Post Processor 단계에서 타임아웃됐다. 2026-05-05 보고서는 갱신되지 않았으므로 Runtime Green으로 간주하지 않는다.
 - 실제 sweep, Stage 1-7의 28개 관찰 노트, progression save smoke 전까지 재미 판정은 **미검증**이며 리듬·보상·보스의 광범위한 튜닝은 잠근다.
 - `ROUTE HOLD`를 필수 승리 조건으로 만들지 고득점 선택지로 유지할지는 사람의 기획 결정이 필요하다.

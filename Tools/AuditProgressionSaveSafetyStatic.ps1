@@ -62,15 +62,22 @@ if ($errors.Count -eq 0) {
     foreach ($needle in @(
         'aliencrusher_progression.json',
         'aliencrusher_progression.bak.json',
-        'File.WriteAllText(tempPath, json)',
-        'File.Copy(SavePath, BackupPath, true)',
-        'File.Move(tempPath, SavePath)',
+        'aliencrusher_progression.corrupt.json',
+        'TryLoadFromDisk(out var loadedFromBackup)',
+        'TrySave(preserveExistingBackup: true)',
+        'public bool TryCommit(Action<PlayerProgressionData> mutation)',
+        'var snapshotJson = JsonUtility.ToJson(Current)',
+        'Current = JsonUtility.FromJson<PlayerProgressionData>(snapshotJson) ?? CreateDefault()',
+        'WriteAndFlushTempFile(tempPath, json)',
+        'stream.Flush(flushToDisk: true)',
+        'TryLoadProgressionFile(tempPath)',
+        'File.Replace(tempPath, SavePath, replacementBackupPath, ignoreMetadataErrors: true)',
+        'File.Move(tempPath, SavePath, overwrite: true)',
+        'var replacementBackupPath = preserveExistingBackup ? CorruptPath : BackupPath',
         'TryLoadProgressionFile(SavePath)',
         'TryLoadProgressionFile(BackupPath)',
         'catch (IOException)',
         'catch (System.Exception exception) when',
-        'if (Sanitize(Current))',
-        'Save();',
         'private static bool Sanitize',
         'data.meta.dpBalance = Mathf.Max(0, data.meta.dpBalance)',
         'data.meta.selectedForm = Mathf.Clamp(data.meta.selectedForm, DefaultFormIndex, MaxKnownFormIndex)',
@@ -94,12 +101,20 @@ if ($errors.Count -eq 0) {
     foreach ($needle in @(
         'ResolveSaveSystem()',
         'progressionSaveSystem.LoadOrCreate()',
-        'MigrateFromLegacyPlayerPrefs(progressionData)',
-        'SaveProgression()',
+        'TryCommitProgression(MigrateFromLegacyPlayerPrefs)',
+        'progressionSaveSystem.TryCommit(mutation)',
+        'data.meta.dpBalance = balance - requiredCost',
+        'SetMetaUpgradeLevel(data.meta, upgradeType, next)',
+        'data.meta.unlockedForms.Add((int)form)',
+        'data.meta.selectedForm = (int)form',
         'RegisterClearedStage',
         'SetCurrentLobbyStage'
     )) {
         Add-MissingTextCheck -Errors $errors -Text $formUnlockText -Needle $needle -Label "FormUnlockSystem save bridge"
+    }
+
+    if ($formUnlockText.Contains('TrySpendDp(requiredCost)')) {
+        $errors.Add("Purchase paths must not save DP separately before granting the purchased item")
     }
 
     foreach ($needle in @(
@@ -118,7 +133,7 @@ $lines.Add("[AlienCrusher][ProgressionSaveSafetyStaticAudit] Progression save sa
 $lines.Add("Save system: $saveSystemPath")
 $lines.Add("Form unlock bridge: $formUnlockPath")
 $lines.Add("Progression data: $dataPath")
-$lines.Add("Contract: primary JSON can fail, backup JSON is still attempted, repaired meta/stage bounds and unique upgrade entries are persisted, and legacy PlayerPrefs can migrate into the JSON save.")
+$lines.Add("Contract: progression mutations roll back on commit failure; temp JSON is flushed and validated before atomic replacement; backup recovery preserves the known-good backup while replacing a corrupt primary.")
 
 foreach ($errorMessage in $errors) {
     $lines.Add("ERROR: $errorMessage")

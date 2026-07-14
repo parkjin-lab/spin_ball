@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Text;
 using AlienCrusher.Gameplay;
 using UnityEngine;
 
@@ -8,6 +10,7 @@ namespace AlienCrusher.Systems
     {
         private const string SaveFileName = "aliencrusher_progression.json";
         private const string BackupFileName = "aliencrusher_progression.bak.json";
+        private const string CorruptFileName = "aliencrusher_progression.corrupt.json";
         private const int DefaultFormIndex = (int)FormType.Sphere;
         private const int MaxKnownFormIndex = (int)FormType.Crusher;
 
@@ -15,6 +18,7 @@ namespace AlienCrusher.Systems
 
         private string SavePath => Path.Combine(Application.persistentDataPath, SaveFileName);
         private string BackupPath => Path.Combine(Application.persistentDataPath, BackupFileName);
+        private string CorruptPath => Path.Combine(Application.persistentDataPath, CorruptFileName);
 
         private void Awake()
         {
@@ -23,20 +27,62 @@ namespace AlienCrusher.Systems
 
         public void LoadOrCreate()
         {
-            Current = TryLoadFromDisk();
+            Current = TryLoadFromDisk(out var loadedFromBackup);
             if (Current == null)
             {
                 Current = CreateDefault();
                 Save();
+                return;
             }
 
-            if (Sanitize(Current))
+            var repaired = Sanitize(Current);
+            if (loadedFromBackup)
+            {
+                TrySave(preserveExistingBackup: true);
+            }
+            else if (repaired)
             {
                 Save();
             }
         }
 
-        public void Save()
+        public bool Save()
+        {
+            return TrySave(preserveExistingBackup: false);
+        }
+
+        public bool TryCommit(Action<PlayerProgressionData> mutation)
+        {
+            if (mutation == null)
+            {
+                throw new ArgumentNullException(nameof(mutation));
+            }
+
+            if (Current == null)
+            {
+                Current = CreateDefault();
+            }
+
+            var snapshotJson = JsonUtility.ToJson(Current);
+            try
+            {
+                mutation(Current);
+                if (Save())
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                Current = JsonUtility.FromJson<PlayerProgressionData>(snapshotJson) ?? CreateDefault();
+                throw;
+            }
+
+            Current = JsonUtility.FromJson<PlayerProgressionData>(snapshotJson) ?? CreateDefault();
+            return false;
+        }
+
+        private bool TrySave(bool preserveExistingBackup)
         {
             if (Current == null)
             {
@@ -47,24 +93,38 @@ namespace AlienCrusher.Systems
 
             var json = JsonUtility.ToJson(Current, true);
             var tempPath = SavePath + ".tmp";
-            File.WriteAllText(tempPath, json);
-
-            if (File.Exists(SavePath))
+            try
             {
-                File.Copy(SavePath, BackupPath, true);
-            }
+                WriteAndFlushTempFile(tempPath, json);
+                if (TryLoadProgressionFile(tempPath) == null)
+                {
+                    return false;
+                }
 
-            if (File.Exists(SavePath))
+                if (!File.Exists(SavePath))
+                {
+                    File.Move(tempPath, SavePath);
+                    return true;
+                }
+
+                var replacementBackupPath = preserveExistingBackup ? CorruptPath : BackupPath;
+                ReplaceSaveFile(tempPath, replacementBackupPath);
+                return true;
+            }
+            catch (Exception exception) when (IsExpectedSaveException(exception))
             {
-                File.Delete(SavePath);
+                Debug.LogWarning($"[AlienCrusher] Progression save failed: {exception.Message}");
+                return false;
             }
-
-            File.Move(tempPath, SavePath);
+            finally
+            {
+                TryDeleteFile(tempPath);
+            }
         }
 
-        public void MarkDirtyAndSave()
+        public bool MarkDirtyAndSave()
         {
-            Save();
+            return Save();
         }
 
         public PlayerProgressionData CreateDefault()
@@ -72,15 +132,61 @@ namespace AlienCrusher.Systems
             return new PlayerProgressionData();
         }
 
-        private PlayerProgressionData TryLoadFromDisk()
+        private PlayerProgressionData TryLoadFromDisk(out bool loadedFromBackup)
         {
+            loadedFromBackup = false;
             var savedProgression = TryLoadProgressionFile(SavePath);
             if (savedProgression != null)
             {
                 return savedProgression;
             }
+            savedProgression = TryLoadProgressionFile(BackupPath);
+            loadedFromBackup = savedProgression != null;
+            return savedProgression;
+        }
 
-            return TryLoadProgressionFile(BackupPath);
+        private static void WriteAndFlushTempFile(string path, string json)
+        {
+            using var stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
+            using var writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            writer.Write(json);
+            writer.Flush();
+            stream.Flush(flushToDisk: true);
+        }
+
+        private void ReplaceSaveFile(string tempPath, string replacementBackupPath)
+        {
+            try
+            {
+                File.Replace(tempPath, SavePath, replacementBackupPath, ignoreMetadataErrors: true);
+            }
+            catch (PlatformNotSupportedException)
+            {
+                File.Copy(SavePath, replacementBackupPath, overwrite: true);
+                File.Move(tempPath, SavePath, overwrite: true);
+            }
+        }
+
+        private static bool IsExpectedSaveException(Exception exception)
+        {
+            return exception is IOException
+                || exception is UnauthorizedAccessException
+                || exception is NotSupportedException
+                || exception is System.Security.SecurityException;
+        }
+
+        private static void TryDeleteFile(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+            catch (Exception exception) when (IsExpectedSaveException(exception))
+            {
+            }
         }
 
         private static PlayerProgressionData TryLoadProgressionFile(string path)

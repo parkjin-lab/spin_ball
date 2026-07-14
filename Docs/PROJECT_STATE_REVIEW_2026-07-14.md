@@ -106,8 +106,8 @@
 - [x] 전역 시간 변경 지점을 목록화하고 pause/overdrive/boss 채널의 소유권·중첩·복원 정책을 `DummyFlowController.TimeControl.cs`로 통합했다.
 - [x] 전역 시간 직접 쓰기를 차단하는 `Tools/AuditTimeScaleOwnershipStatic.ps1`를 전체 정적 감사 체인에 추가했다.
 - [x] 비어 있는 리소스 백로그를 자동화 보고서가 읽을 때 발생하던 null 예외를 방어하고 관련 회귀 테스트를 통과시켰다.
-- [ ] DP 차감과 해금/업그레이드 지급을 한 상태 변경 및 한 번의 커밋으로 묶는다.
-- [ ] 저장을 temp write + flush + atomic replace + 검증된 backup fallback으로 강화한다.
+- [x] DP 차감과 해금/업그레이드 지급을 스냅샷 기반 한 상태 변경 및 한 번의 커밋으로 묶고 실패 시 메모리 상태도 롤백한다.
+- [x] 저장을 temp write + disk flush + JSON 검증 + atomic replace로 강화하고 백업 복구 시 정상 백업을 보존한다.
 - [ ] 시간 중첩, 구매 실패, 손상 primary/backup 복구를 다루는 Unity EditMode/PlayMode 테스트를 추가한다.
 - [ ] Runtime Green 및 `F10` 수행용 체크리스트에서 28개 관찰 칸과 save smoke 절차를 확정한다. `Tools/GenerateStagePlaytestChecklist.ps1`
 

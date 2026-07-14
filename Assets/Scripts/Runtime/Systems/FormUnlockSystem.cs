@@ -146,13 +146,25 @@ namespace AlienCrusher.Systems
                 return false;
             }
 
-            if (!TrySpendDp(requiredCost))
+            var balance = DpBalance;
+            if (balance < requiredCost)
             {
                 return false;
             }
 
             var next = Mathf.Clamp(GetMetaUpgradeLevel(upgradeType) + 1, 0, GetMetaUpgradeMaxLevel(upgradeType));
-            SetMetaUpgradeLevel(upgradeType, next);
+            if (HasProgressionData)
+            {
+                return TryCommitProgression(data =>
+                {
+                    data.meta.dpBalance = balance - requiredCost;
+                    SetMetaUpgradeLevel(data.meta, upgradeType, next);
+                });
+            }
+
+            PlayerPrefs.SetInt(DpBalanceKey, balance - requiredCost);
+            PlayerPrefs.SetInt(MetaUpgradeLevelKeyPrefix + upgradeType, next);
+            PlayerPrefs.Save();
             return true;
         }
 
@@ -182,8 +194,10 @@ namespace AlienCrusher.Systems
 
             if (HasProgressionData)
             {
-                progressionData.meta.dpBalance = Mathf.Max(0, progressionData.meta.dpBalance + amount);
-                SaveProgression();
+                TryCommitProgression(data =>
+                {
+                    data.meta.dpBalance = Mathf.Max(0, data.meta.dpBalance + amount);
+                });
                 return;
             }
 
@@ -208,9 +222,10 @@ namespace AlienCrusher.Systems
 
             if (HasProgressionData)
             {
-                progressionData.meta.dpBalance = balance - safeAmount;
-                SaveProgression();
-                return true;
+                return TryCommitProgression(data =>
+                {
+                    data.meta.dpBalance = balance - safeAmount;
+                });
             }
 
             PlayerPrefs.SetInt(DpBalanceKey, balance - safeAmount);
@@ -227,11 +242,13 @@ namespace AlienCrusher.Systems
 
             if (HasProgressionData)
             {
-                if (!progressionData.meta.unlockedForms.Contains((int)form))
+                TryCommitProgression(data =>
                 {
-                    progressionData.meta.unlockedForms.Add((int)form);
-                    SaveProgression();
-                }
+                    if (!data.meta.unlockedForms.Contains((int)form))
+                    {
+                        data.meta.unlockedForms.Add((int)form);
+                    }
+                });
 
                 return;
             }
@@ -249,12 +266,27 @@ namespace AlienCrusher.Systems
                 return true;
             }
 
-            if (!TrySpendDp(requiredCost))
+            var balance = DpBalance;
+            if (balance < requiredCost)
             {
                 return false;
             }
 
-            Unlock(form);
+            if (HasProgressionData)
+            {
+                return TryCommitProgression(data =>
+                {
+                    data.meta.dpBalance = balance - requiredCost;
+                    if (!data.meta.unlockedForms.Contains((int)form))
+                    {
+                        data.meta.unlockedForms.Add((int)form);
+                    }
+                });
+            }
+
+            PlayerPrefs.SetInt(DpBalanceKey, balance - requiredCost);
+            PlayerPrefs.SetInt(UnlockKeyPrefix + form, 1);
+            PlayerPrefs.Save();
             return true;
         }
 
@@ -265,28 +297,63 @@ namespace AlienCrusher.Systems
                 return false;
             }
 
-            CurrentForm = form;
-
             if (HasProgressionData)
             {
-                progressionData.meta.selectedForm = (int)form;
-                SaveProgression();
-                return true;
+                var committed = TryCommitProgression(data =>
+                {
+                    data.meta.selectedForm = (int)form;
+                });
+                if (committed)
+                {
+                    CurrentForm = form;
+                }
+                return committed;
             }
 
             PlayerPrefs.SetInt(SelectedKey, (int)form);
             PlayerPrefs.Save();
+            CurrentForm = form;
             return true;
         }
 
         public bool TryUnlockAndSelectWithCost(FormType form, out int requiredCost)
         {
-            if (!TryUnlockWithCost(form, out requiredCost))
+            requiredCost = GetUnlockCost(form);
+            if (IsUnlocked(form))
+            {
+                return TrySelect(form);
+            }
+
+            var balance = DpBalance;
+            if (balance < requiredCost)
             {
                 return false;
             }
 
-            return TrySelect(form);
+            if (HasProgressionData)
+            {
+                var committed = TryCommitProgression(data =>
+                {
+                    data.meta.dpBalance = balance - requiredCost;
+                    if (!data.meta.unlockedForms.Contains((int)form))
+                    {
+                        data.meta.unlockedForms.Add((int)form);
+                    }
+                    data.meta.selectedForm = (int)form;
+                });
+                if (committed)
+                {
+                    CurrentForm = form;
+                }
+                return committed;
+            }
+
+            PlayerPrefs.SetInt(DpBalanceKey, balance - requiredCost);
+            PlayerPrefs.SetInt(UnlockKeyPrefix + form, 1);
+            PlayerPrefs.SetInt(SelectedKey, (int)form);
+            PlayerPrefs.Save();
+            CurrentForm = form;
+            return true;
         }
 
         public void ApplyToPlayer(PlayerBallDummyController player)
@@ -306,32 +373,31 @@ namespace AlienCrusher.Systems
 
             if (HasProgressionData)
             {
-                var changed = false;
-
-                if (clearedStage > progressionData.stage.highestStageCleared)
+                var shouldChange = clearedStage > progressionData.stage.highestStageCleared
+                    || unlockedStage > progressionData.stage.highestStageReached
+                    || progressionData.stage.currentLobbyStage < progressionData.stage.highestStageReached;
+                if (!shouldChange)
                 {
-                    progressionData.stage.highestStageCleared = clearedStage;
-                    changed = true;
+                    return false;
                 }
 
-                if (unlockedStage > progressionData.stage.highestStageReached)
+                return TryCommitProgression(data =>
                 {
-                    progressionData.stage.highestStageReached = unlockedStage;
-                    changed = true;
-                }
+                    if (clearedStage > data.stage.highestStageCleared)
+                    {
+                        data.stage.highestStageCleared = clearedStage;
+                    }
 
-                if (progressionData.stage.currentLobbyStage < progressionData.stage.highestStageReached)
-                {
-                    progressionData.stage.currentLobbyStage = progressionData.stage.highestStageReached;
-                    changed = true;
-                }
+                    if (unlockedStage > data.stage.highestStageReached)
+                    {
+                        data.stage.highestStageReached = unlockedStage;
+                    }
 
-                if (changed)
-                {
-                    SaveProgression();
-                }
-
-                return changed;
+                    if (data.stage.currentLobbyStage < data.stage.highestStageReached)
+                    {
+                        data.stage.currentLobbyStage = data.stage.highestStageReached;
+                    }
+                });
             }
 
             if (unlockedStage <= HighestUnlockedStage)
@@ -352,8 +418,10 @@ namespace AlienCrusher.Systems
             {
                 if (progressionData.stage.currentLobbyStage != clampedStage)
                 {
-                    progressionData.stage.currentLobbyStage = clampedStage;
-                    SaveProgression();
+                    TryCommitProgression(data =>
+                    {
+                        data.stage.currentLobbyStage = clampedStage;
+                    });
                 }
 
                 return;
@@ -378,36 +446,24 @@ namespace AlienCrusher.Systems
             }
         }
 
-        private void SetMetaUpgradeLevel(MetaUpgradeType upgradeType, int level)
+        private static void SetMetaUpgradeLevel(MetaProgressionData meta, MetaUpgradeType upgradeType, int level)
         {
-            var clamped = Mathf.Clamp(level, 0, GetMetaUpgradeMaxLevel(upgradeType));
-
-            if (HasProgressionData)
+            var id = upgradeType.ToString();
+            for (var i = 0; i < meta.metaUpgradeLevels.Count; i++)
             {
-                var id = upgradeType.ToString();
-                for (var i = 0; i < progressionData.meta.metaUpgradeLevels.Count; i++)
+                var entry = meta.metaUpgradeLevels[i];
+                if (entry != null && entry.upgradeId == id)
                 {
-                    var entry = progressionData.meta.metaUpgradeLevels[i];
-                    if (entry != null && entry.upgradeId == id)
-                    {
-                        entry.level = clamped;
-                        SaveProgression();
-                        return;
-                    }
+                    entry.level = level;
+                    return;
                 }
-
-                progressionData.meta.metaUpgradeLevels.Add(new MetaUpgradeLevelEntry
-                {
-                    upgradeId = id,
-                    level = clamped
-                });
-                SaveProgression();
-                return;
             }
 
-            var key = MetaUpgradeLevelKeyPrefix + upgradeType;
-            PlayerPrefs.SetInt(key, clamped);
-            PlayerPrefs.Save();
+            meta.metaUpgradeLevels.Add(new MetaUpgradeLevelEntry
+            {
+                upgradeId = id,
+                level = level
+            });
         }
 
         private void EnsureDefaultUnlocked()
@@ -458,19 +514,20 @@ namespace AlienCrusher.Systems
             progressionData = progressionSaveSystem.Current;
             if (IsProgressionDataEmpty(progressionData))
             {
-                MigrateFromLegacyPlayerPrefs(progressionData);
-                SaveProgression();
+                TryCommitProgression(MigrateFromLegacyPlayerPrefs);
             }
         }
 
-        private void SaveProgression()
+        private bool TryCommitProgression(System.Action<PlayerProgressionData> mutation)
         {
-            if (progressionSaveSystem == null)
+            if (progressionSaveSystem == null || !HasProgressionData)
             {
-                return;
+                return false;
             }
 
-            progressionSaveSystem.MarkDirtyAndSave();
+            var committed = progressionSaveSystem.TryCommit(mutation);
+            progressionData = progressionSaveSystem.Current;
+            return committed;
         }
 
         private int FindMetaUpgradeLevel(MetaUpgradeType upgradeType)
