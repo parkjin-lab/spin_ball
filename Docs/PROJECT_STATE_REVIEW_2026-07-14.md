@@ -109,13 +109,14 @@
 - [x] DP 차감과 해금/업그레이드 지급을 스냅샷 기반 한 상태 변경 및 한 번의 커밋으로 묶고 실패 시 메모리 상태도 롤백한다.
 - [x] 저장을 temp write + disk flush + JSON 검증 + atomic replace로 강화하고 백업 복구 시 정상 백업을 보존한다.
 - [x] 구매 실패 롤백과 손상 primary/backup 복구를 실제 ProgressionSaveSystem으로 검사하는 Unity Editor 배치 검증기를 추가하고 Tools/RunUnityBatchChecks.ps1에 연결했다.
-- [ ] Unity ILPP 정상화 후 저장 트랜잭션 배치 검증과 시간 중첩 PlayMode 검증을 실제 실행해 Runtime Green 근거를 갱신한다.
+- [x] pause/overdrive/boss 조합과 해제 순서를 순수 계산 경로로 검사하는 Unity Editor 배치 검증기를 추가했다.
+- [ ] Unity ILPP 정상화 후 저장 트랜잭션 및 시간 중첩 배치 검증을 실제 실행해 Runtime Green 근거를 갱신한다.
 - [ ] Runtime Green 및 `F10` 수행용 체크리스트에서 28개 관찰 칸과 save smoke 절차를 확정한다. `Tools/GenerateStagePlaytestChecklist.ps1`
 
 ### 사람 개입
 
 - [ ] `ROUTE HOLD`의 지위를 **필수 조건** 또는 **고득점 선택지** 중 하나로 결정하고 `Docs/GAME_DESIGN_GAP_POLICY.md`에 반영한다.
-- [ ] Unity 6000.3.8f1에서 현재 날짜 Runtime Green을 확인한다. 2026-07-14 배치는 라이선스 접근 복구 후 IL Post Processor 단계에서 15분 타임아웃되어 아직 Green이 아니다.
+- [ ] Unity 6000.3.8f1에서 현재 날짜 Runtime Green을 확인한다. 2026-07-14 배치는 IL Post Processor 단계에서 타임아웃됐고, 2026-08-11에는 프로젝트별 잠금 판정을 수정했으나 stale Temp/UnityLockfile 삭제가 승인되지 않아 실행을 보류했다.
 - [ ] 실제 `F10` Stage 1-7 sweep을 실행하고 `Docs/AlienCrusherStagePlaytestNotes.md`에 28 notes와 화면/영상 근거를 기록한다.
 - [ ] DP, 선택 형태, 스테이지 해금, 메타 업그레이드가 종료·재진입 후 유지되는 save smoke를 수행한다.
 - [ ] `Tools/TestPlaytestEvidenceGate.ps1` 결과와 체감 관찰을 함께 검토해 Evidence Green / Decision Green을 승인한다.

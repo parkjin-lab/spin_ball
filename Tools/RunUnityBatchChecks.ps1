@@ -115,6 +115,12 @@ $checks = @(
         ExecuteMethod = "AlienCrusher.EditorTools.ProgressionSaveTransactionValidator.ValidateBatch"
         EditorLogPath = Join-Path $logsPath "AlienCrusherProgressionSaveTransactionValidationEditor.log"
         ExpectedReportPath = Join-Path $logsPath "AlienCrusherProgressionSaveTransactionValidation.log"
+    },
+    [pscustomobject]@{
+        Label = "Time scale channel overlap validation"
+        ExecuteMethod = "AlienCrusher.EditorTools.TimeScaleChannelOverlapValidator.ValidateBatch"
+        EditorLogPath = Join-Path $logsPath "AlienCrusherTimeScaleChannelOverlapValidationEditor.log"
+        ExpectedReportPath = Join-Path $logsPath "AlienCrusherTimeScaleChannelOverlapValidation.log"
     }
 )
 

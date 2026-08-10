@@ -6,8 +6,10 @@
 - 자동화 연속성 구축은 완료되었으며 이제 유지보수 항목이다. 체크리스트·백로그·리포트 생성 확대가 실제 플레이 증거보다 앞서면 안 된다.
 - 실제 우선순위는 **P1 코드 안전성(Time ownership, atomic save/purchase, tests) -> 현재 날짜 Unity Runtime Green -> 실제 `F10` Stage 1-7 evidence**다.
 - Time ownership은 2026-07-14에 pause/overdrive/boss 채널 방식으로 통합했고 정적 감사 `0 errors / 0 warnings`를 확인했다.
+- 시간 중첩 정책 검증기도 구현했다. pause 우선, 느린 효과 우선, 채널별 해제 후 남은 효과 복원, 전체 해제 후 baseline 복원을 9개 결정적 상태로 검사하며 Unity ILPP 정상화 후 첫 배치 실행이 남았다.
 - Atomic save/purchase와 저장 실패 검증기 구현을 완료했다. 진행 변경은 스냅샷 기반 단일 커밋으로 처리하고 실패 시 롤백하며, 저장 파일은 flush·검증 후 atomic replace한다. ProgressionSaveTransactionValidator가 정상 커밋, 실패 롤백, 손상 primary에서 backup 복구를 실제 런타임 컴포넌트로 검사하며 RunUnityBatchChecks.ps1에 연결됐다. Unity ILPP 정상화 후 첫 실행이 남았다.
 - 현재 날짜 Unity 배치는 라이선스·캐시 접근 문제를 해결했지만 IL Post Processor 단계에서 타임아웃됐다. 2026-05-05 보고서는 갱신되지 않았으므로 Runtime Green으로 간주하지 않는다.
+- 2026-08-11 Unity 배치 잠금 판정은 현재 프로젝트의 projectPath와 일치하는 Unity 프로세스만 보도록 수정했고 회귀 테스트가 통과했다. 다른 프로젝트 Unity가 spinball을 거짓 차단하는 문제는 해소됐지만, spinball의 stale Temp/UnityLockfile 삭제는 승인되지 않아 그대로 보존했으며 Runtime 검증은 실행하지 않았다.
 - 실제 sweep, Stage 1-7의 28개 관찰 노트, progression save smoke 전까지 재미 판정은 **미검증**이며 리듬·보상·보스의 광범위한 튜닝은 잠근다.
 - `ROUTE HOLD`를 필수 승리 조건으로 만들지 고득점 선택지로 유지할지는 사람의 기획 결정이 필요하다.
 - 아래의 2026-06-08 검증·readiness 상태와 이를 전제로 한 지시는 **historical 기록**이다. 현재 상태나 우선순위로 해석하지 말고, 충돌 시 2026-07-14 정본을 따른다.

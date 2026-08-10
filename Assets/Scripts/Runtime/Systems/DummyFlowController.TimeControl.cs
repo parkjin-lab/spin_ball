@@ -57,26 +57,60 @@ namespace AlienCrusher.Systems
 
 		private void ApplyTimeScaleChannels()
 		{
-			float targetScale = 1f;
-			if (overdriveTimeScaleActive)
-			{
-				targetScale = Mathf.Min(targetScale, overdriveTimeScale);
-			}
-			if (bossFinishTimeScaleActive)
-			{
-				targetScale = Mathf.Min(targetScale, bossFinishTimeScale);
-			}
-			if (pauseTimeScaleActive)
-			{
-				targetScale = 0f;
-			}
-
+			float targetScale = ResolveTargetTimeScale(
+				pauseTimeScaleActive,
+				overdriveTimeScaleActive,
+				overdriveTimeScale,
+				bossFinishTimeScaleActive,
+				bossFinishTimeScale);
 			Time.timeScale = targetScale;
-			Time.fixedDeltaTime = targetScale > 0f
-				? baseFixedDeltaTime * targetScale
-				: baseFixedDeltaTime;
+			Time.fixedDeltaTime = ResolveFixedDeltaTime(baseFixedDeltaTime, targetScale);
 		}
 
+		private static float ResolveTargetTimeScale(
+			bool pauseActive,
+			bool overdriveActive,
+			float requestedOverdriveScale,
+			bool bossFinishActive,
+			float requestedBossFinishScale)
+		{
+			float targetScale = 1f;
+			if (overdriveActive)
+			{
+				targetScale = Mathf.Min(targetScale, Mathf.Clamp(requestedOverdriveScale, 0.01f, 1f));
+			}
+			if (bossFinishActive)
+			{
+				targetScale = Mathf.Min(targetScale, Mathf.Clamp(requestedBossFinishScale, 0.01f, 1f));
+			}
+
+			return pauseActive ? 0f : targetScale;
+		}
+
+		private static float ResolveFixedDeltaTime(float unscaledFixedDeltaTime, float targetScale)
+		{
+			float safeBaseDeltaTime = Mathf.Max(0.0001f, unscaledFixedDeltaTime);
+			return targetScale > 0f ? safeBaseDeltaTime * targetScale : safeBaseDeltaTime;
+		}
+
+#if UNITY_EDITOR
+		public static Vector2 ResolveTimeStateForValidation(
+			bool pauseActive,
+			bool overdriveActive,
+			float requestedOverdriveScale,
+			bool bossFinishActive,
+			float requestedBossFinishScale,
+			float unscaledFixedDeltaTime = 0.02f)
+		{
+			float targetScale = ResolveTargetTimeScale(
+				pauseActive,
+				overdriveActive,
+				requestedOverdriveScale,
+				bossFinishActive,
+				requestedBossFinishScale);
+			return new Vector2(targetScale, ResolveFixedDeltaTime(unscaledFixedDeltaTime, targetScale));
+		}
+#endif
 		private void ResetTimeControl()
 		{
 			InitializeTimeControl();

@@ -14,6 +14,8 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+. (Join-Path $PSScriptRoot "UnityBatchProcessHelpers.ps1")
+
 function Resolve-ProjectRoot {
     param([string]$OverridePath)
 
@@ -74,12 +76,6 @@ function Resolve-DefaultReportPath {
     }
 
     return ""
-}
-
-function Get-UnityEditorProcesses {
-    return @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
-        $_.ProcessName -eq "Unity" -or $_.ProcessName -eq "Unity Editor"
-    })
 }
 
 function Format-ProcessList {
@@ -156,7 +152,7 @@ elseif (-not [System.IO.Path]::IsPathRooted($ExpectedReportPath)) {
     $ExpectedReportPath = Join-Path $projectRoot $ExpectedReportPath
 }
 
-$unityProcesses = @(Get-UnityEditorProcesses)
+$unityProcesses = @(Get-UnityEditorProcessesForProject -ProjectRoot $projectRoot)
 $lockPath = Join-Path $projectRoot "Temp\UnityLockfile"
 if (Test-Path -Path $lockPath -PathType Leaf) {
     if ($unityProcesses.Count -gt 0) {
