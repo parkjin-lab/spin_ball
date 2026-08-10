@@ -16,9 +16,34 @@ namespace AlienCrusher.Systems
 
         public PlayerProgressionData Current { get; private set; }
 
-        private string SavePath => Path.Combine(Application.persistentDataPath, SaveFileName);
-        private string BackupPath => Path.Combine(Application.persistentDataPath, BackupFileName);
-        private string CorruptPath => Path.Combine(Application.persistentDataPath, CorruptFileName);
+#if UNITY_EDITOR
+        private static string validationStorageDirectory;
+#endif
+
+        private string SavePath => Path.Combine(StorageDirectory, SaveFileName);
+        private string BackupPath => Path.Combine(StorageDirectory, BackupFileName);
+        private string CorruptPath => Path.Combine(StorageDirectory, CorruptFileName);
+
+        private static string StorageDirectory
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (!string.IsNullOrWhiteSpace(validationStorageDirectory))
+                {
+                    return validationStorageDirectory;
+                }
+#endif
+                return Application.persistentDataPath;
+            }
+        }
+
+#if UNITY_EDITOR
+        public static void SetValidationStorageDirectory(string directory)
+        {
+            validationStorageDirectory = directory;
+        }
+#endif
 
         private void Awake()
         {

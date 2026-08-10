@@ -38,9 +38,9 @@
 
 | 우선순위 | 위험 | 영향과 근거 |
 |---|---|---|
-| P1 | 전역 `Time.timeScale` / `Time.fixedDeltaTime` 경쟁 | 일시정지, 오버드라이브, 보스 연출이 같은 전역 값을 저장·복원해 중첩 시 잘못된 속도로 돌아갈 수 있다. `Assets/Scripts/Runtime/Systems/DummyFlowController.ComboOverdrive.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.StageEncounter.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs` |
-| P1 | 구매 재화 차감과 지급이 단일 트랜잭션이 아님 | DP 차감 뒤 업그레이드/해금 저장이 실패하거나 중단되면 재화와 소유 상태가 어긋날 수 있다. `Assets/Scripts/Runtime/Systems/FormUnlockSystem.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.MetaProgression.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.FormFlow.cs` |
-| P1 | 저장 파일 원자 교체·백업 복구 취약 | 임시 파일을 최종 파일로 옮기는 과정과 백업 세대 관리가 중단·손상 상황을 완전히 방어하지 못한다. `Assets/Scripts/Runtime/Systems/ProgressionSaveSystem.cs`, `Tools/AuditProgressionSaveSafetyStatic.ps1` |
+| 완료/검증 대기 | 전역 시간 소유권 경쟁 | pause/overdrive/boss 채널을 DummyFlowController.TimeControl.cs 한 곳에서 합성하도록 통합했다. 실제 중첩 프레임 검증은 Unity ILPP 정상화 후 수행한다. Tools/AuditTimeScaleOwnershipStatic.ps1 |
+| 완료/검증 대기 | 구매 원자성 | DP 차감과 해금/업그레이드 지급을 TryCommit 한 번으로 묶고 저장 실패 시 메모리 스냅샷을 복원한다. 실패 주입 배치 검증기가 추가됐으며 Unity 실행이 남았다. Assets/Scripts/Runtime/Systems/FormUnlockSystem.cs |
+| 완료/검증 대기 | 저장 원자 교체·백업 복구 | temp flush와 JSON 검증 뒤 atomic replace하고, 손상 primary 복구 시 정상 backup을 보존한다. 정상 커밋·실패 롤백·backup 복구 배치 검증이 연결됐다. Assets/Scripts/Editor/ProgressionSaveTransactionValidator.cs |
 | P2 | 이름 기반 비결정적 씬 참조 | `GameObject.Find`, 전역 `FindFirstObjectByType`/`FindObjectsByType` 의존은 중복 오브젝트와 씬 변경에서 참조 결과를 불안정하게 만든다. `Assets/Scripts/Runtime/Systems/FormUnlockSystem.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.Lifecycle.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeUtilities.cs` |
 | P2 | 문자열 기반 정적 감사와 Unity PlayMode 테스트 부재 | PowerShell 감사가 소스 문자열·리포트 형식 회귀는 잡지만 실제 프레임 순서, 코루틴 중첩, 저장 중단을 검증하지 못한다. `Tools/RunStaticAudits.ps1`, `Tools/AuditRouteHoldTuningStatic.ps1`, `Tools/TestPlaytestEvidenceGateRegression.ps1`, `Assets/Scripts` |
 | P2 | 입력 정책 분산 및 게임패드/리바인딩 부재 | 입력이 여러 런타임 파일과 가상 조이스틱 처리로 흩어져 장치별 동작 일관성과 접근성이 낮다. `Assets/Scripts/Runtime/Gameplay/PlayerBallDummyController.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`, `Assets/Scripts/Runtime/UI/VirtualJoystickUI.cs` |
@@ -56,7 +56,7 @@
 ### 진행
 
 - 경로 가독성, Stage 4 보스 접근 랜드마크, 모바일 HUD 축약, 오디오 훅은 구현됐으나 실제 장치·플레이 증거가 없다. `Assets/Scripts/Runtime/Systems/DummyFlowController.RuntimeMapFallback.cs`, `Assets/Scripts/Runtime/Systems/DummyFlowController.UIFlow.cs`, `Assets/Scripts/Runtime/Systems/FeedbackSystem.cs`
-- 저장 복구와 증거 게이트는 정적 방어가 있으나 런타임 실패 주입 및 실제 save smoke가 남아 있다. `Assets/Scripts/Runtime/Systems/ProgressionSaveSystem.cs`, `Tools/TestPlaytestEvidenceGate.ps1`
+- 저장 실패 주입 검증기는 구현·배치 연결됐으나 Unity IL Post Processor 정체로 아직 실행되지 않았다. 실제 종료·재진입 save smoke도 남아 있다. Assets/Scripts/Editor/ProgressionSaveTransactionValidator.cs, Tools/TestPlaytestEvidenceGate.ps1
 
 ### 차단
 
@@ -108,7 +108,8 @@
 - [x] 비어 있는 리소스 백로그를 자동화 보고서가 읽을 때 발생하던 null 예외를 방어하고 관련 회귀 테스트를 통과시켰다.
 - [x] DP 차감과 해금/업그레이드 지급을 스냅샷 기반 한 상태 변경 및 한 번의 커밋으로 묶고 실패 시 메모리 상태도 롤백한다.
 - [x] 저장을 temp write + disk flush + JSON 검증 + atomic replace로 강화하고 백업 복구 시 정상 백업을 보존한다.
-- [ ] 시간 중첩, 구매 실패, 손상 primary/backup 복구를 다루는 Unity EditMode/PlayMode 테스트를 추가한다.
+- [x] 구매 실패 롤백과 손상 primary/backup 복구를 실제 ProgressionSaveSystem으로 검사하는 Unity Editor 배치 검증기를 추가하고 Tools/RunUnityBatchChecks.ps1에 연결했다.
+- [ ] Unity ILPP 정상화 후 저장 트랜잭션 배치 검증과 시간 중첩 PlayMode 검증을 실제 실행해 Runtime Green 근거를 갱신한다.
 - [ ] Runtime Green 및 `F10` 수행용 체크리스트에서 28개 관찰 칸과 save smoke 절차를 확정한다. `Tools/GenerateStagePlaytestChecklist.ps1`
 
 ### 사람 개입

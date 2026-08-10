@@ -32,6 +32,8 @@ $projectRoot = Resolve-ProjectRoot
 $saveSystemPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\ProgressionSaveSystem.cs"
 $formUnlockPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\FormUnlockSystem.cs"
 $dataPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\PlayerProgressionData.cs"
+$validatorPath = Join-Path $projectRoot "Assets\Scripts\Editor\ProgressionSaveTransactionValidator.cs"
+$batchChecksPath = Join-Path $projectRoot "Tools\RunUnityBatchChecks.ps1"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherProgressionSaveSafetyStaticAudit.log"
@@ -48,7 +50,7 @@ if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
 $errors = [System.Collections.Generic.List[string]]::new()
 $warnings = [System.Collections.Generic.List[string]]::new()
 
-foreach ($path in @($saveSystemPath, $formUnlockPath, $dataPath)) {
+foreach ($path in @($saveSystemPath, $formUnlockPath, $dataPath, $validatorPath, $batchChecksPath)) {
     if (-not (Test-Path -Path $path -PathType Leaf)) {
         $errors.Add("Required source not found: $path")
     }
@@ -58,11 +60,15 @@ if ($errors.Count -eq 0) {
     $saveSystemText = Get-Content -Path $saveSystemPath -Raw
     $formUnlockText = Get-Content -Path $formUnlockPath -Raw
     $dataText = Get-Content -Path $dataPath -Raw
+    $validatorText = Get-Content -Path $validatorPath -Raw
+    $batchChecksText = Get-Content -Path $batchChecksPath -Raw
 
     foreach ($needle in @(
         'aliencrusher_progression.json',
         'aliencrusher_progression.bak.json',
         'aliencrusher_progression.corrupt.json',
+        'SetValidationStorageDirectory(string directory)',
+        'return validationStorageDirectory',
         'TryLoadFromDisk(out var loadedFromBackup)',
         'TrySave(preserveExistingBackup: true)',
         'public bool TryCommit(Action<PlayerProgressionData> mutation)',
@@ -126,6 +132,27 @@ if ($errors.Count -eq 0) {
     )) {
         Add-MissingTextCheck -Errors $errors -Text $dataText -Needle $needle -Label "PlayerProgressionData defaults"
     }
+
+    foreach ($needle in @(
+        'public static void ValidateBatch()',
+        'Atomic commit persists DP and unlock together',
+        'Failed save rolls back the complete in-memory mutation',
+        'Corrupt primary recovers from backup without consuming it',
+        'system.TryCommit(data =>',
+        'ReadProgression(backupPath)',
+        'DeleteValidationRunDirectory(runRoot, validationParent)',
+        'AlienCrusherProgressionSaveTransactionValidation.log'
+    )) {
+        Add-MissingTextCheck -Errors $errors -Text $validatorText -Needle $needle -Label "Progression save transaction validator"
+    }
+
+    foreach ($needle in @(
+        'AlienCrusher.EditorTools.ProgressionSaveTransactionValidator.ValidateBatch',
+        'AlienCrusherProgressionSaveTransactionValidationEditor.log',
+        'AlienCrusherProgressionSaveTransactionValidation.log'
+    )) {
+        Add-MissingTextCheck -Errors $errors -Text $batchChecksText -Needle $needle -Label "Unity batch check wiring"
+    }
 }
 
 $lines = [System.Collections.Generic.List[string]]::new()
@@ -133,6 +160,7 @@ $lines.Add("[AlienCrusher][ProgressionSaveSafetyStaticAudit] Progression save sa
 $lines.Add("Save system: $saveSystemPath")
 $lines.Add("Form unlock bridge: $formUnlockPath")
 $lines.Add("Progression data: $dataPath")
+$lines.Add("Transaction validator: $validatorPath")
 $lines.Add("Contract: progression mutations roll back on commit failure; temp JSON is flushed and validated before atomic replacement; backup recovery preserves the known-good backup while replacing a corrupt primary.")
 
 foreach ($errorMessage in $errors) {

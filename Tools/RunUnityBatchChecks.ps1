@@ -109,6 +109,12 @@ $checks = @(
         ExecuteMethod = "AlienCrusher.EditorTools.AlienCrusherMapLayoutAuditor.AuditRuntimeMapLayoutBatch"
         EditorLogPath = Join-Path $logsPath "AlienCrusherMapLayoutAuditEditor.log"
         ExpectedReportPath = Join-Path $logsPath "AlienCrusherMapLayoutAudit.log"
+    },
+    [pscustomobject]@{
+        Label = "Progression save transaction validation"
+        ExecuteMethod = "AlienCrusher.EditorTools.ProgressionSaveTransactionValidator.ValidateBatch"
+        EditorLogPath = Join-Path $logsPath "AlienCrusherProgressionSaveTransactionValidationEditor.log"
+        ExpectedReportPath = Join-Path $logsPath "AlienCrusherProgressionSaveTransactionValidation.log"
     }
 )
 
