@@ -106,6 +106,11 @@ if ($errors.Count -eq 0) {
 
     foreach ($needle in @(
         'ResolveSaveSystem()',
+        '[SerializeField] private ProgressionSaveSystem progressionSaveSystem',
+        'ResolveSystemsRoot()',
+        'transform.parent',
+        'gameObject.scene.GetRootGameObjects()',
+        'systemsRoot.GetComponentInChildren<ProgressionSaveSystem>(includeInactive: true)',
         'progressionSaveSystem.LoadOrCreate()',
         'TryCommitProgression(MigrateFromLegacyPlayerPrefs)',
         'progressionSaveSystem.TryCommit(mutation)',
@@ -121,6 +126,10 @@ if ($errors.Count -eq 0) {
 
     if ($formUnlockText.Contains('TrySpendDp(requiredCost)')) {
         $errors.Add("Purchase paths must not save DP separately before granting the purchased item")
+    }
+    if ($formUnlockText.Contains('GameObject.Find("_Systems")') -or
+        $formUnlockText.Contains('FindFirstObjectByType<ProgressionSaveSystem>()')) {
+        $errors.Add("FormUnlockSystem must resolve progression storage from an explicit reference or its canonical _Systems root")
     }
 
     foreach ($needle in @(

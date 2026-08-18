@@ -10,6 +10,7 @@
 - Atomic save/purchase와 저장 실패 검증기 구현을 완료했다. 진행 변경은 스냅샷 기반 단일 커밋으로 처리하고 실패 시 롤백하며, 저장 파일은 flush·검증 후 atomic replace한다. ProgressionSaveTransactionValidator가 정상 커밋, 실패 롤백, 손상 primary에서 backup 복구를 실제 런타임 컴포넌트로 검사하며 RunUnityBatchChecks.ps1에 연결됐다. Unity ILPP 정상화 후 첫 실행이 남았다.
 - 현재 날짜 Unity 배치는 라이선스·캐시 접근 문제를 해결했지만 IL Post Processor 단계에서 타임아웃됐다. 2026-05-05 보고서는 갱신되지 않았으므로 Runtime Green으로 간주하지 않는다.
 - 2026-08-11 Unity 배치 잠금 판정은 현재 프로젝트의 projectPath와 일치하는 Unity 프로세스만 보도록 수정했고 회귀 테스트가 통과했다. 다른 프로젝트 Unity가 spinball을 거짓 차단하는 문제는 해소됐지만, spinball의 stale Temp/UnityLockfile 삭제는 승인되지 않아 그대로 보존했으며 Runtime 검증은 실행하지 않았다.
+- 2026-08-19 FormUnlockSystem은 명시 참조를 우선하고 자신의 부모 또는 현재 씬 루트 _Systems에서 ProgressionSaveSystem을 결정적으로 찾는다. 표준 경로의 FindFirstObjectByType 및 GameObject.Find("_Systems") 의존은 제거했다.
 - 실제 sweep, Stage 1-7의 28개 관찰 노트, progression save smoke 전까지 재미 판정은 **미검증**이며 리듬·보상·보스의 광범위한 튜닝은 잠근다.
 - `ROUTE HOLD`를 필수 승리 조건으로 만들지 고득점 선택지로 유지할지는 사람의 기획 결정이 필요하다.
 - 아래의 2026-06-08 검증·readiness 상태와 이를 전제로 한 지시는 **historical 기록**이다. 현재 상태나 우선순위로 해석하지 말고, 충돌 시 2026-07-14 정본을 따른다.

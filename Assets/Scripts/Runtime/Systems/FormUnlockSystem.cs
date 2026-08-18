@@ -38,7 +38,7 @@ namespace AlienCrusher.Systems
         [SerializeField] private float impactCoreBonusPerLevel = 0.12f;
         [SerializeField] private float dpAmplifierBonusPerLevel = 0.12f;
 
-        private ProgressionSaveSystem progressionSaveSystem;
+        [SerializeField] private ProgressionSaveSystem progressionSaveSystem;
         private PlayerProgressionData progressionData;
 
         public FormType CurrentForm { get; private set; }
@@ -496,18 +496,16 @@ namespace AlienCrusher.Systems
 
         private void ResolveSaveSystem()
         {
-            progressionSaveSystem = FindFirstObjectByType<ProgressionSaveSystem>();
             if (progressionSaveSystem == null)
             {
-                var systemsRoot = GameObject.Find("_Systems");
-                if (systemsRoot == null)
+                var systemsRoot = ResolveSystemsRoot();
+                progressionSaveSystem = systemsRoot.GetComponentInChildren<ProgressionSaveSystem>(includeInactive: true);
+                if (progressionSaveSystem == null)
                 {
-                    systemsRoot = new GameObject("_Systems");
+                    var saveObject = new GameObject("ProgressionSaveSystem");
+                    saveObject.transform.SetParent(systemsRoot, false);
+                    progressionSaveSystem = saveObject.AddComponent<ProgressionSaveSystem>();
                 }
-
-                var saveObject = new GameObject("ProgressionSaveSystem");
-                saveObject.transform.SetParent(systemsRoot.transform, false);
-                progressionSaveSystem = saveObject.AddComponent<ProgressionSaveSystem>();
             }
 
             progressionSaveSystem.LoadOrCreate();
@@ -516,6 +514,26 @@ namespace AlienCrusher.Systems
             {
                 TryCommitProgression(MigrateFromLegacyPlayerPrefs);
             }
+        }
+
+        private Transform ResolveSystemsRoot()
+        {
+            var parent = transform.parent;
+            if (parent != null && parent.name == "_Systems")
+            {
+                return parent;
+            }
+
+            var rootObjects = gameObject.scene.GetRootGameObjects();
+            for (var i = 0; i < rootObjects.Length; i++)
+            {
+                if (rootObjects[i].name == "_Systems")
+                {
+                    return rootObjects[i].transform;
+                }
+            }
+
+            return new GameObject("_Systems").transform;
         }
 
         private bool TryCommitProgression(System.Action<PlayerProgressionData> mutation)

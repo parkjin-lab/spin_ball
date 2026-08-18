@@ -110,6 +110,7 @@
 - [x] 저장을 temp write + disk flush + JSON 검증 + atomic replace로 강화하고 백업 복구 시 정상 백업을 보존한다.
 - [x] 구매 실패 롤백과 손상 primary/backup 복구를 실제 ProgressionSaveSystem으로 검사하는 Unity Editor 배치 검증기를 추가하고 Tools/RunUnityBatchChecks.ps1에 연결했다.
 - [x] pause/overdrive/boss 조합과 해제 순서를 순수 계산 경로로 검사하는 Unity Editor 배치 검증기를 추가했다.
+- [x] FormUnlockSystem의 저장 시스템 참조를 직렬화 참조 -> 부모/씬 루트 _Systems 순서로 결정화하고 전역 이름 검색을 제거했다.
 - [ ] Unity ILPP 정상화 후 저장 트랜잭션 및 시간 중첩 배치 검증을 실제 실행해 Runtime Green 근거를 갱신한다.
 - [ ] Runtime Green 및 `F10` 수행용 체크리스트에서 28개 관찰 칸과 save smoke 절차를 확정한다. `Tools/GenerateStagePlaytestChecklist.ps1`
 
