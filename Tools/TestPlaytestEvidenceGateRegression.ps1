@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [int]$MaxStage = 2,
-    [int]$MaxGrowthStage = 7,
+    [int]$MaxGrowthStage = 10,
     [string]$ReportPath = "",
     [string]$FixturePath = "",
     [switch]$FailOnWarnings

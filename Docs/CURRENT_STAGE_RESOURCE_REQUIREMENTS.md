@@ -1,4 +1,4 @@
-﻿# Alien Crusher - Current Stage Resource Requirements
+# Alien Crusher - Current Stage Resource Requirements
 
 ## Purpose
 This document defines the minimum and recommended resources needed to make the current playable prototype feel intentionally designed, readable, and fun.
@@ -32,6 +32,23 @@ In practice, this means:
 - critical gameplay identifiers should get dedicated visual treatment
 - sound and feedback resources are now high-value, because many core loops already exist
 
+## Stage 08-10 Content Pack Resources
+
+The late-run expansion is playable with Unity primitives, but these dedicated resources now have high value:
+
+- Stage 08 Transit Hub: shuttle silhouette, route display material, gate silhouette, shuttle break SFX
+- Stage 09 Harbor Yard: container variants, fuel hazard material, crane silhouette, fuel-chain SFX
+- Stage 10 Civic Core: pylon silhouette, energy-band material, uplink tower, pylon/uplink break SFX
+- three district palette sets with distinct ground, structure, hazard, and emissive colors
+- one minimap or stage-select district icon for each new stage
+
+Production policy:
+- prioritize silhouette and destruction readability over mesh detail
+- keep dangerous fuel objects visually distinct from ordinary containers
+- make Civic Core pylons and the uplink readable as setup and payoff at gameplay camera distance
+- validate the primitive baseline before replacing it with authored assets
+
+See Docs/STAGE_08_10_CONTENT_EXPANSION.md for gameplay intent and acceptance criteria.
 ## Current Resource Need Summary
 Priority order at the current stage:
 1. gameplay readability resources

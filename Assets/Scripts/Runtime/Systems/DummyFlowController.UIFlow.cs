@@ -1286,7 +1286,15 @@ namespace AlienCrusher.Systems
 			{
 				return "dense core / crack mid-rise lanes before towers";
 			}
-			return "fortified skyline / heavy structures hold the route";
+			if (num <= 7)
+			{
+				return "fortified skyline / heavy structures hold the route";
+			}
+			if (num <= 9)
+			{
+				return "metro frontier / transit and harbor chains split the route";
+			}
+			return "civic core / break the uplink ring before the center";
 		}
 
 		private static string DescribeStageTraffic(int stageNumber)
@@ -1304,7 +1312,15 @@ namespace AlienCrusher.Systems
 			{
 				return "dense traffic / explosive utilities can open routes";
 			}
-			return "high-alert streets / hazard chains can swing tempo";
+			if (num <= 7)
+			{
+				return "high-alert streets / hazard chains can swing tempo";
+			}
+			if (num <= 9)
+			{
+				return "industrial surge / shuttles and fuel stacks reward clean chains";
+			}
+			return "lockdown grid / pylon breaks create the final opening";
 		}
 
 		private static string DescribeStagePressure(int stageNumber)
@@ -1322,7 +1338,15 @@ namespace AlienCrusher.Systems
 			{
 				return "protect combo windows while cracking elites";
 			}
-			return "plan around boss pressure and fortified fronts";
+			if (num <= 7)
+			{
+				return "plan around boss pressure and fortified fronts";
+			}
+			if (num <= 9)
+			{
+				return "choose a chain lane, cash out, then rotate before pressure peaks";
+			}
+			return "circle the core, break pylons, then commit to the uplink";
 		}
 
 		private string DescribeStageObjective(int stageNumber)

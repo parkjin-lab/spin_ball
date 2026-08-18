@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-06-18
+Last updated: 2026-08-19
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -8,6 +8,7 @@ This document tracks the current project state, the next production priorities, 
 - `Docs/AUTOMATION_RUNBOOK.md`
 - `Docs/GAME_DESIGN_GAP_POLICY.md`
 - `Docs/CURRENT_STAGE_RESOURCE_REQUIREMENTS.md`
+- `Docs/STAGE_08_10_CONTENT_EXPANSION.md`
 - `Docs/CURRENT_STAGE_RESOURCE_PRODUCTION_BOARD.md`
 
 ---
@@ -22,8 +23,9 @@ This document tracks the current project state, the next production priorities, 
 - Failure result and lobby recommendation copy now start with one bucket-specific first action before explaining the upgrade reason.
 - Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines and append the same route telemetry to `Logs/AlienCrusherPlaytestTelemetry.log` for `SWEEP_START`, stage start, route open, route hold clear, route bonus, forward smash, stage end, and `SWEEP_END`. ROUTE HOLD telemetry now also samples target distance, closest/average/farthest distance, in-range percentage, and elapsed route time.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` can convert the telemetry log into a markdown report with a current tuning snapshot, rhythm snapshot, `Tune Next` decision block, sweep-level summaries, stage trend rollups, route adherence metrics, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdowns for faster Stage 1-7 review.
-- Runtime map rebuilds happen at stage start. Stage 1-7 currently grow from a compact starter layout into wider, denser maps with expanded target marker spacing and stage-gated landmarks.
-- Stage-gated landmark districts currently include Stage 2 pocket park, Stage 3 market plaza, Stage 4 Sentinel checkpoint, Stage 5 construction yard, Stage 6 power block, and Stage 7 skyline block.
+- Runtime map rebuilds happen at stage start. Stage 1-7 preserve the original compact-to-skyline curve; Stage 8-10 continue growth from 66m/20x20 to 74m/22x22 without shrinking the earlier layouts.
+- Stage-gated landmark districts now include Stage 2 pocket park, Stage 3 market plaza, Stage 4 Sentinel checkpoint, Stage 5 construction yard, Stage 6 power block, Stage 7 skyline block, Stage 8 transit hub, Stage 9 harbor yard, and Stage 10 civic core.
+- The Stage 8-10 pack adds three distinct late-run destruction rhythms: linear shuttle chain, volatile container/fuel setup, and ring-to-center uplink finale. Stage 9-10 objective density is capped at the Stage 8 baseline so spatial growth does not become a raw workload spike; other balance timing remains evidence-locked.
 - Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
 - FeedbackSystem now exposes assignable audio hooks for hit weight, destruction size, combo rise, route open/hold/bonus beats, boss warnings/break/down, and level-up moments. The hooks are silent-safe until clips are assigned, so rhythm work can proceed without blocking on final assets.
 - HUD route/progress/gauge text now uses shorter mobile-safe runtime copy with best-fit safeguards for the main HUD readouts.

@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [int]$MaxStage = 7,
-    [int]$MaxGrowthStage = 7,
+    [int]$MaxStage = 10,
+    [int]$MaxGrowthStage = 10,
     [string]$ReportPath = "",
     [switch]$FailOnWarnings
 )
@@ -30,10 +30,12 @@ function Resolve-Layout {
     $stageNumber = [Math]::Max(1, $Stage)
     $growthMaxStage = [Math]::Max(1, $GrowthMax)
     $growthTier = Clamp-Int -Value ($stageNumber - 1) -Min 0 -Max ($growthMaxStage - 1)
-    $growth01 = if ($growthMaxStage -le 1) { 0.0 } else { Clamp-Double -Value ($growthTier / [double]($growthMaxStage - 1)) -Min 0.0 -Max 1.0 }
-    $mapSize = Lerp 44.0 62.0 $growth01
+    $legacyGrowthTier = Clamp-Int -Value ($stageNumber - 1) -Min 0 -Max 6
+    $expansionTier = Clamp-Int -Value ($stageNumber - 7) -Min 0 -Max ([Math]::Max(0, $growthMaxStage - 7))
+    $growth01 = $legacyGrowthTier / 6.0
+    $mapSize = (Lerp 44.0 62.0 $growth01) + ($expansionTier * 4.0)
     $cellSize = Lerp 2.8 3.05 $growth01
-    $cells = Clamp-Int -Value (13 + $growthTier) -Min 13 -Max 19
+    $cells = Clamp-Int -Value (13 + $legacyGrowthTier + $expansionTier) -Min 13 -Max 22
     $gridWidth = ($cells - 1) * $cellSize
     $gridStartZ = ($gridWidth * -0.5) - (Lerp 1.2 0.25 $growth01)
     $spawnLaneEndZ = $gridStartZ + ($cellSize * 2.45)
@@ -41,6 +43,7 @@ function Resolve-Layout {
     return [pscustomobject]@{
         Stage = $stageNumber
         GrowthTier = $growthTier
+        ExpansionTier = $expansionTier
         Growth01 = $growth01
         MapSize = $mapSize
         HalfExtent = $mapSize * 0.5
@@ -71,7 +74,10 @@ function Resolve-LandmarkCenter {
         2 { return [pscustomobject]@{ X = -(Lerp 3.0 5.4 $Layout.Growth01); Z = Lerp 7.0 12.4 $Layout.Growth01; Name = "SentinelCheckpoint" } }
         3 { return [pscustomobject]@{ X = -(Lerp 8.8 13.4 $Layout.Growth01); Z = Lerp 9.5 15.6 $Layout.Growth01; Name = "ConstructionYard" } }
         4 { return [pscustomobject]@{ X = Lerp 8.4 14.2 $Layout.Growth01; Z = Lerp -8.4 -14.4 $Layout.Growth01; Name = "PowerBlock" } }
-        default { return [pscustomobject]@{ X = Lerp 1.8 4.2 $Layout.Growth01; Z = Lerp 13.6 18.8 $Layout.Growth01; Name = "SkylineBlock" } }
+        5 { return [pscustomobject]@{ X = Lerp 1.8 4.2 $Layout.Growth01; Z = Lerp 13.6 18.8 $Layout.Growth01; Name = "SkylineBlock" } }
+        6 { return [pscustomobject]@{ X = -17.2 - ($Layout.ExpansionTier * 0.5); Z = -13.2; Name = "TransitHub" } }
+        7 { return [pscustomobject]@{ X = 18.2 + ($Layout.ExpansionTier * 0.5); Z = 14.8; Name = "HarborYard" } }
+        default { return [pscustomobject]@{ X = 0.0; Z = -21.5 - ($Layout.ExpansionTier * 0.6); Name = "CivicCore" } }
     }
 }
 
@@ -84,13 +90,19 @@ function Resolve-LandmarkHalfExtents {
         2 { return [pscustomobject]@{ X = 4.4; Z = 3.2 } }
         3 { return [pscustomobject]@{ X = 4.2; Z = 3.4 } }
         4 { return [pscustomobject]@{ X = 3.8; Z = 3.4 } }
-        default { return [pscustomobject]@{ X = 4.8; Z = 3.8 } }
+        5 { return [pscustomobject]@{ X = 4.8; Z = 3.8 } }
+        6 { return [pscustomobject]@{ X = 5.0; Z = 3.7 } }
+        7 { return [pscustomobject]@{ X = 5.1; Z = 4.0 } }
+        default { return [pscustomobject]@{ X = 5.2; Z = 4.1 } }
     }
 }
 
 function Resolve-MinimumLandmarkObjects {
     param($Layout)
 
+    if ($Layout.Stage -ge 10) { return 118 }
+    if ($Layout.Stage -ge 9) { return 107 }
+    if ($Layout.Stage -ge 8) { return 95 }
     if ($Layout.Stage -ge 7) { return 84 }
     if ($Layout.Stage -ge 6) { return 64 }
     if ($Layout.Stage -ge 5) { return 50 }
@@ -177,7 +189,7 @@ function Resolve-LandmarkValueProfile {
                 MaxRouteDistance = 18.0
             }
         }
-        default {
+        5 {
             return [pscustomobject]@{
                 Role = "late-anchor"
                 EntryLane = "skyline-plaza-entry"
@@ -185,6 +197,36 @@ function Resolve-LandmarkValueProfile {
                 PayoffMix = "towers/signs/benches"
                 TargetRelation = "late-route-anchor"
                 MaxRouteDistance = 32.0
+            }
+        }
+        6 {
+            return [pscustomobject]@{
+                Role = "linear-chain"
+                EntryLane = "transit-gate-entry"
+                ExitLane = "shuttle-chain-exit"
+                PayoffMix = "shuttles/gates/route-lines"
+                TargetRelation = "outer-route-rotation"
+                MaxRouteDistance = 36.0
+            }
+        }
+        7 {
+            return [pscustomobject]@{
+                Role = "volatile-payoff"
+                EntryLane = "container-stack-entry"
+                ExitLane = "fuel-chain-exit"
+                PayoffMix = "containers/fuel/crane"
+                TargetRelation = "outer-route-rotation"
+                MaxRouteDistance = 36.0
+            }
+        }
+        default {
+            return [pscustomobject]@{
+                Role = "precision-finale"
+                EntryLane = "civic-ring-entry"
+                ExitLane = "uplink-center"
+                PayoffMix = "pylons/energy-bands/uplink"
+                TargetRelation = "return-route-climax"
+                MaxRouteDistance = 26.0
             }
         }
     }
@@ -260,6 +302,9 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
     if ($stage -ge 5) { $landmarkIndexes += 3 }
     if ($stage -ge 6) { $landmarkIndexes += 4 }
     if ($stage -ge 7) { $landmarkIndexes += 5 }
+    if ($stage -ge 8) { $landmarkIndexes += 6 }
+    if ($stage -ge 9) { $landmarkIndexes += 7 }
+    if ($stage -ge 10) { $landmarkIndexes += 8 }
 
     foreach ($index in $landmarkIndexes) {
         $center = Resolve-LandmarkCenter -Layout $layout -Index $index

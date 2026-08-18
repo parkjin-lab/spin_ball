@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [int]$MaxStage = 7,
-    [int]$MaxGrowthStage = 7,
+    [int]$MaxStage = 10,
+    [int]$MaxGrowthStage = 10,
     [string]$ReportPath = "",
     [string]$NotesPath = "",
     [string]$RuntimeConfigPath = "",
@@ -83,10 +83,12 @@ function Resolve-Layout {
     $stageNumber = [Math]::Max(1, $Stage)
     $growthMaxStage = [Math]::Max(1, $GrowthMax)
     $growthTier = Clamp-Int -Value ($stageNumber - 1) -Min 0 -Max ($growthMaxStage - 1)
-    $growth01 = if ($growthMaxStage -le 1) { 0.0 } else { Clamp-Double -Value ($growthTier / [double]($growthMaxStage - 1)) -Min 0.0 -Max 1.0 }
-    $mapSize = Lerp 44.0 62.0 $growth01
+    $legacyGrowthTier = Clamp-Int -Value ($stageNumber - 1) -Min 0 -Max 6
+    $expansionTier = Clamp-Int -Value ($stageNumber - 7) -Min 0 -Max ([Math]::Max(0, $growthMaxStage - 7))
+    $growth01 = $legacyGrowthTier / 6.0
+    $mapSize = (Lerp 44.0 62.0 $growth01) + ($expansionTier * 4.0)
     $cellSize = Lerp 2.8 3.05 $growth01
-    $cells = Clamp-Int -Value (13 + $growthTier) -Min 13 -Max 19
+    $cells = Clamp-Int -Value (13 + $legacyGrowthTier + $expansionTier) -Min 13 -Max 22
     $gridWidth = ($cells - 1) * $cellSize
     $gridStartZ = ($gridWidth * -0.5) - (Lerp 1.2 0.25 $growth01)
 
@@ -115,6 +117,9 @@ function Resolve-Landmarks {
     if ($Layout.Stage -ge 5) { $landmarks.Add("Construction yard") }
     if ($Layout.Stage -ge 6) { $landmarks.Add("Power block") }
     if ($Layout.Stage -ge 7) { $landmarks.Add("Skyline block") }
+    if ($Layout.Stage -ge 8) { $landmarks.Add("Transit hub") }
+    if ($Layout.Stage -ge 9) { $landmarks.Add("Harbor yard") }
+    if ($Layout.Stage -ge 10) { $landmarks.Add("Civic core") }
 
     if ($landmarks.Count -eq 0) {
         return "none"
@@ -133,6 +138,9 @@ function Resolve-LandmarkValueNotes {
     if ($Stage -ge 5) { $notes.Add("Construction yard: explosive-payoff landmark, wide-yard entry, barrel/container/crane payoff") }
     if ($Stage -ge 6) { $notes.Add("Power block: utility-risk landmark, side entry, transformer-chain exit") }
     if ($Stage -ge 7) { $notes.Add("Skyline block: late-anchor landmark, plaza entry, tower-breach exit") }
+    if ($Stage -ge 8) { $notes.Add("Transit hub: linear-chain landmark, gate entry, shuttle-chain exit") }
+    if ($Stage -ge 9) { $notes.Add("Harbor yard: volatile-payoff landmark, container entry, fuel-chain exit") }
+    if ($Stage -ge 10) { $notes.Add("Civic core: precision-finale landmark, ring entry, uplink-center payoff") }
 
     if ($notes.Count -eq 0) {
         return "none"
@@ -151,7 +159,10 @@ function Resolve-StageFocus {
         4 { return "Boss approach readability and mid-map target spacing" }
         5 { return "Construction payoff objects and wider route commitment" }
         6 { return "Power block transformer payoff and long route guidance" }
-        default { return "Skyline long route, high-value cluster payoff, and late pressure" }
+        7 { return "Skyline long route, high-value cluster payoff, and late pressure" }
+        8 { return "Transit shuttle chain commitment and clean lane rotation" }
+        9 { return "Harbor container setup, fuel-chain risk, and explosive cash-out" }
+        default { return "Civic pylon ring break and uplink-center finale" }
     }
 }
 
@@ -164,7 +175,10 @@ function Resolve-RoutePayoff {
         { $_ -ge 3 -and $_ -le 4 } { return "Market chain: kiosk/vending/barrel" }
         5 { return "Yard blast: barrel-heavy setup" }
         6 { return "Power surge: transformer-heavy setup" }
-        default { return "Skyline breach: high-value anchor" }
+        7 { return "Skyline breach: high-value anchor" }
+        8 { return "Transit line: shuttle-to-gate chain" }
+        9 { return "Harbor ignition: container-to-fuel chain" }
+        default { return "Civic collapse: pylon ring into uplink" }
     }
 }
 
@@ -178,7 +192,10 @@ function Resolve-StageRhythmProfile {
         4 { return "Boss setup pivot, pressure pulse cadence, readable break window" }
         5 { return "Explosive setup, wider commitment, louder payoff release" }
         6 { return "Long-route sustain, utility payoff, late correction pressure" }
-        default { return "Long-route squeeze, anchor chase, skyline climax pressure" }
+        7 { return "Long-route squeeze, anchor chase, skyline climax pressure" }
+        8 { return "Readable lane commitment, three heavy beats, short gate release" }
+        9 { return "Container setup, volatile fuel pivot, explosive payoff release" }
+        default { return "Ring rotation, four pylon beats, committed center climax" }
     }
 }
 
@@ -196,6 +213,7 @@ function Resolve-StageAdvanceTarget {
         [int]$BaseTarget,
         [int]$PerStage,
         [double]$TargetRatio,
+        [int]$LateStageCap,
         [int]$BossStageStart
     )
 
@@ -207,7 +225,8 @@ function Resolve-StageAdvanceTarget {
         $ratio -= 0.03
     }
 
-    $ratioTarget = [Math]::Round($DestructibleCount * (Clamp-Double -Value $ratio -Min 0.2 -Max 0.95))
+    $objectiveDestructibleCount = if ($Stage -ge 9) { [Math]::Min($DestructibleCount, [Math]::Max(1, $LateStageCap)) } else { $DestructibleCount }
+    $ratioTarget = [Math]::Round($objectiveDestructibleCount * (Clamp-Double -Value $ratio -Min 0.2 -Max 0.95))
     $baseGate = [Math]::Max(4, $BaseTarget + ([Math]::Max(0, $Stage - 1) * [Math]::Max(0, $PerStage)))
     if ($Stage -eq 1) {
         $baseGate = [Math]::Max(4, $baseGate - 2)
@@ -218,7 +237,7 @@ function Resolve-StageAdvanceTarget {
 
     $target = [Math]::Max($baseGate, $ratioTarget)
     if ($Stage -ge [Math]::Max(2, $BossStageStart)) {
-        $target = [Math]::Max($target, [Math]::Round([Math]::Max(1, $DestructibleCount) * 0.44))
+        $target = [Math]::Max($target, [Math]::Round([Math]::Max(1, $objectiveDestructibleCount) * 0.44))
     }
 
     return Clamp-Int -Value $target -Min 4 -Max ([Math]::Max(4, $DestructibleCount))
@@ -284,6 +303,7 @@ $notesDisplayPath = $notesDisplayPath.Replace('\', '/')
 $stageAdvanceBaseTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceBaseTarget" -Fallback 16 -Kind "int"
 $stageAdvanceTargetPerStage = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetPerStage" -Fallback 3 -Kind "int"
 $stageAdvanceTargetRatio = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetRatio" -Fallback 0.48 -Kind "double"
+$lateStageObjectiveDestructibleCap = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "lateStageObjectiveDestructibleCap" -Fallback 168 -Kind "int"
 $bossStageStart = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "bossStageStart" -Fallback 4 -Kind "int"
 $earlyCrushFlowWindowSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "earlyCrushFlowWindowSeconds" -Fallback 18.0 -Kind "double"
 $earlyCrushLaneBreakTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "earlyCrushLaneBreakTarget" -Fallback 9 -Kind "int"
@@ -296,7 +316,7 @@ $stageDurationSeconds = Read-CSharpNumberDefault -SourceText $gameFlowConfigText
 $deadlineSeconds = [Math]::Max($earlyCrushFlowWindowSeconds, $routeHoldWindowSeconds)
 
 $lines = [System.Collections.Generic.List[string]]::new()
-$lines.Add("# Alien Crusher Stage 1-7 Playtest Checklist")
+$lines.Add("# Alien Crusher Stage 1-$MaxStage Playtest Checklist")
 $lines.Add("")
 $lines.Add("Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm K")")
 $lines.Add("")
@@ -363,7 +383,7 @@ $lines.Add("")
 $lines.Add("- [ ] Each run has a readable opener, pivot, sustain, payoff, and late squeeze or climax.")
 $lines.Add("- [ ] Pressure rises and releases in waves instead of staying flat for the whole stage.")
 $lines.Add("- [ ] Reward beats feel earned because they follow a readable route problem.")
-$lines.Add("- [ ] Stage 2/3/5/6/7 change the rhythm problem, not only the map size or prop count.")
+$lines.Add("- [ ] Stage 2/3/5/6/7/8/9/10 change the rhythm problem, not only the map size or prop count.")
 $lines.Add("- [ ] Boss runs read as a climax rather than a longer normal route.")
 $lines.Add("")
 $lines.Add("## Stage Summary")
@@ -381,6 +401,7 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
         -BaseTarget $stageAdvanceBaseTarget `
         -PerStage $stageAdvanceTargetPerStage `
         -TargetRatio $stageAdvanceTargetRatio `
+        -LateStageCap $lateStageObjectiveDestructibleCap `
         -BossStageStart $bossStageStart
     $routeTarget = Resolve-RouteHoldTarget -StageAdvanceTarget $stageTarget -LaneBreakTarget $earlyCrushLaneBreakTarget -ProgressThreshold $routeHoldProgressThreshold
     $extraWrecks = [Math]::Max(0, $routeTarget - $earlyCrushLaneBreakTarget)
@@ -472,7 +493,7 @@ $lines.Add("- If far targets are hard to read, lower route distance growth or in
 $lines.Add('- If LANE BREAK still feels ambiguous, tune `routeOpenBeatSeconds` before adding more HUD text.')
 $lines.Add(('- If the payoff cluster feels cramped or invisible, tune `routeRewardClusterRadius` around the current {0:0.#}m default.' -f $routeRewardClusterRadius))
 $lines.Add("- If ROUTE HOLD feels like distance tax, increase reward cluster density near targets before extending the timer.")
-$lines.Add("- If Stage 5-7 feel samey, give construction, power, and skyline landmarks different route payoffs.")
+$lines.Add("- If Stage 8-10 feel samey, protect the lane / volatile setup / ring-to-center identities before changing global tuning.")
 $lines.Add("- Stage timer default: $("{0:0.#}" -f $stageDurationSeconds)s")
 $lines.Add("")
 $lines.Add("## Post-Sweep Decision")

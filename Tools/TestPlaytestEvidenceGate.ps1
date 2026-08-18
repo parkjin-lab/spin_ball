@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [int]$MaxStage = 7,
+    [int]$MaxStage = 10,
     [string]$TelemetryLogPath = "",
     [string]$SummaryPath = "",
     [string]$NotesPath = "",

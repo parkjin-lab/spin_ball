@@ -406,6 +406,10 @@ namespace AlienCrusher.Systems
 		private float stageAdvanceTargetRatio = 0.48f;
 
 		[SerializeField]
+		[Min(1)]
+		private int lateStageObjectiveDestructibleCap = 168;
+
+		[SerializeField]
 		private float stageAdvanceGoalAnnouncementSeconds = 1.2f;
 
 		[SerializeField]
@@ -1139,14 +1143,14 @@ namespace AlienCrusher.Systems
 
 		[SerializeField]
 		[Min(1)]
-		private int runtimeMapMaxGrowthStage = 7;
+		private int runtimeMapMaxGrowthStage = 10;
 
 		[SerializeField]
 		private bool enableMapLayoutDebugHotkeys = true;
 
 		[SerializeField]
 		[Min(1)]
-		private int mapLayoutDebugMaxStage = 7;
+		private int mapLayoutDebugMaxStage = 10;
 
 		[SerializeField]
 		private bool showMapLayoutDebugOverlay = true;

@@ -965,6 +965,9 @@ namespace AlienCrusher.Systems
 			}
 			int num = Mathf.Max(1, currentStageNumber);
 			int num2 = Mathf.Max(0, stageTotalDestructibleCount);
+			int objectiveDestructibleCount = num >= 9
+				? Mathf.Min(num2, Mathf.Max(1, lateStageObjectiveDestructibleCap))
+				: num2;
 			float num3a = stageAdvanceTargetRatio;
 			if (num <= 2)
 			{
@@ -974,7 +977,7 @@ namespace AlienCrusher.Systems
 			{
 				num3a -= 0.03f;
 			}
-			int num3 = Mathf.RoundToInt((float)num2 * Mathf.Clamp(num3a, 0.2f, 0.95f));
+			int num3 = Mathf.RoundToInt((float)objectiveDestructibleCount * Mathf.Clamp(num3a, 0.2f, 0.95f));
 			int num4 = Mathf.Max(4, stageAdvanceBaseTarget + Mathf.Max(0, num - 1) * Mathf.Max(0, stageAdvanceTargetPerStage));
 			if (num == 1)
 			{
@@ -987,7 +990,7 @@ namespace AlienCrusher.Systems
 			int num5 = Mathf.Max(num4, num3);
 			if (stageBossEncounterActive)
 			{
-				num5 = Mathf.Max(num5, Mathf.RoundToInt((float)Mathf.Max(1, num2) * 0.44f));
+				num5 = Mathf.Max(num5, Mathf.RoundToInt((float)Mathf.Max(1, objectiveDestructibleCount) * 0.44f));
 			}
 			return Mathf.Clamp(num5, 4, Mathf.Max(4, num2));
 		}

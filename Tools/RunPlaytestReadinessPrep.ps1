@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [int]$MaxStage = 7,
-    [int]$MaxGrowthStage = 7,
+    [int]$MaxStage = 10,
+    [int]$MaxGrowthStage = 10,
     [string]$ReportPath = "",
     [switch]$SkipStaticAudits,
     [switch]$IncludeProductionChecklists

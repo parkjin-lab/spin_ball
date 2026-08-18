@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [int]$MaxStage = 7,
-    [int]$MaxGrowthStage = 7,
+    [int]$MaxStage = 10,
+    [int]$MaxGrowthStage = 10,
     [string]$ReportPath = "",
     [string]$RuntimeConfigPath = "",
     [string]$GameFlowConfigPath = "",
@@ -92,8 +92,10 @@ function Resolve-MapGrowth {
     $stageNumber = [Math]::Max(1, $Stage)
     $growthMaxStage = [Math]::Max(1, $GrowthMax)
     $growthTier = Clamp-Int -Value ($stageNumber - 1) -Min 0 -Max ($growthMaxStage - 1)
-    $growth01 = if ($growthMaxStage -le 1) { 0.0 } else { Clamp-Double -Value ($growthTier / [double]($growthMaxStage - 1)) -Min 0.0 -Max 1.0 }
-    $cells = Clamp-Int -Value (13 + $growthTier) -Min 13 -Max 19
+    $legacyGrowthTier = Clamp-Int -Value ($stageNumber - 1) -Min 0 -Max 6
+    $expansionTier = Clamp-Int -Value ($stageNumber - 7) -Min 0 -Max ([Math]::Max(0, $growthMaxStage - 7))
+    $growth01 = $legacyGrowthTier / 6.0
+    $cells = Clamp-Int -Value (13 + $legacyGrowthTier + $expansionTier) -Min 13 -Max 22
 
     return [pscustomobject]@{
         Stage = $stageNumber
@@ -118,6 +120,7 @@ function Resolve-StageAdvanceTarget {
         [int]$BaseTarget,
         [int]$PerStage,
         [double]$TargetRatio,
+        [int]$LateStageCap,
         [int]$BossStageStart
     )
 
@@ -129,7 +132,8 @@ function Resolve-StageAdvanceTarget {
         $ratio -= 0.03
     }
 
-    $ratioTarget = [Math]::Round($DestructibleCount * (Clamp-Double -Value $ratio -Min 0.2 -Max 0.95))
+    $objectiveDestructibleCount = if ($Stage -ge 9) { [Math]::Min($DestructibleCount, [Math]::Max(1, $LateStageCap)) } else { $DestructibleCount }
+    $ratioTarget = [Math]::Round($objectiveDestructibleCount * (Clamp-Double -Value $ratio -Min 0.2 -Max 0.95))
     $baseGate = [Math]::Max(4, $BaseTarget + ([Math]::Max(0, $Stage - 1) * [Math]::Max(0, $PerStage)))
     if ($Stage -eq 1) {
         $baseGate = [Math]::Max(4, $baseGate - 2)
@@ -140,7 +144,7 @@ function Resolve-StageAdvanceTarget {
 
     $target = [Math]::Max($baseGate, $ratioTarget)
     if ($Stage -ge [Math]::Max(2, $BossStageStart)) {
-        $target = [Math]::Max($target, [Math]::Round([Math]::Max(1, $DestructibleCount) * 0.44))
+        $target = [Math]::Max($target, [Math]::Round([Math]::Max(1, $objectiveDestructibleCount) * 0.44))
     }
 
     return Clamp-Int -Value $target -Min 4 -Max ([Math]::Max(4, $DestructibleCount))
@@ -208,6 +212,7 @@ $gameFlowConfigText = Read-SourceText -Path $resolvedGameFlowConfigPath -Label "
 $stageAdvanceBaseTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceBaseTarget" -Fallback 16 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
 $stageAdvanceTargetPerStage = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetPerStage" -Fallback 3 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
 $stageAdvanceTargetRatio = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "stageAdvanceTargetRatio" -Fallback 0.48 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
+$lateStageObjectiveDestructibleCap = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "lateStageObjectiveDestructibleCap" -Fallback 168 -Kind "int"
 $bossStageStart = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "bossStageStart" -Fallback 4 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
 $earlyCrushFlowWindowSeconds = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "earlyCrushFlowWindowSeconds" -Fallback 18.0 -Kind "double" -SourceLabel "Runtime" -Warnings $configWarnings
 $earlyCrushLaneBreakTarget = Read-CSharpNumberDefault -SourceText $runtimeConfigText -FieldName "earlyCrushLaneBreakTarget" -Fallback 9 -Kind "int" -SourceLabel "Runtime" -Warnings $configWarnings
@@ -278,6 +283,7 @@ for ($stage = 1; $stage -le [Math]::Max(1, $MaxStage); $stage++) {
         -BaseTarget $stageAdvanceBaseTarget `
         -PerStage $stageAdvanceTargetPerStage `
         -TargetRatio $stageAdvanceTargetRatio `
+        -LateStageCap $lateStageObjectiveDestructibleCap `
         -BossStageStart $bossStageStart
     $routeTarget = Resolve-RouteHoldTarget -StageAdvanceTarget $stageTarget -LaneBreakTarget $earlyCrushLaneBreakTarget -ProgressThreshold $routeHoldProgressThreshold
     $remainingAfterLaneBreak = [Math]::Max(0.1, $deadlineSeconds - $earlyCrushFlowWindowSeconds)
