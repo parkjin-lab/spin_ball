@@ -235,9 +235,9 @@ Done when:
 Priority: `P0`
 
 Deliverables:
-- Justice Sentinel silhouette kit
-- shield pylon kit
-- phase 2 drone kit
+- `BOSS_Sentinel_Body_Kit` Justice Sentinel silhouette kit
+- `BOSS_Shield_Pylon_Kit` shield pylon kit
+- `BOSS_Phase2_Drone_Kit` phase 2 drone kit
 - boss armor / shield / exposed-core material set
 - boss-only warning particle pass
 - boss core expose and defeat cascade VFX
@@ -248,7 +248,7 @@ Generated checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
 
 Done when:
-- boss no longer reads as a large building with special rules
+- `BOSS_Sentinel_Body_Kit`, `BOSS_Shield_Pylon_Kit`, and `BOSS_Phase2_Drone_Kit` keep the three Stage 4+ roles countable from silhouette and color language alone
 - phase 1 / break window / phase 2 are visually separable
 - the boss loop reads as breathe -> burst -> punish -> release in Stage 4+ playtests
 

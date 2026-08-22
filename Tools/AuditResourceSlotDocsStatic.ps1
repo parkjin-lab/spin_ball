@@ -89,7 +89,10 @@ if ($errors.Count -eq 0) {
         "PAYOFF_MarketChain_Layout",
         "PAYOFF_YardBlast_Layout",
         "PAYOFF_PowerSurge_Layout",
-        "PAYOFF_SkylineBreach_Layout"
+        "PAYOFF_SkylineBreach_Layout",
+        "BOSS_Sentinel_Body_Kit",
+        "BOSS_Shield_Pylon_Kit",
+        "BOSS_Phase2_Drone_Kit"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -105,7 +108,10 @@ if ($errors.Count -eq 0) {
         "PAYOFF_MarketChain_Layout",
         "PAYOFF_YardBlast_Layout",
         "PAYOFF_PowerSurge_Layout",
-        "PAYOFF_SkylineBreach_Layout"
+        "PAYOFF_SkylineBreach_Layout",
+        "BOSS_Sentinel_Body_Kit",
+        "BOSS_Shield_Pylon_Kit",
+        "BOSS_Phase2_Drone_Kit"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"
     }

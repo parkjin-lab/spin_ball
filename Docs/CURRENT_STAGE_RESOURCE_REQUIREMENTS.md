@@ -231,12 +231,13 @@ Why this matters now:
 Status:
 - Justice Sentinel logic exists
 - phase, shield, drone, and break window systems are already implemented
-- the encounter now needs a stronger authored identity
+- runtime silhouette kits now separate the main body, shield pylons, and phase-2 drones from ordinary city props
+- remaining identity work is armor/core materials, boss VFX, and boss audio/HUD badges
 
 Required assets:
-- sentinel body silhouette kit
-- shield pylon silhouette kit
-- phase 2 drone silhouette kit
+- `BOSS_Sentinel_Body_Kit` sentinel body silhouette kit
+- `BOSS_Shield_Pylon_Kit` shield pylon silhouette kit
+- `BOSS_Phase2_Drone_Kit` phase 2 drone silhouette kit
 - boss armor / shield pylon / exposed-core material set
 - core exposed material / emissive state
 - boss-only ring / warning particle set
@@ -416,9 +417,9 @@ This section can be used as a working production checklist.
 - [ ] 1 exposed-core material
 - [ ] 3 district palette sets
 - [ ] 8 to 10 street prop silhouettes
-- [ ] 1 boss silhouette kit
-- [ ] 1 shield pylon kit
-- [ ] 1 drone kit
+- [x] `BOSS_Sentinel_Body_Kit` runtime sentinel body silhouette kit
+- [x] `BOSS_Shield_Pylon_Kit` runtime shield pylon silhouette kit
+- [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit
 
 ### VFX
 - [ ] light hit burst

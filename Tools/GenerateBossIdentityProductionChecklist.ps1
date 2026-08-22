@@ -3,7 +3,8 @@ param(
     [string]$ReportPath = "",
     [string]$StageEncounterPath = "",
     [string]$DronePath = "",
-    [string]$FeedbackSystemPath = ""
+    [string]$FeedbackSystemPath = "",
+    [string]$IdentityKitPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,6 +54,7 @@ $projectRoot = Resolve-ProjectRoot
 $stageEncounterSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageEncounterPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageEncounter.cs"
 $droneSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $DronePath -RelativePath "Assets\Scripts\Runtime\Gameplay\BossPhaseTwoDroneDummy.cs"
 $feedbackSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FeedbackSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\FeedbackSystem.cs"
+$identityKitSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $IdentityKitPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.BossIdentityKits.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherBossIdentityProductionChecklist.md"
@@ -69,6 +71,7 @@ if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
 $stageEncounterText = Read-SourceText -Path $stageEncounterSourcePath
 $droneText = Read-SourceText -Path $droneSourcePath
 $feedbackText = Read-SourceText -Path $feedbackSourcePath
+$identityKitText = Read-SourceText -Path $identityKitSourcePath
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -81,7 +84,10 @@ foreach ($needle in @(
     "DRONE SWARM BROKEN",
     "PHASE 2 DRONE SWEEP",
     "ExecuteStageBossPressurePulse",
-    "BossClearCascadeRoutine"
+    "BossClearCascadeRoutine",
+    "BOSS_Sentinel_Body_Kit",
+    "BOSS_Shield_Pylon_Kit",
+    "BOSS_Phase2_Drone_Kit"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $stageEncounterText -Needle $needle
 }
@@ -90,7 +96,8 @@ foreach ($needle in @(
     "BossPhaseTwoDroneDummy",
     "SetRespawnPreview",
     "DRONE DOWN",
-    "Restore"
+    "Restore",
+    "BOSS_Phase2_Drone_Kit"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $droneText -Needle $needle
 }
@@ -104,6 +111,15 @@ foreach ($needle in @(
     "PlayHudWarningFeedback"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $feedbackText -Needle $needle
+}
+
+foreach ($needle in @(
+    "BOSS_Sentinel_Body_Kit",
+    "BOSS_Shield_Pylon_Kit",
+    "BOSS_Phase2_Drone_Kit",
+    "EnsureVisualPrimitive"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $identityKitText -Needle $needle
 }
 
 $assetCatalog = @(
@@ -154,7 +170,7 @@ $beatRows = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher Boss Identity Production Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`' -f $stageEncounterSourcePath, $droneSourcePath, $feedbackSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`' -f $stageEncounterSourcePath, $droneSourcePath, $feedbackSourcePath, $identityKitSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: turn the existing Justice Sentinel boss logic into a production checklist for climax readability, rhythm, and asset assignment.")
 $lines.Add("")

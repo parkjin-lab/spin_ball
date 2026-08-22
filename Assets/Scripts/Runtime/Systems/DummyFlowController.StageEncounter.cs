@@ -52,6 +52,7 @@ namespace AlienCrusher.Systems
 					continue;
 				}
 				dummyDestructibleBlock.ApplyStageEncounterRole(DummyDestructibleBlock.StageEncounterRole.Standard);
+				ClearBossIdentityKits(dummyDestructibleBlock);
 				if (((Component)dummyDestructibleBlock).gameObject.activeInHierarchy && !((Object)dummyDestructibleBlock).name.StartsWith("Prop_", StringComparison.OrdinalIgnoreCase))
 				{
 					Vector3 lossyScale = ((Component)dummyDestructibleBlock).transform.lossyScale;
@@ -76,6 +77,7 @@ namespace AlienCrusher.Systems
 					int num2 = Mathf.Max(0, currentStageNumber - Mathf.Max(2, bossStageStart));
 					int bonusHp = Mathf.Max(0, bossHpBonusBase + num2 * Mathf.Max(0, bossHpBonusPerStage));
 					stageBossBlock.ApplyStageEncounterRole(DummyDestructibleBlock.StageEncounterRole.BossSentinel, bonusHp, bossSentinelColor);
+					ApplyNamedBossIdentityKit(stageBossBlock, "BOSS_Sentinel_Body_Kit", bossSentinelColor);
 					ConfigureBossShieldPylons(list, num2);
 				}
 				else
@@ -421,6 +423,7 @@ namespace AlienCrusher.Systems
 				if (!stageBossShieldPylons.Contains(dummyDestructibleBlock2))
 				{
 					dummyDestructibleBlock2.ApplyStageEncounterRole(DummyDestructibleBlock.StageEncounterRole.EliteWeakPoint, Mathf.Max(0, bossShieldPylonBonusHp + stageDepth / 2), bossShieldPylonColor);
+					ApplyNamedBossIdentityKit(dummyDestructibleBlock2, "BOSS_Shield_Pylon_Kit", bossShieldPylonColor);
 					stageBossShieldPylons.Add(dummyDestructibleBlock2);
 				}
 			}
@@ -677,12 +680,7 @@ namespace AlienCrusher.Systems
 			{
 				string name = $"BossDrone_{i:00}";
 				GameObject val2 = EnsurePrimitive(stageBossPhaseTwoDroneRoot, name, PrimitiveType.Sphere, Vector3.zero, new Vector3(0.62f, 0.24f, 0.62f), bossPhaseTwoDroneColor);
-				Transform orCreateDirectChild = GetOrCreateDirectChild(val2.transform, "Core");
-				EnsurePrimitive(orCreateDirectChild, "Eye", PrimitiveType.Sphere, Vector3.zero, new Vector3(0.32f, 0.32f, 0.32f), new Color(1f, 0.9f, 0.52f, 1f));
-				Transform orCreateDirectChild2 = GetOrCreateDirectChild(val2.transform, "Wing_L");
-				EnsurePrimitive(orCreateDirectChild2, "WingMesh", PrimitiveType.Cube, new Vector3(-0.56f, 0f, 0f), new Vector3(0.7f, 0.06f, 0.16f), new Color(0.22f, 0.26f, 0.34f, 1f));
-				Transform orCreateDirectChild3 = GetOrCreateDirectChild(val2.transform, "Wing_R");
-				EnsurePrimitive(orCreateDirectChild3, "WingMesh", PrimitiveType.Cube, new Vector3(0.56f, 0f, 0f), new Vector3(0.7f, 0.06f, 0.16f), new Color(0.22f, 0.26f, 0.34f, 1f));
+				ApplyNamedBossIdentityKit(val2.transform, "BOSS_Phase2_Drone_Kit", bossPhaseTwoDroneColor);
 				Collider component = val2.GetComponent<Collider>();
 				if ((Object)(object)component != (Object)null)
 				{

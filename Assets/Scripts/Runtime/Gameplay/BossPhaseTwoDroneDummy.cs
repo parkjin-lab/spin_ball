@@ -34,6 +34,8 @@ namespace AlienCrusher.Gameplay
         private bool respawnPreviewActive;
         private Color baseTint = Color.white;
 
+        public const string Phase2DroneKitId = "BOSS_Phase2_Drone_Kit";
+
         public bool IsAlive => !destroyed;
         public bool IsDestroyed => destroyed;
         public float DurabilityRatio => maxDurability > 0.001f ? Mathf.Clamp01(currentDurability / maxDurability) : 0f;
@@ -80,11 +82,7 @@ namespace AlienCrusher.Gameplay
         {
             destroyedCallback = onDestroyed;
             baseTint = tint;
-            if (cachedRenderers == null || cachedRenderers.Length == 0)
-            {
-                cachedRenderers = GetComponentsInChildren<Renderer>(true);
-            }
-
+            cachedRenderers = GetComponentsInChildren<Renderer>(true);
             ApplyTint(baseTint);
         }
 
@@ -122,10 +120,15 @@ namespace AlienCrusher.Gameplay
 
         private void ApplyTint(Color tint)
         {
+            if (cachedRenderers == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < cachedRenderers.Length; i++)
             {
                 Renderer renderer = cachedRenderers[i];
-                if ((Object)(object)renderer == (Object)null)
+                if ((Object)(object)renderer == (Object)null || IsAccentRenderer(renderer) || IsHiddenRootRenderer(renderer))
                 {
                     continue;
                 }
@@ -236,11 +239,24 @@ namespace AlienCrusher.Gameplay
             for (int i = 0; i < cachedRenderers.Length; i++)
             {
                 Renderer renderer = cachedRenderers[i];
-                if ((Object)(object)renderer != (Object)null)
+                if ((Object)(object)renderer == (Object)null)
                 {
-                    renderer.enabled = enabled;
+                    continue;
                 }
+
+                renderer.enabled = enabled && !IsHiddenRootRenderer(renderer);
             }
+        }
+
+        private bool IsHiddenRootRenderer(Renderer renderer)
+        {
+            return (Object)(object)renderer != (Object)null && renderer.gameObject == gameObject;
+        }
+
+        private static bool IsAccentRenderer(Renderer renderer)
+        {
+            return (Object)(object)renderer != (Object)null &&
+                   renderer.name.IndexOf("Accent", StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

@@ -26,7 +26,7 @@ This document tracks the current project state, the next production priorities, 
 - Runtime map rebuilds happen at stage start. Stage 1-7 preserve the original compact-to-skyline curve; Stage 8-10 continue growth from 66m/20x20 to 74m/22x22 without shrinking the earlier layouts.
 - Stage-gated landmark districts now include Stage 2 pocket park, Stage 3 market plaza, Stage 4 Sentinel checkpoint, Stage 5 construction yard, Stage 6 power block, Stage 7 skyline block, Stage 8 transit hub, Stage 9 harbor yard, and Stage 10 civic core.
 - The Stage 8-10 pack adds three distinct late-run destruction rhythms: linear shuttle chain, volatile container/fuel setup, and ring-to-center uplink finale. Stage 9-10 objective density is capped at the Stage 8 baseline so spatial growth does not become a raw workload spike; other balance timing remains evidence-locked.
-- Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
+- Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade. Runtime silhouette kits `BOSS_Sentinel_Body_Kit`, `BOSS_Shield_Pylon_Kit`, and `BOSS_Phase2_Drone_Kit` now overlay those three roles so the main body, shield blockers, and phase-2 drones read as separate counts before HUD text.
 - FeedbackSystem now exposes assignable audio hooks for hit weight, destruction size, combo rise, route open/hold/bonus beats, boss warnings/break/down, and level-up moments. Route open, route hold warning, route bonus, ordinary failure, and boss-phase failure now load draft clips at runtime if the Inspector slots are empty. Remaining hit/break/boss/level-up slots stay silent-safe until assigned.
 - HUD route/progress/gauge text now uses shorter mobile-safe runtime copy with best-fit safeguards for the main HUD readouts.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
@@ -434,7 +434,7 @@ Extraction candidates:
 - ROUTE HOLD route-adherence telemetry now exists, but it still needs the first real Stage 1-7 sweep before any tuning decision can use it.
 - Route and failure rhythm now have draft clips on the matching events; hit/break/boss/level-up audio and mobile HUD screenshot review are still open.
 - Progression save recovery now falls back per file, persists sanitized repairs after load, clamps meta/stage bounds, and removes duplicate meta-upgrade entries; this still needs an in-editor smoke test with a real save file before release.
-- Stage 4 has first-pass Sentinel checkpoint identity, but it still needs playtest/screenshot confirmation that the boss approach reads without HUD text.
+- Stage 4 has first-pass Sentinel checkpoint identity plus runtime boss silhouette kits for the main body, shield pylons, and phase-2 drones; it still needs playtest/screenshot confirmation that those three roles stay countable at mobile distance without HUD text.
 - Landmark value records now exist in static audit/checklist output, but they still need real visual confirmation that the roles are legible during play.
 - Route trail pips may be visually noisy on small Android screens.
 - Current implementation form names differ from older GDD form fantasy names; status documents should use runtime names until the design naming pass is resolved.
