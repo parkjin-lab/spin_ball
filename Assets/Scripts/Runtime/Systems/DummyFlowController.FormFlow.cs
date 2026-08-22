@@ -43,6 +43,7 @@ namespace AlienCrusher.Systems
 				{
 					Debug.Log((object)$"[AlienCrusher] Need {requiredCost} DP to unlock {form}. Current DP: {formUnlockSystem.DpBalance}");
 					lastLobbyActionStatus = $"Need {Mathf.Max(0, requiredCost - formUnlockSystem.DpBalance):0} more DP for {form.ToString().ToUpperInvariant()}.";
+					SignalOutgameDpInsufficient();
 					UpdateFormButtons();
 					UpdateMetaProgressUi();
 					return;
@@ -50,6 +51,7 @@ namespace AlienCrusher.Systems
 				else
 				{
 					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} unlocked and equipped.";
+					SignalOutgameDpSpend();
 				}
 				ApplySelectedFormToPlayer();
 				UpdateFormButtons();

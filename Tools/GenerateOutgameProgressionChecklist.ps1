@@ -5,7 +5,8 @@ param(
     [string]$FormFlowPath = "",
     [string]$StageFlowPath = "",
     [string]$FormUnlockSystemPath = "",
-    [string]$ProgressionSaveSystemPath = ""
+    [string]$ProgressionSaveSystemPath = "",
+    [string]$DpEconomyHookPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -57,6 +58,7 @@ $formFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePat
 $stageFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageFlowPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageFlow.cs"
 $formUnlockSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FormUnlockSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\FormUnlockSystem.cs"
 $progressionSaveSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ProgressionSaveSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\ProgressionSaveSystem.cs"
+$dpEconomyHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $DpEconomyHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.OutgameDpEconomy.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherOutgameProgressionChecklist.md"
@@ -75,6 +77,8 @@ $formFlowText = Read-SourceText -Path $formFlowSourcePath
 $stageFlowText = Read-SourceText -Path $stageFlowSourcePath
 $formUnlockText = Read-SourceText -Path $formUnlockSourcePath
 $progressionSaveText = Read-SourceText -Path $progressionSaveSourcePath
+$dpEconomyHookText = Read-SourceText -Path $dpEconomyHookSourcePath
+$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -125,6 +129,15 @@ foreach ($needle in @(
     "GetMetaDpRewardMultiplier"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $formUnlockText -Needle $needle
+}
+
+foreach ($needle in @(
+    "UI_DP_GainBurst",
+    "SFX_Progression_Locked",
+    "EnsureOutgameDpEconomy",
+    "SignalOutgameDpInsufficient"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $dpEconomyHookText -Needle $needle
 }
 
 foreach ($needle in @(
@@ -248,7 +261,8 @@ $lines.Add("## Current Outgame Progression Targets")
 $lines.Add("| Priority | Category | Asset | Runtime use | Required states | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|")
 foreach ($asset in $assetCatalog) {
-    $lines.Add(("| {0} | {1} | `{2}` | {3} | {4} | `{5}` | [ ] |" -f $asset.Priority, $asset.Category, $asset.Asset, $asset.RuntimeUse, $asset.State, $asset.Folder))
+    $doneMark = if ($allOutgameHookText.Contains($asset.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | {1} | `{2}` | {3} | {4} | `{5}` | {6} |" -f $asset.Priority, $asset.Category, $asset.Asset, $asset.RuntimeUse, $asset.State, $asset.Folder, $doneMark))
 }
 
 $lines.Add("")

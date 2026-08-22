@@ -49,6 +49,7 @@ namespace AlienCrusher.Systems
 			}
 
 			EnsureResultLobbyBadges();
+			EnsureOutgameDpEconomy();
 		}
 
 		private void CacheRunEssentialIconSprites()

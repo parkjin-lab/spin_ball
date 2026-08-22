@@ -270,6 +270,8 @@ Required assets:
 - `Badge_Result_Failure`
 - `Badge_Locked`
 - `Badge_Recommended` (`Assets/Resources/UI/Badges/`)
+- `UI_DP_GainBurst` (`Assets/Resources/UI/Rewards/`)
+- `SFX_Progression_Locked` (`Assets/Audio/SFX/UI/SFX_Progression_Locked.wav`)
 
 Why this matters now:
 - UI text has been heavily simplified already
@@ -365,6 +367,11 @@ Why this matters now:
 These support long-term retention rather than immediate moment-to-moment clarity.
 
 ### 3.1 Lobby / Meta Progression Resource Set
+Status:
+- `UI_DP_GainBurst` and `SFX_Progression_Locked` now mark earn, spend, and insufficient DP on result/lobby
+- Icons A-D and district palettes were not restyled
+- remaining work is form/meta card state sets, stage banners, and save toasts
+
 Need:
 - cleaner visuals for form unlock targets and meta purchases
 - clear difference between `available now`, `later`, `locked by stage`, `equipped`
@@ -399,7 +406,8 @@ Need:
 Required assets:
 - stage clear banner style
 - unlock acquired badge
-- DP gain burst
+- `UI_DP_GainBurst` DP gain / spend / insufficient burst
+- `SFX_Progression_Locked` insufficient-DP / locked purchase cue
 - new form target marker
 - meta upgrade purchased pulse
 - save/progression confirmation toast
@@ -542,6 +550,8 @@ This section can be used as a working production checklist.
 - [x] `Badge_Result_Failure` rust fail plate with broken route notch
 - [x] `Badge_Locked` steel lock plate
 - [x] `Badge_Recommended` gold focus chevron
+- [x] `UI_DP_GainBurst` teal reward burst for earn / spend / insufficient
+- [x] `SFX_Progression_Locked` muted locked-purchase cue
 - [ ] stage / DP / route / break / shield / weak point icon set
 - [ ] form card frame set
 - [ ] meta upgrade chip set

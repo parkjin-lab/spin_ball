@@ -156,11 +156,13 @@ namespace AlienCrusher.Systems
 			{
 				Debug.Log((object)$"[AlienCrusher] Need {requiredCost} DP to buy {GetMetaUpgradeName(upgradeType)}. Current DP: {formUnlockSystem.DpBalance}");
 				lastLobbyActionStatus = $"Need {Mathf.Max(0, requiredCost - formUnlockSystem.DpBalance):0} more DP for {GetMetaUpgradeName(upgradeType)}.";
+				SignalOutgameDpInsufficient();
 				UpdateMetaProgressUi();
 				return;
 			}
 			ApplyPermanentMetaUpgrades();
 			lastLobbyActionStatus = $"{GetMetaUpgradeName(upgradeType)} purchased.";
+			SignalOutgameDpSpend();
 			if (stageRunning)
 			{
 				SetHudActionButtonsVisible(ShouldShowActionButtons());

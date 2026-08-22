@@ -41,6 +41,7 @@ namespace AlienCrusher.Systems
 			EnsureLobbyFormIcon("Form_Crusher", IconFormCrusherId, iconFormCrusherSprite);
 			RefreshFormIdentitySkillIcons();
 			EnsureResultLobbyBadges();
+			EnsureOutgameDpEconomy();
 		}
 
 		private void CacheFormIdentityIconSprites()

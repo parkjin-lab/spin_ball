@@ -268,7 +268,8 @@ Priority: `P0`
 Deliverables:
 - form card state set
 - meta node state set for Size Core / Impact Core / DP Amplifier
-- DP gain / spend / insufficient feedback
+- `UI_DP_GainBurst` DP gain / spend / insufficient burst
+- `SFX_Progression_Locked` insufficient-DP / locked purchase cue
 - form ready and meta ready badges
 - stage unlocked banner
 - lightweight progression saved toast

@@ -300,6 +300,7 @@ namespace AlienCrusher.Systems
 			}
 			resultStatusBadgeText.text = (string.IsNullOrWhiteSpace(text) ? "[CITY BREACH]" : text.TrimEnd());
 			RefreshResultLobbyBadges();
+			RefreshOutgameDpEconomy();
 		}
 
 		private void UpdateResultHighlights(int highestChain, int destroyedCount, int destroyedPercent, string bossState)
