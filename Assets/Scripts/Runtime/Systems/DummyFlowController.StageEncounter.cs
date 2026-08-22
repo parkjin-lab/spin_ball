@@ -548,7 +548,8 @@ namespace AlienCrusher.Systems
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
-				feedbackSystem.PlayTotalDestructionFeedback(((Component)stageBossBlock).transform.position + Vector3.up * 0.3f, 0.82f);
+				feedbackSystem.PlayTotalDestructionFeedback(((Component)stageBossBlock).transform.position + Vector3.up * 0.3f, 0.82f, playAudio: false);
+				feedbackSystem.PlayBossBreakCue();
 			}
 		}
 
@@ -1107,6 +1108,7 @@ namespace AlienCrusher.Systems
 				comboRushAnnouncementText = "JUSTICE SENTINEL INBOUND";
 				damageNumberSystem?.ShowTag(position + Vector3.up * 1.9f, "JUSTICE SENTINEL", true);
 				feedbackSystem?.PlayStageStartFeedback(position + Vector3.up * 0.35f);
+				feedbackSystem?.PlayBossWarningCue(0.78f);
 				return;
 			}
 			string text2 = $"SENTINEL {text}";
@@ -1114,6 +1116,7 @@ namespace AlienCrusher.Systems
 			comboRushAnnouncementText = text2;
 			damageNumberSystem?.ShowTag(position + Vector3.up * 1.65f, text2, threatLevel >= 2);
 			feedbackSystem?.PlayCounterSurgeFeedback(position + Vector3.up * 0.3f, Mathf.InverseLerp(1f, 3f, threatLevel), threatLevel >= 3);
+			feedbackSystem?.PlayBossWarningCue(Mathf.Lerp(0.52f, 0.86f, Mathf.InverseLerp(1f, 3f, threatLevel)));
 		}
 
 		private static float GetDestructibleThreatScore(DummyDestructibleBlock block)

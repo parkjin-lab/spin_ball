@@ -43,7 +43,12 @@ $draftClipCatalog = @(
     [pscustomobject]@{ Field = "hitMediumClip"; AssetName = "SFX_Hit_Medium"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Hit_Medium.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Hit_Medium.wav" },
     [pscustomobject]@{ Field = "hitHeavyClip"; AssetName = "SFX_Hit_Heavy"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Hit_Heavy.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Hit_Heavy.wav" },
     [pscustomobject]@{ Field = "breakSmallClip"; AssetName = "SFX_Break_Small"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Break_Small.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Break_Small.wav" },
-    [pscustomobject]@{ Field = "breakLargeClip"; AssetName = "SFX_Break_LargeCollapse"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Break_LargeCollapse.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Break_LargeCollapse.wav" }
+    [pscustomobject]@{ Field = "breakLargeClip"; AssetName = "SFX_Break_LargeCollapse"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Break_LargeCollapse.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Break_LargeCollapse.wav" },
+    [pscustomobject]@{ Field = "bossWarningClip"; AssetName = "SFX_Boss_Warning"; DocumentedPath = "Assets\Audio\SFX\Boss\SFX_Boss_Warning.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Boss\SFX_Boss_Warning.wav" },
+    [pscustomobject]@{ Field = "bossBreakClip"; AssetName = "SFX_Boss_Break"; DocumentedPath = "Assets\Audio\SFX\Boss\SFX_Boss_Break.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Boss\SFX_Boss_Break.wav" },
+    [pscustomobject]@{ Field = "bossDownClip"; AssetName = "SFX_Boss_Down"; DocumentedPath = "Assets\Audio\SFX\Boss\SFX_Boss_Down.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Boss\SFX_Boss_Down.wav" },
+    [pscustomobject]@{ Field = "comboRiseClip"; AssetName = "SFX_Combo_Rise"; DocumentedPath = "Assets\Audio\SFX\Skills\SFX_Combo_Rise.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Skills\SFX_Combo_Rise.wav" },
+    [pscustomobject]@{ Field = "levelUpClip"; AssetName = "SFX_LevelUp_Open"; DocumentedPath = "Assets\Audio\SFX\UI\SFX_LevelUp_Open.wav"; ResourcePath = "Assets\Resources\Audio\SFX\UI\SFX_LevelUp_Open.wav" }
 )
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
@@ -112,6 +117,8 @@ if ($errors.Count -eq 0) {
         "private AudioClip ResolveHitWeightClip",
         "private static AudioClip LoadDraftClip",
         "public void PlayRouteOpenCue",
+        "public void PlayBossWarningCue",
+        "public void PlayBossBreakCue",
         "private void PlayAudio(AudioClip clip",
         "audioSource.PlayOneShot"
     )) {
@@ -139,6 +146,8 @@ if ($errors.Count -eq 0) {
     }
 
     Add-RequiredTextCheck -Errors $errors -Text $bossEncounterText -Needle "feedbackSystem?.PlayBossDownFeedback" -Label "Boss down audio call"
+    Add-RequiredTextCheck -Errors $errors -Text $bossEncounterText -Needle "feedbackSystem?.PlayBossWarningCue" -Label "Boss warning audio call"
+    Add-RequiredTextCheck -Errors $errors -Text $bossEncounterText -Needle "feedbackSystem.PlayBossBreakCue" -Label "Boss break audio call"
     Add-RequiredTextCheck -Errors $errors -Text $stageFlowText -Needle "PlayStageDefeatFeedback()" -Label "Stage defeat feedback call"
     Add-RequiredTextCheck -Errors $errors -Text $stageFlowText -Needle "feedbackSystem?.PlayFailureBeatFeedback" -Label "Stage defeat feedback call"
     Add-RequiredTextCheck -Errors $errors -Text $progressionCoreText -Needle "feedbackSystem?.PlayRouteOpenCue" -Label "Route open audio call"

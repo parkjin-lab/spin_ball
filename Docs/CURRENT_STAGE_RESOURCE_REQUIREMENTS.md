@@ -158,6 +158,7 @@ Status:
 - `FeedbackSystem` now exposes assignable one-shot slots for hit weight, break scale, route beats, boss beats, level-up, and failure beats
 - failure now has a dedicated runtime downbeat, so defeat should sound like a clear rhythm punctuation instead of silently falling into the result screen
 - hit/break weight drafts now load at runtime when Inspector slots are empty: `SFX_Hit_Light`, `SFX_Hit_Medium`, `SFX_Hit_Heavy`, `SFX_Break_Small`, `SFX_Break_LargeCollapse` (`Assets/Audio/SFX/Impact/` + Resources copies)
+- climax/progression drafts now load at runtime when Inspector slots are empty: `SFX_Boss_Warning`, `SFX_Boss_Break`, `SFX_Boss_Down` (`Assets/Audio/SFX/Boss/`), `SFX_Combo_Rise` (`Assets/Audio/SFX/Skills/`), `SFX_LevelUp_Open` (`Assets/Audio/SFX/UI/`)
 
 Need:
 - distinct audio for hit quality, destruction scale, form actions, progression, and boss danger

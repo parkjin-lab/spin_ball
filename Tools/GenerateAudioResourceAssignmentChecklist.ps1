@@ -121,6 +121,31 @@ $slotBriefs = @{
         Direction = "deeper rubble with a longer debris tail"
         Avoid = "boss-down stinger or a copied small-break pitch"
     }
+    bossWarningClip = [pscustomobject]@{
+        Beat = "rising danger"
+        Direction = "dark siren rise before the punish, not a hit"
+        Avoid = "route-open chirp or impact slam"
+    }
+    bossBreakClip = [pscustomobject]@{
+        Beat = "shield/core permission"
+        Direction = "short metallic crack that opens the window"
+        Avoid = "the long down release or a copied small-break pop"
+    }
+    bossDownClip = [pscustomobject]@{
+        Beat = "heaviest release"
+        Direction = "warm resolved downbeat, still a win"
+        Avoid = "failureBossClip collapse color"
+    }
+    comboRiseClip = [pscustomobject]@{
+        Beat = "repeatable rise tick"
+        Direction = "tiny upward blip that can stack"
+        Avoid = "melody or route-bonus smash"
+    }
+    levelUpClip = [pscustomobject]@{
+        Beat = "progression reward"
+        Direction = "bright chime one-shot when the draft opens"
+        Avoid = "routeBonusClip smash family"
+    }
 }
 
 $productionBatches = @(
@@ -228,6 +253,21 @@ foreach ($fieldName in $productionBatches[1].Fields) {
 }
 $lines.Add("")
 $lines.Add("Batch B review rule: graze, committed hit, heavy slam, small shatter, and large collapse must form five distinct punctuation marks before any damage or mass tuning.")
+
+$lines.Add("")
+$lines.Add("## Climax And Progression Payoff Slot Briefs")
+$lines.Add("| Slot | Beat role | Sound direction | Avoid |")
+$lines.Add("|---|---|---|---|")
+foreach ($fieldName in $productionBatches[2].Fields) {
+    $brief = $slotBriefs[$fieldName]
+    if ($null -eq $brief) {
+        continue
+    }
+
+    $lines.Add(('| `{0}` | {1} | {2} | {3} |' -f $fieldName, $brief.Beat, $brief.Direction, $brief.Avoid))
+}
+$lines.Add("")
+$lines.Add("Batch C review rule: boss warning, boss break, boss down, combo rise, and level-up must keep distinct color and tail length from each other and from route/failure/hit/break drafts.")
 
 $lines.Add("")
 $lines.Add("## Current FeedbackSystem Audio Slots")

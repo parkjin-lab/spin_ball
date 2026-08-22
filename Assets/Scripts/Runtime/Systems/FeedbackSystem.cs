@@ -277,7 +277,7 @@ namespace AlienCrusher.Systems
             PlayAudio(levelUpClip, 0.86f, 1.04f);
         }
 
-        public void PlayTotalDestructionFeedback(Vector3 center, float intensity)
+        public void PlayTotalDestructionFeedback(Vector3 center, float intensity, bool playAudio = true)
         {
             intensity = Mathf.Clamp01(intensity);
             PlayMilestoneFeedback(
@@ -292,7 +292,10 @@ namespace AlienCrusher.Systems
                 heavyBursts: true,
                 destroyedHaptic: true,
                 hapticIntensity: Mathf.Lerp(0.7f, 1f, intensity));
-            PlayAudio(routeBonusClip, Mathf.Lerp(0.78f, 1f, intensity), Mathf.Lerp(0.96f, 1.04f, intensity));
+            if (playAudio)
+            {
+                PlayAudio(routeBonusClip, Mathf.Lerp(0.78f, 1f, intensity), Mathf.Lerp(0.96f, 1.04f, intensity));
+            }
         }
 
         public void PlayBossDownFeedback(Vector3 center, float intensity)
@@ -449,6 +452,18 @@ namespace AlienCrusher.Systems
             PlayAudio(routeOpenClip, Mathf.Lerp(0.72f, 0.96f, intensity), Mathf.Lerp(1f, 1.08f, intensity));
         }
 
+        public void PlayBossWarningCue(float intensity = 0.7f)
+        {
+            intensity = Mathf.Clamp01(intensity);
+            PlayAudio(bossWarningClip, Mathf.Lerp(0.55f, 0.82f, intensity), Mathf.Lerp(0.9f, 0.98f, intensity));
+        }
+
+        public void PlayBossBreakCue(float intensity = 0.78f)
+        {
+            intensity = Mathf.Clamp01(intensity);
+            PlayAudio(bossBreakClip, Mathf.Lerp(0.68f, 0.94f, intensity), Mathf.Lerp(0.96f, 1.02f, intensity));
+        }
+
         public void PlayFailureBeatFeedback(Vector3 center, bool bossRelated, float intensity = 1f)
         {
             intensity = Mathf.Clamp01(intensity);
@@ -560,6 +575,11 @@ namespace AlienCrusher.Systems
             hitHeavyClip = CoalesceDraftClip(hitHeavyClip, "Audio/SFX/Impact/SFX_Hit_Heavy", "Assets/Audio/SFX/Impact/SFX_Hit_Heavy.wav");
             breakSmallClip = CoalesceDraftClip(breakSmallClip, "Audio/SFX/Impact/SFX_Break_Small", "Assets/Audio/SFX/Impact/SFX_Break_Small.wav");
             breakLargeClip = CoalesceDraftClip(breakLargeClip, "Audio/SFX/Impact/SFX_Break_LargeCollapse", "Assets/Audio/SFX/Impact/SFX_Break_LargeCollapse.wav");
+            bossWarningClip = CoalesceDraftClip(bossWarningClip, "Audio/SFX/Boss/SFX_Boss_Warning", "Assets/Audio/SFX/Boss/SFX_Boss_Warning.wav");
+            bossBreakClip = CoalesceDraftClip(bossBreakClip, "Audio/SFX/Boss/SFX_Boss_Break", "Assets/Audio/SFX/Boss/SFX_Boss_Break.wav");
+            bossDownClip = CoalesceDraftClip(bossDownClip, "Audio/SFX/Boss/SFX_Boss_Down", "Assets/Audio/SFX/Boss/SFX_Boss_Down.wav");
+            comboRiseClip = CoalesceDraftClip(comboRiseClip, "Audio/SFX/Skills/SFX_Combo_Rise", "Assets/Audio/SFX/Skills/SFX_Combo_Rise.wav");
+            levelUpClip = CoalesceDraftClip(levelUpClip, "Audio/SFX/UI/SFX_LevelUp_Open", "Assets/Audio/SFX/UI/SFX_LevelUp_Open.wav");
         }
 
         private AudioClip ResolveHitWeightClip(float normalizedImpact, bool forceHeavy)

@@ -167,10 +167,10 @@ Must-cover events:
 Current `FeedbackSystem` slot map:
 - `hitLightClip`, `hitMediumClip`, `hitHeavyClip` (`SFX_Hit_Light` / `SFX_Hit_Medium` / `SFX_Hit_Heavy` in `Assets/Audio/SFX/Impact/`)
 - `breakSmallClip`, `breakLargeClip` (`SFX_Break_Small` / `SFX_Break_LargeCollapse` in `Assets/Audio/SFX/Impact/`)
-- `comboRiseClip`
+- `comboRiseClip` (`SFX_Combo_Rise` in `Assets/Audio/SFX/Skills/`)
 - `routeOpenClip`, `routeHoldWarningClip`, `routeBonusClip`
-- `bossWarningClip`, `bossBreakClip`, `bossDownClip`
-- `levelUpClip`
+- `bossWarningClip`, `bossBreakClip`, `bossDownClip` (`SFX_Boss_Warning` / `SFX_Boss_Break` / `SFX_Boss_Down` in `Assets/Audio/SFX/Boss/`)
+- `levelUpClip` (`SFX_LevelUp_Open` in `Assets/Audio/SFX/UI/`)
 - `failureWarningClip`, `failureBossClip`
 
 Suggested file targets:
