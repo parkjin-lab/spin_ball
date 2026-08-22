@@ -47,6 +47,8 @@ namespace AlienCrusher.Systems
 				EnsureIconBesideText(resultSummaryText, IconStageId, new Vector2(-52f, -22f), 36f);
 				EnsureIconBesideText(resultAdviceText, IconNextStepId, new Vector2(-48f, -6f), 36f);
 			}
+
+			EnsureResultLobbyBadges();
 		}
 
 		private void CacheRunEssentialIconSprites()

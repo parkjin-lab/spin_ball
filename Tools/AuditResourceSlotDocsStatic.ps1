@@ -114,6 +114,10 @@ if ($errors.Count -eq 0) {
         "Icon_Seismic",
         "Icon_Retail",
         "Icon_Traffic",
+        "Badge_Result_Clear",
+        "Badge_Result_Failure",
+        "Badge_Locked",
+        "Badge_Recommended",
         "FORM_Sphere_Body_Kit",
         "Icon_Form_Sphere",
         "Icon_Skill_SpherePulse",
@@ -189,6 +193,10 @@ if ($errors.Count -eq 0) {
         "Icon_Seismic",
         "Icon_Retail",
         "Icon_Traffic",
+        "Badge_Result_Clear",
+        "Badge_Result_Failure",
+        "Badge_Locked",
+        "Badge_Recommended",
         "FORM_Sphere_Body_Kit",
         "Icon_Form_Sphere",
         "Icon_Skill_SpherePulse",
@@ -224,7 +232,8 @@ if ($errors.Count -eq 0) {
         "PROP_BusStop",
         "PROP_Transformer",
         "PROP_ExplosiveBarrel",
-        "Assets/Resources/UI/Icons/"
+        "Assets/Resources/UI/Icons/",
+        "Assets/Resources/UI/Badges/"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"
     }

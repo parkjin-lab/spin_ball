@@ -40,6 +40,7 @@ namespace AlienCrusher.Systems
 			EnsureLobbyFormIcon("Form_Spike", IconFormSpikeId, iconFormSpikeSprite);
 			EnsureLobbyFormIcon("Form_Crusher", IconFormCrusherId, iconFormCrusherSprite);
 			RefreshFormIdentitySkillIcons();
+			EnsureResultLobbyBadges();
 		}
 
 		private void CacheFormIdentityIconSprites()

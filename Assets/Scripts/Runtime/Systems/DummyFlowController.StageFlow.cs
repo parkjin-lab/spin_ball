@@ -299,6 +299,7 @@ namespace AlienCrusher.Systems
 				text = string.IsNullOrWhiteSpace(text) ? failureBadge : $"{failureBadge}  {text.TrimEnd()}";
 			}
 			resultStatusBadgeText.text = (string.IsNullOrWhiteSpace(text) ? "[CITY BREACH]" : text.TrimEnd());
+			RefreshResultLobbyBadges();
 		}
 
 		private void UpdateResultHighlights(int highestChain, int destroyedCount, int destroyedPercent, string bossState)

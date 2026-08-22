@@ -244,7 +244,8 @@ Status:
 - run-essential draft icons `Icon_DP`, `Icon_Stage`, `Icon_NextStep`, and `Icon_Route` already sit on the HUD strip and lobby/result labels
 - route/boss readability draft icons `Icon_BreakWindow`, `Icon_Shield`, `Icon_WeakPoint`, and `Icon_Boss` now sit on a top-right HUD strip, swap beside Sentinel status, and mark elite weak-point copy
 - upgrade/chaos status draft icons `Icon_Overdrive`, `Icon_Panic`, `Icon_Seismic`, `Icon_Retail`, and `Icon_Traffic` now sit on a compact HUD/lobby strip and beside chain, upgrade, and TRAFFIC labels
-- remaining work is result/recommendation badges
+- result/lobby draft badges `Badge_Result_Clear`, `Badge_Result_Failure`, `Badge_Locked`, and `Badge_Recommended` now mark success, fail, lock, and recommendation at a glance
+- Icons A/B/C and district palettes were not restyled
 
 Need:
 - icon set for stage pressure, route target, destruction, DP, overdrive, panic, seismic, boss state, weak point, shield, break window
@@ -265,6 +266,10 @@ Required assets:
 - `Icon_Retail`
 - `Icon_Traffic`
 - `Icon_Boss`
+- `Badge_Result_Clear`
+- `Badge_Result_Failure`
+- `Badge_Locked`
+- `Badge_Recommended` (`Assets/Resources/UI/Badges/`)
 
 Why this matters now:
 - UI text has been heavily simplified already
@@ -533,6 +538,10 @@ This section can be used as a working production checklist.
 - [x] `Icon_Seismic` ground crack wave
 - [x] `Icon_Retail` shop awning with burst star
 - [x] `Icon_Traffic` road lane plus small car
+- [x] `Badge_Result_Clear` mint success plate with upward shard
+- [x] `Badge_Result_Failure` rust fail plate with broken route notch
+- [x] `Badge_Locked` steel lock plate
+- [x] `Badge_Recommended` gold focus chevron
 - [ ] stage / DP / route / break / shield / weak point icon set
 - [ ] form card frame set
 - [ ] meta upgrade chip set

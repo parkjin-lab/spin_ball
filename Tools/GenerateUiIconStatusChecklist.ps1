@@ -7,7 +7,8 @@ param(
     [string]$MetaProgressionPath = "",
     [string]$IconHookPath = "",
     [string]$BossIconHookPath = "",
-    [string]$StatusIconHookPath = ""
+    [string]$StatusIconHookPath = "",
+    [string]$BadgeHookPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -61,6 +62,7 @@ $metaProgressionSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Over
 $iconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $IconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RunEssentialIcons.cs"
 $bossIconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $BossIconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.BossReadabilityIcons.cs"
 $statusIconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StatusIconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UpgradeStatusIcons.cs"
+$badgeHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $BadgeHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.ResultLobbyBadges.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherUiIconStatusChecklist.md"
@@ -81,7 +83,8 @@ $metaProgressionText = Read-SourceText -Path $metaProgressionSourcePath
 $iconHookText = Read-SourceText -Path $iconHookSourcePath
 $bossIconHookText = Read-SourceText -Path $bossIconHookSourcePath
 $statusIconHookText = Read-SourceText -Path $statusIconHookSourcePath
-$allIconHookText = $iconHookText + $bossIconHookText + $statusIconHookText
+$badgeHookText = Read-SourceText -Path $badgeHookSourcePath
+$allIconHookText = $iconHookText + $bossIconHookText + $statusIconHookText + $badgeHookText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -157,6 +160,16 @@ foreach ($needle in @(
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $statusIconHookText -Needle $needle
 }
 
+foreach ($needle in @(
+    "Badge_Result_Clear",
+    "Badge_Result_Failure",
+    "Badge_Locked",
+    "Badge_Recommended",
+    "EnsureResultLobbyBadges"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $badgeHookText -Needle $needle
+}
+
 $iconCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_DP"; RuntimeUse = "DP balance, rewards, meta purchases"; Shape = "cracked diamond or alien currency pip"; Folder = "Assets/Resources/UI/Icons/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_Stage"; RuntimeUse = "stage select and result stage identity"; Shape = "stacked district blocks with number badge space"; Folder = "Assets/Resources/UI/Icons/" },
@@ -207,7 +220,7 @@ $productionBatches = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher UI Icon And Status Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`, `{6}`' -f $uiFlowSourcePath, $upgradeUiSourcePath, $stageEncounterSourcePath, $metaProgressionSourcePath, $iconHookSourcePath, $bossIconHookSourcePath, $statusIconHookSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`, `{6}`, `{7}`' -f $uiFlowSourcePath, $upgradeUiSourcePath, $stageEncounterSourcePath, $metaProgressionSourcePath, $iconHookSourcePath, $bossIconHookSourcePath, $statusIconHookSourcePath, $badgeHookSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: convert the current text-heavy HUD, lobby, result, upgrade, route, and boss states into a concrete icon/status production list.")
 $lines.Add("")
