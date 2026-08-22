@@ -240,6 +240,11 @@ Why this matters now:
 These are not as urgent as the must-have group, but they should come immediately after.
 
 ### 2.1 UI Icon and Status Set
+Status:
+- run-essential draft icons `Icon_DP`, `Icon_Stage`, `Icon_NextStep`, and `Icon_Route` already sit on the HUD strip and lobby/result labels
+- route/boss readability draft icons `Icon_BreakWindow`, `Icon_Shield`, `Icon_WeakPoint`, and `Icon_Boss` now sit on a top-right HUD strip, swap beside Sentinel status, and mark elite weak-point copy
+- remaining work is upgrade/chaos status icons and result/recommendation badges
+
 Need:
 - icon set for stage pressure, route target, destruction, DP, overdrive, panic, seismic, boss state, weak point, shield, break window
 - upgrade icons for meta upgrades and in-run upgrades
@@ -500,6 +505,14 @@ This section can be used as a working production checklist.
 - [ ] UI feedback SFX set
 
 ### UI
+- [x] `Icon_DP` run-essential money pip
+- [x] `Icon_Stage` run-essential stage skyline
+- [x] `Icon_NextStep` run-essential next-action chevron
+- [x] `Icon_Route` run-essential orchid path-to-beacon
+- [x] `Icon_BreakWindow` gold open cracked ring
+- [x] `Icon_Shield` cyan shield plate with pylon ticks
+- [x] `Icon_WeakPoint` gold bullseye with glow dot
+- [x] `Icon_Boss` sentinel eye inside steel frame
 - [ ] stage / DP / route / break / shield / weak point icon set
 - [ ] form card frame set
 - [ ] meta upgrade chip set

@@ -5,7 +5,8 @@ param(
     [string]$UpgradeUiPath = "",
     [string]$StageEncounterPath = "",
     [string]$MetaProgressionPath = "",
-    [string]$IconHookPath = ""
+    [string]$IconHookPath = "",
+    [string]$BossIconHookPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -57,6 +58,7 @@ $upgradeUiSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePa
 $stageEncounterSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageEncounterPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageEncounter.cs"
 $metaProgressionSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $MetaProgressionPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.MetaProgression.cs"
 $iconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $IconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RunEssentialIcons.cs"
+$bossIconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $BossIconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.BossReadabilityIcons.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherUiIconStatusChecklist.md"
@@ -75,6 +77,8 @@ $upgradeUiText = Read-SourceText -Path $upgradeUiSourcePath
 $stageEncounterText = Read-SourceText -Path $stageEncounterSourcePath
 $metaProgressionText = Read-SourceText -Path $metaProgressionSourcePath
 $iconHookText = Read-SourceText -Path $iconHookSourcePath
+$bossIconHookText = Read-SourceText -Path $bossIconHookSourcePath
+$allIconHookText = $iconHookText + $bossIconHookText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -127,6 +131,17 @@ foreach ($needle in @(
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $iconHookText -Needle $needle
 }
 
+foreach ($needle in @(
+    "Icon_BreakWindow",
+    "Icon_Shield",
+    "Icon_WeakPoint",
+    "Icon_Boss",
+    "EnsureBossReadabilityIcons",
+    "HudBossReadabilityIcons"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $bossIconHookText -Needle $needle
+}
+
 $iconCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_DP"; RuntimeUse = "DP balance, rewards, meta purchases"; Shape = "cracked diamond or alien currency pip"; Folder = "Assets/Resources/UI/Icons/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_Stage"; RuntimeUse = "stage select and result stage identity"; Shape = "stacked district blocks with number badge space"; Folder = "Assets/Resources/UI/Icons/" },
@@ -177,7 +192,7 @@ $productionBatches = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher UI Icon And Status Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`' -f $uiFlowSourcePath, $upgradeUiSourcePath, $stageEncounterSourcePath, $metaProgressionSourcePath, $iconHookSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`' -f $uiFlowSourcePath, $upgradeUiSourcePath, $stageEncounterSourcePath, $metaProgressionSourcePath, $iconHookSourcePath, $bossIconHookSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: convert the current text-heavy HUD, lobby, result, upgrade, route, and boss states into a concrete icon/status production list.")
 $lines.Add("")
@@ -229,7 +244,8 @@ $lines.Add("## Current UI Icon And Status Targets")
 $lines.Add("| Priority | Asset | Runtime use | Shape target | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|")
 foreach ($icon in $iconCatalog) {
-    $lines.Add(("| {0} | `{1}` | {2} | {3} | `{4}` | [ ] |" -f $icon.Priority, $icon.Asset, $icon.RuntimeUse, $icon.Shape, $icon.Folder))
+    $doneMark = if ($allIconHookText.Contains($icon.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | `{1}` | {2} | {3} | `{4}` | {5} |" -f $icon.Priority, $icon.Asset, $icon.RuntimeUse, $icon.Shape, $icon.Folder, $doneMark))
 }
 
 $lines.Add("")

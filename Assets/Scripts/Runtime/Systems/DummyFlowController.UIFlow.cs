@@ -667,17 +667,20 @@ namespace AlienCrusher.Systems
 		{
 			if ((Object)(object)hudBossStatusText == (Object)null)
 			{
+				RefreshHudBossReadabilityIcon(bossAlive);
 				return;
 			}
 			if (!stageBossEncounterActive)
 			{
 				hudBossStatusText.text = string.Empty;
+				RefreshHudBossReadabilityIcon(bossAlive);
 				return;
 			}
 			if (!bossAlive)
 			{
 				hudBossStatusText.text = "SENTINEL\nDOWN";
 				hudBossStatusText.color = new Color(0.82f, 1f, 0.8f, 1f);
+				RefreshHudBossReadabilityIcon(bossAlive);
 				return;
 			}
 			string text = $"SENTINEL  {Mathf.RoundToInt(GetStageBossDurabilityRatio() * 100f):0}%\nTHREAT  {GetBossThreatLabel()}";
@@ -705,6 +708,7 @@ namespace AlienCrusher.Systems
 				: ((flag || flag2)
 					? Color.Lerp(new Color(1f, 0.8f, 0.58f, 1f), new Color(1f, 0.96f, 0.84f, 1f), Mathf.PingPong(Time.time * (flag2 ? 4.2f : 3.8f), 1f) * (flag2 ? 0.3f : 0.22f))
 					: new Color(1f, 0.82f, 0.62f, 1f));
+			RefreshHudBossReadabilityIcon(bossAlive);
 		}
 
 		private string GetHudUrgencyHint(int destroyedCount, bool bossAlive)
@@ -1475,6 +1479,7 @@ namespace AlienCrusher.Systems
 			EnsureResultAdviceUi();
 			EnsureResultLobbyButton();
 			EnsureRunEssentialIcons();
+			EnsureBossReadabilityIcons();
 			EnsureFormIdentityIcons();
 		}
 

@@ -331,14 +331,14 @@ Deliverables:
 - `Icon_Stage` stacked district-block skyline
 - `Icon_NextStep` forward chevron with target notch
 - `Icon_Route` orchid path-to-beacon (echoes `PAL_RouteMarker_Tints`)
+- `Icon_BreakWindow` gold open cracked ring
+- `Icon_Shield` cyan shield plate with pylon ticks
+- `Icon_WeakPoint` gold bullseye with glow dot
+- `Icon_Boss` sentinel eye inside steel frame
 - draft sprites at `Assets/Resources/UI/Icons/`
-- break window icon
-- shield icon
-- weak point icon
 - overdrive icon
 - panic icon
 - seismic icon
-- boss icon
 
 Done when:
 - HUD and lobby rely less on text-only recognition
