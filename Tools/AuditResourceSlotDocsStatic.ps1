@@ -120,7 +120,10 @@ if ($errors.Count -eq 0) {
         "VFX_Debris_Light",
         "VFX_Debris_Heavy",
         "VFX_Smoke_Damage",
-        "VFX_WeakPoint_Hit"
+        "VFX_WeakPoint_Hit",
+        "PROP_Car_Compact_A",
+        "PROP_Car_Compact_B",
+        "PROP_Van_Bus"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -168,6 +171,9 @@ if ($errors.Count -eq 0) {
         "VFX_Debris_Heavy",
         "VFX_Smoke_Damage",
         "VFX_WeakPoint_Hit",
+        "PROP_Car_Compact_A",
+        "PROP_Car_Compact_B",
+        "PROP_Van_Bus",
         "Assets/Resources/UI/Icons/"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"

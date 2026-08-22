@@ -81,6 +81,12 @@ namespace AlienCrusher.Systems
 			val2.size = new Vector3(1.28f, 0.72f, 2.14f);
 			((Collider)val2).isTrigger = false;
 			EnsureStreetPropReactiveRuntime(((Component)root).gameObject, root, DummyStreetPropReactive.PropKind.Vehicle);
+			Color paint = spawnPoint.BodyColor;
+			if (paint.a <= 0.001f)
+			{
+				paint = GetRandomTrafficBodyColor();
+			}
+			ApplyTrafficSilhouetteKit(root, ((Object)root).name, paint);
 			DummyStreetPropReactive[] componentsInChildren = ((Component)root).GetComponentsInChildren<DummyStreetPropReactive>(true);
 			foreach (DummyStreetPropReactive dummyStreetPropReactive in componentsInChildren)
 			{
@@ -214,14 +220,7 @@ namespace AlienCrusher.Systems
 			orCreateDirectChild.localRotation = Quaternion.Euler(0f, yaw, 0f);
 			orCreateDirectChild.localScale = Vector3.one;
 			((Component)orCreateDirectChild).gameObject.SetActive(true);
-			GameObject val = EnsurePrimitive(orCreateDirectChild, "Body", (PrimitiveType)3, new Vector3(0f, 0.24f, 0f), new Vector3(1.15f, 0.35f, 2.05f), bodyColor);
-			EnsurePrimitive(orCreateDirectChild, "Cabin", (PrimitiveType)3, new Vector3(0f, 0.5f, -0.12f), new Vector3(0.82f, 0.28f, 0.95f), Color.Lerp(bodyColor, Color.white, 0.18f));
-			Color color = default(Color);
-			color = new Color(0.08f, 0.08f, 0.1f, 1f);
-			EnsurePrimitive(orCreateDirectChild, "Wheel_FL", (PrimitiveType)2, new Vector3(0.48f, 0.12f, 0.62f), new Vector3(0.2f, 0.12f, 0.2f), color);
-			EnsurePrimitive(orCreateDirectChild, "Wheel_FR", (PrimitiveType)2, new Vector3(-0.48f, 0.12f, 0.62f), new Vector3(0.2f, 0.12f, 0.2f), color);
-			EnsurePrimitive(orCreateDirectChild, "Wheel_RL", (PrimitiveType)2, new Vector3(0.48f, 0.12f, -0.62f), new Vector3(0.2f, 0.12f, 0.2f), color);
-			EnsurePrimitive(orCreateDirectChild, "Wheel_RR", (PrimitiveType)2, new Vector3(-0.48f, 0.12f, -0.62f), new Vector3(0.2f, 0.12f, 0.2f), color);
+			ApplyTrafficSilhouetteKit(orCreateDirectChild, name, bodyColor);
 			BoxCollider val2 = ((Component)orCreateDirectChild).GetComponent<BoxCollider>();
 			if ((Object)(object)val2 == (Object)null)
 			{
@@ -230,18 +229,6 @@ namespace AlienCrusher.Systems
 			val2.center = new Vector3(0f, 0.34f, 0f);
 			val2.size = new Vector3(1.28f, 0.72f, 2.14f);
 			((Collider)val2).isTrigger = false;
-			DummyStreetPropReactive dummyStreetPropReactive = (((Object)(object)val != (Object)null) ? val.GetComponent<DummyStreetPropReactive>() : null);
-			if ((Object)(object)dummyStreetPropReactive != (Object)null)
-			{
-				if (Application.isPlaying)
-				{
-					Object.Destroy((Object)(object)dummyStreetPropReactive);
-				}
-				else
-				{
-					Object.DestroyImmediate((Object)(object)dummyStreetPropReactive);
-				}
-			}
 			EnsureStreetPropReactiveRuntime(((Component)orCreateDirectChild).gameObject, orCreateDirectChild, DummyStreetPropReactive.PropKind.Vehicle);
 			return orCreateDirectChild;
 		}

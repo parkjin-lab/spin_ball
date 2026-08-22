@@ -3,7 +3,8 @@ param(
     [string]$ReportPath = "",
     [string]$RuntimeMapPath = "",
     [string]$TrafficBootstrapPath = "",
-    [string]$TrafficSpawningPath = ""
+    [string]$TrafficSpawningPath = "",
+    [string]$TrafficKitsPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,6 +54,7 @@ $projectRoot = Resolve-ProjectRoot
 $runtimeMapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RuntimeMapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RuntimeMapFallback.cs"
 $trafficBootstrapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TrafficBootstrapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.TrafficBootstrap.cs"
 $trafficSpawningSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TrafficSpawningPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.TrafficSpawning.cs"
+$trafficKitsSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TrafficKitsPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.TrafficSilhouetteKits.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherStreetPropVarietyChecklist.md"
@@ -69,6 +71,8 @@ if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
 $runtimeMapText = Read-SourceText -Path $runtimeMapSourcePath
 $trafficBootstrapText = Read-SourceText -Path $trafficBootstrapSourcePath
 $trafficSpawningText = Read-SourceText -Path $trafficSpawningSourcePath
+$trafficKitsText = if (Test-Path -Path $trafficKitsSourcePath -PathType Leaf) { Read-SourceText -Path $trafficKitsSourcePath } else { "" }
+$shippedPropSourceText = $trafficBootstrapText + $trafficKitsText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -95,7 +99,8 @@ foreach ($needle in @(
 foreach ($needle in @(
     "RegisterTrafficVehicle",
     "EnsureStreetPropReactiveRuntime",
-    "DummyStreetPropReactive.PropKind.Vehicle"
+    "DummyStreetPropReactive.PropKind.Vehicle",
+    "ApplyTrafficSilhouetteKit"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $trafficBootstrapText -Needle $needle
 }
@@ -157,7 +162,11 @@ $productionBatches = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher Street Prop Variety Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`' -f $runtimeMapSourcePath, $trafficBootstrapSourcePath, $trafficSpawningSourcePath))
+$generatedFrom = @($runtimeMapSourcePath, $trafficBootstrapSourcePath, $trafficSpawningSourcePath)
+if (Test-Path -Path $trafficKitsSourcePath -PathType Leaf) {
+    $generatedFrom += $trafficKitsSourcePath
+}
+$lines.Add(('Generated from: `{0}`' -f ([string]::Join('`, `', $generatedFrom))))
 $lines.Add("")
 $lines.Add("Purpose: turn the existing runtime traffic, commercial, utility, and roadside prop hooks into a concrete prop production list.")
 $lines.Add("")
@@ -208,7 +217,8 @@ $lines.Add("## Current Street Prop Variety Targets")
 $lines.Add("| Priority | Category | Asset | Runtime hook | Gameplay use | Readability target | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|---|")
 foreach ($asset in $assetCatalog) {
-    $lines.Add(("| {0} | {1} | `{2}` | `{3}` | {4} | {5} | `{6}` | [ ] |" -f $asset.Priority, $asset.Category, $asset.Asset, $asset.RuntimeHook, $asset.GameplayUse, $asset.Target, $asset.Folder))
+    $done = if ($shippedPropSourceText.Contains($asset.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | {1} | `{2}` | `{3}` | {4} | {5} | `{6}` | {7} |" -f $asset.Priority, $asset.Category, $asset.Asset, $asset.RuntimeHook, $asset.GameplayUse, $asset.Target, $asset.Folder, $done))
 }
 
 $lines.Add("")

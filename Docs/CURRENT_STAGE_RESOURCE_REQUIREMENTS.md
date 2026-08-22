@@ -151,16 +151,17 @@ Why this matters now:
 ### 1.3 Street Prop Variety Resources
 Status:
 - street props and traffic systems exist
-- city fantasy still feels thin if only buildings dominate the map
+- moving and parked traffic now use named runtime kits so cars and vans read as crushable vehicles, not boxes
+- roadside lamps, trees, and benches are still the next street-prop gap
 
 Need:
-- lightweight prop variety that makes the city feel alive and crushable
+- lightweight roadside prop variety after the traffic silhouette set
 - props should support combo lanes and panic reactions
 
 Required assets:
-- compact car silhouette A
-- compact car silhouette B
-- van / bus silhouette
+- `PROP_Car_Compact_A` low hatchback crush target (`Assets/Art/Props/Traffic/`)
+- `PROP_Car_Compact_B` same footprint, notchback roof (`Assets/Art/Props/Traffic/`)
+- `PROP_Van_Bus` longer blocky van/bus (`Assets/Art/Props/Traffic/`)
 - street lamp silhouette
 - traffic light silhouette
 - roadside tree silhouette
@@ -454,6 +455,9 @@ This section can be used as a working production checklist.
 - [ ] 1 exposed-core material
 - [ ] 3 district palette sets
 - [ ] 8 to 10 street prop silhouettes
+- [x] `PROP_Car_Compact_A` runtime compact hatchback traffic kit
+- [x] `PROP_Car_Compact_B` runtime compact notchback traffic kit
+- [x] `PROP_Van_Bus` runtime van/bus traffic kit
 - [x] `BOSS_Sentinel_Body_Kit` runtime sentinel body silhouette kit
 - [x] `BOSS_Shield_Pylon_Kit` runtime shield pylon silhouette kit
 - [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit

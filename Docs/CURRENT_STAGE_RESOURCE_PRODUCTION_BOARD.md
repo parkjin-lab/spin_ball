@@ -143,6 +143,14 @@ Deliverables:
 - 3 vehicle body variants minimum
 - 5 breakable roadside prop variants minimum
 
+Traffic silhouettes shipped:
+- `PROP_Car_Compact_A` low hatchback, hood / cabin / hatch read
+- `PROP_Car_Compact_B` same footprint with a notchback roof and trunk
+- `PROP_Van_Bus` longer blocky cabin, readable from chase camera
+- applied by `EnsureTrafficVehicleRuntime` and `RegisterTrafficVehicle` so Stage 1-3 moving cars and parked panic clusters share the set
+- collider size, traffic count, speed, HP, and spawn rate unchanged
+- roofs stay low so Target_A / Target_B and HOLD trail pips stay visible
+
 Expected output:
 - city feels alive before the player reaches large buildings
 - early gameplay has enough crushable density
