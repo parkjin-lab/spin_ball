@@ -127,7 +127,12 @@ if ($errors.Count -eq 0) {
         "PROP_StreetLamp",
         "PROP_TrafficLight",
         "PROP_RoadsideTree",
-        "PROP_Bench"
+        "PROP_Bench",
+        "PROP_Kiosk",
+        "PROP_Vending",
+        "PROP_BusStop",
+        "PROP_Transformer",
+        "PROP_ExplosiveBarrel"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -182,6 +187,11 @@ if ($errors.Count -eq 0) {
         "PROP_TrafficLight",
         "PROP_RoadsideTree",
         "PROP_Bench",
+        "PROP_Kiosk",
+        "PROP_Vending",
+        "PROP_BusStop",
+        "PROP_Transformer",
+        "PROP_ExplosiveBarrel",
         "Assets/Resources/UI/Icons/"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"

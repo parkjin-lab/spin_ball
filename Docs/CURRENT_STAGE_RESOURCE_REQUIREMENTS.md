@@ -153,10 +153,11 @@ Status:
 - street props and traffic systems exist
 - moving and parked traffic now use named runtime kits so cars and vans read as crushable vehicles, not boxes
 - roadside lamps, traffic lights, trees, and benches now have named runtime kits for a quick-break street cadence
-- market / utility props (kiosk, vending, transformer, barrel) are still the next street-prop gap
+- market and utility props now have named runtime kits so chain density and payoff danger read before impact
+- residential extras (fence, mailbox, shed) are still the next street-prop gap
 
 Need:
-- market and utility payoff props after the light roadside set
+- residential filler extras after the market / utility set
 - props should support combo lanes and panic reactions
 
 Required assets:
@@ -167,10 +168,11 @@ Required assets:
 - `PROP_TrafficLight` lamp variant with red/amber/green head blocks (`Assets/Art/Props/Street/`)
 - `PROP_RoadsideTree` trunk plus a gappy canopy cluster (`Assets/Art/Props/Street/`)
 - `PROP_Bench` low seat/back silhouette (`Assets/Art/Props/Street/`)
-- kiosk / vending silhouette
-- bus stop silhouette
-- transformer / utility box silhouette
-- explosive barrel silhouette
+- `PROP_Kiosk` stacked stall with awning and counter (`Assets/Art/Props/Street/`)
+- `PROP_Vending` upright cabinet with a readable face panel (`Assets/Art/Props/Street/`)
+- `PROP_BusStop` thin roof / panel / posts, not a building (`Assets/Art/Props/Street/`)
+- `PROP_Transformer` utility tank plus pipe/cap hazard (`Assets/Art/Props/Utilities/`)
+- `PROP_ExplosiveBarrel` drum with a strong danger band (`Assets/Art/Props/Utilities/`)
 
 Important note:
 These do not need high-detail custom models.
@@ -464,6 +466,11 @@ This section can be used as a working production checklist.
 - [x] `PROP_TrafficLight` runtime signal-head lamp variant
 - [x] `PROP_RoadsideTree` runtime canopy-cluster tree kit
 - [x] `PROP_Bench` runtime low seat/back bench kit
+- [x] `PROP_Kiosk` runtime market stall kit
+- [x] `PROP_Vending` runtime face-panel cabinet kit
+- [x] `PROP_BusStop` runtime thin shelter kit
+- [x] `PROP_Transformer` runtime utility tank kit
+- [x] `PROP_ExplosiveBarrel` runtime danger-band drum kit
 - [x] `BOSS_Sentinel_Body_Kit` runtime sentinel body silhouette kit
 - [x] `BOSS_Shield_Pylon_Kit` runtime shield pylon silhouette kit
 - [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit

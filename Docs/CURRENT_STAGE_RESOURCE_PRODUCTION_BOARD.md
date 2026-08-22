@@ -159,6 +159,16 @@ Light roadside props shipped:
 - spawn counts, HP, and hit volumes unchanged; legacy Pole/Trunk/host colliders stay
 - posts stay thin and benches stay low so Target_A / Target_B and HOLD trail pips stay readable
 
+Market and utility props shipped:
+- `PROP_Kiosk` stacked stall with awning, window, and counter
+- `PROP_Vending` upright cabinet with a face panel, glass, and slot
+- `PROP_BusStop` thin posts, roof, and back panel — a shelter, not a building
+- `PROP_Transformer` steel tank with yellow/black hazard and pipe caps
+- `PROP_ExplosiveBarrel` drum with lid, hoop, and a strong orange danger band
+- applied by the existing commercial/utility Ensure* hooks, including Stage 2-6 streets and ROUTE BONUS clusters
+- spawn counts, HP, explosion radius, and hit volumes unchanged
+- silhouettes stay under building height so Target_A / Target_B and HOLD trail pips stay readable
+
 Expected output:
 - city feels alive before the player reaches large buildings
 - early gameplay has enough crushable density
