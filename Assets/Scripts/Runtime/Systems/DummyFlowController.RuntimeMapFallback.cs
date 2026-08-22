@@ -1867,6 +1867,7 @@ namespace AlienCrusher.Systems
 			((Component)orCreateDirectChild).gameObject.SetActive(true);
 			GameObject hitTarget = EnsurePrimitive(orCreateDirectChild, "Pole", (PrimitiveType)2, new Vector3(0f, 1.05f, 0f), new Vector3(0.08f, 1.05f, 0.08f), new Color(0.7f, 0.74f, 0.8f));
 			EnsurePrimitive(orCreateDirectChild, "Head", (PrimitiveType)3, new Vector3(0f, 2.1f, 0f), new Vector3(0.36f, 0.16f, 0.36f), new Color(1f, 0.9f, 0.55f));
+			ApplyStreetLampOrTrafficLightKit(orCreateDirectChild, name);
 			EnsureStreetPropReactiveRuntime(hitTarget, orCreateDirectChild, DummyStreetPropReactive.PropKind.Lamp);
 		}
 
@@ -1888,6 +1889,7 @@ namespace AlienCrusher.Systems
 			((Component)orCreateDirectChild).gameObject.SetActive(true);
 			GameObject hitTarget = EnsurePrimitive(orCreateDirectChild, "Trunk", (PrimitiveType)2, new Vector3(0f, 0.55f, 0f), new Vector3(0.18f, 0.55f, 0.18f), new Color(0.35f, 0.25f, 0.16f));
 			EnsurePrimitive(orCreateDirectChild, "Leaves", (PrimitiveType)0, new Vector3(0f, 1.35f, 0f), new Vector3(0.95f, 0.95f, 0.95f), leafColor);
+			ApplyRoadsideTreeKit(orCreateDirectChild, leafColor);
 			EnsureStreetPropReactiveRuntime(hitTarget, orCreateDirectChild, DummyStreetPropReactive.PropKind.Tree);
 		}
 
@@ -2024,6 +2026,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(transform, "BenchBack", (PrimitiveType)3, new Vector3(0f, 0.16f, -0.1f), new Vector3(0.98f, 0.22f, 0.08f), Color.Lerp(color, Color.black, 0.1f));
 			EnsurePrimitive(transform, "BenchLeg_L", (PrimitiveType)3, new Vector3(-0.28f, -0.12f, 0f), new Vector3(0.08f, 0.22f, 0.08f), Color.Lerp(color, Color.black, 0.22f));
 			EnsurePrimitive(transform, "BenchLeg_R", (PrimitiveType)3, new Vector3(0.28f, -0.12f, 0f), new Vector3(0.08f, 0.22f, 0.08f), Color.Lerp(color, Color.black, 0.22f));
+			ApplyBenchKit(transform, color);
 		}
 
 		private static void EnsureCommercialBusStopRuntime(Transform parent, string name, Vector3 localPosition, Color color)

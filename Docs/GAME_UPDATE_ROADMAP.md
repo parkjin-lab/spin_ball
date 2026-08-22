@@ -38,6 +38,7 @@ This document tracks the current project state, the next production priorities, 
 - Combat states now use named runtime materials `MAT_Damage_CrackOverlay`, `MAT_WeakPoint_Glow`, `MAT_Shielded_Pylon`, and `MAT_Exposed_Core` so damaged buildings, elite weak points, protected pylons, and an exposed Sentinel core never share one look. Shield counts, break thresholds, and boss timing are unchanged.
 - Break feedback now uses named runtime VFX `VFX_Debris_Light`, `VFX_Debris_Heavy`, `VFX_Smoke_Damage`, and `VFX_WeakPoint_Hit` so small chips, heavy collapse, near-break smoke, and crit flashes stay distinct without covering route markers. HP and spawn counts are unchanged.
 - Traffic now uses named runtime kits `PROP_Car_Compact_A`, `PROP_Car_Compact_B`, and `PROP_Van_Bus` so moving cars and parked panic clusters read as vehicles instead of boxes. Traffic count, speed, HP, and spawn rate are unchanged.
+- Roadside rhythm props now use named runtime kits `PROP_StreetLamp`, `PROP_TrafficLight`, `PROP_RoadsideTree`, and `PROP_Bench` so Stage 1-3 streets have thin lamps/lights, gappy trees, and low benches that do not hide route markers. Spawn counts and HP are unchanged.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status

@@ -152,21 +152,23 @@ Why this matters now:
 Status:
 - street props and traffic systems exist
 - moving and parked traffic now use named runtime kits so cars and vans read as crushable vehicles, not boxes
-- roadside lamps, trees, and benches are still the next street-prop gap
+- roadside lamps, traffic lights, trees, and benches now have named runtime kits for a quick-break street cadence
+- market / utility props (kiosk, vending, transformer, barrel) are still the next street-prop gap
 
 Need:
-- lightweight roadside prop variety after the traffic silhouette set
+- market and utility payoff props after the light roadside set
 - props should support combo lanes and panic reactions
 
 Required assets:
 - `PROP_Car_Compact_A` low hatchback crush target (`Assets/Art/Props/Traffic/`)
 - `PROP_Car_Compact_B` same footprint, notchback roof (`Assets/Art/Props/Traffic/`)
 - `PROP_Van_Bus` longer blocky van/bus (`Assets/Art/Props/Traffic/`)
-- street lamp silhouette
-- traffic light silhouette
-- roadside tree silhouette
+- `PROP_StreetLamp` thin post with a visible cap (`Assets/Art/Props/Street/`)
+- `PROP_TrafficLight` lamp variant with red/amber/green head blocks (`Assets/Art/Props/Street/`)
+- `PROP_RoadsideTree` trunk plus a gappy canopy cluster (`Assets/Art/Props/Street/`)
+- `PROP_Bench` low seat/back silhouette (`Assets/Art/Props/Street/`)
 - kiosk / vending silhouette
-- bench / bus stop silhouette
+- bus stop silhouette
 - transformer / utility box silhouette
 - explosive barrel silhouette
 
@@ -458,6 +460,10 @@ This section can be used as a working production checklist.
 - [x] `PROP_Car_Compact_A` runtime compact hatchback traffic kit
 - [x] `PROP_Car_Compact_B` runtime compact notchback traffic kit
 - [x] `PROP_Van_Bus` runtime van/bus traffic kit
+- [x] `PROP_StreetLamp` runtime thin-post lamp kit
+- [x] `PROP_TrafficLight` runtime signal-head lamp variant
+- [x] `PROP_RoadsideTree` runtime canopy-cluster tree kit
+- [x] `PROP_Bench` runtime low seat/back bench kit
 - [x] `BOSS_Sentinel_Body_Kit` runtime sentinel body silhouette kit
 - [x] `BOSS_Shield_Pylon_Kit` runtime shield pylon silhouette kit
 - [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit

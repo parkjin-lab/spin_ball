@@ -151,6 +151,14 @@ Traffic silhouettes shipped:
 - collider size, traffic count, speed, HP, and spawn rate unchanged
 - roofs stay low so Target_A / Target_B and HOLD trail pips stay visible
 
+Light roadside props shipped:
+- `PROP_StreetLamp` thin post plus warm cap, used by even `Lamp_*` serials
+- `PROP_TrafficLight` same pole hook with a narrow signal-head stack
+- `PROP_RoadsideTree` trunk plus a gappy four-sphere canopy, not a leaf wall
+- `PROP_Bench` low seat/back kit on the existing 1-HP bench host
+- spawn counts, HP, and hit volumes unchanged; legacy Pole/Trunk/host colliders stay
+- posts stay thin and benches stay low so Target_A / Target_B and HOLD trail pips stay readable
+
 Expected output:
 - city feels alive before the player reaches large buildings
 - early gameplay has enough crushable density
