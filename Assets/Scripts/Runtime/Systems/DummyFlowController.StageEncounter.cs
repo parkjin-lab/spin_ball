@@ -243,6 +243,7 @@ namespace AlienCrusher.Systems
 					Vector3 val = (((Object)(object)stageBossBlock != (Object)null) ? ((Component)stageBossBlock).transform.position : (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero));
 					damageNumberSystem?.ShowTag(val + Vector3.up * 1.8f, "SENTINEL DOWN", true);
 					feedbackSystem?.PlayBossDownFeedback(val + Vector3.up * 0.4f, 1f);
+					BossClimaxFeedbackVfx.PlayDefeatCascade(val);
 					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.PlayFinishShot(val + Vector3.up * 0.85f, 1f);
 					TriggerBossFinishSlowMotion();
@@ -888,6 +889,7 @@ namespace AlienCrusher.Systems
 			Vector3 position = ((Component)stageBossBlock).transform.position;
 			float num = Mathf.Clamp01((float)(Mathf.Clamp(threatLevel, 1, 3) - 1) / 2f);
 			float num2 = Mathf.Max(3.5f, bossPressurePulseRadius + bossPressurePulseRadiusPerThreat * (float)Mathf.Max(0, threatLevel - 1));
+			BossClimaxFeedbackVfx.PlayWarningRing(position, num2, threatLevel);
 			float num3 = Mathf.Max(0.3f, bossPressureSlowDuration * Mathf.Lerp(0.9f, 1.4f, num));
 			float num4 = Mathf.Clamp(Mathf.Lerp(1f, Mathf.Clamp(bossPressureSlowScale, 0.2f, 1f), Mathf.Lerp(0.55f, 1f, num)), 0.2f, 1f);
 			float num5 = Mathf.Max(0f, bossPressurePushForce * Mathf.Lerp(0.75f, 1.2f, num));
@@ -989,7 +991,8 @@ namespace AlienCrusher.Systems
 				StopBossClearCascadeRoutine();
 				pendingBossStageCompletion = true;
 				bossClearCascadeActive = true;
-				bossClearCascadeRoutine = StartCoroutine(BossClearCascadeRoutine(center));
+				BossClimaxFeedbackVfx.PlayDefeatCascade(center);
+			bossClearCascadeRoutine = StartCoroutine(BossClearCascadeRoutine(center));
 			}
 			else
 			{
@@ -1112,6 +1115,7 @@ namespace AlienCrusher.Systems
 				damageNumberSystem?.ShowTag(position + Vector3.up * 1.9f, "JUSTICE SENTINEL", true);
 				feedbackSystem?.PlayStageStartFeedback(position + Vector3.up * 0.35f);
 				feedbackSystem?.PlayBossWarningCue(0.78f);
+				BossClimaxFeedbackVfx.PlayWarningRing(position, bossPressurePulseRadius, threatLevel);
 				return;
 			}
 			string text2 = $"SENTINEL {text}";
@@ -1120,6 +1124,7 @@ namespace AlienCrusher.Systems
 			damageNumberSystem?.ShowTag(position + Vector3.up * 1.65f, text2, threatLevel >= 2);
 			feedbackSystem?.PlayCounterSurgeFeedback(position + Vector3.up * 0.3f, Mathf.InverseLerp(1f, 3f, threatLevel), threatLevel >= 3);
 			feedbackSystem?.PlayBossWarningCue(Mathf.Lerp(0.52f, 0.86f, Mathf.InverseLerp(1f, 3f, threatLevel)));
+			BossClimaxFeedbackVfx.PlayWarningRing(position, bossPressurePulseRadius, threatLevel);
 		}
 
 		private static float GetDestructibleThreatScore(DummyDestructibleBlock block)

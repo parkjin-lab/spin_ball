@@ -315,10 +315,13 @@ Deliverables:
 - `BOSS_Sentinel_Body_Kit` Justice Sentinel silhouette kit
 - `BOSS_Shield_Pylon_Kit` shield pylon kit
 - `BOSS_Phase2_Drone_Kit` phase 2 drone kit
+- `VFX_Boss_Warning_Ring` inbound / pressure-pulse danger ring
+- `VFX_Boss_Defeat_Cascade` Sentinel-down / city-collapse release
+- `SFX_Boss_Warning` threat pulse / inbound warning
+- `SFX_Boss_Break` break-window open
+- `SFX_Boss_Down` Justice Sentinel defeat
 - boss armor / shield / exposed-core material set
-- boss-only warning particle pass
-- boss core expose and defeat cascade VFX
-- boss-only audio layer refinement
+- boss core expose burst VFX
 - boss HUD icon / clear badge
 
 Generated checklist:

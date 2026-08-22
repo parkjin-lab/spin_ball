@@ -290,17 +290,21 @@ Status:
 - Justice Sentinel logic exists
 - phase, shield, drone, and break window systems are already implemented
 - runtime silhouette kits now separate the main body, shield pylons, and phase-2 drones from ordinary city props
-- remaining identity work is armor/core materials, boss VFX, and boss audio/HUD badges
+- climax warning/down VFX now punctuate inbound, pressure pulse, and Sentinel down
+- remaining identity work is optional boss-specific armor/core materials (`MAT_Boss_*`) and HUD badges
 
 Required assets:
 - `BOSS_Sentinel_Body_Kit` sentinel body silhouette kit
 - `BOSS_Shield_Pylon_Kit` shield pylon silhouette kit
 - `BOSS_Phase2_Drone_Kit` phase 2 drone silhouette kit
+- `VFX_Boss_Warning_Ring` threat-pulse / inbound danger ring (`Assets/Art/VFX/Boss/`)
+- `VFX_Boss_Defeat_Cascade` Sentinel-down / city-collapse release (`Assets/Art/VFX/Boss/`)
+- `SFX_Boss_Warning` threat pulse / inbound warning
+- `SFX_Boss_Break` break-window open
+- `SFX_Boss_Down` Justice Sentinel defeat
 - boss armor / shield pylon / exposed-core material set
 - core exposed material / emissive state
-- boss-only ring / warning particle set
-- boss core expose burst and defeat cascade VFX
-- boss-only audio set
+- boss core expose burst VFX
 - boss-only HUD icon or badge
 
 Generated production checklist:
@@ -523,6 +527,8 @@ This section can be used as a working production checklist.
 - [x] `BOSS_Sentinel_Body_Kit` runtime sentinel body silhouette kit
 - [x] `BOSS_Shield_Pylon_Kit` runtime shield pylon silhouette kit
 - [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit
+- [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
+- [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
 
 ### VFX
 - [ ] light hit burst
@@ -530,6 +536,8 @@ This section can be used as a working production checklist.
 - [ ] heavy break burst
 - [ ] collapse dust burst
 - [ ] weak point hit burst
+- [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
+- [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
 - [ ] shield break burst
 - [ ] core exposed burst
 - [ ] panic jackpot burst

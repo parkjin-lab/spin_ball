@@ -4,7 +4,8 @@ param(
     [string]$StageEncounterPath = "",
     [string]$DronePath = "",
     [string]$FeedbackSystemPath = "",
-    [string]$IdentityKitPath = ""
+    [string]$IdentityKitPath = "",
+    [string]$ClimaxVfxPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,6 +56,7 @@ $stageEncounterSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Overr
 $droneSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $DronePath -RelativePath "Assets\Scripts\Runtime\Gameplay\BossPhaseTwoDroneDummy.cs"
 $feedbackSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FeedbackSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\FeedbackSystem.cs"
 $identityKitSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $IdentityKitPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.BossIdentityKits.cs"
+$climaxVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ClimaxVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\BossClimaxFeedbackVfx.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherBossIdentityProductionChecklist.md"
@@ -72,6 +74,8 @@ $stageEncounterText = Read-SourceText -Path $stageEncounterSourcePath
 $droneText = Read-SourceText -Path $droneSourcePath
 $feedbackText = Read-SourceText -Path $feedbackSourcePath
 $identityKitText = Read-SourceText -Path $identityKitSourcePath
+$climaxVfxText = Read-SourceText -Path $climaxVfxSourcePath
+$allBossHookText = $stageEncounterText + $droneText + $feedbackText + $identityKitText + $climaxVfxText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -120,6 +124,18 @@ foreach ($needle in @(
     "EnsureVisualPrimitive"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $identityKitText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_Boss_Warning_Ring",
+    "VFX_Boss_Defeat_Cascade",
+    "SFX_Boss_Warning",
+    "SFX_Boss_Break",
+    "SFX_Boss_Down",
+    "PlayWarningRing",
+    "PlayDefeatCascade"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $climaxVfxText -Needle $needle
 }
 
 $assetCatalog = @(
@@ -230,7 +246,8 @@ $lines.Add("## Current Boss Identity Targets")
 $lines.Add("| Priority | Category | Asset | Runtime moment | Readability target | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|")
 foreach ($asset in $assetCatalog) {
-    $lines.Add(("| {0} | {1} | `{2}` | {3} | {4} | `{5}` | [ ] |" -f $asset.Priority, $asset.Category, $asset.Asset, $asset.RuntimeMoment, $asset.ReadabilityTarget, $asset.Folder))
+    $doneMark = if ($allBossHookText.Contains($asset.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | {1} | `{2}` | {3} | {4} | `{5}` | {6} |" -f $asset.Priority, $asset.Category, $asset.Asset, $asset.RuntimeMoment, $asset.ReadabilityTarget, $asset.Folder, $doneMark))
 }
 
 $lines.Add("")
