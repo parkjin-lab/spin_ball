@@ -153,11 +153,12 @@ namespace AlienCrusher.Systems
             }
 
             var next = Mathf.Clamp(GetMetaUpgradeLevel(upgradeType) + 1, 0, GetMetaUpgradeMaxLevel(upgradeType));
+            var committedCost = requiredCost;
             if (HasProgressionData)
             {
                 return TryCommitProgression(data =>
                 {
-                    data.meta.dpBalance = balance - requiredCost;
+                    data.meta.dpBalance = balance - committedCost;
                     SetMetaUpgradeLevel(data.meta, upgradeType, next);
                 });
             }
@@ -272,11 +273,12 @@ namespace AlienCrusher.Systems
                 return false;
             }
 
+            var committedCost = requiredCost;
             if (HasProgressionData)
             {
                 return TryCommitProgression(data =>
                 {
-                    data.meta.dpBalance = balance - requiredCost;
+                    data.meta.dpBalance = balance - committedCost;
                     if (!data.meta.unlockedForms.Contains((int)form))
                     {
                         data.meta.unlockedForms.Add((int)form);
@@ -330,11 +332,12 @@ namespace AlienCrusher.Systems
                 return false;
             }
 
+            var committedCost = requiredCost;
             if (HasProgressionData)
             {
                 var committed = TryCommitProgression(data =>
                 {
-                    data.meta.dpBalance = balance - requiredCost;
+                    data.meta.dpBalance = balance - committedCost;
                     if (!data.meta.unlockedForms.Contains((int)form))
                     {
                         data.meta.unlockedForms.Add((int)form);
