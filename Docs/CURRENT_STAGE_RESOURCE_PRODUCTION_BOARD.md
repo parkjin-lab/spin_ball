@@ -377,6 +377,7 @@ Deliverables:
 - `PAL_District_ConstructionYard` Stage 5 dusty blast-payoff yellow/black
 - `PAL_District_PowerBlock` Stage 6 electric teal transformer risk
 - `PAL_RouteMarker_Tints` global route marker tint set for `Target_A`, `Target_B`, `routeColor`, and HOLD trail pips
+- `PAL_Ambient_StageBands` stage-band ambient fill for `RenderSettings.ambientLight`
 - ambient stage-band tone set
 
 Generated checklist:

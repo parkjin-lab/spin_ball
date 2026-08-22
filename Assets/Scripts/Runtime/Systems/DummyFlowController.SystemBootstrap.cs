@@ -250,7 +250,7 @@ namespace AlienCrusher.Systems
 			val.shadows = (LightShadows)2;
 			((Component)val).transform.rotation = Quaternion.Euler(48f, -32f, 0f);
 			((Component)val).transform.position = new Vector3(0f, 18f, 0f);
-			RenderSettings.ambientLight = new Color(0.63f, 0.67f, 0.74f, 1f);
+			RenderSettings.ambientLight = AmbientStageBandSet.Resolve(Mathf.Max(1, currentStageNumber));
 		}
 
 		private void ApplyStylizedLookToScene()

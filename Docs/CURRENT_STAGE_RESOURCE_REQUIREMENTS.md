@@ -322,6 +322,7 @@ Status:
 - secondary palettes `PAL_District_PocketPark`, `PAL_District_ConstructionYard`, and `PAL_District_PowerBlock` now tint Stage 2/5/6 ground, walls, and landmark pads
 - building tier kits, Icons A/B/C, and Palette B Stage 1/3/4/7 families were not restyled
 - remaining work is ambient stage bands
+- named runtime set `PAL_Ambient_StageBands` now drives `RenderSettings.ambientLight` per stage band without restyling district palettes or `PAL_RouteMarker_Tints`
 
 Need:
 - at least 3 stage palette families so progression feels spatial, not only numeric
@@ -339,6 +340,7 @@ Required assets per district:
 - prop color variant
 - `PAL_RouteMarker_Tints` shared route marker / `routeColor` / HOLD trail tint set
 - fog / ambient tint preset
+- `PAL_Ambient_StageBands` stage-band ambient fill (`Assets/Art/Palettes/Lighting/`)
 
 `PAL_RouteMarker_Tints` runtime values:
 - Marker `Target_A` / `Target_B`: `(1.00, 0.58, 0.94)` bright orchid
@@ -513,6 +515,7 @@ This section can be used as a working production checklist.
 - [x] `PAL_District_PocketPark` Stage 2 calmer mint-path park cut
 - [x] `PAL_District_ConstructionYard` Stage 5 dusty blast-payoff yard
 - [x] `PAL_District_PowerBlock` Stage 6 electric-teal transformer block
+- [x] `PAL_Ambient_StageBands` stage-band ambient fill
 - [ ] 3 district palette sets
 - [ ] 8 to 10 street prop silhouettes
 - [x] `PROP_Car_Compact_A` runtime compact hatchback traffic kit

@@ -6,7 +6,8 @@ param(
     [string]$UiFlowPath = "",
     [string]$SystemBootstrapPath = "",
     [string]$RouteTintPath = "",
-    [string]$RhythmPalettePath = ""
+    [string]$RhythmPalettePath = "",
+    [string]$AmbientBandPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -59,6 +60,7 @@ $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath 
 $systemBootstrapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $SystemBootstrapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.SystemBootstrap.cs"
 $routeTintSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RouteTintPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteMarkerTintSet.cs"
 $rhythmPaletteSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RhythmPalettePath -RelativePath "Assets\Scripts\Runtime\Systems\DistrictRhythmPaletteSet.cs"
+$ambientBandSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $AmbientBandPath -RelativePath "Assets\Scripts\Runtime\Systems\AmbientStageBandSet.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherDistrictPaletteProductionChecklist.md"
@@ -78,7 +80,8 @@ $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
 $systemBootstrapText = Read-SourceText -Path $systemBootstrapSourcePath
 $routeTintText = Read-SourceText -Path $routeTintSourcePath
 $rhythmPaletteText = Read-SourceText -Path $rhythmPaletteSourcePath
-$allPaletteHookText = $routeTintText + $rhythmPaletteText + $runtimeMapText
+$ambientBandText = Read-SourceText -Path $ambientBandSourcePath
+$allPaletteHookText = $routeTintText + $rhythmPaletteText + $runtimeMapText + $ambientBandText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -127,6 +130,13 @@ foreach ($needle in @(
     "RenderSettings.ambientLight"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $systemBootstrapText -Needle $needle
+}
+
+foreach ($needle in @(
+    "PAL_Ambient_StageBands",
+    "RenderSettings.ambientLight"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $ambientBandText -Needle $needle
 }
 
 foreach ($needle in @(
@@ -211,7 +221,7 @@ $stageRhythmRows = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher District Palette Production Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`' -f $runtimeMapSourcePath, $controllerSourcePath, $uiFlowSourcePath, $systemBootstrapSourcePath, $routeTintSourcePath, $rhythmPaletteSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`, `{6}`' -f $runtimeMapSourcePath, $controllerSourcePath, $uiFlowSourcePath, $systemBootstrapSourcePath, $routeTintSourcePath, $rhythmPaletteSourcePath, $ambientBandSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: turn the current stage-gated runtime districts into concrete palette, material, route tint, and ambient-tone production targets.")
 $lines.Add("")

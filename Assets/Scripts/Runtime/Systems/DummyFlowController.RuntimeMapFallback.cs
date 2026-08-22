@@ -76,6 +76,7 @@ namespace AlienCrusher.Systems
 			ApplyRuntimeMapCameraBounds(layout);
 			LogRuntimeStageMapSummary(mapRoot, layout, theme);
 			Debug.Log((object)$"[AlienCrusher] Runtime stage map rebuilt for stage {layout.Stage:00}: {layout.MapSize:0.#}m, {layout.XCells}x{layout.ZCells} lots.");
+			AmbientStageBandSet.Apply(Mathf.Max(1, currentStageNumber));
 		}
 
 #if UNITY_EDITOR
