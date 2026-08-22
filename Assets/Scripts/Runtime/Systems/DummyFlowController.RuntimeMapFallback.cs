@@ -397,6 +397,9 @@ namespace AlienCrusher.Systems
 				color3f = new Color(0.28f, 0.82f, 0.98f, 1f);
 				break;
 			}
+			// PAL_RouteMarker_Tints: keep Target_A / Target_B / routeColor above district and boss colors.
+			color3 = RouteMarkerTintSet.Marker;
+			color3h = RouteMarkerTintSet.Paint;
 			num = Mathf.Clamp01(num + layout.Growth01 * 0.08f);
 			num2 = Mathf.Clamp01(num2 + layout.Growth01 * 0.08f);
 			num3 = Mathf.Clamp01(num3 + layout.Growth01 * 0.07f);

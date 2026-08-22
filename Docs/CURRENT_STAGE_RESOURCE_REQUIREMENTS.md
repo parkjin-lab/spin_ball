@@ -267,8 +267,13 @@ Required assets per district:
 - ground material variant
 - building palette variant
 - prop color variant
-- route marker tint
+- `PAL_RouteMarker_Tints` shared route marker / `routeColor` / HOLD trail tint set
 - fog / ambient tint preset
+
+`PAL_RouteMarker_Tints` runtime values:
+- Marker `Target_A` / `Target_B`: `(1.00, 0.58, 0.94)` bright orchid
+- Paint `routeColor`: `(0.94, 0.18, 0.70)` deep magenta
+- Trail HOLD pips: `(1.00, 0.76, 0.98)` pink-white
 
 Generated production checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateDistrictPaletteProductionChecklist.ps1`

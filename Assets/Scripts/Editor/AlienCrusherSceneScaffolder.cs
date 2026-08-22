@@ -243,6 +243,10 @@ namespace AlienCrusher.EditorTools
                     break;
             }
 
+            // PAL_RouteMarker_Tints: do not let city themes recolor Target_A / Target_B into hazard orange.
+            targetColor = RouteMarkerTintSet.Marker;
+            busStopMarkColor = RouteMarkerTintSet.Paint;
+
             EnsureCube(mapRoot, "Ground", new Vector3(0f, -0.5f, 0f), new Vector3(mapSize, 1f, mapSize), groundColor);
             EnsureCube(mapRoot, "Wall_North", new Vector3(0f, wallHeight * 0.5f, half), new Vector3(mapSize, wallHeight, wallThickness), wallColor);
             EnsureCube(mapRoot, "Wall_South", new Vector3(0f, wallHeight * 0.5f, -half), new Vector3(mapSize, wallHeight, wallThickness), wallColor);

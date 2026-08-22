@@ -841,8 +841,8 @@ namespace AlienCrusher.Systems
 					MaterialPropertyBlock val2 = new MaterialPropertyBlock();
 					component.GetPropertyBlock(val2);
 					Color color = flag
-						? Color.Lerp(stageAdvanceRouteMarkerColor, Color.white, Mathf.PingPong(Time.time * (flag2 ? 4.4f : (flag3 ? 3.5f : 2.8f)), 1f) * (flag2 ? 0.35f : (flag3 ? 0.24f : 0.18f)))
-						: new Color(stageAdvanceRouteMarkerColor.r, stageAdvanceRouteMarkerColor.g, stageAdvanceRouteMarkerColor.b, flag2 ? 0.28f : ((flag3 || flag4) ? 0.24f : 0.18f));
+						? Color.Lerp(RouteMarkerTintSet.Marker, Color.white, Mathf.PingPong(Time.time * (flag2 ? 4.4f : (flag3 ? 3.5f : 2.8f)), 1f) * (flag2 ? 0.35f : (flag3 ? 0.24f : 0.18f)))
+						: new Color(RouteMarkerTintSet.Marker.r, RouteMarkerTintSet.Marker.g, RouteMarkerTintSet.Marker.b, flag2 ? 0.28f : ((flag3 || flag4) ? 0.24f : 0.18f));
 					if (flag && routeOpenBeatActive)
 					{
 						color = Color.Lerp(color, Color.white, routeOpenBeat01 * (0.32f + Mathf.PingPong(Time.time * 6f, 1f) * 0.18f));
@@ -920,7 +920,7 @@ namespace AlienCrusher.Systems
 				{
 					MaterialPropertyBlock block = new MaterialPropertyBlock();
 					renderer.GetPropertyBlock(block);
-					Color color = Color.Lerp(routeHoldTrailColor, Color.white, (pulse * 0.18f) + t * 0.08f);
+					Color color = Color.Lerp(RouteMarkerTintSet.Trail, Color.white, (pulse * 0.18f) + t * 0.08f);
 					if (routeOpenBeat01 > 0f)
 					{
 						color = Color.Lerp(color, Color.white, routeOpenBeat01 * (0.2f + pulse * 0.14f));
@@ -975,7 +975,7 @@ namespace AlienCrusher.Systems
 				{
 					collider.enabled = false;
 				}
-				TintObject(pipObject, routeHoldTrailColor);
+				TintObject(pipObject, RouteMarkerTintSet.Trail);
 				pipObject.SetActive(false);
 				routeHoldTrailPips[i] = pipObject.transform;
 			}
@@ -1029,7 +1029,7 @@ namespace AlienCrusher.Systems
 				val = activeStageAdvanceRouteMarker;
 				int destroyedCount = (((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0);
 				text = routeOpenBeatActive ? "OPEN" : (IsRouteHoldObjectiveActive(destroyedCount) ? $"HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(destroyedCount) * 100f):0}%" : "ROUTE");
-				color = routeOpenBeatActive ? new Color(0.62f, 1f, 0.86f, 1f) : new Color(1f, 0.86f, 0.36f, 1f);
+				color = routeOpenBeatActive ? new Color(0.62f, 1f, 0.86f, 1f) : RouteMarkerTintSet.Marker;
 			}
 			if ((Object)(object)val == (Object)null || (Object)(object)playerTransform == (Object)null)
 			{

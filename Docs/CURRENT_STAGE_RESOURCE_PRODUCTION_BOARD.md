@@ -282,7 +282,7 @@ Deliverables:
 - construction yard palette
 - power block palette
 - skyline block palette
-- global route marker tint set
+- `PAL_RouteMarker_Tints` global route marker tint set for `Target_A`, `Target_B`, `routeColor`, and HOLD trail pips
 - ambient stage-band tone set
 
 Generated checklist:
@@ -291,7 +291,7 @@ Generated checklist:
 Done when:
 - stage difficulty also feels like spatial escalation
 - screenshots from different stage bands no longer look interchangeable
-- route markers and HOLD trail pips stay readable over every palette
+- `PAL_RouteMarker_Tints` keeps `Target_A`, `Target_B`, `routeColor`, and HOLD trail pips as the highest-contrast nav signal over every district and the Stage 4+ boss kits
 
 ---
 
