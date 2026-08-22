@@ -30,6 +30,7 @@ This document tracks the current project state, the next production priorities, 
 - `PAL_RouteMarker_Tints` now locks `Target_A` / `Target_B`, `routeColor`, and HOLD trail pips to a magenta/orchid nav family so route markers stay the highest-contrast signal over district palettes and the new boss kit colors.
 - FeedbackSystem now exposes assignable audio hooks for hit weight, destruction size, combo rise, route open/hold/bonus beats, boss warnings/break/down, and level-up moments. Route/failure, hit/break, and climax/progression drafts (`SFX_Boss_Warning`, `SFX_Boss_Break`, `SFX_Boss_Down`, `SFX_Combo_Rise`, `SFX_LevelUp_Open`) load at runtime if Inspector slots are empty.
 - HUD route/progress/gauge text now uses shorter mobile-safe runtime copy with best-fit safeguards for the main HUD readouts. Run-essential draft icons `Icon_DP`, `Icon_Stage`, `Icon_NextStep`, and `Icon_Route` now appear on the play-mode HUD strip and beside the matching lobby/result labels.
+- Sphere now has a designed starter identity: runtime kit `FORM_Sphere_Body_Kit` (cool-green body plus emissive belt), lobby thumbnail `Icon_Form_Sphere`, and SPHERE PULSE cues `Icon_Skill_SpherePulse` plus an in-world pulse mark. Form stats, unlock cost, and pulse cooldown/damage are unchanged.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status

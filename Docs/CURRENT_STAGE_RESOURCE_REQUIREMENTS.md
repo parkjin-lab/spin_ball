@@ -67,7 +67,8 @@ Without them, the game may work but feel unfinished or confusing.
 ### 1.1 Form Identity Resources
 Status:
 - forms already exist in code and partially exist visually
-- they still need stronger silhouette distinction and feedback support
+- Sphere now has a runtime belt kit, lobby/HUD icon, and SPHERE PULSE cue
+- remaining unlocked forms still need stronger silhouette distinction and feedback support
 
 Need:
 - one clear visual silhouette set per form
@@ -76,6 +77,9 @@ Need:
 - one UI icon per form
 
 Required assets:
+- `FORM_Sphere_Body_Kit` cool-green body plus emissive equatorial belt
+- `Icon_Form_Sphere` solid circle with orbit band (`Assets/Resources/UI/Icons/`)
+- `Icon_Skill_SpherePulse` pulse-ring skill cue (`Assets/Resources/UI/Icons/`)
 - `Form Icon - Sphere`
 - `Form Icon - Spike`
 - `Form Icon - Ram`

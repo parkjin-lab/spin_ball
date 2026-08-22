@@ -62,6 +62,12 @@ namespace AlienCrusher.Gameplay
         private Transform ramVisual;
         private Transform saucerVisual;
         private Transform crusherVisual;
+        private Transform sphereVisual;
+        private Renderer sphereBeltRenderer;
+        private Material sphereBeltMaterial;
+        private Color sphereBeltBaseColor = new Color(0.62f, 1f, 0.38f, 1f);
+        private Color sphereBeltEmissionColor = new Color(0.34f, 0.92f, 0.28f, 1f);
+        private float spherePulseMarkUntil;
 
         private float baseAcceleration;
         private float baseMaxPlanarSpeed;
@@ -145,6 +151,7 @@ namespace AlienCrusher.Gameplay
             EnsureRamVisual();
             EnsureSaucerVisual();
             EnsureCrusherVisual();
+            EnsureSphereVisual();
             currentBaseForm = baseForm;
             UpdateFormVisibility();
 
@@ -180,6 +187,7 @@ namespace AlienCrusher.Gameplay
             }
 
             UpdateCounterSurgeVisual();
+            TickSpherePulseMark();
         }
         private void FixedUpdate()
         {
@@ -495,6 +503,143 @@ namespace AlienCrusher.Gameplay
             crusherVisual.gameObject.SetActive(false);
         }
 
+        private void EnsureSphereVisual()
+        {
+            if (sphereVisual != null)
+            {
+                return;
+            }
+
+            var root = transform.Find("FORM_Sphere_Body_Kit");
+            if (root == null)
+            {
+                root = transform.Find("_SphereForm");
+            }
+            if (root == null)
+            {
+                var rootGo = new GameObject("FORM_Sphere_Body_Kit");
+                root = rootGo.transform;
+                root.SetParent(transform, false);
+            }
+            else
+            {
+                root.gameObject.name = "FORM_Sphere_Body_Kit";
+            }
+
+            var bodyGo = EnsureSpherePrimitive(root, "SphereCore", Vector3.zero, new Vector3(1.02f, 1.02f, 1.02f));
+            var beltGo = EnsureSpherePrimitive(root, "SphereBelt", Vector3.zero, new Vector3(1.22f, 0.12f, 1.22f), PrimitiveType.Cylinder);
+            var gemGo = EnsureSpherePrimitive(root, "SphereBeltGem", new Vector3(0f, 0f, 0.64f), new Vector3(0.18f, 0.18f, 0.18f), PrimitiveType.Cube);
+
+            var bodyColor = new Color(0.18f, 0.74f, 0.48f, 1f);
+            var bodyGlow = new Color(0.08f, 0.36f, 0.22f, 1f);
+            var gemColor = new Color(0.86f, 1f, 0.52f, 1f);
+            ApplySphereIdentityMaterial(bodyGo, "M_Runtime_SphereBody", bodyColor, bodyGlow);
+            sphereBeltMaterial = ApplySphereIdentityMaterial(beltGo, "M_Runtime_SphereBelt", sphereBeltBaseColor, sphereBeltEmissionColor);
+            ApplySphereIdentityMaterial(gemGo, "M_Runtime_SphereBeltGem", gemColor, gemColor * 0.85f);
+
+            sphereBeltRenderer = beltGo != null ? beltGo.GetComponent<Renderer>() : null;
+            sphereVisual = root;
+            sphereVisual.gameObject.SetActive(false);
+        }
+
+        public void PlaySpherePulseVisualCue()
+        {
+            spherePulseMarkUntil = Time.time + 0.28f;
+            ApplySphereBeltPulse(1f);
+        }
+
+        private void TickSpherePulseMark()
+        {
+            if (sphereBeltRenderer == null || sphereBeltMaterial == null)
+            {
+                return;
+            }
+
+            if (Time.time >= spherePulseMarkUntil)
+            {
+                ApplySphereBeltPulse(0f);
+                return;
+            }
+
+            var remaining = Mathf.Clamp01((spherePulseMarkUntil - Time.time) / 0.28f);
+            ApplySphereBeltPulse(remaining);
+        }
+
+        private void ApplySphereBeltPulse(float strength)
+        {
+            if (sphereBeltMaterial == null)
+            {
+                return;
+            }
+
+            strength = Mathf.Clamp01(strength);
+            var color = Color.Lerp(sphereBeltBaseColor, Color.white, strength * 0.35f);
+            var emission = Color.Lerp(sphereBeltEmissionColor, new Color(0.85f, 1f, 0.55f, 1f), strength);
+            if (sphereBeltMaterial.HasProperty("_BaseColor")) sphereBeltMaterial.SetColor("_BaseColor", color);
+            if (sphereBeltMaterial.HasProperty("_Color")) sphereBeltMaterial.SetColor("_Color", color);
+            if (sphereBeltMaterial.HasProperty("_EmissionColor"))
+            {
+                sphereBeltMaterial.EnableKeyword("_EMISSION");
+                sphereBeltMaterial.SetColor("_EmissionColor", emission * (1f + strength * 1.6f));
+            }
+        }
+
+        private static GameObject EnsureSpherePrimitive(Transform parent, string name, Vector3 localPosition, Vector3 localScale, PrimitiveType type = PrimitiveType.Sphere)
+        {
+            var existing = parent.Find(name);
+            GameObject go;
+            if (existing == null)
+            {
+                go = GameObject.CreatePrimitive(type);
+                go.name = name;
+                go.transform.SetParent(parent, false);
+            }
+            else
+            {
+                go = existing.gameObject;
+            }
+
+            RemoveCollider(go);
+            go.transform.localPosition = localPosition;
+            go.transform.localRotation = Quaternion.identity;
+            go.transform.localScale = localScale;
+            return go;
+        }
+
+        private static Material ApplySphereIdentityMaterial(GameObject target, string materialName, Color color, Color emission)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var renderer = target.GetComponent<Renderer>();
+            if (renderer == null)
+            {
+                return null;
+            }
+
+            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            if (shader == null)
+            {
+                return renderer.sharedMaterial;
+            }
+
+            var material = new Material(shader)
+            {
+                name = materialName
+            };
+            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
+            if (material.HasProperty("_Color")) material.SetColor("_Color", color);
+            if (material.HasProperty("_EmissionColor"))
+            {
+                material.EnableKeyword("_EMISSION");
+                material.SetColor("_EmissionColor", emission);
+            }
+            renderer.sharedMaterial = material;
+            return material;
+        }
+
         private void CreateSpike(Transform parent, string name, Vector3 localPosition, Quaternion localRotation)
         {
             var spikeGo = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -570,7 +715,7 @@ namespace AlienCrusher.Gameplay
 
             if (cachedRenderer != null)
             {
-                cachedRenderer.enabled = !drillActive && currentBaseForm == FormType.Sphere;
+                cachedRenderer.enabled = !drillActive && currentBaseForm == FormType.Sphere && sphereVisual == null;
             }
 
             if (spikeVisual != null)
@@ -591,6 +736,11 @@ namespace AlienCrusher.Gameplay
             if (crusherVisual != null)
             {
                 crusherVisual.gameObject.SetActive(!drillActive && currentBaseForm == FormType.Crusher);
+            }
+
+            if (sphereVisual != null)
+            {
+                sphereVisual.gameObject.SetActive(!drillActive && currentBaseForm == FormType.Sphere);
             }
         }
         private void TryTriggerLandingShockwave(Vector3 hitPoint, Vector3 contactNormal, Vector3 preCollisionVelocity)

@@ -1475,6 +1475,7 @@ namespace AlienCrusher.Systems
 			EnsureResultAdviceUi();
 			EnsureResultLobbyButton();
 			EnsureRunEssentialIcons();
+			EnsureFormIdentityIcons();
 		}
 
 		private void EnsureHudStageGoalUi()

@@ -66,6 +66,7 @@ namespace AlienCrusher.Systems
 				UpdateFormButton("Form_Ram", "RAM", FormType.Ram);
 				UpdateFormButton("Form_Saucer", "SAUCER", FormType.Saucer);
 				UpdateFormButton("Form_Crusher", "CRUSHER", FormType.Crusher);
+				EnsureFormIdentityIcons();
 			}
 		}
 

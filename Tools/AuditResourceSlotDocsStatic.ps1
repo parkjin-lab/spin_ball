@@ -97,7 +97,10 @@ if ($errors.Count -eq 0) {
         "Icon_DP",
         "Icon_Stage",
         "Icon_NextStep",
-        "Icon_Route"
+        "Icon_Route",
+        "FORM_Sphere_Body_Kit",
+        "Icon_Form_Sphere",
+        "Icon_Skill_SpherePulse"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -122,6 +125,9 @@ if ($errors.Count -eq 0) {
         "Icon_Stage",
         "Icon_NextStep",
         "Icon_Route",
+        "FORM_Sphere_Body_Kit",
+        "Icon_Form_Sphere",
+        "Icon_Skill_SpherePulse",
         "Assets/Resources/UI/Icons/"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"

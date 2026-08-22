@@ -182,6 +182,12 @@ namespace AlienCrusher.Systems
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.52f + (float)num4 * 0.05f);
 				feedbackSystem.PlayComboRushFeedback(position + Vector3.up * 0.16f, normalizedIntensity, spherePulseRadius);
+				feedbackSystem.PlaySpherePulseMark(position + Vector3.up * 0.08f, spherePulseRadius);
+			}
+			ResolvePlayerController();
+			if ((Object)(object)cachedPlayerController != (Object)null)
+			{
+				cachedPlayerController.PlaySpherePulseVisualCue();
 			}
 			if (cameraFollowSystem == null)
 			{
@@ -836,6 +842,7 @@ namespace AlienCrusher.Systems
 				actionSkillReadyPulseRemaining = 0f;
 			}
 			previousActionSkillReadyVisualState = flag3;
+			RefreshFormIdentitySkillIcons();
 		}
 
 		private void CacheActionSkillButtons()

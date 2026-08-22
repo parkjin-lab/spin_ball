@@ -213,6 +213,11 @@ namespace AlienCrusher.Systems
             PlayHaptic(destroyed: true, Mathf.Clamp01(0.75f + normalizedIntensity * 0.25f));
         }
 
+        public void PlaySpherePulseMark(Vector3 worldCenter, float radius)
+        {
+            SpherePulseMarkDriver.Spawn(worldCenter, radius);
+        }
+
         public void PlayRetailFrenzyFeedback(Vector3 worldCenter, float normalizedIntensity, float radius)
         {
             normalizedIntensity = Mathf.Clamp01(normalizedIntensity);

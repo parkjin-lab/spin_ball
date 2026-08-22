@@ -40,6 +40,13 @@ Deliverables:
 - 5 form silhouette addon kits
 - 5 form color/material presets
 
+Sphere starter shipped:
+- `FORM_Sphere_Body_Kit` runtime cool-green body plus emissive belt
+- `Icon_Form_Sphere` lobby/HUD circle-with-orbit-band thumbnail
+- `Icon_Skill_SpherePulse` SPHERE PULSE ring cue
+- draft sprites at `Assets/Resources/UI/Icons/`
+- in-world pulse mark `VFX_SpherePulse_Mark` plus belt flash; cooldown/damage unchanged
+
 Expected output:
 - player can distinguish all forms at a glance
 - form selection in lobby feels desirable
@@ -56,6 +63,7 @@ Suggested file targets:
 - `Assets/Art/Forms/`
 - `Assets/Resources/UI/Forms/`
 - `Assets/Settings/Materials/Forms/`
+- `Assets/Resources/UI/Icons/`
 
 Done when:
 - every form has unique silhouette from gameplay camera distance
