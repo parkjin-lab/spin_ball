@@ -116,17 +116,21 @@ Why this matters now:
 Status:
 - destruction systems exist
 - building size tiers now have named runtime materials so easy / filler / durable / boss structures read before they break
-- damage-state, weak-point, shield, and exposed-core materials are still shared language
+- combat states now have named runtime materials so damaged, weak-point, shielded, and exposed-core reads stay distinct
 
 Need:
-- better visual states for damaged / cracking / near-destroyed structures
-- stronger contrast between ground, props, small buildings, and big targets once combat-state materials ship
+- smoke / debris / weak-point-hit VFX variants after combat-state materials
+- stronger contrast between ground, props, small buildings, and big targets once break VFX ships
 
 Required assets:
 - `MAT_Building_Small` pale plaster / cheap low-rise (`Assets/Art/Materials/Destruction/`)
 - `MAT_Building_Mid` standard city concrete filler (`Assets/Art/Materials/Destruction/`)
 - `MAT_Building_Large` dark heavy mass for durable targets (`Assets/Art/Materials/Destruction/`)
 - `MAT_Boss_Structure` cool steel-blue armor, not a normal large building (`Assets/Art/Materials/Destruction/`)
+- `MAT_Damage_CrackOverlay` dark split lines for damaged / near-break (`Assets/Art/Materials/Destruction/`)
+- `MAT_WeakPoint_Glow` small gold target pip with halo (`Assets/Art/Materials/Destruction/`)
+- `MAT_Shielded_Pylon` cool cyan barrier on live shield pylons (`Assets/Art/Materials/Destruction/`)
+- `MAT_Exposed_Core` hot orange-white open core window (`Assets/Art/Materials/Destruction/`)
 - material set for `small building`, `mid building`, `large building`, `boss-related structure`
 - crack overlay / damage tint presets
 - smoke burst variant

@@ -112,7 +112,11 @@ if ($errors.Count -eq 0) {
         "MAT_Building_Small",
         "MAT_Building_Mid",
         "MAT_Building_Large",
-        "MAT_Boss_Structure"
+        "MAT_Boss_Structure",
+        "MAT_Damage_CrackOverlay",
+        "MAT_WeakPoint_Glow",
+        "MAT_Shielded_Pylon",
+        "MAT_Exposed_Core"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -152,6 +156,10 @@ if ($errors.Count -eq 0) {
         "MAT_Building_Mid",
         "MAT_Building_Large",
         "MAT_Boss_Structure",
+        "MAT_Damage_CrackOverlay",
+        "MAT_WeakPoint_Glow",
+        "MAT_Shielded_Pylon",
+        "MAT_Exposed_Core",
         "Assets/Resources/UI/Icons/"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"

@@ -35,6 +35,7 @@ This document tracks the current project state, the next production priorities, 
 - Spike and Crusher now have damage-fantasy identities: `FORM_Spike_Body_Kit` reads as a lean acid-tipped needle crown, `FORM_Crusher_Body_Kit` reads as layered steel bulk with a flat plate and blue seams. Lobby icons `Icon_Form_Spike` / `Icon_Form_Crusher` sit on those cards. Skill numbers are unchanged.
 - All five forms already share matching silhouette + lobby/skill icon + material languages, so Form Identity D had no remaining gaps.
 - Building size tiers now use named runtime materials `MAT_Building_Small`, `MAT_Building_Mid`, `MAT_Building_Large`, and `MAT_Boss_Structure` so easy plaster props, city-concrete fillers, dark durable masses, and steel-blue boss structures read at gameplay distance before they break. HP, break thresholds, and spawn counts are unchanged.
+- Combat states now use named runtime materials `MAT_Damage_CrackOverlay`, `MAT_WeakPoint_Glow`, `MAT_Shielded_Pylon`, and `MAT_Exposed_Core` so damaged buildings, elite weak points, protected pylons, and an exposed Sentinel core never share one look. Shield counts, break thresholds, and boss timing are unchanged.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status

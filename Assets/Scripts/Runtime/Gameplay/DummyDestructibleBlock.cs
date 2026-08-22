@@ -7,7 +7,7 @@ using UnityEngine;
 namespace AlienCrusher.Gameplay
 {
     [DisallowMultipleComponent]
-    public class DummyDestructibleBlock : MonoBehaviour
+    public partial class DummyDestructibleBlock : MonoBehaviour
     {
         public enum SmallPropBreakKind
         {
@@ -337,6 +337,7 @@ namespace AlienCrusher.Gameplay
             {
                 SetBossCoreTelegraphVisible(false);
                 ConfigureWeakPointForCurrentState();
+                RefreshCombatStateReadability();
                 return;
             }
 
@@ -344,6 +345,7 @@ namespace AlienCrusher.Gameplay
             MoveWeakPoint(exposedCenter: true);
             EnsureBossCoreTelegraphSetup();
             SetBossCoreTelegraphVisible(true);
+            RefreshCombatStateReadability();
         }
 
         public bool RestoreDurability(float amount)
@@ -1588,6 +1590,7 @@ namespace AlienCrusher.Gameplay
                 {
                     weakPointRenderer.sharedMaterial = cachedRenderer.sharedMaterial;
                 }
+                RefreshCombatStateReadability();
             }
 
             weakPointPropertyBlock ??= new MaterialPropertyBlock();
@@ -1773,6 +1776,7 @@ namespace AlienCrusher.Gameplay
             weakPointActive = visible;
             if (weakPointVisual == null)
             {
+                RefreshCombatStateReadability();
                 return;
             }
 
@@ -1783,6 +1787,7 @@ namespace AlienCrusher.Gameplay
 
             if (!visible)
             {
+                RefreshCombatStateReadability();
                 return;
             }
 
@@ -1793,6 +1798,7 @@ namespace AlienCrusher.Gameplay
                 weakPointPropertyBlock.SetColor("_Color", weakPointColorA);
                 weakPointRenderer.SetPropertyBlock(weakPointPropertyBlock);
             }
+            RefreshCombatStateReadability();
         }
 
         private void UpdateBossCoreTelegraph(float pulse, Color colorA, Color colorB)
@@ -1885,6 +1891,7 @@ namespace AlienCrusher.Gameplay
         {
             if (cachedRenderer == null)
             {
+                RefreshCombatStateReadability();
                 return;
             }
 
@@ -1899,6 +1906,7 @@ namespace AlienCrusher.Gameplay
             propertyBlock.SetColor("_BaseColor", targetColor);
             propertyBlock.SetColor("_Color", targetColor);
             cachedRenderer.SetPropertyBlock(propertyBlock);
+            RefreshCombatStateReadability();
         }
     }
 }

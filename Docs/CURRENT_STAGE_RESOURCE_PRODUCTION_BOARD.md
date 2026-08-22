@@ -102,6 +102,14 @@ Building tiers shipped:
 - runtime assignment only; HP, break thresholds, and spawn counts unchanged
 - Stage 1 is mostly plaster + concrete; Stage 4 adds dark mass plus steel-blue boss structures at the Sentinel checkpoint
 
+Combat states shipped:
+- `MAT_Damage_CrackOverlay` dark split lines that appear as buildings take damage
+- `MAT_WeakPoint_Glow` gold pip plus halo so elite crit spots are not ordinary props
+- `MAT_Shielded_Pylon` cool cyan barrier on live pylon panes / caps
+- `MAT_Exposed_Core` hot orange-white chest/core window when shields drop
+- runtime assignment only; HP, break thresholds, shield counts, and timing unchanged
+- Stage 1 smash shows gold weak points and crack overlays; Stage 4 shows cyan protected pylons vs hot exposed core
+
 Expected output:
 - players can tell easy targets from high-value targets
 - damage states become readable before destruction
