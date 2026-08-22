@@ -84,7 +84,12 @@ if ($errors.Count -eq 0) {
         "SFX_Route_Bonus",
         "SFX_Boss_Down",
         "SFX_Failure_Warning",
-        "SFX_Failure_Boss"
+        "SFX_Failure_Boss",
+        "PAYOFF_ParkCut_Layout",
+        "PAYOFF_MarketChain_Layout",
+        "PAYOFF_YardBlast_Layout",
+        "PAYOFF_PowerSurge_Layout",
+        "PAYOFF_SkylineBreach_Layout"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -95,7 +100,12 @@ if ($errors.Count -eq 0) {
         "Assets/Audio/SFX/Boss/",
         "Assets/Audio/SFX/Failure/",
         "Assets/Audio/SFX/UI/",
-        'every current `FeedbackSystem` slot is assigned'
+        'every current `FeedbackSystem` slot is assigned',
+        "PAYOFF_ParkCut_Layout",
+        "PAYOFF_MarketChain_Layout",
+        "PAYOFF_YardBlast_Layout",
+        "PAYOFF_PowerSurge_Layout",
+        "PAYOFF_SkylineBreach_Layout"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"
     }

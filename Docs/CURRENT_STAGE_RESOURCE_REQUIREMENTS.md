@@ -283,11 +283,11 @@ Need:
 - a route cluster marker that frames the opened cluster without hiding target guidance
 
 Required assets:
-- park cut payoff layout
-- market chain payoff layout
-- construction yard blast payoff layout
-- power surge payoff layout
-- skyline breach payoff layout
+- `PAYOFF_ParkCut_Layout` park cut payoff layout
+- `PAYOFF_MarketChain_Layout` market chain payoff layout
+- `PAYOFF_YardBlast_Layout` construction yard blast payoff layout
+- `PAYOFF_PowerSurge_Layout` power surge payoff layout
+- `PAYOFF_SkylineBreach_Layout` skyline breach payoff layout
 - route cluster marker VFX
 - Forward Smash confirmation VFX/SFX
 

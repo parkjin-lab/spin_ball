@@ -302,12 +302,12 @@ Success signal:
 - player can read "almost there" without parsing a sentence
 
 #### 4. District Route Puzzles
-Baseline district route payoff identity is now implemented:
-- Stage 2 park: forgiving bench/tree/barrel payoff
-- Stage 3-4 market: kiosk/vending/barrel chain payoff
-- Stage 5 construction: barrel-heavy yard blast payoff
-- Stage 6 power block: transformer-heavy power surge payoff
-- Stage 7 skyline: transformer/barrel cluster plus high-value skyline anchor
+Baseline district route payoff identity is now implemented as named layouts:
+- Stage 2 `PAYOFF_ParkCut_Layout`: open bench/tree/barrel cut with a readable center chase lane
+- Stage 3-4 `PAYOFF_MarketChain_Layout`: tight kiosk/vending/barrel chain along the smash path
+- Stage 5 `PAYOFF_YardBlast_Layout`: wide barrel-heavy blast corners plus one utility
+- Stage 6 `PAYOFF_PowerSurge_Layout`: long transformer corridor with barrel punctuation
+- Stage 7 `PAYOFF_SkylineBreach_Layout`: asymmetric anchor-first tower with a side cluster
 
 Success signal:
 - later stages feel different by route decision, not only by size
