@@ -1003,6 +1003,7 @@ namespace AlienCrusher.Systems
 			PushAnnouncement($"FORWARD SMASH +{num:0}", AnnouncementTone.Destruction, 1.15f);
 			feedbackSystem?.PlayTotalDestructionFeedback(position + Vector3.up * 0.26f, 0.92f);
 			feedbackSystem?.PlayComboRushFeedback(position + Vector3.up * 0.18f, 0.88f, Mathf.Max(3.2f, forwardSmashBonusRadius));
+			ForwardSmashConfirmVfx.Play(position);
 			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(0.95f);
 			TriggerForwardSmashChain(position);

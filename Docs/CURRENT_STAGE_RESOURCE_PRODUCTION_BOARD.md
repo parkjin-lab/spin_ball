@@ -301,6 +301,7 @@ Deliverables:
 - `PAYOFF_SkylineBreach_Layout` skyline breach payoff layout
 - `VFX_RouteCluster_Marker` mint-slate ring frame for opened ROUTE BONUS clusters
 - `RouteClusterMarker` runtime host for that frame
+- `VFX_ForwardSmash_Confirm` mint-white impact star and short broken ring on FORWARD SMASH
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:

@@ -366,6 +366,7 @@ Required assets:
 - `PAYOFF_SkylineBreach_Layout` skyline breach payoff layout
 - `VFX_RouteCluster_Marker` mint-slate ring frame for opened ROUTE BONUS clusters (`Assets/Art/VFX/Route/`)
 - `RouteClusterMarker` runtime host for that frame
+- `VFX_ForwardSmash_Confirm` mint-white impact star and short broken ring on FORWARD SMASH (`Assets/Art/VFX/Route/`)
 - Forward Smash confirmation VFX/SFX
 
 Generated production checklist:
@@ -532,6 +533,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
 - [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
 - [x] `VFX_RouteCluster_Marker` mint-slate ROUTE BONUS cluster frame
+- [x] `VFX_ForwardSmash_Confirm` mint-white FORWARD SMASH cash-out star
 - [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 
@@ -544,6 +546,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
 - [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
 - [x] `VFX_RouteCluster_Marker` mint-slate ROUTE BONUS cluster frame
+- [x] `VFX_ForwardSmash_Confirm` mint-white FORWARD SMASH cash-out star
 - [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 - [ ] shield break burst
