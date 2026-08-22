@@ -115,14 +115,18 @@ Why this matters now:
 ### 1.2 Destruction Readability Resources
 Status:
 - destruction systems exist
-- many objects still rely on primitive visuals and shared feedback language
+- building size tiers now have named runtime materials so easy / filler / durable / boss structures read before they break
+- damage-state, weak-point, shield, and exposed-core materials are still shared language
 
 Need:
-- better distinction between breakable size tiers
 - better visual states for damaged / cracking / near-destroyed structures
-- stronger contrast between ground, props, small buildings, and big targets
+- stronger contrast between ground, props, small buildings, and big targets once combat-state materials ship
 
 Required assets:
+- `MAT_Building_Small` pale plaster / cheap low-rise (`Assets/Art/Materials/Destruction/`)
+- `MAT_Building_Mid` standard city concrete filler (`Assets/Art/Materials/Destruction/`)
+- `MAT_Building_Large` dark heavy mass for durable targets (`Assets/Art/Materials/Destruction/`)
+- `MAT_Boss_Structure` cool steel-blue armor, not a normal large building (`Assets/Art/Materials/Destruction/`)
 - material set for `small building`, `mid building`, `large building`, `boss-related structure`
 - crack overlay / damage tint presets
 - smoke burst variant

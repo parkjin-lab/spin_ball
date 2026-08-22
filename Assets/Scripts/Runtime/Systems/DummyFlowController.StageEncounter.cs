@@ -89,6 +89,7 @@ namespace AlienCrusher.Systems
 			num3 = Mathf.Clamp(num3, 0, Mathf.Max(0, eliteWeakPointMaxCount));
 			if (num3 <= 0 || list.Count <= 0)
 			{
+				ApplyBuildingTierMaterialsToAll();
 				return;
 			}
 			list.Sort((DummyDestructibleBlock a, DummyDestructibleBlock b) => GetDestructibleThreatScore(b).CompareTo(GetDestructibleThreatScore(a)));
@@ -148,6 +149,7 @@ namespace AlienCrusher.Systems
 			}
 			string arg = (((Object)(object)stageBossBlock != (Object)null) ? ((Object)stageBossBlock).name : "none");
 			UpdateBossShieldState();
+			ApplyBuildingTierMaterialsToAll();
 			Debug.Log((object)$"[AlienCrusher] Stage {currentStageNumber:00} encounter set: elite weak-points {stageEliteWeakPointCount}, boss {arg}");
 		}
 
@@ -428,6 +430,7 @@ namespace AlienCrusher.Systems
 				}
 			}
 			UpdateBossShieldState();
+			ApplyBuildingTierMaterialsToAll();
 		}
 
 		private void UpdateBossShieldState()

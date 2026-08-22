@@ -279,6 +279,9 @@ namespace AlienCrusher.Gameplay
         }
 
         public bool IsStageBoss => stageEncounterRole == StageEncounterRole.BossSentinel;
+        public bool IsLargeBuildingTarget => isLargeBuilding;
+        public StageEncounterRole CurrentStageEncounterRole => stageEncounterRole;
+        public static System.Action<DummyDestructibleBlock> AfterScaffolderConfigured;
         public bool IsAlive => currentDurability > 0f && gameObject.activeInHierarchy;
         public float DurabilityRatio => maxDurability > 0f ? Mathf.Clamp01(currentDurability / maxDurability) : 0f;
         public float CurrentDurability => currentDurability;
@@ -444,6 +447,7 @@ namespace AlienCrusher.Gameplay
             EnsureLargeBuildingFxIfNeeded();
             EnsureWeakPointSetup();
             ResetBlock();
+            AfterScaffolderConfigured?.Invoke(this);
         }
 
         private void EnsureStageBaseCaptured()
@@ -508,6 +512,30 @@ namespace AlienCrusher.Gameplay
                     break;
             }
         }
+        public bool IsSmallBuildingTier()
+        {
+            var height = Mathf.Max(0.05f, Mathf.Abs(initialScale.y));
+            var footprint = Mathf.Max(0.05f, Mathf.Abs(initialScale.x * initialScale.z));
+            return !isLargeBuilding && height <= 1.8f && footprint <= 2.8f;
+        }
+
+        public void ApplyReadabilitySurface(Material material, Color healthy, Color hit)
+        {
+            healthyColor = healthy;
+            hitColor = hit;
+            if (cachedRenderer == null)
+            {
+                cachedRenderer = GetComponent<Renderer>();
+            }
+
+            if (cachedRenderer != null && material != null && cachedRenderer.sharedMaterial != material)
+            {
+                cachedRenderer.sharedMaterial = material;
+            }
+
+            UpdateTint();
+        }
+
         public void ResetBlock()
         {
             smallPropStyle = ResolveSmallPropStyle();

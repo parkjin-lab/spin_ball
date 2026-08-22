@@ -33,6 +33,8 @@ This document tracks the current project state, the next production priorities, 
 - Sphere now has a designed starter identity: runtime kit `FORM_Sphere_Body_Kit` (cool-green body plus emissive belt), lobby thumbnail `Icon_Form_Sphere`, and SPHERE PULSE cues `Icon_Skill_SpherePulse` plus an in-world pulse mark. Form stats, unlock cost, and pulse cooldown/damage are unchanged.
 - Ram and Saucer now have route-helper identities: `FORM_Ram_Body_Kit` reads as a forward amber wedge with side horns, `FORM_Saucer_Body_Kit` reads as a wide cyan disc. Lobby icons `Icon_Form_Ram` / `Icon_Form_Saucer` sit on those cards. Skill numbers are unchanged.
 - Spike and Crusher now have damage-fantasy identities: `FORM_Spike_Body_Kit` reads as a lean acid-tipped needle crown, `FORM_Crusher_Body_Kit` reads as layered steel bulk with a flat plate and blue seams. Lobby icons `Icon_Form_Spike` / `Icon_Form_Crusher` sit on those cards. Skill numbers are unchanged.
+- All five forms already share matching silhouette + lobby/skill icon + material languages, so Form Identity D had no remaining gaps.
+- Building size tiers now use named runtime materials `MAT_Building_Small`, `MAT_Building_Mid`, `MAT_Building_Large`, and `MAT_Boss_Structure` so easy plaster props, city-concrete fillers, dark durable masses, and steel-blue boss structures read at gameplay distance before they break. HP, break thresholds, and spawn counts are unchanged.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status

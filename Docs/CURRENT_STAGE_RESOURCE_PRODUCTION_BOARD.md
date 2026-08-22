@@ -94,6 +94,14 @@ Deliverables:
 - exposed-core material
 - crack/damage tint presets
 
+Building tiers shipped:
+- `MAT_Building_Small` pale plaster for props and low-rises
+- `MAT_Building_Mid` warm city concrete for standard fillers
+- `MAT_Building_Large` charcoal mass for durable targets
+- `MAT_Boss_Structure` cool steel-blue armor for Sentinel / gate / pylon hosts
+- runtime assignment only; HP, break thresholds, and spawn counts unchanged
+- Stage 1 is mostly plaster + concrete; Stage 4 adds dark mass plus steel-blue boss structures at the Sentinel checkpoint
+
 Expected output:
 - players can tell easy targets from high-value targets
 - damage states become readable before destruction

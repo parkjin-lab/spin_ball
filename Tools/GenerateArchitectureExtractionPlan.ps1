@@ -38,7 +38,7 @@ function Get-OwnershipLane {
         "RuntimeMapFallback|Traffic|AlleyLines" { return "Map, traffic, and city props" }
         "ProgressionCore|StageFlow|Lifecycle" { return "Stage route and run loop" }
         "UIFlow|UpgradeUI|MetaProgression|FormFlow|RunEssentialIcons|FormIdentityIcons" { return "HUD, lobby, and outgame UI" }
-        "StageEncounter|BossIdentityKits" { return "Boss and stage encounter" }
+        "StageEncounter|BossIdentityKits|BuildingTierMaterials" { return "Boss and stage encounter" }
         "ActiveSkills|ComboOverdrive" { return "Player ability and destruction rhythm" }
         default { return "Core shared controller state" }
     }
