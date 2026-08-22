@@ -350,6 +350,7 @@ namespace AlienCrusher.Systems
 					ResolvePlayerController();
 					cachedPlayerController?.ApplyCounterSurge(1.08f, 1.12f, 1.15f);
 					feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.24f, 0.62f, major: false);
+					feedbackSystem?.PlayRouteOpenCue(0.62f);
 					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.AddImpulse(0.32f);
 				}

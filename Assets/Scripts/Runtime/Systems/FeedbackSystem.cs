@@ -1,6 +1,9 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 #if MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED
 using Lofelt.NiceVibrations;
 #endif
@@ -141,6 +144,7 @@ namespace AlienCrusher.Systems
         private void Awake()
         {
             ResolveReferences();
+            EnsureDraftRhythmClips();
             EnsureFlashOverlay();
             BuildBurstPool();
         }
@@ -434,6 +438,12 @@ namespace AlienCrusher.Systems
             PlayAudio(bossRelated ? bossWarningClip : routeHoldWarningClip, Mathf.Lerp(0.45f, 0.72f, intensity), bossRelated ? 0.92f : 1f);
         }
 
+        public void PlayRouteOpenCue(float intensity = 0.62f)
+        {
+            intensity = Mathf.Clamp01(intensity);
+            PlayAudio(routeOpenClip, Mathf.Lerp(0.72f, 0.96f, intensity), Mathf.Lerp(1f, 1.08f, intensity));
+        }
+
         public void PlayFailureBeatFeedback(Vector3 center, bool bossRelated, float intensity = 1f)
         {
             intensity = Mathf.Clamp01(intensity);
@@ -531,6 +541,41 @@ namespace AlienCrusher.Systems
 
             cameraFollowSystem = UnityEngine.Object.FindFirstObjectByType<CameraFollowSystem>();
             EnsureAudioSource();
+        }
+
+        private void EnsureDraftRhythmClips()
+        {
+            routeOpenClip = CoalesceDraftClip(routeOpenClip, "Audio/SFX/Skills/SFX_Route_Open", "Assets/Audio/SFX/Skills/SFX_Route_Open.wav");
+            routeHoldWarningClip = CoalesceDraftClip(routeHoldWarningClip, "Audio/SFX/Skills/SFX_Route_HoldWarning", "Assets/Audio/SFX/Skills/SFX_Route_HoldWarning.wav");
+            routeBonusClip = CoalesceDraftClip(routeBonusClip, "Audio/SFX/Skills/SFX_Route_Bonus", "Assets/Audio/SFX/Skills/SFX_Route_Bonus.wav");
+            failureWarningClip = CoalesceDraftClip(failureWarningClip, "Audio/SFX/Failure/SFX_Failure_Warning", "Assets/Audio/SFX/Failure/SFX_Failure_Warning.wav");
+            failureBossClip = CoalesceDraftClip(failureBossClip, "Audio/SFX/Failure/SFX_Failure_Boss", "Assets/Audio/SFX/Failure/SFX_Failure_Boss.wav");
+        }
+
+        private static AudioClip CoalesceDraftClip(AudioClip assigned, string resourcesPath, string assetPath)
+        {
+            if (assigned != null)
+            {
+                return assigned;
+            }
+
+            return LoadDraftClip(resourcesPath, assetPath);
+        }
+
+        private static AudioClip LoadDraftClip(string resourcesPath, string assetPath)
+        {
+            var clip = Resources.Load<AudioClip>(resourcesPath);
+            if (clip != null)
+            {
+                return clip;
+            }
+
+#if UNITY_EDITOR
+            return AssetDatabase.LoadAssetAtPath<AudioClip>(assetPath);
+#else
+            _ = assetPath;
+            return null;
+#endif
         }
 
         private void EnsureAudioSource()
