@@ -137,8 +137,10 @@ foreach ($needle in @(
 foreach ($needle in @(
     "UI_DP_GainBurst",
     "SFX_Progression_Locked",
+    "SFX_Progression_Confirm",
     "EnsureOutgameDpEconomy",
-    "SignalOutgameDpInsufficient"
+    "SignalOutgameDpInsufficient",
+    "PlayProgressionConfirmCue"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $dpEconomyHookText -Needle $needle
 }

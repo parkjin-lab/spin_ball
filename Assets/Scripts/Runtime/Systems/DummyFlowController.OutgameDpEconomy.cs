@@ -8,6 +8,7 @@ namespace AlienCrusher.Systems
 	{
 		private const string DpGainBurstId = "UI_DP_GainBurst";
 		private const string ProgressionLockedSfxId = "SFX_Progression_Locked";
+		private const string ProgressionConfirmSfxId = "SFX_Progression_Confirm";
 		private const string ResultDpGainBurstName = "ResultDpGainBurst";
 		private const string LobbyDpGainBurstName = "LobbyDpGainBurst";
 
@@ -22,6 +23,7 @@ namespace AlienCrusher.Systems
 
 		private Sprite dpGainBurstSprite;
 		private AudioClip progressionLockedClip;
+		private AudioClip progressionConfirmClip;
 		private AudioSource outgameDpAudioSource;
 		private bool outgameDpEconomyCached;
 		private OutgameDpSignal lastOutgameDpSignal;
@@ -42,6 +44,7 @@ namespace AlienCrusher.Systems
 
 			dpGainBurstSprite = LoadOutgameRewardSprite(DpGainBurstId);
 			progressionLockedClip = Resources.Load<AudioClip>("Audio/SFX/UI/" + ProgressionLockedSfxId);
+			progressionConfirmClip = Resources.Load<AudioClip>("Audio/SFX/UI/" + ProgressionConfirmSfxId);
 			outgameDpEconomyCached = true;
 		}
 
@@ -74,6 +77,7 @@ namespace AlienCrusher.Systems
 		private void SignalOutgameDpSpend()
 		{
 			lastOutgameDpSignal = OutgameDpSignal.Spend;
+			PlayProgressionConfirmCue();
 			RefreshOutgameDpEconomy();
 			SignalOutgameProgressionSaved();
 		}
@@ -182,6 +186,29 @@ namespace AlienCrusher.Systems
 
 			outgameDpAudioSource.pitch = 0.92f;
 			outgameDpAudioSource.PlayOneShot(progressionLockedClip, 0.78f);
+		}
+
+		private void PlayProgressionConfirmCue()
+		{
+			CacheOutgameDpEconomyAssets();
+			if ((Object)(object)progressionConfirmClip == (Object)null)
+			{
+				return;
+			}
+
+			if ((Object)(object)outgameDpAudioSource == (Object)null)
+			{
+				outgameDpAudioSource = GetComponent<AudioSource>();
+				if ((Object)(object)outgameDpAudioSource == (Object)null)
+				{
+					outgameDpAudioSource = gameObject.AddComponent<AudioSource>();
+					outgameDpAudioSource.playOnAwake = false;
+					outgameDpAudioSource.spatialBlend = 0f;
+				}
+			}
+
+			outgameDpAudioSource.pitch = 1.08f;
+			outgameDpAudioSource.PlayOneShot(progressionConfirmClip, 0.74f);
 		}
 	}
 }

@@ -280,6 +280,7 @@ Deliverables:
 - meta node state set for Size Core / Impact Core / DP Amplifier
 - `UI_DP_GainBurst` DP gain / spend / insufficient burst
 - `SFX_Progression_Locked` insufficient-DP / locked purchase cue
+- `SFX_Progression_Confirm` purchase / unlock / equip confirmation cue
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
@@ -288,7 +289,7 @@ Deliverables:
 - `Badge_MetaReady` result meta-ready next-action badge
 - `Banner_StageUnlocked` stage unlocked banner
 - `Toast_ProgressionSaved` lightweight progression saved toast
-- confirm / locked audio cues
+- confirm / locked audio cues (`SFX_Progression_Confirm`, `SFX_Progression_Locked`)
 
 Generated checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateOutgameProgressionChecklist.ps1`

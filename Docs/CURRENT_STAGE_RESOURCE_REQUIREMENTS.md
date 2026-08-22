@@ -276,6 +276,7 @@ Required assets:
 - `Badge_Recommended` (`Assets/Resources/UI/Badges/`)
 - `UI_DP_GainBurst` (`Assets/Resources/UI/Rewards/`)
 - `SFX_Progression_Locked` (`Assets/Audio/SFX/UI/SFX_Progression_Locked.wav`)
+- `SFX_Progression_Confirm` (`Assets/Audio/SFX/UI/SFX_Progression_Confirm.wav`)
 - `UI_FormCard_StateSet` (`Assets/Resources/UI/Lobby/`)
 - `UI_MetaNode_SizeCore`
 - `UI_MetaNode_ImpactCore`
@@ -392,7 +393,7 @@ Status:
 - `UI_DP_GainBurst` and `SFX_Progression_Locked` now mark earn, spend, and insufficient DP on result/lobby
 - form cards, meta nodes, stage-unlock banners, and save toasts now ship as readable visuals (`UI_FormCard_StateSet`, `UI_MetaNode_SizeCore`, `UI_MetaNode_ImpactCore`, `UI_MetaNode_DpAmplifier`, `Badge_FormReady`, `Badge_MetaReady`, `Banner_StageUnlocked`, `Toast_ProgressionSaved`)
 - Icons A-D and district palettes were not restyled
-- remaining work is optional confirm audio (`SFX_Progression_Confirm`) only
+- confirm audio now ships as `SFX_Progression_Confirm` on successful unlock, purchase, and equip
 
 Need:
 - cleaner visuals for form unlock targets and meta purchases
@@ -430,6 +431,7 @@ Required assets:
 - unlock acquired badge
 - `UI_DP_GainBurst` DP gain / spend / insufficient burst
 - `SFX_Progression_Locked` insufficient-DP / locked purchase cue
+- `SFX_Progression_Confirm` purchase / unlock / equip confirmation cue
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
@@ -599,6 +601,7 @@ This section can be used as a working production checklist.
 - [x] `Badge_Recommended` gold focus chevron
 - [x] `UI_DP_GainBurst` teal reward burst for earn / spend / insufficient
 - [x] `SFX_Progression_Locked` muted locked-purchase cue
+- [x] `SFX_Progression_Confirm` bright unlock / purchase / equip cue
 - [x] `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - [x] `UI_MetaNode_SizeCore` Size Core node chip
 - [x] `UI_MetaNode_ImpactCore` Impact Core node chip

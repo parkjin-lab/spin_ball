@@ -38,6 +38,7 @@ namespace AlienCrusher.Systems
 				{
 					formUnlockSystem.TrySelect(form);
 					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} equipped.";
+					PlayProgressionConfirmCue();
 				}
 				else if (!formUnlockSystem.TryUnlockAndSelectWithCost(form, out requiredCost))
 				{
