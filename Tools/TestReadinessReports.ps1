@@ -400,6 +400,7 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'UI_MetaNode_SizeCore' -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'UI_DP_GainBurst' -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'Banner_StageUnlocked' -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'SFX_Progression_Confirm' -Label "Outgame progression checklist"
     }
 
     & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $routePayoffChecklistScriptPath `
