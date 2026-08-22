@@ -430,6 +430,8 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'PAYOFF_MarketChain_Layout' -Label "Route payoff checklist"
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'PAYOFF_SkylineBreach_Layout' -Label "Route payoff checklist"
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'VFX_ForwardSmash_Confirm' -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'VFX_RouteHold_Success' -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "D. HOLD success pulse" -Label "Route payoff checklist"
     }
 }
 

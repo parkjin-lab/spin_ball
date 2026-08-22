@@ -5,7 +5,8 @@ param(
     [string]$RuntimeMapPath = "",
     [string]$UiFlowPath = "",
     [string]$StageChecklistPath = "",
-    [string]$ClusterMarkerVfxPath = ""
+    [string]$ClusterMarkerVfxPath = "",
+    [string]$HoldSuccessVfxPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -57,6 +58,7 @@ $runtimeMapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverrideP
 $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UiFlowPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UIFlow.cs"
 $stageChecklistSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageChecklistPath -RelativePath "Tools\GenerateStagePlaytestChecklist.ps1"
 $clusterMarkerVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ClusterMarkerVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteClusterMarkerVfx.cs"
+$holdSuccessVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $HoldSuccessVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteHoldSuccessVfx.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherRoutePayoffLayoutChecklist.md"
@@ -75,7 +77,8 @@ $runtimeMapText = Read-SourceText -Path $runtimeMapSourcePath
 $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
 $stageChecklistText = Read-SourceText -Path $stageChecklistSourcePath
 $clusterMarkerVfxText = Read-SourceText -Path $clusterMarkerVfxSourcePath
-$allRoutePayoffHookText = $progressionCoreText + $runtimeMapText + $uiFlowText + $clusterMarkerVfxText
+$holdSuccessVfxText = Read-SourceText -Path $holdSuccessVfxSourcePath
+$allRoutePayoffHookText = $progressionCoreText + $runtimeMapText + $uiFlowText + $clusterMarkerVfxText + $holdSuccessVfxText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -95,6 +98,8 @@ foreach ($needle in @(
     "SpawnForwardSmashRewardCluster",
     "SpawnSkylineRouteClusterAnchor",
     "EvaluateForwardSmashBonus",
+    "EvaluateRouteHoldBonus",
+    "RouteHoldSuccessVfx",
     "FORWARD SMASH +",
     "RouteClusterMarker",
     "routeRewardClusterRadius",
@@ -109,6 +114,13 @@ foreach ($needle in @(
     "EnsureRouteClusterMarker"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $clusterMarkerVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteHold_Success",
+    "RouteHoldSuccessVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $holdSuccessVfxText -Needle $needle
 }
 
 foreach ($needle in @(
@@ -151,7 +163,8 @@ $layoutCatalog = @(
     [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 6"; Payoff = "Power Surge"; RuntimeLabel = "POWER SURGE OPEN"; LayoutRule = "transformer corridor with one barrel punctuation"; Asset = "PAYOFF_PowerSurge_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
     [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 7"; Payoff = "Skyline Breach"; RuntimeLabel = "SKYLINE BREACH OPEN"; LayoutRule = "asymmetric anchor-first tower plus transformer/barrel ring"; Asset = "PAYOFF_SkylineBreach_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
     [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Route Cluster Marker"; RuntimeLabel = "RouteClusterMarker"; LayoutRule = "floor read that frames the opened cluster without hiding props"; Asset = "VFX_RouteCluster_Marker"; Folder = "Assets/Art/VFX/Route/" },
-    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Smash Confirmation"; RuntimeLabel = "FORWARD SMASH"; LayoutRule = "impact ring and camera beat stronger than route open, weaker than boss down"; Asset = "VFX_ForwardSmash_Confirm"; Folder = "Assets/Art/VFX/Route/" }
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Smash Confirmation"; RuntimeLabel = "FORWARD SMASH"; LayoutRule = "impact ring and camera beat stronger than route open, weaker than boss down"; Asset = "VFX_ForwardSmash_Confirm"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "HOLD Success Pulse"; RuntimeLabel = "ROUTE HOLD"; LayoutRule = "gold-cyan lock ring at HOLD clear that aims at ROUTE BONUS without using smash-star or combo ticks"; Asset = "VFX_RouteHold_Success"; Folder = "Assets/Art/VFX/Route/" }
 )
 
 $productionBatches = @(
@@ -172,6 +185,12 @@ $productionBatches = @(
         Goal = "make the cash-out beat feel earned after route reading"
         Targets = @("VFX_ForwardSmash_Confirm", "SFX_Route_Bonus")
         Acceptance = "Forward Smash feels bigger than a normal break and shorter than boss down or stage clear"
+    },
+    [pscustomobject]@{
+        Batch = "D. HOLD success pulse"
+        Goal = "make ROUTE HOLD clear read as a distinct flip into ROUTE BONUS / Forward Smash"
+        Targets = @("VFX_RouteHold_Success")
+        Acceptance = "HOLD success shows a gold-cyan lock ring that is not combo ticks, Overdrive chevrons, or the smash star"
     }
 )
 

@@ -310,6 +310,7 @@ Deliverables:
 - `VFX_RouteCluster_Marker` mint-slate ring frame for opened ROUTE BONUS clusters
 - `RouteClusterMarker` runtime host for that frame
 - `VFX_ForwardSmash_Confirm` mint-white impact star and short broken ring on FORWARD SMASH
+- `VFX_RouteHold_Success` gold-cyan lock ring when ROUTE HOLD completes and flips toward ROUTE BONUS
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:

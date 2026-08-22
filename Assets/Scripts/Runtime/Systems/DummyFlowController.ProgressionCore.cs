@@ -387,6 +387,8 @@ namespace AlienCrusher.Systems
 			feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.2f, 0.58f, major: false);
 			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(0.28f);
+			Vector3 holdPulseAim = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : val;
+			RouteHoldSuccessVfx.Play(val + Vector3.up * 0.22f, holdPulseAim);
 		}
 		private void EvaluateStageAdvanceMilestones(int destroyedCount)
 		{
