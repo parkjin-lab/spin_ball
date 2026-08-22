@@ -232,6 +232,12 @@ namespace AlienCrusher.Systems
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.58f + (float)num4 * 0.05f);
 				feedbackSystem.PlayComboRushFeedback(position + Vector3.up * 0.18f, normalizedIntensity, spikeBurstRadius);
+				feedbackSystem.PlaySpikeBurstMark(position + Vector3.up * 0.1f, spikeBurstRadius);
+			}
+			ResolvePlayerController();
+			if ((Object)(object)cachedPlayerController != (Object)null)
+			{
+				cachedPlayerController.PlaySpikeBurstVisualCue();
 			}
 			if (cameraFollowSystem == null)
 			{
@@ -471,6 +477,12 @@ namespace AlienCrusher.Systems
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.66f + (float)num4 * 0.05f);
 				feedbackSystem.PlayComboRushFeedback(position + Vector3.up * 0.24f, normalizedIntensity, crusherSlamRadius);
+				feedbackSystem.PlayCrusherSlamMark(position + Vector3.up * 0.08f, crusherSlamRadius);
+			}
+			ResolvePlayerController();
+			if ((Object)(object)cachedPlayerController != (Object)null)
+			{
+				cachedPlayerController.PlayCrusherSlamVisualCue();
 			}
 			if (cameraFollowSystem == null)
 			{

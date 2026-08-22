@@ -54,6 +54,13 @@ Ram / Saucer route helpers shipped:
 - `Icon_Skill_RamBreach` / `Icon_Skill_SaucerDash` action-button cues
 - in-world marks `VFX_RamBreach_Mark` and `VFX_SaucerDash_Mark`; skill numbers unchanged
 
+Spike / Crusher damage fantasies shipped:
+- `FORM_Spike_Body_Kit` lean dark core, longer forward/up needles, acid tips
+- `FORM_Crusher_Body_Kit` layered steel bulk, flat frontal plate, blue pressure seams
+- `Icon_Form_Spike` / `Icon_Form_Crusher` lobby thumbnails
+- `Icon_Skill_SpikeBurst` / `Icon_Skill_CrusherSlam` action-button cues
+- in-world marks `VFX_SpikeBurst_Mark` and `VFX_CrusherSlam_Mark`; skill numbers unchanged
+
 Expected output:
 - player can distinguish all forms at a glance
 - form selection in lobby feels desirable

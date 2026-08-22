@@ -58,6 +58,47 @@ namespace AlienCrusher.Systems
 				new Color(0.32f, 0.88f, 0.94f, 0.9f));
 		}
 
+		public static void SpawnSpikeBurst(Vector3 worldCenter, float radius)
+		{
+			float reach = Mathf.Max(1.05f, radius * 0.52f);
+			Color acid = new Color(0.82f, 1f, 0.18f, 0.92f);
+			Vector3[] directions =
+			{
+				Vector3.forward,
+				Vector3.back,
+				Vector3.left,
+				Vector3.right,
+				new Vector3(0.55f, 0.85f, 0.2f).normalized
+			};
+			for (int i = 0; i < directions.Length; i++)
+			{
+				Quaternion rotation = Quaternion.FromToRotation(Vector3.up, directions[i]);
+				Spawn(
+					worldCenter,
+					"VFX_SpikeBurst_Mark",
+					PrimitiveType.Cylinder,
+					rotation,
+					new Vector3(0.12f, 0.16f, 0.12f),
+					new Vector3(0.12f, reach, 0.12f),
+					acid,
+					0.26f);
+			}
+		}
+
+		public static void SpawnCrusherSlam(Vector3 worldCenter, float radius)
+		{
+			float reach = Mathf.Max(1.8f, radius * 0.72f);
+			Spawn(
+				worldCenter,
+				"VFX_CrusherSlam_Mark",
+				PrimitiveType.Cube,
+				Quaternion.identity,
+				new Vector3(0.72f, 0.55f, 0.72f),
+				new Vector3(reach, 0.7f, reach),
+				new Color(0.38f, 0.7f, 1f, 0.9f),
+				0.46f);
+		}
+
 		private static void Spawn(
 			Vector3 worldCenter,
 			string name,
@@ -65,7 +106,8 @@ namespace AlienCrusher.Systems
 			Quaternion rotation,
 			Vector3 startScale,
 			Vector3 endScale,
-			Color color)
+			Color color,
+			float duration = 0.32f)
 		{
 			GameObject go = GameObject.CreatePrimitive(type);
 			go.name = name;
@@ -82,6 +124,7 @@ namespace AlienCrusher.Systems
 			driver.startScale = startScale;
 			driver.endScale = endScale;
 			driver.markColor = color;
+			driver.duration = Mathf.Max(0.12f, duration);
 			go.transform.localScale = startScale;
 			driver.ApplyMaterial();
 		}

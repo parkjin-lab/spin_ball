@@ -10,17 +10,25 @@ namespace AlienCrusher.Systems
 		private const string IconFormSphereId = "Icon_Form_Sphere";
 		private const string IconFormRamId = "Icon_Form_Ram";
 		private const string IconFormSaucerId = "Icon_Form_Saucer";
+		private const string IconFormSpikeId = "Icon_Form_Spike";
+		private const string IconFormCrusherId = "Icon_Form_Crusher";
 		private const string IconSkillSpherePulseId = "Icon_Skill_SpherePulse";
 		private const string IconSkillRamBreachId = "Icon_Skill_RamBreach";
 		private const string IconSkillSaucerDashId = "Icon_Skill_SaucerDash";
+		private const string IconSkillSpikeBurstId = "Icon_Skill_SpikeBurst";
+		private const string IconSkillCrusherSlamId = "Icon_Skill_CrusherSlam";
 		private const string IconFormSkillChildId = "Icon_FormSkill";
 
 		private Sprite iconFormSphereSprite;
 		private Sprite iconFormRamSprite;
 		private Sprite iconFormSaucerSprite;
+		private Sprite iconFormSpikeSprite;
+		private Sprite iconFormCrusherSprite;
 		private Sprite iconSkillSpherePulseSprite;
 		private Sprite iconSkillRamBreachSprite;
 		private Sprite iconSkillSaucerDashSprite;
+		private Sprite iconSkillSpikeBurstSprite;
+		private Sprite iconSkillCrusherSlamSprite;
 		private bool formIdentityIconsCached;
 
 		private void EnsureFormIdentityIcons()
@@ -29,6 +37,8 @@ namespace AlienCrusher.Systems
 			EnsureLobbyFormIcon("Form_Sphere", IconFormSphereId, iconFormSphereSprite);
 			EnsureLobbyFormIcon("Form_Ram", IconFormRamId, iconFormRamSprite);
 			EnsureLobbyFormIcon("Form_Saucer", IconFormSaucerId, iconFormSaucerSprite);
+			EnsureLobbyFormIcon("Form_Spike", IconFormSpikeId, iconFormSpikeSprite);
+			EnsureLobbyFormIcon("Form_Crusher", IconFormCrusherId, iconFormCrusherSprite);
 			RefreshFormIdentitySkillIcons();
 		}
 
@@ -42,9 +52,13 @@ namespace AlienCrusher.Systems
 			iconFormSphereSprite = LoadFormIdentityIconSprite(IconFormSphereId);
 			iconFormRamSprite = LoadFormIdentityIconSprite(IconFormRamId);
 			iconFormSaucerSprite = LoadFormIdentityIconSprite(IconFormSaucerId);
+			iconFormSpikeSprite = LoadFormIdentityIconSprite(IconFormSpikeId);
+			iconFormCrusherSprite = LoadFormIdentityIconSprite(IconFormCrusherId);
 			iconSkillSpherePulseSprite = LoadFormIdentityIconSprite(IconSkillSpherePulseId);
 			iconSkillRamBreachSprite = LoadFormIdentityIconSprite(IconSkillRamBreachId);
 			iconSkillSaucerDashSprite = LoadFormIdentityIconSprite(IconSkillSaucerDashId);
+			iconSkillSpikeBurstSprite = LoadFormIdentityIconSprite(IconSkillSpikeBurstId);
+			iconSkillCrusherSlamSprite = LoadFormIdentityIconSprite(IconSkillCrusherSlamId);
 			formIdentityIconsCached = true;
 		}
 
@@ -103,6 +117,8 @@ namespace AlienCrusher.Systems
 				FormActiveSkill.SpherePulse => iconSkillSpherePulseSprite,
 				FormActiveSkill.RamBreach => iconSkillRamBreachSprite,
 				FormActiveSkill.SaucerDash => iconSkillSaucerDashSprite,
+				FormActiveSkill.SpikeBurst => iconSkillSpikeBurstSprite,
+				FormActiveSkill.CrusherSlam => iconSkillCrusherSlamSprite,
 				_ => null
 			};
 			bool show = (Object)(object)sprite != (Object)null;

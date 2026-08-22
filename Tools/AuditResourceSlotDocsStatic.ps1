@@ -104,7 +104,11 @@ if ($errors.Count -eq 0) {
         "FORM_Ram_Body_Kit",
         "FORM_Saucer_Body_Kit",
         "Icon_Form_Ram",
-        "Icon_Form_Saucer"
+        "Icon_Form_Saucer",
+        "FORM_Spike_Body_Kit",
+        "FORM_Crusher_Body_Kit",
+        "Icon_Form_Spike",
+        "Icon_Form_Crusher"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -136,6 +140,10 @@ if ($errors.Count -eq 0) {
         "FORM_Saucer_Body_Kit",
         "Icon_Form_Ram",
         "Icon_Form_Saucer",
+        "FORM_Spike_Body_Kit",
+        "FORM_Crusher_Body_Kit",
+        "Icon_Form_Spike",
+        "Icon_Form_Crusher",
         "Assets/Resources/UI/Icons/"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"

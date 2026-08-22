@@ -69,7 +69,7 @@ Status:
 - forms already exist in code and partially exist visually
 - Sphere now has a runtime belt kit, lobby/HUD icon, and SPHERE PULSE cue
 - Ram and Saucer now have route-helper silhouette kits, lobby icons, and skill marks
-- Spike and Crusher still need stronger silhouette distinction and feedback support
+- Spike and Crusher now have damage-fantasy silhouette kits, lobby icons, and skill marks
 
 Need:
 - one clear visual silhouette set per form
@@ -81,12 +81,18 @@ Required assets:
 - `FORM_Sphere_Body_Kit` cool-green body plus emissive equatorial belt
 - `FORM_Ram_Body_Kit` amber wedge nose with side horns
 - `FORM_Saucer_Body_Kit` cyan rim disc with pale underside
+- `FORM_Spike_Body_Kit` lean dark core with acid radial needles
+- `FORM_Crusher_Body_Kit` layered steel shell, flat frontal plate, and blue pressure seams
 - `Icon_Form_Sphere` solid circle with orbit band (`Assets/Resources/UI/Icons/`)
 - `Icon_Form_Ram` wedge arrow inside circle (`Assets/Resources/UI/Icons/`)
 - `Icon_Form_Saucer` flat disk with motion streak (`Assets/Resources/UI/Icons/`)
+- `Icon_Form_Spike` circle with four to six spikes (`Assets/Resources/UI/Icons/`)
+- `Icon_Form_Crusher` blocky mass with impact crack (`Assets/Resources/UI/Icons/`)
 - `Icon_Skill_SpherePulse` pulse-ring skill cue (`Assets/Resources/UI/Icons/`)
 - `Icon_Skill_RamBreach` forward shove cue (`Assets/Resources/UI/Icons/`)
 - `Icon_Skill_SaucerDash` wide-disc dash cue (`Assets/Resources/UI/Icons/`)
+- `Icon_Skill_SpikeBurst` radial puncture cue (`Assets/Resources/UI/Icons/`)
+- `Icon_Skill_CrusherSlam` heavy slam cue (`Assets/Resources/UI/Icons/`)
 - `Form Icon - Sphere`
 - `Form Icon - Spike`
 - `Form Icon - Ram`

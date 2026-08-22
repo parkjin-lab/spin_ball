@@ -32,6 +32,7 @@ This document tracks the current project state, the next production priorities, 
 - HUD route/progress/gauge text now uses shorter mobile-safe runtime copy with best-fit safeguards for the main HUD readouts. Run-essential draft icons `Icon_DP`, `Icon_Stage`, `Icon_NextStep`, and `Icon_Route` now appear on the play-mode HUD strip and beside the matching lobby/result labels.
 - Sphere now has a designed starter identity: runtime kit `FORM_Sphere_Body_Kit` (cool-green body plus emissive belt), lobby thumbnail `Icon_Form_Sphere`, and SPHERE PULSE cues `Icon_Skill_SpherePulse` plus an in-world pulse mark. Form stats, unlock cost, and pulse cooldown/damage are unchanged.
 - Ram and Saucer now have route-helper identities: `FORM_Ram_Body_Kit` reads as a forward amber wedge with side horns, `FORM_Saucer_Body_Kit` reads as a wide cyan disc. Lobby icons `Icon_Form_Ram` / `Icon_Form_Saucer` sit on those cards. Skill numbers are unchanged.
+- Spike and Crusher now have damage-fantasy identities: `FORM_Spike_Body_Kit` reads as a lean acid-tipped needle crown, `FORM_Crusher_Body_Kit` reads as layered steel bulk with a flat plate and blue seams. Lobby icons `Icon_Form_Spike` / `Icon_Form_Crusher` sit on those cards. Skill numbers are unchanged.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status

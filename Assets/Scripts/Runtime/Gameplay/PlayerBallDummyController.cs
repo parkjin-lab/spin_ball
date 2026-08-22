@@ -76,6 +76,14 @@ namespace AlienCrusher.Gameplay
         private Color saucerRimBaseColor = new Color(0.28f, 0.82f, 0.88f, 1f);
         private Color saucerRimEmissionColor = new Color(0.16f, 0.58f, 0.66f, 1f);
         private float saucerDashMarkUntil;
+        private Material spikeTipMaterial;
+        private Color spikeTipBaseColor = new Color(0.78f, 1f, 0.16f, 1f);
+        private Color spikeTipEmissionColor = new Color(0.52f, 0.82f, 0.08f, 1f);
+        private float spikeBurstMarkUntil;
+        private Material crusherSeamMaterial;
+        private Color crusherSeamBaseColor = new Color(0.35f, 0.72f, 1f, 1f);
+        private Color crusherSeamEmissionColor = new Color(0.18f, 0.42f, 0.85f, 1f);
+        private float crusherSlamMarkUntil;
 
         private float baseAcceleration;
         private float baseMaxPlanarSpeed;
@@ -198,6 +206,8 @@ namespace AlienCrusher.Gameplay
             TickSpherePulseMark();
             TickRamBreachMark();
             TickSaucerDashMark();
+            TickSpikeBurstMark();
+            TickCrusherSlamMark();
         }
         private void FixedUpdate()
         {
@@ -383,30 +393,40 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            var root = transform.Find("_SpikeForm");
-            if (root == null)
-            {
-                var rootGo = new GameObject("_SpikeForm");
-                root = rootGo.transform;
-                root.SetParent(transform, false);
-            }
+            var root = GetOrCreateFormIdentityKit("FORM_Spike_Body_Kit", "_SpikeForm");
+            DeactivateNamedChild(root, "Spike_PosX");
+            DeactivateNamedChild(root, "Spike_NegX");
+            DeactivateNamedChild(root, "Spike_PosZ");
+            DeactivateNamedChild(root, "Spike_NegZ");
+            DeactivateNamedChild(root, "Spike_PosY");
+            DeactivateNamedChild(root, "Spike_NegY");
 
-            var core = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            core.name = "SpikeCore";
-            core.transform.SetParent(root, false);
-            core.transform.localPosition = Vector3.zero;
-            core.transform.localScale = new Vector3(0.85f, 0.85f, 0.85f);
-            RemoveCollider(core);
+            var body = new Color(0.1f, 0.07f, 0.12f, 1f);
+            var needle = new Color(0.22f, 0.12f, 0.18f, 1f);
+            var bodyGlow = new Color(0.08f, 0.04f, 0.06f, 1f);
 
-            CreateSpike(root, "Spike_PosX", new Vector3(0.7f, 0f, 0f), Quaternion.Euler(0f, 0f, 90f));
-            CreateSpike(root, "Spike_NegX", new Vector3(-0.7f, 0f, 0f), Quaternion.Euler(0f, 0f, 90f));
-            CreateSpike(root, "Spike_PosZ", new Vector3(0f, 0f, 0.7f), Quaternion.Euler(90f, 0f, 0f));
-            CreateSpike(root, "Spike_NegZ", new Vector3(0f, 0f, -0.7f), Quaternion.Euler(90f, 0f, 0f));
-            CreateSpike(root, "Spike_PosY", new Vector3(0f, 0.7f, 0f), Quaternion.identity);
-            CreateSpike(root, "Spike_NegY", new Vector3(0f, -0.7f, 0f), Quaternion.identity);
+            var coreGo = EnsureFormIdentityPrimitive(root, "SpikeCore", PrimitiveType.Sphere, Vector3.zero, new Vector3(0.58f, 0.58f, 0.58f), Vector3.zero);
+            ApplyFormIdentityMaterial(coreGo, "M_Runtime_SpikeCore", body, bodyGlow);
+
+            EnsureFormIdentityPrimitive(root, "Spike_Fwd", PrimitiveType.Cylinder, new Vector3(0f, 0.08f, 0.78f), new Vector3(0.12f, 0.52f, 0.12f), new Vector3(90f, 0f, 0f));
+            ApplyFormIdentityMaterial(root.Find("Spike_Fwd").gameObject, "M_Runtime_SpikeFwd", needle, spikeTipEmissionColor);
+            EnsureFormIdentityPrimitive(root, "Spike_Back", PrimitiveType.Cylinder, new Vector3(0f, 0f, -0.66f), new Vector3(0.11f, 0.36f, 0.11f), new Vector3(90f, 0f, 0f));
+            ApplyFormIdentityMaterial(root.Find("Spike_Back").gameObject, "M_Runtime_SpikeBack", needle, bodyGlow);
+            EnsureFormIdentityPrimitive(root, "Spike_Left", PrimitiveType.Cylinder, new Vector3(-0.66f, 0.06f, 0.08f), new Vector3(0.11f, 0.34f, 0.11f), new Vector3(0f, 0f, 90f));
+            ApplyFormIdentityMaterial(root.Find("Spike_Left").gameObject, "M_Runtime_SpikeLeft", needle, bodyGlow);
+            EnsureFormIdentityPrimitive(root, "Spike_Right", PrimitiveType.Cylinder, new Vector3(0.66f, 0.06f, 0.08f), new Vector3(0.11f, 0.34f, 0.11f), new Vector3(0f, 0f, 90f));
+            ApplyFormIdentityMaterial(root.Find("Spike_Right").gameObject, "M_Runtime_SpikeRight", needle, bodyGlow);
+            EnsureFormIdentityPrimitive(root, "Spike_Up", PrimitiveType.Cylinder, new Vector3(0f, 0.82f, 0.1f), new Vector3(0.12f, 0.46f, 0.12f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("Spike_Up").gameObject, "M_Runtime_SpikeUp", needle, spikeTipEmissionColor);
+            EnsureFormIdentityPrimitive(root, "Spike_Down", PrimitiveType.Cylinder, new Vector3(0f, -0.6f, 0f), new Vector3(0.11f, 0.3f, 0.11f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("Spike_Down").gameObject, "M_Runtime_SpikeDown", needle, bodyGlow);
+
+            var tipGo = EnsureFormIdentityPrimitive(root, "SpikeTip_Fwd", PrimitiveType.Cube, new Vector3(0f, 0.08f, 1.3f), new Vector3(0.12f, 0.12f, 0.16f), Vector3.zero);
+            spikeTipMaterial = ApplyFormIdentityMaterial(tipGo, "M_Runtime_SpikeTip", spikeTipBaseColor, spikeTipEmissionColor);
+            EnsureFormIdentityPrimitive(root, "SpikeTip_Up", PrimitiveType.Cube, new Vector3(0f, 1.28f, 0.1f), new Vector3(0.12f, 0.16f, 0.12f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("SpikeTip_Up").gameObject, "M_Runtime_SpikeTipUp", spikeTipBaseColor, spikeTipEmissionColor);
 
             spikeVisual = root;
-            ApplyMaterialToForm(spikeVisual);
             spikeVisual.gameObject.SetActive(false);
         }
 
@@ -485,6 +505,28 @@ namespace AlienCrusher.Gameplay
             saucerDashMarkUntil = Time.time + 0.26f;
             ApplyFormAccentPulse(saucerRimMaterial, saucerRimBaseColor, saucerRimEmissionColor, new Color(0.72f, 0.98f, 1f, 1f), 1f);
         }
+        public void PlaySpikeBurstVisualCue()
+        {
+            spikeBurstMarkUntil = Time.time + 0.24f;
+            ApplyFormAccentPulse(spikeTipMaterial, spikeTipBaseColor, spikeTipEmissionColor, new Color(1f, 1f, 0.55f, 1f), 1f);
+        }
+
+        public void PlayCrusherSlamVisualCue()
+        {
+            crusherSlamMarkUntil = Time.time + 0.3f;
+            ApplyFormAccentPulse(crusherSeamMaterial, crusherSeamBaseColor, crusherSeamEmissionColor, new Color(0.7f, 0.9f, 1f, 1f), 1f);
+        }
+
+        private void TickSpikeBurstMark()
+        {
+            TickFormAccentPulse(ref spikeBurstMarkUntil, spikeTipMaterial, spikeTipBaseColor, spikeTipEmissionColor, new Color(1f, 1f, 0.55f, 1f));
+        }
+
+        private void TickCrusherSlamMark()
+        {
+            TickFormAccentPulse(ref crusherSlamMarkUntil, crusherSeamMaterial, crusherSeamBaseColor, crusherSeamEmissionColor, new Color(0.7f, 0.9f, 1f, 1f));
+        }
+
 
         private void TickRamBreachMark()
         {
@@ -631,30 +673,30 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            var root = transform.Find("_CrusherForm");
-            if (root == null)
-            {
-                var rootGo = new GameObject("_CrusherForm");
-                root = rootGo.transform;
-                root.SetParent(transform, false);
-            }
+            var root = GetOrCreateFormIdentityKit("FORM_Crusher_Body_Kit", "_CrusherForm");
 
-            var coreGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            coreGo.name = "CrusherCore";
-            coreGo.transform.SetParent(root, false);
-            coreGo.transform.localPosition = Vector3.zero;
-            coreGo.transform.localScale = new Vector3(1.2f, 1f, 1.2f);
-            RemoveCollider(coreGo);
+            var steel = new Color(0.16f, 0.2f, 0.26f, 1f);
+            var dark = new Color(0.1f, 0.12f, 0.16f, 1f);
+            var plate = new Color(0.22f, 0.26f, 0.32f, 1f);
+            var steelGlow = new Color(0.06f, 0.08f, 0.12f, 1f);
 
-            var ringGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            ringGo.name = "CrusherRing";
-            ringGo.transform.SetParent(root, false);
-            ringGo.transform.localPosition = Vector3.zero;
-            ringGo.transform.localScale = new Vector3(1.45f, 0.25f, 1.45f);
-            RemoveCollider(ringGo);
+            var coreGo = EnsureFormIdentityPrimitive(root, "CrusherCore", PrimitiveType.Cube, Vector3.zero, new Vector3(1.18f, 1.08f, 1.18f), Vector3.zero);
+            ApplyFormIdentityMaterial(coreGo, "M_Runtime_CrusherCore", steel, steelGlow);
+            EnsureFormIdentityPrimitive(root, "CrusherRing", PrimitiveType.Cube, Vector3.zero, new Vector3(1.58f, 0.32f, 1.58f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("CrusherRing").gameObject, "M_Runtime_CrusherRing", dark, steelGlow);
+            EnsureFormIdentityPrimitive(root, "CrusherBand", PrimitiveType.Cube, new Vector3(0f, 0.4f, 0f), new Vector3(1.4f, 0.18f, 1.4f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("CrusherBand").gameObject, "M_Runtime_CrusherBand", plate, steelGlow);
+            EnsureFormIdentityPrimitive(root, "CrusherKeel", PrimitiveType.Cube, new Vector3(0f, -0.52f, 0.04f), new Vector3(0.78f, 0.22f, 1.08f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("CrusherKeel").gameObject, "M_Runtime_CrusherKeel", dark, steelGlow);
+            EnsureFormIdentityPrimitive(root, "CrusherPlate", PrimitiveType.Cube, new Vector3(0f, 0.02f, 0.7f), new Vector3(0.92f, 0.72f, 0.24f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("CrusherPlate").gameObject, "M_Runtime_CrusherPlate", plate, steelGlow);
+
+            var seamGo = EnsureFormIdentityPrimitive(root, "CrusherSeam_H", PrimitiveType.Cube, new Vector3(0f, 0.08f, 0.78f), new Vector3(1.02f, 0.1f, 0.12f), Vector3.zero);
+            crusherSeamMaterial = ApplyFormIdentityMaterial(seamGo, "M_Runtime_CrusherSeam", crusherSeamBaseColor, crusherSeamEmissionColor);
+            EnsureFormIdentityPrimitive(root, "CrusherSeam_V", PrimitiveType.Cube, new Vector3(0f, 0.08f, 0.78f), new Vector3(0.12f, 0.68f, 0.12f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("CrusherSeam_V").gameObject, "M_Runtime_CrusherSeamV", crusherSeamBaseColor, crusherSeamEmissionColor);
 
             crusherVisual = root;
-            ApplyMaterialToForm(crusherVisual);
             crusherVisual.gameObject.SetActive(false);
         }
 
