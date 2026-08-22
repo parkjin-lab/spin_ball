@@ -193,6 +193,7 @@ Status:
 - failure now has a dedicated runtime downbeat, so defeat should sound like a clear rhythm punctuation instead of silently falling into the result screen
 - hit/break weight drafts now load at runtime when Inspector slots are empty: `SFX_Hit_Light`, `SFX_Hit_Medium`, `SFX_Hit_Heavy`, `SFX_Break_Small`, `SFX_Break_LargeCollapse` (`Assets/Audio/SFX/Impact/` + Resources copies)
 - climax/progression drafts now load at runtime when Inspector slots are empty: `SFX_Boss_Warning`, `SFX_Boss_Break`, `SFX_Boss_Down` (`Assets/Audio/SFX/Boss/`), `SFX_Combo_Rise` (`Assets/Audio/SFX/Skills/`), `SFX_LevelUp_Open` (`Assets/Audio/SFX/UI/`)
+- CRUSH RUSH now adds named runtime pulse `VFX_Combo_Rise_Pulse` (lime-gold upward ticks at the ball) while still reusing `comboRiseClip`; OVERDRIVE start adds `VFX_Overdrive_Pulse` (orange speed ring plus flame chevrons). Combo thresholds, overdrive duration/damage, and HUD layout stay unchanged.
 
 Need:
 - distinct audio for hit quality, destruction scale, form actions, progression, and boss danger
@@ -531,6 +532,8 @@ This section can be used as a working production checklist.
 - [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
 - [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
 - [x] `VFX_RouteCluster_Marker` mint-slate ROUTE BONUS cluster frame
+- [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
+- [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 
 ### VFX
 - [ ] light hit burst
@@ -541,6 +544,8 @@ This section can be used as a working production checklist.
 - [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
 - [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
 - [x] `VFX_RouteCluster_Marker` mint-slate ROUTE BONUS cluster frame
+- [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
+- [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 - [ ] shield break burst
 - [ ] core exposed burst
 - [ ] panic jackpot burst

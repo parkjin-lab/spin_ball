@@ -239,6 +239,8 @@ Current `FeedbackSystem` slot map:
 - `hitLightClip`, `hitMediumClip`, `hitHeavyClip` (`SFX_Hit_Light` / `SFX_Hit_Medium` / `SFX_Hit_Heavy` in `Assets/Audio/SFX/Impact/`)
 - `breakSmallClip`, `breakLargeClip` (`SFX_Break_Small` / `SFX_Break_LargeCollapse` in `Assets/Audio/SFX/Impact/`)
 - `comboRiseClip` (`SFX_Combo_Rise` in `Assets/Audio/SFX/Skills/`)
+- `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
+- `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 - `routeOpenClip`, `routeHoldWarningClip`, `routeBonusClip`
 - `bossWarningClip`, `bossBreakClip`, `bossDownClip` (`SFX_Boss_Warning` / `SFX_Boss_Break` / `SFX_Boss_Down` in `Assets/Audio/SFX/Boss/`)
 - `levelUpClip` (`SFX_LevelUp_Open` in `Assets/Audio/SFX/UI/`)
@@ -439,7 +441,7 @@ This is the fastest way to understand why each asset matters.
 | Early-stage fun | small props, vehicles, break reactions | gives enough crush density before big buildings |
 | Retail Frenzy / Strip Clear | shop props, signage, frenzy burst, frenzy SFX | supports combo lane fantasy |
 | Traffic Panic | car variants, panic SFX, chain reaction prop feedback | makes chaos feel systemic |
-| Overdrive / Seismic / Landing Shockwave | distinct burst VFX and audio | separates special states from normal combat |
+| Overdrive / Seismic / Landing Shockwave | distinct burst VFX and audio (`VFX_Overdrive_Pulse` plus `VFX_Combo_Rise_Pulse` on CRUSH RUSH) | separates special states from normal combat |
 | Boss | sentinel kit, pylon kit, drone kit, boss-only VFX/SFX | creates stage climax identity |
 | Lobby / Meta | form cards, meta nodes, badges, unlock banners | strengthens return loop |
 

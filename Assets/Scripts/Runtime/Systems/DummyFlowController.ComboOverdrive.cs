@@ -99,6 +99,7 @@ namespace AlienCrusher.Systems
 			if ((Object)(object)playerTransform != (Object)null)
 			{
 				feedbackSystem?.PlayDestroyFeedback(playerTransform.position + Vector3.up * 0.35f, 1f);
+				ComboOverdrivePulseVfx.PlayOverdrivePulse(playerTransform.position);
 			}
 		}
 
@@ -344,6 +345,7 @@ namespace AlienCrusher.Systems
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
 				feedbackSystem.PlayComboRushFeedback(val + Vector3.up * 0.15f, normalizedIntensity, num);
+				ComboOverdrivePulseVfx.PlayComboRisePulse(val);
 			}
 			else
 			{
