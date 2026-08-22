@@ -555,6 +555,7 @@ namespace AlienCrusher.Systems
 				feedbackSystem.PlayTotalDestructionFeedback(((Component)stageBossBlock).transform.position + Vector3.up * 0.3f, 0.82f, playAudio: false);
 				feedbackSystem.PlayBossBreakCue();
 			}
+			BossClimaxFeedbackVfx.PlayBreakWindowBurst(((Component)stageBossBlock).transform.position);
 		}
 
 		private void UpdateBossBreakWindow(float deltaTime)

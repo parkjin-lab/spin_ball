@@ -290,7 +290,7 @@ Status:
 - Justice Sentinel logic exists
 - phase, shield, drone, and break window systems are already implemented
 - runtime silhouette kits now separate the main body, shield pylons, and phase-2 drones from ordinary city props
-- climax warning/down VFX now punctuate inbound, pressure pulse, and Sentinel down
+- climax warning/break/down VFX now punctuate inbound, CORE EXPOSED, and Sentinel down as three different silhouettes
 - remaining identity work is optional boss-specific armor/core materials (`MAT_Boss_*`) and HUD badges
 
 Required assets:

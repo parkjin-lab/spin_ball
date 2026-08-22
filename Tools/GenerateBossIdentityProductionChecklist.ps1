@@ -133,6 +133,7 @@ foreach ($needle in @(
     "SFX_Boss_Break",
     "SFX_Boss_Down",
     "PlayWarningRing",
+    "PlayBreakWindowBurst",
     "PlayDefeatCascade"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $climaxVfxText -Needle $needle

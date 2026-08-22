@@ -15,8 +15,12 @@ namespace AlienCrusher.Systems
 		private static readonly Color WarningRingEdge = new Color(0.96f, 0.52f, 0.18f, 0.78f);
 		private static readonly Color DefeatSteel = new Color(0.68f, 0.82f, 0.96f, 1f);
 		private static readonly Color DefeatEmber = new Color(0.42f, 0.58f, 0.78f, 1f);
+		private static readonly Color BreakBurstColor = new Color(1f, 0.62f, 0.18f, 1f);
+		private static readonly Color BreakBurstFlash = new Color(1f, 0.92f, 0.72f, 1f);
+		private const string BreakWindowBurstName = "BossBreakWindowBurst";
 
 		private static ParticleSystem warningSparks;
+		private static ParticleSystem breakSparks;
 		private static ParticleSystem defeatBurst;
 		private static Material sharedParticleMaterial;
 
@@ -28,9 +32,15 @@ namespace AlienCrusher.Systems
 			EmitBurst(EnsureWarningSparks(), worldPosition + Vector3.up * 0.16f, intensity, 5, 9, WarningRingColor, WarningRingEdge);
 		}
 
+		public static void PlayBreakWindowBurst(Vector3 worldPosition)
+		{
+			Vector3 core = worldPosition + Vector3.up * 0.95f;
+			SpawnCoreColumn(core);
+			EmitBurst(EnsureBreakSparks(), core, 1f, 8, 12, BreakBurstColor, BreakBurstFlash);
+		}
+
 		public static void PlayDefeatCascade(Vector3 worldPosition)
 		{
-			SpawnExpandingRing(DefeatCascadeId, worldPosition, 7.2f, DefeatSteel, 0.42f, 0.18f);
 			EmitBurst(EnsureDefeatBurst(), worldPosition + Vector3.up * 0.55f, 1f, 14, 22, DefeatSteel, DefeatEmber);
 			for (int i = 0; i < 6; i++)
 			{
@@ -51,6 +61,19 @@ namespace AlienCrusher.Systems
 			var main = warningSparks.main;
 			main.gravityModifier = 0.08f;
 			return warningSparks;
+		}
+
+		private static ParticleSystem EnsureBreakSparks()
+		{
+			if ((Object)(object)breakSparks != (Object)null)
+			{
+				return breakSparks;
+			}
+
+			breakSparks = CreateWorldBurst(BreakWindowBurstName, BreakBurstFlash, 0.04f, 0.1f, 2.8f, 5.4f, 0.08f, 0.16f, 24);
+			var main = breakSparks.main;
+			main.gravityModifier = -0.35f;
+			return breakSparks;
 		}
 
 		private static ParticleSystem EnsureDefeatBurst()
@@ -137,6 +160,23 @@ namespace AlienCrusher.Systems
 			ApplyUnlitColor(go, color, "M_Runtime_BossWarningRing");
 			ClimaxRingFlash flash = go.AddComponent<ClimaxRingFlash>();
 			flash.Configure(new Vector3(reach * 2f, Mathf.Max(0.08f, thickness), reach * 2f), color, life);
+		}
+
+		private static void SpawnCoreColumn(Vector3 worldPosition)
+		{
+			GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+			go.name = BreakWindowBurstName;
+			Collider collider = go.GetComponent<Collider>();
+			if ((Object)(object)collider != (Object)null)
+			{
+				Object.Destroy(collider);
+			}
+
+			go.transform.position = worldPosition;
+			go.transform.localScale = new Vector3(0.22f, 0.2f, 0.22f);
+			ApplyUnlitColor(go, BreakBurstFlash, "M_Runtime_BossBreakWindowBurst");
+			ClimaxRingFlash flash = go.AddComponent<ClimaxRingFlash>();
+			flash.Configure(new Vector3(0.38f, 2.4f, 0.38f), BreakBurstColor, 0.2f);
 		}
 
 		private static void SpawnDefeatShard(Vector3 worldPosition, Vector3 outward)
