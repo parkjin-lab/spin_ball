@@ -350,13 +350,13 @@ Done when:
 Priority: `P0`
 
 Deliverables:
-- starter residential palette
+- `PAL_District_StarterResidential` Stage 1 clean-road opener
+- `PAL_District_MarketPlaza` Stage 3 warm stall-density pivot
+- `PAL_District_SentinelCheckpoint` Stage 4 steel/amber boss-approach warning
+- `PAL_District_SkylineBlock` Stage 7 night-plaza climax
 - pocket park palette
-- market plaza palette
-- Sentinel checkpoint palette
 - construction yard palette
 - power block palette
-- skyline block palette
 - `PAL_RouteMarker_Tints` global route marker tint set for `Target_A`, `Target_B`, `routeColor`, and HOLD trail pips
 - ambient stage-band tone set
 

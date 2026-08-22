@@ -296,6 +296,12 @@ Why this matters now:
 - if the boss looks too similar to normal buildings, the entire stage climb loses payoff
 
 ### 2.3 Environment Palette Sets
+Status:
+- `PAL_RouteMarker_Tints` already locks Target_A / Target_B / routeColor / HOLD pips
+- core rhythm palettes `PAL_District_StarterResidential`, `PAL_District_MarketPlaza`, `PAL_District_SentinelCheckpoint`, and `PAL_District_SkylineBlock` now tint Stage 1/3/4/7 ground, walls, and landmark pads
+- building tier kits and Icons A/B/C were not restyled
+- remaining work is Stage 2/5/6 secondary palettes and ambient stage bands
+
 Need:
 - at least 3 stage palette families so progression feels spatial, not only numeric
 
@@ -463,6 +469,10 @@ This section can be used as a working production checklist.
 - [ ] 1 weak point material
 - [ ] 1 shield material
 - [ ] 1 exposed-core material
+- [x] `PAL_District_StarterResidential` Stage 1 opener ground/wall/pad set
+- [x] `PAL_District_MarketPlaza` Stage 3 density ground/wall/pad set
+- [x] `PAL_District_SentinelCheckpoint` Stage 4 warning ground/wall/pad set
+- [x] `PAL_District_SkylineBlock` Stage 7 climax ground/wall/pad set
 - [ ] 3 district palette sets
 - [ ] 8 to 10 street prop silhouettes
 - [x] `PROP_Car_Compact_A` runtime compact hatchback traffic kit

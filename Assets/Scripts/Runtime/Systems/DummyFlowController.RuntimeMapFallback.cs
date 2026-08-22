@@ -400,6 +400,7 @@ namespace AlienCrusher.Systems
 			// PAL_RouteMarker_Tints: keep Target_A / Target_B / routeColor above district and boss colors.
 			color3 = RouteMarkerTintSet.Marker;
 			color3h = RouteMarkerTintSet.Paint;
+			DistrictRhythmPaletteSet.TryApplyCoreRhythmPalette(currentStageNumber, ref color, ref color2, ref color3b, ref color3g, ref color3i, ref val5, ref val6, ref val7, ref val8, ref color3e, ref color3f, ref val9, ref val10);
 			num = Mathf.Clamp01(num + layout.Growth01 * 0.08f);
 			num2 = Mathf.Clamp01(num2 + layout.Growth01 * 0.08f);
 			num3 = Mathf.Clamp01(num3 + layout.Growth01 * 0.07f);
