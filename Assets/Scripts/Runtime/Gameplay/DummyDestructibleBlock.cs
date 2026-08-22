@@ -338,6 +338,7 @@ namespace AlienCrusher.Gameplay
                 SetBossCoreTelegraphVisible(false);
                 ConfigureWeakPointForCurrentState();
                 RefreshCombatStateReadability();
+                PlayCoreExposeBurstIfNeeded();
                 return;
             }
 
@@ -346,6 +347,7 @@ namespace AlienCrusher.Gameplay
             EnsureBossCoreTelegraphSetup();
             SetBossCoreTelegraphVisible(true);
             RefreshCombatStateReadability();
+            PlayCoreExposeBurstIfNeeded();
         }
 
         public bool RestoreDurability(float amount)

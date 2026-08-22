@@ -5,6 +5,26 @@ namespace AlienCrusher.Gameplay
 {
     public partial class DummyDestructibleBlock
     {
+        private bool coreExposeBurstArmed = true;
+
+        private void PlayCoreExposeBurstIfNeeded()
+        {
+            if (!bossCoreExposureActive)
+            {
+                coreExposeBurstArmed = true;
+                return;
+            }
+
+            if (!coreExposeBurstArmed)
+            {
+                return;
+            }
+
+            coreExposeBurstArmed = false;
+            Vector3 center = transform.position + Vector3.up * Mathf.Max(0.6f, initialScale.y * 0.22f);
+            DestructionBreakFeedbackVfx.PlayWeakPointHit(center, bossCore: true);
+        }
+
         private void PlayNamedBreakFeedback(Vector3 hitPoint, float damageRatio, float remainingRatio, bool heavyHit, bool weakPointHit, bool suppressFeedback, bool destroyed)
         {
             DestructionBreakFeedbackVfx.RenameExistingBreakVfx(debrisParticle, smokeParticle);
