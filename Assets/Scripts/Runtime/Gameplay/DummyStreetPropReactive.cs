@@ -223,6 +223,7 @@ namespace AlienCrusher.Gameplay
             if (!suppressFeedback)
             {
                 feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01));
+                DestructionBreakFeedbackVfx.PlayDebrisLight(hitPoint, Mathf.Clamp01(impact01));
             }
 
             scoreSystem?.AddScore(scoreReward);

@@ -110,6 +110,13 @@ Combat states shipped:
 - runtime assignment only; HP, break thresholds, shield counts, and timing unchanged
 - Stage 1 smash shows gold weak points and crack overlays; Stage 4 shows cyan protected pylons vs hot exposed core
 
+Break feedback shipped:
+- `VFX_Debris_Light` short plaster chips on small hits and street-prop breaks
+- `VFX_Debris_Heavy` heavier local burst on large/mid collapse, kept short so Target_A/B and HOLD pips stay readable
+- `VFX_Smoke_Damage` near-break smoke on mid/large structures
+- `VFX_WeakPoint_Hit` tight gold/orange crit flash, distinct from ordinary chips
+- runtime VFX only; HP, spawn counts, and timing unchanged
+
 Expected output:
 - players can tell easy targets from high-value targets
 - damage states become readable before destruction

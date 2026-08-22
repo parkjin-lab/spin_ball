@@ -609,6 +609,7 @@ namespace AlienCrusher.Gameplay
             }
 
             UpdateTint();
+            PlayNamedBreakFeedback(hitPoint, damageRatio, remainingRatio, heavyHit, weakPointHit, suppressFeedback, currentDurability <= 0f);
 
             if (currentDurability <= 0f)
             {

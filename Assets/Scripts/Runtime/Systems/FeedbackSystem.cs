@@ -419,6 +419,7 @@ namespace AlienCrusher.Systems
                 ? Mathf.Lerp(0.14f, 0.26f, normalizedIntensity)
                 : Mathf.Lerp(0.08f, 0.18f, normalizedIntensity);
             PlayScreenFlash(flashColor, flashAlpha, 0.02f, bossCore ? 0.18f : 0.12f);
+            DestructionBreakFeedbackVfx.PlayWeakPointHit(center, bossCore);
 
             var ringIntensity = bossCore ? Mathf.Lerp(0.68f, 1f, normalizedIntensity) : Mathf.Lerp(0.45f, 0.8f, normalizedIntensity);
             PlayComboRushRing(ringIntensity);

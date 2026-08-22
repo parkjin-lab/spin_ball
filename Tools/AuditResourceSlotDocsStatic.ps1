@@ -116,7 +116,11 @@ if ($errors.Count -eq 0) {
         "MAT_Damage_CrackOverlay",
         "MAT_WeakPoint_Glow",
         "MAT_Shielded_Pylon",
-        "MAT_Exposed_Core"
+        "MAT_Exposed_Core",
+        "VFX_Debris_Light",
+        "VFX_Debris_Heavy",
+        "VFX_Smoke_Damage",
+        "VFX_WeakPoint_Hit"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -160,6 +164,10 @@ if ($errors.Count -eq 0) {
         "MAT_WeakPoint_Glow",
         "MAT_Shielded_Pylon",
         "MAT_Exposed_Core",
+        "VFX_Debris_Light",
+        "VFX_Debris_Heavy",
+        "VFX_Smoke_Damage",
+        "VFX_WeakPoint_Hit",
         "Assets/Resources/UI/Icons/"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $productionBoardText -Needle $needle -Label "Resource production board output contract"

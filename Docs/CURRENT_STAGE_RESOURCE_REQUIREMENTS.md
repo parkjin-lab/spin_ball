@@ -119,8 +119,8 @@ Status:
 - combat states now have named runtime materials so damaged, weak-point, shielded, and exposed-core reads stay distinct
 
 Need:
-- smoke / debris / weak-point-hit VFX variants after combat-state materials
-- stronger contrast between ground, props, small buildings, and big targets once break VFX ships
+- collapse audio pairing after break VFX
+- stronger contrast between ground, props, small buildings, and big targets once street-prop kits expand
 
 Required assets:
 - `MAT_Building_Small` pale plaster / cheap low-rise (`Assets/Art/Materials/Destruction/`)
@@ -131,6 +131,10 @@ Required assets:
 - `MAT_WeakPoint_Glow` small gold target pip with halo (`Assets/Art/Materials/Destruction/`)
 - `MAT_Shielded_Pylon` cool cyan barrier on live shield pylons (`Assets/Art/Materials/Destruction/`)
 - `MAT_Exposed_Core` hot orange-white open core window (`Assets/Art/Materials/Destruction/`)
+- `VFX_Debris_Light` short cheap chips on small hits and prop breaks (`Assets/Art/VFX/Destruction/`)
+- `VFX_Debris_Heavy` heavier local collapse burst (`Assets/Art/VFX/Destruction/`)
+- `VFX_Smoke_Damage` near-break smoke on mid/large structures (`Assets/Art/VFX/Destruction/`)
+- `VFX_WeakPoint_Hit` sharp gold/orange crit flash (`Assets/Art/VFX/Destruction/`)
 - material set for `small building`, `mid building`, `large building`, `boss-related structure`
 - crack overlay / damage tint presets
 - smoke burst variant
