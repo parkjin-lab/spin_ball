@@ -47,6 +47,13 @@ Sphere starter shipped:
 - draft sprites at `Assets/Resources/UI/Icons/`
 - in-world pulse mark `VFX_SpherePulse_Mark` plus belt flash; cooldown/damage unchanged
 
+Ram / Saucer route helpers shipped:
+- `FORM_Ram_Body_Kit` dark shell, amber wedge plate, and side horns
+- `FORM_Saucer_Body_Kit` wide cyan rim over a pale disc
+- `Icon_Form_Ram` / `Icon_Form_Saucer` lobby thumbnails
+- `Icon_Skill_RamBreach` / `Icon_Skill_SaucerDash` action-button cues
+- in-world marks `VFX_RamBreach_Mark` and `VFX_SaucerDash_Mark`; skill numbers unchanged
+
 Expected output:
 - player can distinguish all forms at a glance
 - form selection in lobby feels desirable

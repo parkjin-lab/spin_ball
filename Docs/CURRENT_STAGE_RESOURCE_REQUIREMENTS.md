@@ -68,7 +68,8 @@ Without them, the game may work but feel unfinished or confusing.
 Status:
 - forms already exist in code and partially exist visually
 - Sphere now has a runtime belt kit, lobby/HUD icon, and SPHERE PULSE cue
-- remaining unlocked forms still need stronger silhouette distinction and feedback support
+- Ram and Saucer now have route-helper silhouette kits, lobby icons, and skill marks
+- Spike and Crusher still need stronger silhouette distinction and feedback support
 
 Need:
 - one clear visual silhouette set per form
@@ -78,8 +79,14 @@ Need:
 
 Required assets:
 - `FORM_Sphere_Body_Kit` cool-green body plus emissive equatorial belt
+- `FORM_Ram_Body_Kit` amber wedge nose with side horns
+- `FORM_Saucer_Body_Kit` cyan rim disc with pale underside
 - `Icon_Form_Sphere` solid circle with orbit band (`Assets/Resources/UI/Icons/`)
+- `Icon_Form_Ram` wedge arrow inside circle (`Assets/Resources/UI/Icons/`)
+- `Icon_Form_Saucer` flat disk with motion streak (`Assets/Resources/UI/Icons/`)
 - `Icon_Skill_SpherePulse` pulse-ring skill cue (`Assets/Resources/UI/Icons/`)
+- `Icon_Skill_RamBreach` forward shove cue (`Assets/Resources/UI/Icons/`)
+- `Icon_Skill_SaucerDash` wide-disc dash cue (`Assets/Resources/UI/Icons/`)
 - `Form Icon - Sphere`
 - `Form Icon - Spike`
 - `Form Icon - Ram`

@@ -218,6 +218,16 @@ namespace AlienCrusher.Systems
             SpherePulseMarkDriver.Spawn(worldCenter, radius);
         }
 
+        public void PlayRamBreachMark(Vector3 worldCenter, float radius, Vector3 forward)
+        {
+            SpherePulseMarkDriver.SpawnRamBreach(worldCenter, radius, forward);
+        }
+
+        public void PlaySaucerDashMark(Vector3 worldCenter, float radius)
+        {
+            SpherePulseMarkDriver.SpawnSaucerDash(worldCenter, radius);
+        }
+
         public void PlayRetailFrenzyFeedback(Vector3 worldCenter, float normalizedIntensity, float radius)
         {
             normalizedIntensity = Mathf.Clamp01(normalizedIntensity);

@@ -68,6 +68,14 @@ namespace AlienCrusher.Gameplay
         private Color sphereBeltBaseColor = new Color(0.62f, 1f, 0.38f, 1f);
         private Color sphereBeltEmissionColor = new Color(0.34f, 0.92f, 0.28f, 1f);
         private float spherePulseMarkUntil;
+        private Material ramPlateMaterial;
+        private Color ramPlateBaseColor = new Color(0.92f, 0.58f, 0.18f, 1f);
+        private Color ramPlateEmissionColor = new Color(0.78f, 0.36f, 0.06f, 1f);
+        private float ramBreachMarkUntil;
+        private Material saucerRimMaterial;
+        private Color saucerRimBaseColor = new Color(0.28f, 0.82f, 0.88f, 1f);
+        private Color saucerRimEmissionColor = new Color(0.16f, 0.58f, 0.66f, 1f);
+        private float saucerDashMarkUntil;
 
         private float baseAcceleration;
         private float baseMaxPlanarSpeed;
@@ -188,6 +196,8 @@ namespace AlienCrusher.Gameplay
 
             UpdateCounterSurgeVisual();
             TickSpherePulseMark();
+            TickRamBreachMark();
+            TickSaucerDashMark();
         }
         private void FixedUpdate()
         {
@@ -407,31 +417,29 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            var root = transform.Find("_RamForm");
-            if (root == null)
-            {
-                var rootGo = new GameObject("_RamForm");
-                root = rootGo.transform;
-                root.SetParent(transform, false);
-            }
+            var root = GetOrCreateFormIdentityKit("FORM_Ram_Body_Kit", "_RamForm");
+            DeactivateNamedChild(root, "RamBody");
+            DeactivateNamedChild(root, "RamHorn");
 
-            var bodyGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            bodyGo.name = "RamBody";
-            bodyGo.transform.SetParent(root, false);
-            bodyGo.transform.localPosition = Vector3.zero;
-            bodyGo.transform.localScale = new Vector3(1.05f, 0.85f, 1.25f);
-            RemoveCollider(bodyGo);
+            var shellColor = new Color(0.28f, 0.16f, 0.08f, 1f);
+            var shellGlow = new Color(0.12f, 0.06f, 0.02f, 1f);
+            var hornColor = new Color(0.86f, 0.48f, 0.14f, 1f);
 
-            var hornGo = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            hornGo.name = "RamHorn";
-            hornGo.transform.SetParent(root, false);
-            hornGo.transform.localPosition = new Vector3(0f, 0f, 0.95f);
-            hornGo.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            hornGo.transform.localScale = new Vector3(0.22f, 0.6f, 0.22f);
-            RemoveCollider(hornGo);
+            EnsureFormIdentityPrimitive(root, "RamShell", PrimitiveType.Cube, new Vector3(0f, -0.02f, -0.08f), new Vector3(0.98f, 0.7f, 1.08f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("RamShell") != null ? root.Find("RamShell").gameObject : null, "M_Runtime_RamShell", shellColor, shellGlow);
+
+            EnsureFormIdentityPrimitive(root, "RamWedge", PrimitiveType.Cube, new Vector3(0f, 0.02f, 0.38f), new Vector3(0.78f, 0.52f, 0.72f), new Vector3(0f, 45f, 0f));
+            ApplyFormIdentityMaterial(root.Find("RamWedge") != null ? root.Find("RamWedge").gameObject : null, "M_Runtime_RamWedge", ramPlateBaseColor, ramPlateEmissionColor);
+
+            var plateGo = EnsureFormIdentityPrimitive(root, "RamPlate", PrimitiveType.Cube, new Vector3(0f, 0.04f, 0.78f), new Vector3(0.48f, 0.36f, 0.2f), Vector3.zero);
+            ramPlateMaterial = ApplyFormIdentityMaterial(plateGo, "M_Runtime_RamPlate", ramPlateBaseColor, ramPlateEmissionColor);
+
+            EnsureFormIdentityPrimitive(root, "RamHorn_L", PrimitiveType.Cylinder, new Vector3(-0.46f, 0.1f, 0.52f), new Vector3(0.16f, 0.38f, 0.16f), new Vector3(78f, 0f, 18f));
+            ApplyFormIdentityMaterial(root.Find("RamHorn_L") != null ? root.Find("RamHorn_L").gameObject : null, "M_Runtime_RamHornL", hornColor, ramPlateEmissionColor);
+            EnsureFormIdentityPrimitive(root, "RamHorn_R", PrimitiveType.Cylinder, new Vector3(0.46f, 0.1f, 0.52f), new Vector3(0.16f, 0.38f, 0.16f), new Vector3(78f, 0f, -18f));
+            ApplyFormIdentityMaterial(root.Find("RamHorn_R") != null ? root.Find("RamHorn_R").gameObject : null, "M_Runtime_RamHornR", hornColor, ramPlateEmissionColor);
 
             ramVisual = root;
-            ApplyMaterialToForm(ramVisual);
             ramVisual.gameObject.SetActive(false);
         }
 
@@ -442,31 +450,178 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            var root = transform.Find("_SaucerForm");
+            var root = GetOrCreateFormIdentityKit("FORM_Saucer_Body_Kit", "_SaucerForm");
+            DeactivateNamedChild(root, "SaucerBody");
+            DeactivateNamedChild(root, "SaucerCore");
+
+            var pale = new Color(0.78f, 0.88f, 0.92f, 1f);
+            var paleGlow = new Color(0.22f, 0.36f, 0.4f, 1f);
+            var dome = new Color(0.55f, 0.9f, 0.94f, 1f);
+
+            var rimGo = EnsureFormIdentityPrimitive(root, "SaucerRim", PrimitiveType.Cylinder, new Vector3(0f, -0.02f, 0f), new Vector3(1.78f, 0.1f, 1.78f), Vector3.zero);
+            saucerRimMaterial = ApplyFormIdentityMaterial(rimGo, "M_Runtime_SaucerRim", saucerRimBaseColor, saucerRimEmissionColor);
+
+            EnsureFormIdentityPrimitive(root, "SaucerDisc", PrimitiveType.Cylinder, new Vector3(0f, 0.03f, 0f), new Vector3(1.38f, 0.12f, 1.38f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("SaucerDisc") != null ? root.Find("SaucerDisc").gameObject : null, "M_Runtime_SaucerDisc", pale, paleGlow);
+
+            EnsureFormIdentityPrimitive(root, "SaucerDome", PrimitiveType.Sphere, new Vector3(0f, 0.16f, 0f), new Vector3(0.42f, 0.2f, 0.42f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("SaucerDome") != null ? root.Find("SaucerDome").gameObject : null, "M_Runtime_SaucerDome", dome, saucerRimEmissionColor);
+
+            EnsureFormIdentityPrimitive(root, "SaucerCanopy", PrimitiveType.Cube, new Vector3(0f, 0.18f, 0.12f), new Vector3(0.22f, 0.1f, 0.18f), Vector3.zero);
+            ApplyFormIdentityMaterial(root.Find("SaucerCanopy") != null ? root.Find("SaucerCanopy").gameObject : null, "M_Runtime_SaucerCanopy", new Color(0.86f, 0.96f, 0.98f, 1f), paleGlow);
+
+            saucerVisual = root;
+            saucerVisual.gameObject.SetActive(false);
+        }
+
+        public void PlayRamBreachVisualCue()
+        {
+            ramBreachMarkUntil = Time.time + 0.26f;
+            ApplyFormAccentPulse(ramPlateMaterial, ramPlateBaseColor, ramPlateEmissionColor, new Color(1f, 0.82f, 0.4f, 1f), 1f);
+        }
+
+        public void PlaySaucerDashVisualCue()
+        {
+            saucerDashMarkUntil = Time.time + 0.26f;
+            ApplyFormAccentPulse(saucerRimMaterial, saucerRimBaseColor, saucerRimEmissionColor, new Color(0.72f, 0.98f, 1f, 1f), 1f);
+        }
+
+        private void TickRamBreachMark()
+        {
+            TickFormAccentPulse(ref ramBreachMarkUntil, ramPlateMaterial, ramPlateBaseColor, ramPlateEmissionColor, new Color(1f, 0.82f, 0.4f, 1f));
+        }
+
+        private void TickSaucerDashMark()
+        {
+            TickFormAccentPulse(ref saucerDashMarkUntil, saucerRimMaterial, saucerRimBaseColor, saucerRimEmissionColor, new Color(0.72f, 0.98f, 1f, 1f));
+        }
+
+        private static void TickFormAccentPulse(ref float until, Material material, Color baseColor, Color emission, Color flash)
+        {
+            if (material == null)
+            {
+                return;
+            }
+
+            if (Time.time >= until)
+            {
+                ApplyFormAccentPulse(material, baseColor, emission, flash, 0f);
+                return;
+            }
+
+            var remaining = Mathf.Clamp01((until - Time.time) / 0.26f);
+            ApplyFormAccentPulse(material, baseColor, emission, flash, remaining);
+        }
+
+        private static void ApplyFormAccentPulse(Material material, Color baseColor, Color emission, Color flash, float strength)
+        {
+            if (material == null)
+            {
+                return;
+            }
+
+            strength = Mathf.Clamp01(strength);
+            var color = Color.Lerp(baseColor, flash, strength * 0.45f);
+            var emit = Color.Lerp(emission, flash, strength);
+            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
+            if (material.HasProperty("_Color")) material.SetColor("_Color", color);
+            if (material.HasProperty("_EmissionColor"))
+            {
+                material.EnableKeyword("_EMISSION");
+                material.SetColor("_EmissionColor", emit * (1f + strength * 1.5f));
+            }
+        }
+
+        private Transform GetOrCreateFormIdentityKit(string kitId, string legacyName)
+        {
+            var root = transform.Find(kitId);
             if (root == null)
             {
-                var rootGo = new GameObject("_SaucerForm");
+                root = transform.Find(legacyName);
+            }
+            if (root == null)
+            {
+                var rootGo = new GameObject(kitId);
                 root = rootGo.transform;
                 root.SetParent(transform, false);
             }
+            else
+            {
+                root.gameObject.name = kitId;
+            }
 
-            var bodyGo = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            bodyGo.name = "SaucerBody";
-            bodyGo.transform.SetParent(root, false);
-            bodyGo.transform.localPosition = Vector3.zero;
-            bodyGo.transform.localScale = new Vector3(1.2f, 0.18f, 1.2f);
-            RemoveCollider(bodyGo);
+            return root;
+        }
 
-            var coreGo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            coreGo.name = "SaucerCore";
-            coreGo.transform.SetParent(root, false);
-            coreGo.transform.localPosition = new Vector3(0f, 0.2f, 0f);
-            coreGo.transform.localScale = new Vector3(0.62f, 0.34f, 0.62f);
-            RemoveCollider(coreGo);
+        private static void DeactivateNamedChild(Transform parent, string name)
+        {
+            if (parent == null)
+            {
+                return;
+            }
 
-            saucerVisual = root;
-            ApplyMaterialToForm(saucerVisual);
-            saucerVisual.gameObject.SetActive(false);
+            var child = parent.Find(name);
+            if (child != null)
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
+
+        private static GameObject EnsureFormIdentityPrimitive(Transform parent, string name, PrimitiveType type, Vector3 localPosition, Vector3 localScale, Vector3 localEuler)
+        {
+            var existing = parent.Find(name);
+            GameObject go;
+            if (existing == null)
+            {
+                go = GameObject.CreatePrimitive(type);
+                go.name = name;
+                go.transform.SetParent(parent, false);
+            }
+            else
+            {
+                go = existing.gameObject;
+                go.SetActive(true);
+            }
+
+            RemoveCollider(go);
+            go.transform.localPosition = localPosition;
+            go.transform.localRotation = Quaternion.Euler(localEuler);
+            go.transform.localScale = localScale;
+            return go;
+        }
+
+        private static Material ApplyFormIdentityMaterial(GameObject target, string materialName, Color color, Color emission)
+        {
+            if (target == null)
+            {
+                return null;
+            }
+
+            var renderer = target.GetComponent<Renderer>();
+            if (renderer == null)
+            {
+                return null;
+            }
+
+            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            if (shader == null)
+            {
+                return renderer.sharedMaterial;
+            }
+
+            var material = new Material(shader)
+            {
+                name = materialName
+            };
+            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
+            if (material.HasProperty("_Color")) material.SetColor("_Color", color);
+            if (material.HasProperty("_EmissionColor"))
+            {
+                material.EnableKeyword("_EMISSION");
+                material.SetColor("_EmissionColor", emission);
+            }
+            renderer.sharedMaterial = material;
+            return material;
         }
 
         private void EnsureCrusherVisual()

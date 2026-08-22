@@ -8,16 +8,27 @@ namespace AlienCrusher.Systems
 	public partial class DummyFlowController
 	{
 		private const string IconFormSphereId = "Icon_Form_Sphere";
+		private const string IconFormRamId = "Icon_Form_Ram";
+		private const string IconFormSaucerId = "Icon_Form_Saucer";
 		private const string IconSkillSpherePulseId = "Icon_Skill_SpherePulse";
+		private const string IconSkillRamBreachId = "Icon_Skill_RamBreach";
+		private const string IconSkillSaucerDashId = "Icon_Skill_SaucerDash";
+		private const string IconFormSkillChildId = "Icon_FormSkill";
 
 		private Sprite iconFormSphereSprite;
+		private Sprite iconFormRamSprite;
+		private Sprite iconFormSaucerSprite;
 		private Sprite iconSkillSpherePulseSprite;
+		private Sprite iconSkillRamBreachSprite;
+		private Sprite iconSkillSaucerDashSprite;
 		private bool formIdentityIconsCached;
 
 		private void EnsureFormIdentityIcons()
 		{
 			CacheFormIdentityIconSprites();
-			EnsureLobbySphereFormIcon();
+			EnsureLobbyFormIcon("Form_Sphere", IconFormSphereId, iconFormSphereSprite);
+			EnsureLobbyFormIcon("Form_Ram", IconFormRamId, iconFormRamSprite);
+			EnsureLobbyFormIcon("Form_Saucer", IconFormSaucerId, iconFormSaucerSprite);
 			RefreshFormIdentitySkillIcons();
 		}
 
@@ -29,7 +40,11 @@ namespace AlienCrusher.Systems
 			}
 
 			iconFormSphereSprite = LoadFormIdentityIconSprite(IconFormSphereId);
+			iconFormRamSprite = LoadFormIdentityIconSprite(IconFormRamId);
+			iconFormSaucerSprite = LoadFormIdentityIconSprite(IconFormSaucerId);
 			iconSkillSpherePulseSprite = LoadFormIdentityIconSprite(IconSkillSpherePulseId);
+			iconSkillRamBreachSprite = LoadFormIdentityIconSprite(IconSkillRamBreachId);
+			iconSkillSaucerDashSprite = LoadFormIdentityIconSprite(IconSkillSaucerDashId);
 			formIdentityIconsCached = true;
 		}
 
@@ -52,15 +67,15 @@ namespace AlienCrusher.Systems
 			return sprite;
 		}
 
-		private void EnsureLobbySphereFormIcon()
+		private void EnsureLobbyFormIcon(string buttonName, string iconId, Sprite sprite)
 		{
-			Button button = FindButton("Form_Sphere");
-			if ((Object)(object)button == (Object)null || (Object)(object)iconFormSphereSprite == (Object)null)
+			Button button = FindButton(buttonName);
+			if ((Object)(object)button == (Object)null || (Object)(object)sprite == (Object)null)
 			{
 				return;
 			}
 
-			Image image = EnsureNamedIconImage(button.transform, IconFormSphereId);
+			Image image = EnsureNamedIconImage(button.transform, iconId);
 			if ((Object)(object)image == (Object)null)
 			{
 				return;
@@ -72,18 +87,44 @@ namespace AlienCrusher.Systems
 			rect.pivot = new Vector2(0.5f, 1f);
 			rect.sizeDelta = new Vector2(52f, 52f);
 			rect.anchoredPosition = new Vector2(0f, -8f);
-			image.sprite = iconFormSphereSprite;
+			image.sprite = sprite;
 			image.color = Color.white;
 			image.preserveAspect = true;
 			image.raycastTarget = false;
+			image.enabled = true;
 		}
 
 		private void RefreshFormIdentitySkillIcons()
 		{
 			CacheFormIdentityIconSprites();
-			bool showPulse = enableFormActiveSkills && GetFormActiveSkill(GetCurrentSelectedForm()) == FormActiveSkill.SpherePulse;
-			PlaceSkillIconOnButton("TransformButton", IconSkillSpherePulseId, iconSkillSpherePulseSprite, showPulse, new Vector2(18f, -16f), 34f);
-			PlaceSkillIconOnButton("Special1Button", IconSkillSpherePulseId, iconSkillSpherePulseSprite, showPulse, new Vector2(16f, -14f), 30f);
+			FormActiveSkill skill = enableFormActiveSkills ? GetFormActiveSkill(GetCurrentSelectedForm()) : FormActiveSkill.None;
+			Sprite sprite = skill switch
+			{
+				FormActiveSkill.SpherePulse => iconSkillSpherePulseSprite,
+				FormActiveSkill.RamBreach => iconSkillRamBreachSprite,
+				FormActiveSkill.SaucerDash => iconSkillSaucerDashSprite,
+				_ => null
+			};
+			bool show = (Object)(object)sprite != (Object)null;
+			PlaceSkillIconOnButton("TransformButton", IconFormSkillChildId, sprite, show, new Vector2(18f, -16f), 34f);
+			PlaceSkillIconOnButton("Special1Button", IconFormSkillChildId, sprite, show, new Vector2(16f, -14f), 30f);
+			HideLegacySkillIcon("TransformButton", IconSkillSpherePulseId);
+			HideLegacySkillIcon("Special1Button", IconSkillSpherePulseId);
+		}
+
+		private void HideLegacySkillIcon(string buttonName, string iconId)
+		{
+			Button button = FindButton(buttonName);
+			if ((Object)(object)button == (Object)null)
+			{
+				return;
+			}
+
+			Transform existing = FindDirectChild(button.transform, iconId);
+			if ((Object)(object)existing != (Object)null)
+			{
+				existing.gameObject.SetActive(false);
+			}
 		}
 
 		private void PlaceSkillIconOnButton(string buttonName, string iconId, Sprite sprite, bool visible, Vector2 anchoredPosition, float size)

@@ -14,8 +14,61 @@ namespace AlienCrusher.Systems
 
 		public static void Spawn(Vector3 worldCenter, float radius)
 		{
-			GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-			go.name = "VFX_SpherePulse_Mark";
+			float reach = Mathf.Max(1.2f, radius * 1.15f);
+			Spawn(
+				worldCenter,
+				"VFX_SpherePulse_Mark",
+				PrimitiveType.Cylinder,
+				Quaternion.identity,
+				new Vector3(0.42f, 0.12f, 0.42f),
+				new Vector3(reach, 0.12f, reach),
+				new Color(0.58f, 1f, 0.42f, 0.92f));
+		}
+
+		public static void SpawnRamBreach(Vector3 worldCenter, float radius, Vector3 forward)
+		{
+			if (forward.sqrMagnitude < 0.001f)
+			{
+				forward = Vector3.forward;
+			}
+
+			forward.y = 0f;
+			Quaternion rotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
+			float reach = Mathf.Max(1.4f, radius * 0.85f);
+			Spawn(
+				worldCenter,
+				"VFX_RamBreach_Mark",
+				PrimitiveType.Cube,
+				rotation,
+				new Vector3(0.28f, 0.16f, 0.42f),
+				new Vector3(0.38f, 0.16f, reach),
+				new Color(0.96f, 0.62f, 0.18f, 0.92f));
+		}
+
+		public static void SpawnSaucerDash(Vector3 worldCenter, float radius)
+		{
+			float reach = Mathf.Max(1.6f, radius * 1.35f);
+			Spawn(
+				worldCenter,
+				"VFX_SaucerDash_Mark",
+				PrimitiveType.Cylinder,
+				Quaternion.identity,
+				new Vector3(0.7f, 0.1f, 0.7f),
+				new Vector3(reach, 0.1f, reach),
+				new Color(0.32f, 0.88f, 0.94f, 0.9f));
+		}
+
+		private static void Spawn(
+			Vector3 worldCenter,
+			string name,
+			PrimitiveType type,
+			Quaternion rotation,
+			Vector3 startScale,
+			Vector3 endScale,
+			Color color)
+		{
+			GameObject go = GameObject.CreatePrimitive(type);
+			go.name = name;
 			Collider collider = go.GetComponent<Collider>();
 			if (collider != null)
 			{
@@ -23,14 +76,13 @@ namespace AlienCrusher.Systems
 			}
 
 			go.transform.position = worldCenter;
-			go.transform.rotation = Quaternion.identity;
+			go.transform.rotation = rotation;
 
 			SpherePulseMarkDriver driver = go.AddComponent<SpherePulseMarkDriver>();
-			float reach = Mathf.Max(1.2f, radius * 1.15f);
-			driver.startScale = new Vector3(0.42f, 0.12f, 0.42f);
-			driver.endScale = new Vector3(reach, 0.12f, reach);
-			driver.markColor = new Color(0.58f, 1f, 0.42f, 0.92f);
-			go.transform.localScale = driver.startScale;
+			driver.startScale = startScale;
+			driver.endScale = endScale;
+			driver.markColor = color;
+			go.transform.localScale = startScale;
 			driver.ApplyMaterial();
 		}
 
