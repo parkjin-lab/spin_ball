@@ -5,8 +5,11 @@ namespace AlienCrusher.Systems
 	public static class DistrictRhythmPaletteSet
 	{
 		public const string StarterResidentialId = "PAL_District_StarterResidential";
+		public const string PocketParkId = "PAL_District_PocketPark";
 		public const string MarketPlazaId = "PAL_District_MarketPlaza";
 		public const string SentinelCheckpointId = "PAL_District_SentinelCheckpoint";
+		public const string ConstructionYardId = "PAL_District_ConstructionYard";
+		public const string PowerBlockId = "PAL_District_PowerBlock";
 		public const string SkylineBlockId = "PAL_District_SkylineBlock";
 
 		public static bool TryApplyCoreRhythmPalette(
@@ -31,6 +34,12 @@ namespace AlienCrusher.Systems
 				return true;
 			}
 
+			if (stageNumber == 2)
+			{
+				ApplyPocketPark(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				return true;
+			}
+
 			if (stageNumber == 3)
 			{
 				ApplyMarketPlaza(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
@@ -40,6 +49,18 @@ namespace AlienCrusher.Systems
 			if (stageNumber == 4)
 			{
 				ApplySentinelCheckpoint(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				return true;
+			}
+
+			if (stageNumber == 5)
+			{
+				ApplyConstructionYard(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				return true;
+			}
+
+			if (stageNumber == 6)
+			{
+				ApplyPowerBlock(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
 				return true;
 			}
 
@@ -81,6 +102,37 @@ namespace AlienCrusher.Systems
 			accentB = new Color(0.22f, 0.70f, 0.78f, 1f);
 			hazardA = new Color(1f, 0.72f, 0.38f, 1f);
 			hazardB = new Color(1f, 0.46f, 0.22f, 1f);
+		}
+
+		private static void ApplyPocketPark(
+			ref Color ground,
+			ref Color wall,
+			ref Color asphalt,
+			ref Color stripe,
+			ref Color sidewalk,
+			ref Color foliageA,
+			ref Color foliageB,
+			ref Color neutralA,
+			ref Color neutralB,
+			ref Color accentA,
+			ref Color accentB,
+			ref Color hazardA,
+			ref Color hazardB)
+		{
+			// Calmer route cut than Stage 1. Soft park green, not suburb gray-green or market tan.
+			ground = new Color(0.11f, 0.16f, 0.11f, 1f);
+			wall = new Color(0.20f, 0.30f, 0.22f, 1f);
+			asphalt = new Color(0.16f, 0.20f, 0.16f, 1f);
+			stripe = new Color(0.78f, 0.90f, 0.72f, 0.88f);
+			sidewalk = new Color(0.70f, 0.80f, 0.68f, 0.90f);
+			foliageA = new Color(0.20f, 0.56f, 0.28f, 1f);
+			foliageB = new Color(0.42f, 0.76f, 0.38f, 1f);
+			neutralA = new Color(0.80f, 0.84f, 0.74f, 1f);
+			neutralB = new Color(0.72f, 0.68f, 0.52f, 1f);
+			accentA = new Color(0.46f, 0.58f, 0.36f, 1f);
+			accentB = new Color(0.88f, 0.82f, 0.58f, 1f);
+			hazardA = new Color(0.86f, 0.62f, 0.28f, 1f);
+			hazardB = new Color(0.78f, 0.40f, 0.22f, 1f);
 		}
 
 		private static void ApplyMarketPlaza(
@@ -143,6 +195,68 @@ namespace AlienCrusher.Systems
 			accentB = new Color(0.86f, 0.70f, 0.32f, 1f);
 			hazardA = new Color(0.96f, 0.42f, 0.16f, 1f);
 			hazardB = new Color(1f, 0.70f, 0.22f, 1f);
+		}
+
+		private static void ApplyConstructionYard(
+			ref Color ground,
+			ref Color wall,
+			ref Color asphalt,
+			ref Color stripe,
+			ref Color sidewalk,
+			ref Color foliageA,
+			ref Color foliageB,
+			ref Color neutralA,
+			ref Color neutralB,
+			ref Color accentA,
+			ref Color accentB,
+			ref Color hazardA,
+			ref Color hazardB)
+		{
+			// Blast payoff. Dusty yard plus hazard-yellow stripes, not market stall orange or sentinel amber.
+			ground = new Color(0.15f, 0.12f, 0.08f, 1f);
+			wall = new Color(0.28f, 0.22f, 0.14f, 1f);
+			asphalt = new Color(0.18f, 0.15f, 0.10f, 1f);
+			stripe = new Color(0.98f, 0.84f, 0.14f, 0.94f);
+			sidewalk = new Color(0.62f, 0.56f, 0.42f, 0.90f);
+			foliageA = new Color(0.24f, 0.30f, 0.16f, 1f);
+			foliageB = new Color(0.36f, 0.40f, 0.20f, 1f);
+			neutralA = new Color(0.58f, 0.52f, 0.42f, 1f);
+			neutralB = new Color(0.78f, 0.48f, 0.22f, 1f);
+			accentA = new Color(0.22f, 0.20f, 0.16f, 1f);
+			accentB = new Color(0.96f, 0.42f, 0.12f, 1f);
+			hazardA = new Color(1f, 0.86f, 0.12f, 1f);
+			hazardB = new Color(0.12f, 0.10f, 0.08f, 1f);
+		}
+
+		private static void ApplyPowerBlock(
+			ref Color ground,
+			ref Color wall,
+			ref Color asphalt,
+			ref Color stripe,
+			ref Color sidewalk,
+			ref Color foliageA,
+			ref Color foliageB,
+			ref Color neutralA,
+			ref Color neutralB,
+			ref Color accentA,
+			ref Color accentB,
+			ref Color hazardA,
+			ref Color hazardB)
+		{
+			// Transformer risk. Electric teal utility, not skyline night-cyan and not orchid nav.
+			ground = new Color(0.08f, 0.11f, 0.12f, 1f);
+			wall = new Color(0.14f, 0.20f, 0.22f, 1f);
+			asphalt = new Color(0.10f, 0.13f, 0.14f, 1f);
+			stripe = new Color(0.18f, 0.88f, 0.76f, 0.92f);
+			sidewalk = new Color(0.42f, 0.50f, 0.52f, 0.90f);
+			foliageA = new Color(0.16f, 0.32f, 0.28f, 1f);
+			foliageB = new Color(0.22f, 0.42f, 0.36f, 1f);
+			neutralA = new Color(0.48f, 0.56f, 0.58f, 1f);
+			neutralB = new Color(0.86f, 0.78f, 0.28f, 1f);
+			accentA = new Color(0.16f, 0.82f, 0.78f, 1f);
+			accentB = new Color(0.96f, 0.86f, 0.22f, 1f);
+			hazardA = new Color(0.98f, 0.90f, 0.16f, 1f);
+			hazardB = new Color(0.10f, 0.12f, 0.14f, 1f);
 		}
 
 		private static void ApplySkylineBlock(

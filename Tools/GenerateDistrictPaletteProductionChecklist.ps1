@@ -141,8 +141,11 @@ foreach ($needle in @(
 
 foreach ($needle in @(
     "PAL_District_StarterResidential",
+    "PAL_District_PocketPark",
     "PAL_District_MarketPlaza",
     "PAL_District_SentinelCheckpoint",
+    "PAL_District_ConstructionYard",
+    "PAL_District_PowerBlock",
     "PAL_District_SkylineBlock",
     "TryApplyCoreRhythmPalette"
 )) {

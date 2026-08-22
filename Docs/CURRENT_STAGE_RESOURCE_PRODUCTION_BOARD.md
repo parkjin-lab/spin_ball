@@ -354,9 +354,9 @@ Deliverables:
 - `PAL_District_MarketPlaza` Stage 3 warm stall-density pivot
 - `PAL_District_SentinelCheckpoint` Stage 4 steel/amber boss-approach warning
 - `PAL_District_SkylineBlock` Stage 7 night-plaza climax
-- pocket park palette
-- construction yard palette
-- power block palette
+- `PAL_District_PocketPark` Stage 2 calmer park-cut green
+- `PAL_District_ConstructionYard` Stage 5 dusty blast-payoff yellow/black
+- `PAL_District_PowerBlock` Stage 6 electric teal transformer risk
 - `PAL_RouteMarker_Tints` global route marker tint set for `Target_A`, `Target_B`, `routeColor`, and HOLD trail pips
 - ambient stage-band tone set
 

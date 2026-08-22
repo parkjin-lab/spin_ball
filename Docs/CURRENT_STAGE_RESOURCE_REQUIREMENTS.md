@@ -299,8 +299,9 @@ Why this matters now:
 Status:
 - `PAL_RouteMarker_Tints` already locks Target_A / Target_B / routeColor / HOLD pips
 - core rhythm palettes `PAL_District_StarterResidential`, `PAL_District_MarketPlaza`, `PAL_District_SentinelCheckpoint`, and `PAL_District_SkylineBlock` now tint Stage 1/3/4/7 ground, walls, and landmark pads
-- building tier kits and Icons A/B/C were not restyled
-- remaining work is Stage 2/5/6 secondary palettes and ambient stage bands
+- secondary palettes `PAL_District_PocketPark`, `PAL_District_ConstructionYard`, and `PAL_District_PowerBlock` now tint Stage 2/5/6 ground, walls, and landmark pads
+- building tier kits, Icons A/B/C, and Palette B Stage 1/3/4/7 families were not restyled
+- remaining work is ambient stage bands
 
 Need:
 - at least 3 stage palette families so progression feels spatial, not only numeric
@@ -473,6 +474,9 @@ This section can be used as a working production checklist.
 - [x] `PAL_District_MarketPlaza` Stage 3 density ground/wall/pad set
 - [x] `PAL_District_SentinelCheckpoint` Stage 4 warning ground/wall/pad set
 - [x] `PAL_District_SkylineBlock` Stage 7 climax ground/wall/pad set
+- [x] `PAL_District_PocketPark` Stage 2 calmer mint-path park cut
+- [x] `PAL_District_ConstructionYard` Stage 5 dusty blast-payoff yard
+- [x] `PAL_District_PowerBlock` Stage 6 electric-teal transformer block
 - [ ] 3 district palette sets
 - [ ] 8 to 10 street prop silhouettes
 - [x] `PROP_Car_Compact_A` runtime compact hatchback traffic kit
