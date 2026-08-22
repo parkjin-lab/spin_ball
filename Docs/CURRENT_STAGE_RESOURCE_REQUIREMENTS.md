@@ -243,7 +243,8 @@ These are not as urgent as the must-have group, but they should come immediately
 Status:
 - run-essential draft icons `Icon_DP`, `Icon_Stage`, `Icon_NextStep`, and `Icon_Route` already sit on the HUD strip and lobby/result labels
 - route/boss readability draft icons `Icon_BreakWindow`, `Icon_Shield`, `Icon_WeakPoint`, and `Icon_Boss` now sit on a top-right HUD strip, swap beside Sentinel status, and mark elite weak-point copy
-- remaining work is upgrade/chaos status icons and result/recommendation badges
+- upgrade/chaos status draft icons `Icon_Overdrive`, `Icon_Panic`, `Icon_Seismic`, `Icon_Retail`, and `Icon_Traffic` now sit on a compact HUD/lobby strip and beside chain, upgrade, and TRAFFIC labels
+- remaining work is result/recommendation badges
 
 Need:
 - icon set for stage pressure, route target, destruction, DP, overdrive, panic, seismic, boss state, weak point, shield, break window
@@ -513,6 +514,11 @@ This section can be used as a working production checklist.
 - [x] `Icon_Shield` cyan shield plate with pylon ticks
 - [x] `Icon_WeakPoint` gold bullseye with glow dot
 - [x] `Icon_Boss` sentinel eye inside steel frame
+- [x] `Icon_Overdrive` orange speed ring with flame notch
+- [x] `Icon_Panic` car with radial warning spikes
+- [x] `Icon_Seismic` ground crack wave
+- [x] `Icon_Retail` shop awning with burst star
+- [x] `Icon_Traffic` road lane plus small car
 - [ ] stage / DP / route / break / shield / weak point icon set
 - [ ] form card frame set
 - [ ] meta upgrade chip set

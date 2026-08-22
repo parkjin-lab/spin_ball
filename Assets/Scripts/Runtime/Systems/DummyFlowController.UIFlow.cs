@@ -112,6 +112,7 @@ namespace AlienCrusher.Systems
 					((Transform)hudChainText.rectTransform).localScale = new Vector3(num15, num15, 1f);
 				}
 			}
+			RefreshHudUpgradeStatusIcons();
 			UpdateHudGuidanceTexts();
 			UpdateStageGoalGaugeUi();
 			UpdateStageRouteGuidanceVisuals();
@@ -1480,6 +1481,7 @@ namespace AlienCrusher.Systems
 			EnsureResultLobbyButton();
 			EnsureRunEssentialIcons();
 			EnsureBossReadabilityIcons();
+			EnsureUpgradeStatusIcons();
 			EnsureFormIdentityIcons();
 		}
 

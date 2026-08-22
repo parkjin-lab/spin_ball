@@ -104,7 +104,13 @@ namespace AlienCrusher.Systems
 				return iconRouteSprite;
 			}
 
-			return GetBossReadabilityIconSprite(iconId);
+			Sprite bossSprite = GetBossReadabilityIconSprite(iconId);
+			if ((Object)(object)bossSprite != (Object)null)
+			{
+				return bossSprite;
+			}
+
+			return GetUpgradeStatusIconSprite(iconId);
 		}
 
 		private void EnsureHudRunEssentialIconStrip(Transform hud)

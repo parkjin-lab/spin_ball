@@ -335,10 +335,12 @@ Deliverables:
 - `Icon_Shield` cyan shield plate with pylon ticks
 - `Icon_WeakPoint` gold bullseye with glow dot
 - `Icon_Boss` sentinel eye inside steel frame
+- `Icon_Overdrive` orange speed ring with flame notch
+- `Icon_Panic` car with radial warning spikes
+- `Icon_Seismic` ground crack wave
+- `Icon_Retail` shop awning with burst star
+- `Icon_Traffic` road lane plus small car
 - draft sprites at `Assets/Resources/UI/Icons/`
-- overdrive icon
-- panic icon
-- seismic icon
 
 Done when:
 - HUD and lobby rely less on text-only recognition
