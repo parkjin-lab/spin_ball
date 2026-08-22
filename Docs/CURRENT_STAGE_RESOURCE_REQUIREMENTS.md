@@ -272,6 +272,14 @@ Required assets:
 - `Badge_Recommended` (`Assets/Resources/UI/Badges/`)
 - `UI_DP_GainBurst` (`Assets/Resources/UI/Rewards/`)
 - `SFX_Progression_Locked` (`Assets/Audio/SFX/UI/SFX_Progression_Locked.wav`)
+- `UI_FormCard_StateSet` (`Assets/Resources/UI/Lobby/`)
+- `UI_MetaNode_SizeCore`
+- `UI_MetaNode_ImpactCore`
+- `UI_MetaNode_DpAmplifier` (`Assets/Resources/UI/Meta/`)
+- `Badge_FormReady`
+- `Badge_MetaReady` (`Assets/Resources/UI/Badges/`)
+- `Banner_StageUnlocked`
+- `Toast_ProgressionSaved` (`Assets/Resources/UI/Rewards/`)
 
 Why this matters now:
 - UI text has been heavily simplified already
@@ -369,8 +377,9 @@ These support long-term retention rather than immediate moment-to-moment clarity
 ### 3.1 Lobby / Meta Progression Resource Set
 Status:
 - `UI_DP_GainBurst` and `SFX_Progression_Locked` now mark earn, spend, and insufficient DP on result/lobby
+- form cards, meta nodes, stage-unlock banners, and save toasts now ship as readable visuals (`UI_FormCard_StateSet`, `UI_MetaNode_SizeCore`, `UI_MetaNode_ImpactCore`, `UI_MetaNode_DpAmplifier`, `Badge_FormReady`, `Badge_MetaReady`, `Banner_StageUnlocked`, `Toast_ProgressionSaved`)
 - Icons A-D and district palettes were not restyled
-- remaining work is form/meta card state sets, stage banners, and save toasts
+- remaining work is optional confirm audio (`SFX_Progression_Confirm`) only
 
 Need:
 - cleaner visuals for form unlock targets and meta purchases
@@ -408,9 +417,16 @@ Required assets:
 - unlock acquired badge
 - `UI_DP_GainBurst` DP gain / spend / insufficient burst
 - `SFX_Progression_Locked` insufficient-DP / locked purchase cue
+- `UI_FormCard_StateSet` form card lock / ready / equipped frame
+- `UI_MetaNode_SizeCore` Size Core node chip
+- `UI_MetaNode_ImpactCore` Impact Core node chip
+- `UI_MetaNode_DpAmplifier` DP Amplifier node chip
+- `Badge_FormReady` result form-ready next-action badge
+- `Badge_MetaReady` result meta-ready next-action badge
+- `Banner_StageUnlocked` stage clear / highest-stage banner
+- `Toast_ProgressionSaved` save confirmation toast
 - new form target marker
 - meta upgrade purchased pulse
-- save/progression confirmation toast
 
 Validation support:
 - `powershell -ExecutionPolicy Bypass -File Tools/AuditProgressionSaveSafetyStatic.ps1`
@@ -552,6 +568,14 @@ This section can be used as a working production checklist.
 - [x] `Badge_Recommended` gold focus chevron
 - [x] `UI_DP_GainBurst` teal reward burst for earn / spend / insufficient
 - [x] `SFX_Progression_Locked` muted locked-purchase cue
+- [x] `UI_FormCard_StateSet` form card lock / ready / equipped frame
+- [x] `UI_MetaNode_SizeCore` Size Core node chip
+- [x] `UI_MetaNode_ImpactCore` Impact Core node chip
+- [x] `UI_MetaNode_DpAmplifier` DP Amplifier node chip
+- [x] `Badge_FormReady` result form-ready next-action badge
+- [x] `Badge_MetaReady` result meta-ready next-action badge
+- [x] `Banner_StageUnlocked` stage unlock banner
+- [x] `Toast_ProgressionSaved` save confirmation toast
 - [ ] stage / DP / route / break / shield / weak point icon set
 - [ ] form card frame set
 - [ ] meta upgrade chip set

@@ -6,7 +6,8 @@ param(
     [string]$StageFlowPath = "",
     [string]$FormUnlockSystemPath = "",
     [string]$ProgressionSaveSystemPath = "",
-    [string]$DpEconomyHookPath = ""
+    [string]$DpEconomyHookPath = "",
+    [string]$ProgressionVisualsHookPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -59,6 +60,7 @@ $stageFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePa
 $formUnlockSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FormUnlockSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\FormUnlockSystem.cs"
 $progressionSaveSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ProgressionSaveSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\ProgressionSaveSystem.cs"
 $dpEconomyHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $DpEconomyHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.OutgameDpEconomy.cs"
+$progressionVisualsHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ProgressionVisualsHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.OutgameProgressionVisuals.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherOutgameProgressionChecklist.md"
@@ -78,7 +80,8 @@ $stageFlowText = Read-SourceText -Path $stageFlowSourcePath
 $formUnlockText = Read-SourceText -Path $formUnlockSourcePath
 $progressionSaveText = Read-SourceText -Path $progressionSaveSourcePath
 $dpEconomyHookText = Read-SourceText -Path $dpEconomyHookSourcePath
-$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText
+$progressionVisualsHookText = Read-SourceText -Path $progressionVisualsHookSourcePath
+$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -138,6 +141,22 @@ foreach ($needle in @(
     "SignalOutgameDpInsufficient"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $dpEconomyHookText -Needle $needle
+}
+
+foreach ($needle in @(
+    "UI_FormCard_StateSet",
+    "UI_MetaNode_SizeCore",
+    "UI_MetaNode_ImpactCore",
+    "UI_MetaNode_DpAmplifier",
+    "Badge_FormReady",
+    "Badge_MetaReady",
+    "Banner_StageUnlocked",
+    "Toast_ProgressionSaved",
+    "EnsureOutgameProgressionVisuals",
+    "SignalOutgameStageUnlocked",
+    "SignalOutgameProgressionSaved"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $progressionVisualsHookText -Needle $needle
 }
 
 foreach ($needle in @(

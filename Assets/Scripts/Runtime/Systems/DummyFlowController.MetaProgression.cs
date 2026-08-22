@@ -33,6 +33,7 @@ namespace AlienCrusher.Systems
 			if (formUnlockSystem.RegisterClearedStage(currentStageNumber))
 			{
 				lastLobbyActionStatus = BuildStageClearLobbyStatus(highestUnlockedStage, formUnlockSystem.HighestUnlockedStage);
+				SignalOutgameStageUnlocked();
 			}
 		}
 
@@ -48,6 +49,7 @@ namespace AlienCrusher.Systems
 					formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
 				}
 				formUnlockSystem?.AddDp(lastEarnedDp);
+				SignalOutgameProgressionSaved();
 			}
 		}
 

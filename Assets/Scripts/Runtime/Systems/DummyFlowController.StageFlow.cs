@@ -35,6 +35,7 @@ namespace AlienCrusher.Systems
 			SetPaused(paused: false);
 			stageRewardGranted = false;
 			lastEarnedDp = 0;
+			ClearOutgameProgressionTransientVisuals();
 			stageStartHintRemaining = Mathf.Max(0f, stageHintDurationSeconds);
 			lastChainValue = 1;
 			chainPulse = 0f;
@@ -301,6 +302,7 @@ namespace AlienCrusher.Systems
 			resultStatusBadgeText.text = (string.IsNullOrWhiteSpace(text) ? "[CITY BREACH]" : text.TrimEnd());
 			RefreshResultLobbyBadges();
 			RefreshOutgameDpEconomy();
+			RefreshOutgameProgressionVisuals();
 		}
 
 		private void UpdateResultHighlights(int highestChain, int destroyedCount, int destroyedPercent, string bossState)

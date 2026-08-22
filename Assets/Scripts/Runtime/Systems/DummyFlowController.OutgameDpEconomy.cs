@@ -30,6 +30,7 @@ namespace AlienCrusher.Systems
 		{
 			CacheOutgameDpEconomyAssets();
 			RefreshOutgameDpEconomy();
+			EnsureOutgameProgressionVisuals();
 		}
 
 		private void CacheOutgameDpEconomyAssets()
@@ -74,6 +75,7 @@ namespace AlienCrusher.Systems
 		{
 			lastOutgameDpSignal = OutgameDpSignal.Spend;
 			RefreshOutgameDpEconomy();
+			SignalOutgameProgressionSaved();
 		}
 
 		private void RefreshOutgameDpEconomy()
