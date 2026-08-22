@@ -626,7 +626,7 @@ namespace AlienCrusher.Gameplay
                 }
                 else
                 {
-                    feedbackSystem?.PlayHitFeedback(hitPoint, impact01);
+                    feedbackSystem?.PlayHitFeedback(hitPoint, impact01, heavyHit);
                 }
             }
 

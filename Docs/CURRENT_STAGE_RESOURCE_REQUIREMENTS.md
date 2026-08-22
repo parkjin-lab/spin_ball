@@ -157,6 +157,7 @@ Status:
 - audio is now one of the highest leverage missing pieces
 - `FeedbackSystem` now exposes assignable one-shot slots for hit weight, break scale, route beats, boss beats, level-up, and failure beats
 - failure now has a dedicated runtime downbeat, so defeat should sound like a clear rhythm punctuation instead of silently falling into the result screen
+- hit/break weight drafts now load at runtime when Inspector slots are empty: `SFX_Hit_Light`, `SFX_Hit_Medium`, `SFX_Hit_Heavy`, `SFX_Break_Small`, `SFX_Break_LargeCollapse` (`Assets/Audio/SFX/Impact/` + Resources copies)
 
 Need:
 - distinct audio for hit quality, destruction scale, form actions, progression, and boss danger

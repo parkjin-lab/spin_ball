@@ -96,6 +96,31 @@ $slotBriefs = @{
         Direction = "heavier collapse stinger that clearly belongs to the boss phase"
         Avoid = "reusing ordinary failure color"
     }
+    hitLightClip = [pscustomobject]@{
+        Beat = "graze"
+        Direction = "short high tick with no bass weight"
+        Avoid = "thump body or the route-open rising chirp family"
+    }
+    hitMediumClip = [pscustomobject]@{
+        Beat = "committed connect"
+        Direction = "mid thump that says the hit landed"
+        Avoid = "the light tick or a fat slam"
+    }
+    hitHeavyClip = [pscustomobject]@{
+        Beat = "heavy body / weak-point slam"
+        Direction = "fat one-shot impact, still short"
+        Avoid = "boss stinger, rising fanfare, or failure color"
+    }
+    breakSmallClip = [pscustomobject]@{
+        Beat = "light shatter"
+        Direction = "brittle pop for small props and light collapses"
+        Avoid = "low rumble or the same tail as large collapse"
+    }
+    breakLargeClip = [pscustomobject]@{
+        Beat = "large collapse"
+        Direction = "deeper rubble with a longer debris tail"
+        Avoid = "boss-down stinger or a copied small-break pitch"
+    }
 }
 
 $productionBatches = @(
@@ -188,6 +213,21 @@ foreach ($fieldName in $productionBatches[0].Fields) {
 }
 $lines.Add("")
 $lines.Add("Batch A review rule: route open, route warning, route bonus, ordinary failure, and boss failure must form five distinct rhythm punctuation marks before any timing or balance tuning.")
+
+$lines.Add("")
+$lines.Add("## Impact And Destruction Weight Slot Briefs")
+$lines.Add("| Slot | Beat role | Sound direction | Avoid |")
+$lines.Add("|---|---|---|---|")
+foreach ($fieldName in $productionBatches[1].Fields) {
+    $brief = $slotBriefs[$fieldName]
+    if ($null -eq $brief) {
+        continue
+    }
+
+    $lines.Add(('| `{0}` | {1} | {2} | {3} |' -f $fieldName, $brief.Beat, $brief.Direction, $brief.Avoid))
+}
+$lines.Add("")
+$lines.Add("Batch B review rule: graze, committed hit, heavy slam, small shatter, and large collapse must form five distinct punctuation marks before any damage or mass tuning.")
 
 $lines.Add("")
 $lines.Add("## Current FeedbackSystem Audio Slots")

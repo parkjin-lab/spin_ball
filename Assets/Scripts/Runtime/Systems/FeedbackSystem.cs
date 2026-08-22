@@ -158,6 +158,11 @@ namespace AlienCrusher.Systems
 
         public void PlayHitFeedback(Vector3 worldPosition, float normalizedImpact)
         {
+            PlayHitFeedback(worldPosition, normalizedImpact, forceHeavy: false);
+        }
+
+        public void PlayHitFeedback(Vector3 worldPosition, float normalizedImpact, bool forceHeavy)
+        {
             normalizedImpact = Mathf.Clamp01(normalizedImpact);
 
             PlayScreenFlash(Color.Lerp(new Color(1f, 0.95f, 0.82f, 1f), burstBaseColor, normalizedImpact),
@@ -167,7 +172,7 @@ namespace AlienCrusher.Systems
             ApplyCameraFeedback(Mathf.Lerp(hitCameraImpulse * 0.6f, hitCameraImpulse, normalizedImpact),
                 Mathf.Lerp(fovPunchOnHit * 0.55f, fovPunchOnHit, normalizedImpact));
 
-            PlayAudio(normalizedImpact > 0.62f ? hitMediumClip : hitLightClip, Mathf.Lerp(0.62f, 0.86f, normalizedImpact), Mathf.Lerp(0.96f, 1.05f, normalizedImpact));
+            PlayAudio(ResolveHitWeightClip(normalizedImpact, forceHeavy), Mathf.Lerp(0.62f, 0.86f, normalizedImpact), Mathf.Lerp(0.96f, 1.05f, normalizedImpact));
             PlayHaptic(destroyed: false, normalizedImpact);
         }
 
@@ -550,6 +555,21 @@ namespace AlienCrusher.Systems
             routeBonusClip = CoalesceDraftClip(routeBonusClip, "Audio/SFX/Skills/SFX_Route_Bonus", "Assets/Audio/SFX/Skills/SFX_Route_Bonus.wav");
             failureWarningClip = CoalesceDraftClip(failureWarningClip, "Audio/SFX/Failure/SFX_Failure_Warning", "Assets/Audio/SFX/Failure/SFX_Failure_Warning.wav");
             failureBossClip = CoalesceDraftClip(failureBossClip, "Audio/SFX/Failure/SFX_Failure_Boss", "Assets/Audio/SFX/Failure/SFX_Failure_Boss.wav");
+            hitLightClip = CoalesceDraftClip(hitLightClip, "Audio/SFX/Impact/SFX_Hit_Light", "Assets/Audio/SFX/Impact/SFX_Hit_Light.wav");
+            hitMediumClip = CoalesceDraftClip(hitMediumClip, "Audio/SFX/Impact/SFX_Hit_Medium", "Assets/Audio/SFX/Impact/SFX_Hit_Medium.wav");
+            hitHeavyClip = CoalesceDraftClip(hitHeavyClip, "Audio/SFX/Impact/SFX_Hit_Heavy", "Assets/Audio/SFX/Impact/SFX_Hit_Heavy.wav");
+            breakSmallClip = CoalesceDraftClip(breakSmallClip, "Audio/SFX/Impact/SFX_Break_Small", "Assets/Audio/SFX/Impact/SFX_Break_Small.wav");
+            breakLargeClip = CoalesceDraftClip(breakLargeClip, "Audio/SFX/Impact/SFX_Break_LargeCollapse", "Assets/Audio/SFX/Impact/SFX_Break_LargeCollapse.wav");
+        }
+
+        private AudioClip ResolveHitWeightClip(float normalizedImpact, bool forceHeavy)
+        {
+            if (forceHeavy || normalizedImpact > 0.82f)
+            {
+                return hitHeavyClip;
+            }
+
+            return normalizedImpact > 0.62f ? hitMediumClip : hitLightClip;
         }
 
         private static AudioClip CoalesceDraftClip(AudioClip assigned, string resourcesPath, string assetPath)

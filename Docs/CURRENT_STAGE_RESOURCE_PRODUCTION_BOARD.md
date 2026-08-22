@@ -165,8 +165,8 @@ Must-cover events:
 - UI click / locked / confirm / fail
 
 Current `FeedbackSystem` slot map:
-- `hitLightClip`, `hitMediumClip`, `hitHeavyClip`
-- `breakSmallClip`, `breakLargeClip`
+- `hitLightClip`, `hitMediumClip`, `hitHeavyClip` (`SFX_Hit_Light` / `SFX_Hit_Medium` / `SFX_Hit_Heavy` in `Assets/Audio/SFX/Impact/`)
+- `breakSmallClip`, `breakLargeClip` (`SFX_Break_Small` / `SFX_Break_LargeCollapse` in `Assets/Audio/SFX/Impact/`)
 - `comboRiseClip`
 - `routeOpenClip`, `routeHoldWarningClip`, `routeBonusClip`
 - `bossWarningClip`, `bossBreakClip`, `bossDownClip`

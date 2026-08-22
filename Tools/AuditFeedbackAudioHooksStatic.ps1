@@ -38,7 +38,12 @@ $draftClipCatalog = @(
     [pscustomobject]@{ Field = "routeHoldWarningClip"; AssetName = "SFX_Route_HoldWarning"; DocumentedPath = "Assets\Audio\SFX\Skills\SFX_Route_HoldWarning.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Skills\SFX_Route_HoldWarning.wav" },
     [pscustomobject]@{ Field = "routeBonusClip"; AssetName = "SFX_Route_Bonus"; DocumentedPath = "Assets\Audio\SFX\Skills\SFX_Route_Bonus.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Skills\SFX_Route_Bonus.wav" },
     [pscustomobject]@{ Field = "failureWarningClip"; AssetName = "SFX_Failure_Warning"; DocumentedPath = "Assets\Audio\SFX\Failure\SFX_Failure_Warning.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Failure\SFX_Failure_Warning.wav" },
-    [pscustomobject]@{ Field = "failureBossClip"; AssetName = "SFX_Failure_Boss"; DocumentedPath = "Assets\Audio\SFX\Failure\SFX_Failure_Boss.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Failure\SFX_Failure_Boss.wav" }
+    [pscustomobject]@{ Field = "failureBossClip"; AssetName = "SFX_Failure_Boss"; DocumentedPath = "Assets\Audio\SFX\Failure\SFX_Failure_Boss.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Failure\SFX_Failure_Boss.wav" },
+    [pscustomobject]@{ Field = "hitLightClip"; AssetName = "SFX_Hit_Light"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Hit_Light.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Hit_Light.wav" },
+    [pscustomobject]@{ Field = "hitMediumClip"; AssetName = "SFX_Hit_Medium"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Hit_Medium.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Hit_Medium.wav" },
+    [pscustomobject]@{ Field = "hitHeavyClip"; AssetName = "SFX_Hit_Heavy"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Hit_Heavy.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Hit_Heavy.wav" },
+    [pscustomobject]@{ Field = "breakSmallClip"; AssetName = "SFX_Break_Small"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Break_Small.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Break_Small.wav" },
+    [pscustomobject]@{ Field = "breakLargeClip"; AssetName = "SFX_Break_LargeCollapse"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Break_LargeCollapse.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Break_LargeCollapse.wav" }
 )
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
@@ -104,6 +109,7 @@ if ($errors.Count -eq 0) {
         "public bool AllowAudio",
         "private void EnsureAudioSource()",
         "private void EnsureDraftRhythmClips()",
+        "private AudioClip ResolveHitWeightClip",
         "private static AudioClip LoadDraftClip",
         "public void PlayRouteOpenCue",
         "private void PlayAudio(AudioClip clip",
@@ -113,7 +119,8 @@ if ($errors.Count -eq 0) {
     }
 
     foreach ($needle in @(
-        "PlayAudio(normalizedImpact > 0.62f ? hitMediumClip : hitLightClip",
+        "PlayAudio(ResolveHitWeightClip(normalizedImpact, forceHeavy)",
+        "return normalizedImpact > 0.62f ? hitMediumClip : hitLightClip",
         "PlayAudio(normalizedImpact > 0.7f ? breakLargeClip : breakSmallClip",
         "PlayAudio(comboRiseClip",
         "PlayAudio(levelUpClip",
