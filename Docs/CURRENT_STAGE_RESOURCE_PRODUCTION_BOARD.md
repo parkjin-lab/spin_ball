@@ -256,9 +256,11 @@ Done when:
 Priority: `P1`
 
 Deliverables:
-- DP icon
-- stage icon
-- route icon
+- `Icon_DP` teal cracked-diamond money pip
+- `Icon_Stage` stacked district-block skyline
+- `Icon_NextStep` forward chevron with target notch
+- `Icon_Route` orchid path-to-beacon (echoes `PAL_RouteMarker_Tints`)
+- draft sprites at `Assets/Resources/UI/Icons/`
 - break window icon
 - shield icon
 - weak point icon

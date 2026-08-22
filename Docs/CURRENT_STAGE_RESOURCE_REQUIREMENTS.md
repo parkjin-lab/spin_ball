@@ -213,6 +213,7 @@ Required assets:
 - `Icon_DP`
 - `Icon_Stage`
 - `Icon_NextStep`
+- `Icon_Route` (`Assets/Resources/UI/Icons/`)
 - `Icon_BreakWindow`
 - `Icon_Shield`
 - `Icon_WeakPoint`

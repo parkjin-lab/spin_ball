@@ -4,7 +4,8 @@ param(
     [string]$UiFlowPath = "",
     [string]$UpgradeUiPath = "",
     [string]$StageEncounterPath = "",
-    [string]$MetaProgressionPath = ""
+    [string]$MetaProgressionPath = "",
+    [string]$IconHookPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,6 +56,7 @@ $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath 
 $upgradeUiSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UpgradeUiPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UpgradeUI.cs"
 $stageEncounterSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageEncounterPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageEncounter.cs"
 $metaProgressionSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $MetaProgressionPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.MetaProgression.cs"
+$iconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $IconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RunEssentialIcons.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherUiIconStatusChecklist.md"
@@ -72,6 +74,7 @@ $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
 $upgradeUiText = Read-SourceText -Path $upgradeUiSourcePath
 $stageEncounterText = Read-SourceText -Path $stageEncounterSourcePath
 $metaProgressionText = Read-SourceText -Path $metaProgressionSourcePath
+$iconHookText = Read-SourceText -Path $iconHookSourcePath
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -111,6 +114,17 @@ foreach ($needle in @(
     "GetRecommendedFormUnlock"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $metaProgressionText -Needle $needle
+}
+
+foreach ($needle in @(
+    "Icon_DP",
+    "Icon_Stage",
+    "Icon_NextStep",
+    "Icon_Route",
+    "EnsureRunEssentialIcons",
+    "HudRunEssentialIcons"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $iconHookText -Needle $needle
 }
 
 $iconCatalog = @(
@@ -163,7 +177,7 @@ $productionBatches = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher UI Icon And Status Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`' -f $uiFlowSourcePath, $upgradeUiSourcePath, $stageEncounterSourcePath, $metaProgressionSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`' -f $uiFlowSourcePath, $upgradeUiSourcePath, $stageEncounterSourcePath, $metaProgressionSourcePath, $iconHookSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: convert the current text-heavy HUD, lobby, result, upgrade, route, and boss states into a concrete icon/status production list.")
 $lines.Add("")
