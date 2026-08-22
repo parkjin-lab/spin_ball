@@ -363,7 +363,8 @@ Required assets:
 - `PAYOFF_YardBlast_Layout` construction yard blast payoff layout
 - `PAYOFF_PowerSurge_Layout` power surge payoff layout
 - `PAYOFF_SkylineBreach_Layout` skyline breach payoff layout
-- route cluster marker VFX
+- `VFX_RouteCluster_Marker` mint-slate ring frame for opened ROUTE BONUS clusters (`Assets/Art/VFX/Route/`)
+- `RouteClusterMarker` runtime host for that frame
 - Forward Smash confirmation VFX/SFX
 
 Generated production checklist:
@@ -529,6 +530,7 @@ This section can be used as a working production checklist.
 - [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit
 - [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
 - [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
+- [x] `VFX_RouteCluster_Marker` mint-slate ROUTE BONUS cluster frame
 
 ### VFX
 - [ ] light hit burst
@@ -538,6 +540,7 @@ This section can be used as a working production checklist.
 - [ ] weak point hit burst
 - [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
 - [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
+- [x] `VFX_RouteCluster_Marker` mint-slate ROUTE BONUS cluster frame
 - [ ] shield break burst
 - [ ] core exposed burst
 - [ ] panic jackpot burst

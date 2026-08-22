@@ -4,7 +4,8 @@ param(
     [string]$ProgressionCorePath = "",
     [string]$RuntimeMapPath = "",
     [string]$UiFlowPath = "",
-    [string]$StageChecklistPath = ""
+    [string]$StageChecklistPath = "",
+    [string]$ClusterMarkerVfxPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,6 +56,7 @@ $progressionCoreSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Over
 $runtimeMapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RuntimeMapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RuntimeMapFallback.cs"
 $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UiFlowPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UIFlow.cs"
 $stageChecklistSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageChecklistPath -RelativePath "Tools\GenerateStagePlaytestChecklist.ps1"
+$clusterMarkerVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ClusterMarkerVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteClusterMarkerVfx.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherRoutePayoffLayoutChecklist.md"
@@ -72,6 +74,8 @@ $progressionCoreText = Read-SourceText -Path $progressionCoreSourcePath
 $runtimeMapText = Read-SourceText -Path $runtimeMapSourcePath
 $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
 $stageChecklistText = Read-SourceText -Path $stageChecklistSourcePath
+$clusterMarkerVfxText = Read-SourceText -Path $clusterMarkerVfxSourcePath
+$allRoutePayoffHookText = $progressionCoreText + $runtimeMapText + $uiFlowText + $clusterMarkerVfxText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -97,6 +101,14 @@ foreach ($needle in @(
     "routeRewardClusterPropCount"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $progressionCoreText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteCluster_Marker",
+    "RouteClusterMarker",
+    "EnsureRouteClusterMarker"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $clusterMarkerVfxText -Needle $needle
 }
 
 foreach ($needle in @(
@@ -234,7 +246,8 @@ $lines.Add("## Current Route Payoff Layout Targets")
 $lines.Add("| Priority | Stage band | Payoff | Runtime label | Layout rule | Asset | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|---|")
 foreach ($layout in $layoutCatalog) {
-    $lines.Add(("| {0} | {1} | {2} | `{3}` | {4} | `{5}` | `{6}` | [ ] |" -f $layout.Priority, $layout.StageBand, $layout.Payoff, $layout.RuntimeLabel, $layout.LayoutRule, $layout.Asset, $layout.Folder))
+    $doneMark = if ($allRoutePayoffHookText.Contains($layout.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | {1} | {2} | `{3}` | {4} | `{5}` | `{6}` | {7} |" -f $layout.Priority, $layout.StageBand, $layout.Payoff, $layout.RuntimeLabel, $layout.LayoutRule, $layout.Asset, $layout.Folder, $doneMark))
 }
 
 $lines.Add("")

@@ -956,14 +956,7 @@ namespace AlienCrusher.Systems
 			{
 				return;
 			}
-			Vector3 markerLocal = groundDetailsRoot.InverseTransformPoint(worldCenter);
-			markerLocal.y = 0.035f;
-			GameObject marker = EnsurePrimitive(groundDetailsRoot, $"RouteClusterMarker_{GetRouteDistrictPayoffLayoutId()}", PrimitiveType.Cylinder, markerLocal, new Vector3(radius * 1.15f, 0.018f, radius * 1.15f), Color.Lerp(payoffColor, Color.white, 0.14f));
-			Collider markerCollider = marker.GetComponent<Collider>();
-			if ((Object)(object)markerCollider != (Object)null)
-			{
-				markerCollider.enabled = false;
-			}
+			RouteClusterMarkerVfx.EnsureRouteClusterMarker(groundDetailsRoot, worldCenter, radius, payoffColor, GetRouteDistrictPayoffLayoutId());
 		}
 
 		private void SpawnSkylineRouteClusterAnchor(Transform mapRoot, Vector3 worldCenter, float radius)

@@ -297,7 +297,8 @@ Deliverables:
 - `PAYOFF_YardBlast_Layout` construction yard blast payoff layout
 - `PAYOFF_PowerSurge_Layout` power surge payoff layout
 - `PAYOFF_SkylineBreach_Layout` skyline breach payoff layout
-- route cluster marker VFX
+- `VFX_RouteCluster_Marker` mint-slate ring frame for opened ROUTE BONUS clusters
+- `RouteClusterMarker` runtime host for that frame
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:
