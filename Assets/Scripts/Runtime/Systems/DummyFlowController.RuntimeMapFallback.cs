@@ -1975,6 +1975,7 @@ namespace AlienCrusher.Systems
 			Transform transform = gameObject.transform;
 			EnsurePrimitive(transform, "Post", (PrimitiveType)2, new Vector3(0f, -0.18f, 0f), new Vector3(0.08f, 0.18f, 0.08f), postColor);
 			EnsurePrimitive(transform, "Flag", (PrimitiveType)3, new Vector3(0.19f, 0.06f, 0f), new Vector3(0.06f, 0.16f, 0.04f), Color.Lerp(boxColor, Color.white, 0.22f));
+			ApplyMailboxKit(transform, boxColor);
 		}
 
 		private static void EnsureResidentialFenceRuntime(Transform parent, string name, Vector3 localPosition, Color color)
@@ -1985,6 +1986,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(transform, "RailBottom", (PrimitiveType)3, new Vector3(0f, -0.08f, 0f), new Vector3(0.94f, 0.08f, 0.06f), Color.Lerp(color, Color.black, 0.08f));
 			EnsurePrimitive(transform, "Post_L", (PrimitiveType)3, new Vector3(-0.34f, 0f, 0f), new Vector3(0.08f, 0.48f, 0.08f), Color.Lerp(color, Color.black, 0.12f));
 			EnsurePrimitive(transform, "Post_R", (PrimitiveType)3, new Vector3(0.34f, 0f, 0f), new Vector3(0.08f, 0.48f, 0.08f), Color.Lerp(color, Color.black, 0.12f));
+			ApplyFenceKit(transform, color);
 		}
 
 		private static void EnsureResidentialShedRuntime(Transform parent, string name, Vector3 localPosition, Vector3 scale, Color color)
@@ -1993,6 +1995,7 @@ namespace AlienCrusher.Systems
 			Transform transform = gameObject.transform;
 			EnsurePrimitive(transform, "Roof", (PrimitiveType)3, new Vector3(0f, scale.y * 0.62f, 0f), new Vector3(scale.x * 1.08f, scale.y * 0.18f, scale.z * 1.08f), Color.Lerp(color, Color.black, 0.18f));
 			EnsurePrimitive(transform, "Door", (PrimitiveType)3, new Vector3(0f, 0f - scale.y * 0.08f, scale.z * 0.5f + 0.01f), new Vector3(scale.x * 0.28f, scale.y * 0.55f, 0.04f), Color.Lerp(color, Color.black, 0.24f));
+			ApplyShedKit(transform, color);
 		}
 
 		private static void EnsureCommercialAwningRuntime(Transform parent, string name, Vector3 localPosition, Vector3 scale, Color color)

@@ -171,7 +171,10 @@ if ($errors.Count -eq 0) {
         "PROP_Vending",
         "PROP_BusStop",
         "PROP_Transformer",
-        "PROP_ExplosiveBarrel"
+        "PROP_ExplosiveBarrel",
+        "PROP_Fence",
+        "PROP_Mailbox",
+        "PROP_Shed"
     )) {
         Add-MissingTextCheck -Errors $errors -Text $requirementsText -Needle $needle -Label "Resource requirements SFX naming"
     }
@@ -270,6 +273,9 @@ if ($errors.Count -eq 0) {
         "PROP_BusStop",
         "PROP_Transformer",
         "PROP_ExplosiveBarrel",
+        "PROP_Fence",
+        "PROP_Mailbox",
+        "PROP_Shed",
         "Assets/Resources/UI/Icons/",
         "Assets/Resources/UI/Badges/"
     )) {

@@ -47,6 +47,7 @@ This document tracks the current project state, the next production priorities, 
 - Traffic now uses named runtime kits `PROP_Car_Compact_A`, `PROP_Car_Compact_B`, and `PROP_Van_Bus` so moving cars and parked panic clusters read as vehicles instead of boxes. Traffic count, speed, HP, and spawn rate are unchanged.
 - Roadside rhythm props now use named runtime kits `PROP_StreetLamp`, `PROP_TrafficLight`, `PROP_RoadsideTree`, and `PROP_Bench` so Stage 1-3 streets have thin lamps/lights, gappy trees, and low benches that do not hide route markers. Spawn counts and HP are unchanged.
 - Market and utility props now use named runtime kits `PROP_Kiosk`, `PROP_Vending`, `PROP_BusStop`, `PROP_Transformer`, and `PROP_ExplosiveBarrel` so Stage 2-6 streets and ROUTE BONUS clusters signal chain density versus payoff danger before impact. Spawn counts, HP, and explosion radii are unchanged.
+- Residential filler props now use named runtime kits `PROP_Fence`, `PROP_Mailbox`, and `PROP_Shed` on the existing residential hooks. Fences read as thin rails, mailboxes as post-and-box, sheds as roofed backyard boxes. Spawn counts and HP are unchanged so Stage 1 does not gain extra clutter. Route markers stay readable.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status

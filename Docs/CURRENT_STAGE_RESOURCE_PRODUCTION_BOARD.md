@@ -169,6 +169,14 @@ Market and utility props shipped:
 - spawn counts, HP, explosion radius, and hit volumes unchanged
 - silhouettes stay under building height so Target_A / Target_B and HOLD trail pips stay readable
 
+Residential filler props shipped:
+- `PROP_Fence` thin posts plus two rails, not a solid slab
+- `PROP_Mailbox` tiny post-and-box with a flag
+- `PROP_Shed` roofed backyard box with a door, smaller than a building
+- applied by the existing `EnsureResidentialFenceRuntime` / `EnsureResidentialMailboxRuntime` / `EnsureResidentialShedRuntime` hooks
+- spawn counts, HP, and hit volumes unchanged so Stage 1 starter lane does not get extra clutter
+- rails stay thin and sheds stay low so Target_A / Target_B and HOLD trail pips stay readable
+
 Expected output:
 - city feels alive before the player reaches large buildings
 - early gameplay has enough crushable density

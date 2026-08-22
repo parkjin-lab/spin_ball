@@ -6,7 +6,8 @@ param(
     [string]$TrafficSpawningPath = "",
     [string]$TrafficKitsPath = "",
     [string]$StreetRhythmKitsPath = "",
-    [string]$MarketUtilityKitsPath = ""
+    [string]$MarketUtilityKitsPath = "",
+    [string]$ResidentialKitsPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -59,6 +60,7 @@ $trafficSpawningSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Over
 $trafficKitsSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TrafficKitsPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.TrafficSilhouetteKits.cs"
 $streetRhythmKitsSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StreetRhythmKitsPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StreetRhythmPropKits.cs"
 $marketUtilityKitsSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $MarketUtilityKitsPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.MarketUtilityPropKits.cs"
+$residentialKitsSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ResidentialKitsPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.ResidentialPropKits.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherStreetPropVarietyChecklist.md"
@@ -78,7 +80,8 @@ $trafficSpawningText = Read-SourceText -Path $trafficSpawningSourcePath
 $trafficKitsText = if (Test-Path -Path $trafficKitsSourcePath -PathType Leaf) { Read-SourceText -Path $trafficKitsSourcePath } else { "" }
 $streetRhythmKitsText = if (Test-Path -Path $streetRhythmKitsSourcePath -PathType Leaf) { Read-SourceText -Path $streetRhythmKitsSourcePath } else { "" }
 $marketUtilityKitsText = if (Test-Path -Path $marketUtilityKitsSourcePath -PathType Leaf) { Read-SourceText -Path $marketUtilityKitsSourcePath } else { "" }
-$shippedPropSourceText = $trafficBootstrapText + $trafficKitsText + $streetRhythmKitsText + $marketUtilityKitsText
+$residentialKitsText = if (Test-Path -Path $residentialKitsSourcePath -PathType Leaf) { Read-SourceText -Path $residentialKitsSourcePath } else { "" }
+$shippedPropSourceText = $trafficBootstrapText + $trafficKitsText + $streetRhythmKitsText + $marketUtilityKitsText + $residentialKitsText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -177,6 +180,9 @@ if (Test-Path -Path $streetRhythmKitsSourcePath -PathType Leaf) {
 }
 if (Test-Path -Path $marketUtilityKitsSourcePath -PathType Leaf) {
     $generatedFrom += $marketUtilityKitsSourcePath
+}
+if (Test-Path -Path $residentialKitsSourcePath -PathType Leaf) {
+    $generatedFrom += $residentialKitsSourcePath
 }
 $lines.Add(('Generated from: `{0}`' -f ([string]::Join('`, `', $generatedFrom))))
 $lines.Add("")

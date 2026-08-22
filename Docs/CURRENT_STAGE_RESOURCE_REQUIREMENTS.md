@@ -154,7 +154,7 @@ Status:
 - moving and parked traffic now use named runtime kits so cars and vans read as crushable vehicles, not boxes
 - roadside lamps, traffic lights, trees, and benches now have named runtime kits for a quick-break street cadence
 - market and utility props now have named runtime kits so chain density and payoff danger read before impact
-- residential extras (fence, mailbox, shed) are still the next street-prop gap
+- residential extras now have named runtime kits `PROP_Fence`, `PROP_Mailbox`, and `PROP_Shed` on the existing residential hooks, without adding Stage 1 spawn count
 
 Need:
 - residential filler extras after the market / utility set
@@ -173,6 +173,9 @@ Required assets:
 - `PROP_BusStop` thin roof / panel / posts, not a building (`Assets/Art/Props/Street/`)
 - `PROP_Transformer` utility tank plus pipe/cap hazard (`Assets/Art/Props/Utilities/`)
 - `PROP_ExplosiveBarrel` drum with a strong danger band (`Assets/Art/Props/Utilities/`)
+- `PROP_Fence` thin rails that do not hide route pips (`Assets/Art/Props/Street/`)
+- `PROP_Mailbox` tiny post-and-box suburb read (`Assets/Art/Props/Street/`)
+- `PROP_Shed` roofed backyard box, smaller than a building (`Assets/Art/Props/Street/`)
 
 Important note:
 These do not need high-detail custom models.
@@ -530,6 +533,9 @@ This section can be used as a working production checklist.
 - [x] `PROP_BusStop` runtime thin shelter kit
 - [x] `PROP_Transformer` runtime utility tank kit
 - [x] `PROP_ExplosiveBarrel` runtime danger-band drum kit
+- [x] `PROP_Fence` runtime thin-rail fence kit
+- [x] `PROP_Mailbox` runtime post-and-box mailbox kit
+- [x] `PROP_Shed` runtime roofed backyard shed kit
 - [x] `BOSS_Sentinel_Body_Kit` runtime sentinel body silhouette kit
 - [x] `BOSS_Shield_Pylon_Kit` runtime shield pylon silhouette kit
 - [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit
