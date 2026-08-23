@@ -15,6 +15,11 @@ This document tracks the current project state, the next production priorities, 
 
 ## 1. Current Project State
 
+### Street-Prop Density Batch
+Stage 1 (and later stages on the same runtime spawn path) now plants extra A/B/C smashables in existing road-edge gaps between Target_A and Target_B. No Street Props D clutter, no Target_A/B move, no payoff-count or route-timing change.
+
+How to see it: Play Mode Stage 1. Look at curb lamps/cars/kiosks/benches/barrels on the roads between the two orange targets after leaving the opener.
+
 ### Qualitative Playtest / HUD Readability Batch
 Creator feel notes from 2026-08-23 (tester 진웅 박) are in `Docs/AlienCrusherStagePlaytestNotes.md`. Fun overall, but growth UI popped too often, HUD/copy was too long, the map felt small/fast, destruction needed more variety, and UI still looked unfinished. This batch shortens HUD/result/lobby labels and stops stacked growth residuals/toasts only. Map size and destruction variety stay later. No invented `F10` telemetry.
 

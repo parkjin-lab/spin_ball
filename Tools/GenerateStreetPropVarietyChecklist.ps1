@@ -97,6 +97,7 @@ foreach ($needle in @(
     "EnsureResidentialFenceRuntime",
     "EnsureResidentialMailboxRuntime",
     "EnsureResidentialShedRuntime",
+    "FillRouteGapStreetProps",
     "DummyStreetPropReactive.PropKind.Lamp",
     "DummyStreetPropReactive.PropKind.Tree",
     "DummyStreetPropReactive.PropKind.ChainBarrel",

@@ -1,5 +1,10 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-23 Street-Prop Density Batch
+
+- After the HUD/copy pass: extra smashable lamps, parked cars, kiosks, benches, and barrels now fill existing road-edge gaps between Target_A and Target_B. Reuses Street Props A/B/C kits only. No Street Props D fence/mailbox/shed clutter. Target_A/B, HOLD pips, route timing, payoff counts, and map size are unchanged.
+- How to see it: Play Mode Stage 1. After the opener, the roads toward Target_A and across to Target_B should have more curb smashables (`GapLamp_*`, `GapCar_*`, `GapBench_*`, `GapKiosk_*`, `GapBarrel_*`) without covering the orange target discs.
+
 ## 2026-08-23 HUD / Copy Readability Batch
 
 - Creator qualitative playtest (tester 진웅 박, not a full `F10` log) is now in `Docs/AlienCrusherStagePlaytestNotes.md` under **Qualitative Playtest (2026-08-23)**. Stage 01-07 evidence fields stay empty. Do not invent `F10` telemetry.

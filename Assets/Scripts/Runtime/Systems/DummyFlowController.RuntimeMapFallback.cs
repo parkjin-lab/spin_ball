@@ -934,6 +934,7 @@ namespace AlienCrusher.Systems
 			EnsureStarterDestructionCluster(orCreateDirectChild, orCreateDirectChild2, orCreateDirectChild5, footprints, color3d, val7, val8, color3e, color3f, num27BoundaryPadding, ResolveStarterClusterCenter(layout));
 			EnsurePrimitive(orCreateDirectChild4, "Target_A", (PrimitiveType)2, new Vector3(-layout.TargetX, 0.15f, layout.TargetForwardZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
 			EnsurePrimitive(orCreateDirectChild4, "Target_B", (PrimitiveType)2, new Vector3(layout.TargetX, 0.15f, layout.TargetReturnZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
+			FillRouteGapStreetProps(orCreateDirectChild3, orCreateDirectChild2, footprints, layout, val3, val4, val9, val10, color3e, color3f);
 			return runtimeCityThemeProfile;
 		}
 
