@@ -366,6 +366,7 @@ Deliverables:
 - `Icon_Retail` shop awning with burst star
 - `Icon_Traffic` road lane plus small car
 - `Badge_Result_Clear` mint success plate with upward shard
+- `Badge_Boss_Clear` steel Sentinel-down plate with downward chevron
 - `Badge_Result_Failure` rust fail plate with broken route notch
 - `Badge_Locked` steel lock plate
 - `Badge_Recommended` gold focus chevron
