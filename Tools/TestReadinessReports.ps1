@@ -340,6 +340,8 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'BOSS_Shield_Pylon_Kit' -Label "Boss identity checklist"
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'BOSS_Phase2_Drone_Kit' -Label "Boss identity checklist"
         Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'SFX_Boss_Down' -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle 'Badge_Boss_Clear' -Label "Boss identity checklist"
+        Add-Check -Errors $errors -ReportText $bossIdentityChecklistText -Needle "D. Result boss-clear badge" -Label "Boss identity checklist"
     }
 
     & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $districtPaletteChecklistScriptPath `

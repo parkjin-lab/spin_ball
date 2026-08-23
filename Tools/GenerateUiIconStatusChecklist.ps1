@@ -162,6 +162,7 @@ foreach ($needle in @(
 
 foreach ($needle in @(
     "Badge_Result_Clear",
+    "Badge_Boss_Clear",
     "Badge_Result_Failure",
     "Badge_Locked",
     "Badge_Recommended",
@@ -185,6 +186,7 @@ $iconCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_Traffic"; RuntimeUse = "traffic density and vehicle state"; Shape = "road lane plus small car"; Folder = "Assets/Resources/UI/Icons/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_Boss"; RuntimeUse = "Justice Sentinel boss state"; Shape = "sentinel eye inside heavy frame"; Folder = "Assets/Resources/UI/Icons/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Result_Clear"; RuntimeUse = "result success state"; Shape = "wide badge with upward shard"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Boss_Clear"; RuntimeUse = "result boss victory state"; Shape = "wide steel plate with down chevron and slit eye"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Result_Failure"; RuntimeUse = "result failure bucket state"; Shape = "wide badge with broken route notch"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Locked"; RuntimeUse = "locked form/meta state"; Shape = "small lock plate"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Recommended"; RuntimeUse = "recommended next upgrade/form"; Shape = "small focus chevron"; Folder = "Assets/Resources/UI/Badges/" }

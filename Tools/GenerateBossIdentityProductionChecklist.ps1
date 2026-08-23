@@ -5,7 +5,8 @@ param(
     [string]$DronePath = "",
     [string]$FeedbackSystemPath = "",
     [string]$IdentityKitPath = "",
-    [string]$ClimaxVfxPath = ""
+    [string]$ClimaxVfxPath = "",
+    [string]$ResultBadgePath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -57,6 +58,7 @@ $droneSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $
 $feedbackSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FeedbackSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\FeedbackSystem.cs"
 $identityKitSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $IdentityKitPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.BossIdentityKits.cs"
 $climaxVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ClimaxVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\BossClimaxFeedbackVfx.cs"
+$resultBadgeSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ResultBadgePath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.ResultLobbyBadges.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherBossIdentityProductionChecklist.md"
@@ -75,7 +77,8 @@ $droneText = Read-SourceText -Path $droneSourcePath
 $feedbackText = Read-SourceText -Path $feedbackSourcePath
 $identityKitText = Read-SourceText -Path $identityKitSourcePath
 $climaxVfxText = Read-SourceText -Path $climaxVfxSourcePath
-$allBossHookText = $stageEncounterText + $droneText + $feedbackText + $identityKitText + $climaxVfxText
+$resultBadgeText = Read-SourceText -Path $resultBadgeSourcePath
+$allBossHookText = $stageEncounterText + $droneText + $feedbackText + $identityKitText + $climaxVfxText + $resultBadgeText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -139,6 +142,13 @@ foreach ($needle in @(
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $climaxVfxText -Needle $needle
 }
 
+foreach ($needle in @(
+    "Badge_Boss_Clear",
+    "DidStageEndWithBossClear"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $resultBadgeText -Needle $needle
+}
+
 $assetCatalog = @(
     [pscustomobject]@{ Priority = "P0"; Category = "Silhouette"; Asset = "BOSS_Sentinel_Body_Kit"; RuntimeMoment = "Justice Sentinel main target"; ReadabilityTarget = "clearly taller/heavier than normal large buildings"; Folder = "Assets/Art/Boss/Sentinel/" },
     [pscustomobject]@{ Priority = "P0"; Category = "Silhouette"; Asset = "BOSS_Shield_Pylon_Kit"; RuntimeMoment = "shield blockers before core exposure"; ReadabilityTarget = "small countable blockers that point back to boss core"; Folder = "Assets/Art/Boss/Sentinel/" },
@@ -174,6 +184,12 @@ $productionBatches = @(
         Goal = "punctuate warning, break, and down beats without changing boss timing"
         Targets = @("VFX_Boss_Warning_Ring", "VFX_Boss_Defeat_Cascade", "SFX_Boss_Warning", "SFX_Boss_Break", "SFX_Boss_Down")
         Acceptance = "boss warning, break window, and defeat release have distinct audio/visual weight"
+    },
+    [pscustomobject]@{
+        Batch = "D. Result boss-clear badge"
+        Goal = "separate Sentinel victory from a normal district clear on the result screen"
+        Targets = @("Badge_Boss_Clear")
+        Acceptance = "boss-stage success uses a steel down-badge, not the mint district-clear plate"
     }
 )
 

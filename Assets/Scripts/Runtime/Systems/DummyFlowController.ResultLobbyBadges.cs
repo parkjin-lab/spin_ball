@@ -8,6 +8,7 @@ namespace AlienCrusher.Systems
 	public partial class DummyFlowController
 	{
 		private const string BadgeResultClearId = "Badge_Result_Clear";
+		private const string BadgeBossClearId = "Badge_Boss_Clear";
 		private const string BadgeResultFailureId = "Badge_Result_Failure";
 		private const string BadgeLockedId = "Badge_Locked";
 		private const string BadgeRecommendedId = "Badge_Recommended";
@@ -17,6 +18,7 @@ namespace AlienCrusher.Systems
 		private const string CardStateBadgeName = "CardStateBadge";
 
 		private Sprite badgeResultClearSprite;
+		private Sprite badgeBossClearSprite;
 		private Sprite badgeResultFailureSprite;
 		private Sprite badgeLockedSprite;
 		private Sprite badgeRecommendedSprite;
@@ -36,6 +38,7 @@ namespace AlienCrusher.Systems
 			}
 
 			badgeResultClearSprite = LoadResultLobbyBadgeSprite(BadgeResultClearId);
+			badgeBossClearSprite = LoadResultLobbyBadgeSprite(BadgeBossClearId);
 			badgeResultFailureSprite = LoadResultLobbyBadgeSprite(BadgeResultFailureId);
 			badgeLockedSprite = LoadResultLobbyBadgeSprite(BadgeLockedId);
 			badgeRecommendedSprite = LoadResultLobbyBadgeSprite(BadgeRecommendedId);
@@ -67,6 +70,11 @@ namespace AlienCrusher.Systems
 			if (badgeId == BadgeResultClearId)
 			{
 				return badgeResultClearSprite;
+			}
+
+			if (badgeId == BadgeBossClearId)
+			{
+				return badgeBossClearSprite;
 			}
 
 			if (badgeId == BadgeResultFailureId)
@@ -124,7 +132,17 @@ namespace AlienCrusher.Systems
 				return null;
 			}
 
+			if (DidStageEndWithBossClear())
+			{
+				return BadgeBossClearId;
+			}
+
 			return DidStageEndInSuccess() ? BadgeResultClearId : BadgeResultFailureId;
+		}
+
+		private bool DidStageEndWithBossClear()
+		{
+			return DidStageEndInSuccess() && stageBossEncounterActive && !IsStageBossAlive();
 		}
 
 		private string ResolveResultAdviceBadgeId()
@@ -138,6 +156,11 @@ namespace AlienCrusher.Systems
 			if (HasReadyFormUnlock(dp) || HasReadyMetaUpgrade(dp) || lastRecommendedFormUnlock != FormType.Sphere)
 			{
 				return BadgeRecommendedId;
+			}
+
+			if (DidStageEndWithBossClear())
+			{
+				return BadgeBossClearId;
 			}
 
 			return DidStageEndInSuccess() ? BadgeResultClearId : BadgeResultFailureId;

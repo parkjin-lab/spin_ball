@@ -271,6 +271,7 @@ Required assets:
 - `Icon_Traffic`
 - `Icon_Boss`
 - `Badge_Result_Clear`
+- `Badge_Boss_Clear`
 - `Badge_Result_Failure`
 - `Badge_Locked`
 - `Badge_Recommended` (`Assets/Resources/UI/Badges/`)
@@ -296,7 +297,7 @@ Status:
 - phase, shield, drone, and break window systems are already implemented
 - runtime silhouette kits now separate the main body, shield pylons, and phase-2 drones from ordinary city props
 - climax warning/break/down VFX now punctuate inbound, CORE EXPOSED, and Sentinel down as three different silhouettes
-- remaining identity work is optional boss-specific armor/core materials (`MAT_Boss_*`) and HUD badges
+- result boss-clear badge now ships as `Badge_Boss_Clear`; remaining identity work is optional boss-specific armor/core materials (`MAT_Boss_*`) and leftover expose burst
 
 Required assets:
 - `BOSS_Sentinel_Body_Kit` sentinel body silhouette kit
@@ -310,7 +311,8 @@ Required assets:
 - boss armor / shield pylon / exposed-core material set
 - core exposed material / emissive state
 - boss core expose burst VFX
-- boss-only HUD icon or badge
+- `Badge_Boss_Clear` steel result badge for Sentinel victory (`Assets/Resources/UI/Badges/`)
+- leftover boss-only HUD icon (`Icon_Boss_Sentinel`) if `Icon_Boss` is not enough
 
 Generated production checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
@@ -596,6 +598,7 @@ This section can be used as a working production checklist.
 - [x] `Icon_Retail` shop awning with burst star
 - [x] `Icon_Traffic` road lane plus small car
 - [x] `Badge_Result_Clear` mint success plate with upward shard
+- [x] `Badge_Boss_Clear` steel Sentinel-down plate with downward chevron
 - [x] `Badge_Result_Failure` rust fail plate with broken route notch
 - [x] `Badge_Locked` steel lock plate
 - [x] `Badge_Recommended` gold focus chevron

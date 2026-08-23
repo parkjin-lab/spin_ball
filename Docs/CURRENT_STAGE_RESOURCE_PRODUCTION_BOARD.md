@@ -337,7 +337,8 @@ Deliverables:
 - `SFX_Boss_Down` Justice Sentinel defeat
 - boss armor / shield / exposed-core material set
 - boss core expose burst VFX
-- boss HUD icon / clear badge
+- `Badge_Boss_Clear` steel result badge for Sentinel victory
+- leftover boss HUD icon (`Icon_Boss_Sentinel`) if `Icon_Boss` is not enough
 
 Generated checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
