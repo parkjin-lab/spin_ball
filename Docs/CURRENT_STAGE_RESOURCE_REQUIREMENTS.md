@@ -218,6 +218,8 @@ Required assets:
 - `SFX_LevelUp_Open` -> `levelUpClip`
 - `SFX_Failure_Warning` -> `failureWarningClip`
 - `SFX_Failure_Boss` -> `failureBossClip`
+- `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
+- `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
 
 Next audio slots still needed after the current hook surface:
 - level up confirm
@@ -577,6 +579,8 @@ This section can be used as a working production checklist.
 - [x] `VFX_RouteBonus_Success` amethyst ROUTE BONUS cluster bloom
 - [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
+- [x] `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
+- [x] `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
 
 ### VFX
 - [ ] light hit burst
@@ -596,6 +600,8 @@ This section can be used as a working production checklist.
 - [x] `VFX_RouteBonus_Success` amethyst ROUTE BONUS cluster bloom
 - [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
+- [x] `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
+- [x] `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
 - [ ] shield break burst
 - [ ] core exposed burst
 - [ ] panic jackpot burst

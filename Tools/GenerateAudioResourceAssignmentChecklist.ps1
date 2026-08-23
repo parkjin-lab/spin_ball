@@ -166,6 +166,12 @@ $productionBatches = @(
         Goal = "give boss pressure, boss break, boss defeat, combo rise, and level-up their own punctuation"
         Fields = @("bossWarningClip", "bossBreakClip", "bossDownClip", "comboRiseClip", "levelUpClip")
         Acceptance = "boss warning/break/down and progression payoff do not share the same emotional color or tail length"
+    },
+    [pscustomobject]@{
+        Batch = "D. Failure beat visuals"
+        Goal = "make ordinary and boss defeat readable at the fail beat before the result screen"
+        Fields = @("VFX_Failure_Ordinary", "VFX_Failure_Boss")
+        Acceptance = "ordinary failure shows a dry umber down-break and boss failure shows a heavier steel collapse, not smash/combo ticks, boss-down cascade, route pulses, or lobby confirm VFX"
     }
 )
 

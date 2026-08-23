@@ -766,6 +766,7 @@ namespace AlienCrusher.Systems
 				center = stageBossBlock.transform.position;
 			}
 			feedbackSystem?.PlayFailureBeatFeedback(center + Vector3.up * 0.25f, bossRelated, bossRelated ? 1f : 0.82f);
+			FailureBeatVfx.Play(center + Vector3.up * 0.25f, bossRelated);
 		}
 
 		private void PrepareStageEndForVictoryFlow()

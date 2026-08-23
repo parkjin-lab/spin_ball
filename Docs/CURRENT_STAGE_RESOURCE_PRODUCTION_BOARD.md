@@ -253,6 +253,8 @@ Current `FeedbackSystem` slot map:
 - `bossWarningClip`, `bossBreakClip`, `bossDownClip` (`SFX_Boss_Warning` / `SFX_Boss_Break` / `SFX_Boss_Down` in `Assets/Audio/SFX/Boss/`)
 - `levelUpClip` (`SFX_LevelUp_Open` in `Assets/Audio/SFX/UI/`)
 - `failureWarningClip`, `failureBossClip`
+- `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
+- `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
 
 Suggested file targets:
 - `Assets/Audio/SFX/Impact/`
