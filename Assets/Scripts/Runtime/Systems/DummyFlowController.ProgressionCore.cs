@@ -863,6 +863,7 @@ namespace AlienCrusher.Systems
 			Vector3 val2 = ((Component)val).transform.position + Vector3.up * Mathf.Max(1f, ((Component)val).transform.lossyScale.y * 0.75f);
 			damageNumberSystem?.ShowTag(val2, GetRouteDistrictPayoffLabel(), true);
 			feedbackSystem?.PlayComboRushFeedback(((Component)val).transform.position + Vector3.up * 0.22f, 0.62f, 5.6f);
+			RouteChasePulseVfx.Play(marker.position, ((Component)val).transform.position);
 		}
 
 		private void SpawnForwardSmashRewardCluster(DummyDestructibleBlock targetBlock)

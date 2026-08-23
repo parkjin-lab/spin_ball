@@ -441,6 +441,8 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "E. ROUTE OPEN trail pulse" -Label "Route payoff checklist"
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'VFX_LaneBreak_Residual' -Label "Route payoff checklist"
         Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "F. LANE BREAK residual flash" -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle 'VFX_RouteChase_Pulse' -Label "Route payoff checklist"
+        Add-Check -Errors $errors -ReportText $routePayoffChecklistText -Needle "G. Forward chase pulse" -Label "Route payoff checklist"
     }
 }
 

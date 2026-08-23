@@ -8,7 +8,8 @@ param(
     [string]$ClusterMarkerVfxPath = "",
     [string]$HoldSuccessVfxPath = "",
     [string]$RouteOpenTrailVfxPath = "",
-    [string]$LaneBreakResidualVfxPath = ""
+    [string]$LaneBreakResidualVfxPath = "",
+    [string]$RouteChasePulseVfxPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -63,6 +64,7 @@ $clusterMarkerVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Ove
 $holdSuccessVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $HoldSuccessVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteHoldSuccessVfx.cs"
 $routeOpenTrailVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RouteOpenTrailVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteOpenTrailVfx.cs"
 $laneBreakResidualVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $LaneBreakResidualVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\LaneBreakResidualVfx.cs"
+$routeChasePulseVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RouteChasePulseVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteChasePulseVfx.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherRoutePayoffLayoutChecklist.md"
@@ -84,7 +86,8 @@ $clusterMarkerVfxText = Read-SourceText -Path $clusterMarkerVfxSourcePath
 $holdSuccessVfxText = Read-SourceText -Path $holdSuccessVfxSourcePath
 $routeOpenTrailVfxText = Read-SourceText -Path $routeOpenTrailVfxSourcePath
 $laneBreakResidualVfxText = Read-SourceText -Path $laneBreakResidualVfxSourcePath
-$allRoutePayoffHookText = $progressionCoreText + $runtimeMapText + $uiFlowText + $clusterMarkerVfxText + $holdSuccessVfxText + $routeOpenTrailVfxText + $laneBreakResidualVfxText
+$routeChasePulseVfxText = Read-SourceText -Path $routeChasePulseVfxSourcePath
+$allRoutePayoffHookText = $progressionCoreText + $runtimeMapText + $uiFlowText + $clusterMarkerVfxText + $holdSuccessVfxText + $routeOpenTrailVfxText + $laneBreakResidualVfxText + $routeChasePulseVfxText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -108,6 +111,7 @@ foreach ($needle in @(
     "RouteHoldSuccessVfx",
     "RouteOpenTrailVfx",
     "LaneBreakResidualVfx",
+    "RouteChasePulseVfx",
     "FORWARD SMASH +",
     "RouteClusterMarker",
     "routeRewardClusterRadius",
@@ -143,6 +147,13 @@ foreach ($needle in @(
     "LaneBreakResidualVfx"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $laneBreakResidualVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteChase_Pulse",
+    "RouteChasePulseVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $routeChasePulseVfxText -Needle $needle
 }
 
 foreach ($needle in @(
@@ -188,7 +199,8 @@ $layoutCatalog = @(
     [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Smash Confirmation"; RuntimeLabel = "FORWARD SMASH"; LayoutRule = "impact ring and camera beat stronger than route open, weaker than boss down"; Asset = "VFX_ForwardSmash_Confirm"; Folder = "Assets/Art/VFX/Route/" },
     [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "HOLD Success Pulse"; RuntimeLabel = "ROUTE HOLD"; LayoutRule = "gold-cyan lock ring at HOLD clear that aims at ROUTE BONUS without using smash-star or combo ticks"; Asset = "VFX_RouteHold_Success"; Folder = "Assets/Art/VFX/Route/" },
     [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "ROUTE OPEN Trail Pulse"; RuntimeLabel = "ROUTE OPEN"; LayoutRule = "magenta path dashes that race toward the beacon when LANE BREAK flips to ROUTE OPEN"; Asset = "VFX_RouteOpen_Trail"; Folder = "Assets/Art/VFX/Route/" },
-    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "LANE BREAK Residual Flash"; RuntimeLabel = "LANE BREAK"; LayoutRule = "tiny ivory-ash residual crack at the wreck that completed LANE BREAK"; Asset = "VFX_LaneBreak_Residual"; Folder = "Assets/Art/VFX/Route/" }
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "LANE BREAK Residual Flash"; RuntimeLabel = "LANE BREAK"; LayoutRule = "tiny ivory-ash residual crack at the wreck that completed LANE BREAK"; Asset = "VFX_LaneBreak_Residual"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Chase Pulse"; RuntimeLabel = "SMASH / FORWARD TARGET"; LayoutRule = "cobalt wedges that pull from the opened cluster toward the next smash target"; Asset = "VFX_RouteChase_Pulse"; Folder = "Assets/Art/VFX/Route/" }
 )
 
 $productionBatches = @(
@@ -227,6 +239,12 @@ $productionBatches = @(
         Goal = "leave a tiny residual impact mark on the wreck that completed LANE BREAK"
         Targets = @("VFX_LaneBreak_Residual")
         Acceptance = "LANE BREAK shows a short ivory-ash crack flash that is not OPEN dashes, HOLD lock ring, smash star, combo ticks, or Overdrive chevrons"
+    },
+    [pscustomobject]@{
+        Batch = "G. Forward chase pulse"
+        Goal = "make the opened cluster pull the player forward to the next smash target"
+        Targets = @("VFX_RouteChase_Pulse")
+        Acceptance = "ROUTE BONUS chase shows cobalt wedges toward the smash target that are not OPEN dashes, HOLD lock ring, smash star, combo ticks, Overdrive chevrons, or LANE BREAK residual"
     }
 )
 

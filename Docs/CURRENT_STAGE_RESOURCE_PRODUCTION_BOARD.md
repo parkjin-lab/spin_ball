@@ -314,6 +314,7 @@ Deliverables:
 - `VFX_RouteHold_Success` gold-cyan lock ring when ROUTE HOLD completes and flips toward ROUTE BONUS
 - `VFX_RouteOpen_Trail` magenta path dashes when LANE BREAK flips to ROUTE OPEN
 - `VFX_LaneBreak_Residual` ivory-ash residual crack at the wreck that completed LANE BREAK
+- `VFX_RouteChase_Pulse` cobalt wedges from the opened ROUTE BONUS cluster toward the next smash target
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:
