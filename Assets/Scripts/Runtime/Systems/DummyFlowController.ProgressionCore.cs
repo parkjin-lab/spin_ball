@@ -351,6 +351,8 @@ namespace AlienCrusher.Systems
 					cachedPlayerController?.ApplyCounterSurge(1.08f, 1.12f, 1.15f);
 					feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.24f, 0.62f, major: false);
 					feedbackSystem?.PlayRouteOpenCue(0.62f);
+					Vector3 openTrailAim = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : val + Vector3.forward * 6f;
+					RouteOpenTrailVfx.Play(val + Vector3.up * 0.08f, openTrailAim);
 					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.AddImpulse(0.32f);
 				}
