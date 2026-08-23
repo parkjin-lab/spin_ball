@@ -12,7 +12,8 @@ param(
     [string]$SpendChangeReadyPath = "",
     [string]$StageSelectConfirmPath = "",
     [string]$UiFlowPath = "",
-    [string]$MetaUpgradeConfirmPath = ""
+    [string]$MetaUpgradeConfirmPath = "",
+    [string]$DpGainResidualPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -71,6 +72,7 @@ $spendChangeReadySourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Ove
 $stageSelectConfirmSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageSelectConfirmPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageSelectConfirm.cs"
 $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UiFlowPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UIFlow.cs"
 $metaUpgradeConfirmSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $MetaUpgradeConfirmPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.MetaUpgradeConfirm.cs"
+$dpGainResidualSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $DpGainResidualPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.DpGainResidual.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherOutgameProgressionChecklist.md"
@@ -96,7 +98,8 @@ $spendChangeReadyText = Read-SourceText -Path $spendChangeReadySourcePath
 $stageSelectConfirmText = Read-SourceText -Path $stageSelectConfirmSourcePath
 $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
 $metaUpgradeConfirmText = Read-SourceText -Path $metaUpgradeConfirmSourcePath
-$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText + $spendChangeReadyText + $stageSelectConfirmText + $uiFlowText + $metaUpgradeConfirmText
+$dpGainResidualText = Read-SourceText -Path $dpGainResidualSourcePath
+$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText + $spendChangeReadyText + $stageSelectConfirmText + $uiFlowText + $metaUpgradeConfirmText + $dpGainResidualText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -168,6 +171,13 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+    "VFX_DP_Gain_Residual",
+    "PlaceDpGainResidual"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $dpGainResidualText -Needle $needle
+}
+
+foreach ($needle in @(
     "UpdateResultStatusBadges",
     "UpdateResultMetaProgress",
     "GetResultNextFormHint",
@@ -198,7 +208,8 @@ foreach ($needle in @(
     "SFX_Progression_Confirm",
     "EnsureOutgameDpEconomy",
     "SignalOutgameDpInsufficient",
-    "PlayProgressionConfirmCue"
+    "PlayProgressionConfirmCue",
+    "PlaceDpGainResidual"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $dpEconomyHookText -Needle $needle
 }
@@ -243,7 +254,8 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_FormEquip_Confirm"; RuntimeUse = "lobby form equip confirmation pulse"; State = "equipped lock-in flash"; Folder = "Assets/Art/VFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_SpendChange_Ready"; RuntimeUse = "next-run spend-change readout on StartStage"; State = "form ready, meta ready"; Folder = "Assets/Art/VFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_StageSelect_Confirm"; RuntimeUse = "lobby stage select confirmation pulse"; State = "stage locked-in flash"; Folder = "Assets/Art/VFX/UI/" },
-    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_MetaUpgrade_Confirm"; RuntimeUse = "lobby meta purchase confirmation pulse"; State = "purchased lock-in flash"; Folder = "Assets/Art/VFX/UI/" }
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_MetaUpgrade_Confirm"; RuntimeUse = "lobby meta purchase confirmation pulse"; State = "purchased lock-in flash"; Folder = "Assets/Art/VFX/UI/" },
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_DP_Gain_Residual"; RuntimeUse = "result/lobby DP gain residual afterglow"; State = "small gain afterglow, big gain afterglow"; Folder = "Assets/Art/VFX/UI/" }
 )
 
 $productionBatches = @(
@@ -294,6 +306,12 @@ $productionBatches = @(
         Goal = "make a lobby meta spend feel locked-in before the next run"
         Targets = @("VFX_MetaUpgrade_Confirm")
         Acceptance = "buying a meta upgrade shows a short copper diamond pulse on that node that is not the champagne form-equip ring, ice-slate stage-select brackets, jade spend-change plate, result badges, or in-run smash/route VFX"
+    },
+    [pscustomobject]@{
+        Batch = "I. DP gain residual afterglow"
+        Goal = "keep earned DP readable after the existing gain burst fades"
+        Targets = @("VFX_DP_Gain_Residual")
+        Acceptance = "a successful DP earn shows a short aqua afterglow beside UI_DP_GainBurst that is not the burst itself, copper meta diamond, champagne form-equip ring, ice-slate stage-select brackets, or in-run smash/route VFX"
     }
 )
 

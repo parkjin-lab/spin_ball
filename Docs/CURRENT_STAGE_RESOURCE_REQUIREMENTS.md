@@ -255,6 +255,7 @@ Status:
 - leftover next-run spend-change pulse `VFX_SpendChange_Ready` now names the last lobby form or meta spend on stage start
 - leftover lobby stage-select confirm pulse `VFX_StageSelect_Confirm` now marks Stage prev/next on the stage readout
 - leftover meta-purchase confirm pulse `VFX_MetaUpgrade_Confirm` now marks a successful Size / Impact / DP buy on that node
+- leftover DP gain residual `VFX_DP_Gain_Residual` now leaves an aqua afterglow after `UI_DP_GainBurst` on result/lobby earn
 - Icons A/B/C and district palettes were not restyled
 
 Need:
@@ -297,6 +298,7 @@ Required assets:
 - `VFX_SpendChange_Ready` jade next-run spend-change ready plate
 - `VFX_StageSelect_Confirm` ice-slate lobby stage-select confirm brackets
 - `VFX_MetaUpgrade_Confirm` copper diamond pulse when a meta upgrade is purchased
+- `VFX_DP_Gain_Residual` aqua afterglow after a result/lobby DP gain burst
 
 Why this matters now:
 - UI text has been heavily simplified already
@@ -415,6 +417,7 @@ Status:
 - leftover next-run spend-change pulse `VFX_SpendChange_Ready` names the last lobby form or meta spend when the next run starts
 - leftover lobby stage-select confirm pulse `VFX_StageSelect_Confirm` marks Stage prev/next on the stage readout
 - leftover meta-purchase confirm pulse `VFX_MetaUpgrade_Confirm` marks a successful Size / Impact / DP buy on that node
+- leftover DP gain residual `VFX_DP_Gain_Residual` leaves an aqua afterglow after `UI_DP_GainBurst` on result/lobby earn
 
 Need:
 - cleaner visuals for form unlock targets and meta purchases
@@ -457,6 +460,7 @@ Required assets:
 - `VFX_SpendChange_Ready` jade ready plate on the next run after a lobby form or meta spend
 - `VFX_StageSelect_Confirm` ice-slate bracket pulse when a lobby stage is selected
 - `VFX_MetaUpgrade_Confirm` copper diamond pulse when a meta upgrade is purchased
+- `VFX_DP_Gain_Residual` aqua afterglow after a result/lobby DP gain burst
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
@@ -652,6 +656,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_SpendChange_Ready` jade next-run spend-change ready plate
 - [x] `VFX_StageSelect_Confirm` ice-slate lobby stage-select confirm brackets
 - [x] `VFX_MetaUpgrade_Confirm` copper lobby meta-purchase confirm diamond
+- [x] `VFX_DP_Gain_Residual` aqua result/lobby DP gain afterglow
 - [x] `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - [x] `UI_MetaNode_SizeCore` Size Core node chip
 - [x] `UI_MetaNode_ImpactCore` Impact Core node chip

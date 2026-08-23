@@ -92,7 +92,9 @@ namespace AlienCrusher.Systems
 
 			OutgameDpSignal resultSignal = currentUiViewState == UiViewState.Result ? ResolveResultDpGainSignal() : OutgameDpSignal.None;
 			PlaceDpEconomyBurst(resultSummaryText, ResultDpGainBurstName, resultSignal, new Vector2(56f, 18f), 44f);
+			PlaceDpGainResidual(resultSummaryText, ResultDpGainResidualName, resultSignal, new Vector2(48f, 12f), 58f);
 			PlaceDpEconomyBurst(lobbyDpText, LobbyDpGainBurstName, currentUiViewState == UiViewState.Lobby ? ResolveLobbyDpSignal() : OutgameDpSignal.None, new Vector2(56f, -8f), 40f);
+			PlaceDpGainResidual(lobbyDpText, LobbyDpGainResidualName, currentUiViewState == UiViewState.Lobby ? ResolveLobbyDpSignal() : OutgameDpSignal.None, new Vector2(48f, -14f), 54f);
 		}
 
 		private OutgameDpSignal ResolveResultDpGainSignal()
