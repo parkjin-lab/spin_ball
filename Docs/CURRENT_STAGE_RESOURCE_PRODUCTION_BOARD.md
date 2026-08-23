@@ -313,6 +313,7 @@ Deliverables:
 - `VFX_ForwardSmash_Confirm` mint-white impact star and short broken ring on FORWARD SMASH
 - `VFX_RouteHold_Success` gold-cyan lock ring when ROUTE HOLD completes and flips toward ROUTE BONUS
 - `VFX_RouteOpen_Trail` magenta path dashes when LANE BREAK flips to ROUTE OPEN
+- `VFX_LaneBreak_Residual` ivory-ash residual crack at the wreck that completed LANE BREAK
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:

@@ -353,6 +353,7 @@ namespace AlienCrusher.Systems
 					feedbackSystem?.PlayRouteOpenCue(0.62f);
 					Vector3 openTrailAim = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : val + Vector3.forward * 6f;
 					RouteOpenTrailVfx.Play(val + Vector3.up * 0.08f, openTrailAim);
+					LaneBreakResidualVfx.Play(val + Vector3.up * 0.06f);
 					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.AddImpulse(0.32f);
 				}

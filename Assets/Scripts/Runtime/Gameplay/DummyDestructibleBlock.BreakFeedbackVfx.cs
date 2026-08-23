@@ -27,6 +27,11 @@ namespace AlienCrusher.Gameplay
 
         private void PlayNamedBreakFeedback(Vector3 hitPoint, float damageRatio, float remainingRatio, bool heavyHit, bool weakPointHit, bool suppressFeedback, bool destroyed)
         {
+            if (destroyed)
+            {
+                LaneBreakResidualVfx.NoteSmash(hitPoint);
+            }
+
             DestructionBreakFeedbackVfx.RenameExistingBreakVfx(debrisParticle, smokeParticle);
 
             if (!suppressFeedback && !isLargeBuilding && !weakPointHit)

@@ -379,6 +379,7 @@ Required assets:
 - `VFX_ForwardSmash_Confirm` mint-white impact star and short broken ring on FORWARD SMASH (`Assets/Art/VFX/Route/`)
 - `VFX_RouteHold_Success` gold-cyan lock ring when ROUTE HOLD completes and flips toward ROUTE BONUS (`Assets/Art/VFX/Route/`)
 - `VFX_RouteOpen_Trail` magenta path dashes when LANE BREAK flips to ROUTE OPEN (`Assets/Art/VFX/Route/`)
+- `VFX_LaneBreak_Residual` ivory-ash residual crack at the wreck that completed LANE BREAK (`Assets/Art/VFX/Route/`)
 - Forward Smash confirmation VFX/SFX
 
 Generated production checklist:
@@ -553,6 +554,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_ForwardSmash_Confirm` mint-white FORWARD SMASH cash-out star
 - [x] `VFX_RouteHold_Success` gold-cyan ROUTE HOLD success lock ring
 - [x] `VFX_RouteOpen_Trail` magenta ROUTE OPEN path dashes
+- [x] `VFX_LaneBreak_Residual` ivory-ash LANE BREAK residual crack
 - [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 
@@ -568,6 +570,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_ForwardSmash_Confirm` mint-white FORWARD SMASH cash-out star
 - [x] `VFX_RouteHold_Success` gold-cyan ROUTE HOLD success lock ring
 - [x] `VFX_RouteOpen_Trail` magenta ROUTE OPEN path dashes
+- [x] `VFX_LaneBreak_Residual` ivory-ash LANE BREAK residual crack
 - [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 - [ ] shield break burst
