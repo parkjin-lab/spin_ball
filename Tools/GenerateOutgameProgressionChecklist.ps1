@@ -16,7 +16,8 @@ param(
     [string]$DpGainResidualPath = "",
     [string]$NextActionReadyPath = "",
     [string]$StageUnlockReadyPath = "",
-    [string]$FormUnlockConfirmPath = ""
+    [string]$FormUnlockConfirmPath = "",
+    [string]$NextActionResidualPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -79,6 +80,7 @@ $dpGainResidualSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Overr
 $nextActionReadySourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $NextActionReadyPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.NextActionReady.cs"
 $stageUnlockReadySourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageUnlockReadyPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageUnlockReady.cs"
 $formUnlockConfirmSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FormUnlockConfirmPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.FormUnlockConfirm.cs"
+$nextActionResidualSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $NextActionResidualPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.NextActionResidual.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherOutgameProgressionChecklist.md"
@@ -108,7 +110,8 @@ $dpGainResidualText = Read-SourceText -Path $dpGainResidualSourcePath
 $nextActionReadyText = Read-SourceText -Path $nextActionReadySourcePath
 $stageUnlockReadyText = Read-SourceText -Path $stageUnlockReadySourcePath
 $formUnlockConfirmText = Read-SourceText -Path $formUnlockConfirmSourcePath
-$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText + $spendChangeReadyText + $stageSelectConfirmText + $uiFlowText + $metaUpgradeConfirmText + $dpGainResidualText + $nextActionReadyText + $stageUnlockReadyText + $formUnlockConfirmText
+$nextActionResidualText = Read-SourceText -Path $nextActionResidualSourcePath
+$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText + $spendChangeReadyText + $stageSelectConfirmText + $uiFlowText + $metaUpgradeConfirmText + $dpGainResidualText + $nextActionReadyText + $stageUnlockReadyText + $formUnlockConfirmText + $nextActionResidualText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -209,6 +212,13 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+    "VFX_NextAction_Residual",
+    "PlaceNextActionResidual"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $nextActionResidualText -Needle $needle
+}
+
+foreach ($needle in @(
     "UpdateResultStatusBadges",
     "UpdateResultMetaProgress",
     "GetResultNextFormHint",
@@ -258,6 +268,7 @@ foreach ($needle in @(
     "SignalOutgameStageUnlocked",
     "SignalOutgameProgressionSaved",
     "PlaceNextActionReadyPulse",
+    "PlaceNextActionResidual",
     "PlaceStageUnlockReadyPulse",
     "ResetStageUnlockReadyPulse"
 )) {
@@ -292,7 +303,8 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_DP_Gain_Residual"; RuntimeUse = "result/lobby DP gain residual afterglow"; State = "small gain afterglow, big gain afterglow"; Folder = "Assets/Art/VFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_NextAction_Ready"; RuntimeUse = "result next-action ready pulse"; State = "form ready, meta ready, recommended"; Folder = "Assets/Art/VFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_StageUnlock_Ready"; RuntimeUse = "result/lobby stage-unlock banner residual afterglow"; State = "new best, next stage"; Folder = "Assets/Art/VFX/UI/" },
-    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_FormUnlock_Confirm"; RuntimeUse = "lobby form unlock confirmation pulse"; State = "newly unlocked lock-in flash"; Folder = "Assets/Art/VFX/UI/" }
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_FormUnlock_Confirm"; RuntimeUse = "lobby form unlock confirmation pulse"; State = "newly unlocked lock-in flash"; Folder = "Assets/Art/VFX/UI/" },
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_NextAction_Residual"; RuntimeUse = "result next-action residual afterglow"; State = "form ready, meta ready, recommended"; Folder = "Assets/Art/VFX/UI/" }
 )
 
 $productionBatches = @(
@@ -367,6 +379,12 @@ $productionBatches = @(
         Goal = "make a lobby form unlock feel newly opened before the next run"
         Targets = @("VFX_FormUnlock_Confirm")
         Acceptance = "unlocking a form shows a short periwinkle petal burst on that card that is not the champagne form-equip ring, cyan equipped frame, honey-ivory stage-unlock residual, lilac next-action caret, aqua DP residual, copper meta diamond, ice-slate stage-select brackets, jade spend-change plate, or in-run smash/route VFX"
+    },
+    [pscustomobject]@{
+        Batch = "M. Result next-action residual afterglow"
+        Goal = "keep the result next action readable after the existing caret fades"
+        Targets = @("VFX_NextAction_Residual")
+        Acceptance = "result opening with a form-ready, meta-ready, or recommended next action shows a short pale-orchid afterglow beside VFX_NextAction_Ready that is not the caret itself, periwinkle form-unlock burst, champagne form-equip ring, honey-ivory stage-unlock residual, aqua DP residual, copper meta diamond, ice-slate stage-select brackets, or in-run smash/route VFX"
     }
 )
 
@@ -381,7 +399,7 @@ $loopRows = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher Outgame Progression Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`, `{6}`, `{7}`' -f $metaProgressionSourcePath, $formFlowSourcePath, $stageFlowSourcePath, $formUnlockSourcePath, $progressionSaveSourcePath, $nextActionReadySourcePath, $stageUnlockReadySourcePath, $formUnlockConfirmSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`, `{6}`, `{7}`, `{8}`' -f $metaProgressionSourcePath, $formFlowSourcePath, $stageFlowSourcePath, $formUnlockSourcePath, $progressionSaveSourcePath, $nextActionReadySourcePath, $stageUnlockReadySourcePath, $formUnlockConfirmSourcePath, $nextActionResidualSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: turn the current DP, form unlock, meta upgrade, result reward, lobby recommendation, and save systems into a concrete outgame production checklist.")
 $lines.Add("")
@@ -453,6 +471,7 @@ $lines.Add("- Result badges should point to one next action, not celebrate every
 $lines.Add("- Leftover `VFX_NextAction_Ready` is the ready pulse on that one result next-action badge, not a second advice system.")
 $lines.Add("- Leftover `VFX_StageUnlock_Ready` is the residual afterglow beside the existing stage-unlock banner, not a second banner or stage-select confirm.")
 $lines.Add("- Leftover `VFX_FormUnlock_Confirm` is the unlock petal burst on a newly unlocked form card, not the champagne equip ring.")
+$lines.Add("- Leftover `VFX_NextAction_Residual` is the afterglow beside the existing result next-action caret, not a second caret or lobby unlock pulse.")
 $lines.Add("- Save confirmation should stay lightweight; interruption-heavy modals would slow the run-return rhythm.")
 
 $report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine

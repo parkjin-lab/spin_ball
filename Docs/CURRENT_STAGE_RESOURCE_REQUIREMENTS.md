@@ -259,6 +259,7 @@ Status:
 - leftover result next-action pulse `VFX_NextAction_Ready` now marks the one form-ready, meta-ready, or recommended badge when result opens
 - leftover stage-unlock residual `VFX_StageUnlock_Ready` now leaves a honey-ivory afterglow beside `Banner_StageUnlocked` on a first-time stage clear
 - leftover form-unlock confirm pulse `VFX_FormUnlock_Confirm` now marks a newly unlocked lobby form card
+- leftover result next-action residual `VFX_NextAction_Residual` now leaves a pale-orchid afterglow beside `VFX_NextAction_Ready` when result opens
 - Icons A/B/C and district palettes were not restyled
 
 Need:
@@ -305,6 +306,7 @@ Required assets:
 - `VFX_NextAction_Ready` lilac caret pulse on the one result next-action badge
 - `VFX_StageUnlock_Ready` honey-ivory afterglow beside the stage-unlock banner
 - `VFX_FormUnlock_Confirm` periwinkle petal burst when a lobby form is unlocked
+- `VFX_NextAction_Residual` pale-orchid afterglow beside the result next-action caret
 
 Why this matters now:
 - UI text has been heavily simplified already
@@ -427,6 +429,7 @@ Status:
 - leftover result next-action pulse `VFX_NextAction_Ready` marks the one form-ready, meta-ready, or recommended badge when result opens
 - leftover stage-unlock residual `VFX_StageUnlock_Ready` leaves a honey-ivory afterglow beside `Banner_StageUnlocked` on a first-time stage clear
 - leftover form-unlock confirm pulse `VFX_FormUnlock_Confirm` marks a newly unlocked lobby form card
+- leftover result next-action residual `VFX_NextAction_Residual` leaves a pale-orchid afterglow beside `VFX_NextAction_Ready` when result opens
 
 Need:
 - cleaner visuals for form unlock targets and meta purchases
@@ -473,6 +476,7 @@ Required assets:
 - `VFX_NextAction_Ready` lilac caret pulse on the one result next-action badge
 - `VFX_StageUnlock_Ready` honey-ivory afterglow beside the stage-unlock banner
 - `VFX_FormUnlock_Confirm` periwinkle petal burst when a lobby form is unlocked
+- `VFX_NextAction_Residual` pale-orchid afterglow beside the result next-action caret
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
@@ -672,6 +676,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_NextAction_Ready` lilac result next-action ready pulse
 - [x] `VFX_StageUnlock_Ready` honey-ivory stage-unlock banner afterglow
 - [x] `VFX_FormUnlock_Confirm` periwinkle lobby form-unlock petal burst
+- [x] `VFX_NextAction_Residual` pale-orchid result next-action afterglow
 - [x] `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - [x] `UI_MetaNode_SizeCore` Size Core node chip
 - [x] `UI_MetaNode_ImpactCore` Impact Core node chip

@@ -291,6 +291,7 @@ Deliverables:
 - `VFX_NextAction_Ready` lilac caret pulse on the one result next-action badge
 - `VFX_StageUnlock_Ready` honey-ivory afterglow beside the stage-unlock banner
 - `VFX_FormUnlock_Confirm` periwinkle petal burst when a lobby form is unlocked
+- `VFX_NextAction_Residual` pale-orchid afterglow beside the result next-action caret
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip

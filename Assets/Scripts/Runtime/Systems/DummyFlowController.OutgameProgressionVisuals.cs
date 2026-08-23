@@ -114,6 +114,7 @@ namespace AlienCrusher.Systems
 			PlaceReadyBadge(resultAdviceText, "ResultFormReadyBadge", badgeFormReadySprite, ShouldShowFormReadyBadge());
 			PlaceReadyBadge(resultAdviceText, "ResultMetaReadyBadge", badgeMetaReadySprite, ShouldShowMetaReadyBadge());
 			PlaceNextActionReadyPulse();
+			PlaceNextActionResidual();
 			PlaceStageUnlockReadyPulse();
 		}
 
