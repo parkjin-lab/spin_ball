@@ -34,6 +34,7 @@ namespace AlienCrusher.Systems
 			if (!((Object)(object)formUnlockSystem == (Object)null))
 			{
 				int requiredCost;
+				bool unlockedNow = false;
 				if (formUnlockSystem.IsUnlocked(form))
 				{
 					formUnlockSystem.TrySelect(form);
@@ -53,11 +54,19 @@ namespace AlienCrusher.Systems
 				{
 					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} unlocked and equipped.";
 					SignalOutgameDpSpend();
+					unlockedNow = true;
 				}
 				ApplySelectedFormToPlayer();
 				UpdateFormButtons();
 				UpdateMetaProgressUi();
-				PlayFormEquipConfirmPulse(form);
+				if (unlockedNow)
+				{
+					PlayFormUnlockConfirmPulse(form);
+				}
+				else
+				{
+					PlayFormEquipConfirmPulse(form);
+				}
 				ArmSpendChangeReadyFromForm(form);
 			}
 		}
