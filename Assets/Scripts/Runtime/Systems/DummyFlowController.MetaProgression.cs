@@ -172,6 +172,7 @@ namespace AlienCrusher.Systems
 			}
 			RefreshActionSkillButtons(force: true);
 			UpdateMetaProgressUi();
+			PlayMetaUpgradeConfirmPulse(upgradeType);
 		}
 
 		private FormUnlockSystem.MetaUpgradeType GetPreviewMetaUpgradeType()

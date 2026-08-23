@@ -252,6 +252,7 @@ Status:
 - leftover boss-stage next-run icon `Icon_Boss_Sentinel` now marks lobby Stage 4+ select and result next-action when the next run is a Sentinel encounter
 - leftover next-run spend-change pulse `VFX_SpendChange_Ready` now names the last lobby form or meta spend on stage start
 - leftover lobby stage-select confirm pulse `VFX_StageSelect_Confirm` now marks Stage prev/next on the stage readout
+- leftover meta-purchase confirm pulse `VFX_MetaUpgrade_Confirm` now marks a successful Size / Impact / DP buy on that node
 - Icons A/B/C and district palettes were not restyled
 
 Need:
@@ -293,6 +294,7 @@ Required assets:
 - `VFX_FormEquip_Confirm` champagne lobby form-equip lock-in ring
 - `VFX_SpendChange_Ready` jade next-run spend-change ready plate
 - `VFX_StageSelect_Confirm` ice-slate lobby stage-select confirm brackets
+- `VFX_MetaUpgrade_Confirm` copper diamond pulse when a meta upgrade is purchased
 
 Why this matters now:
 - UI text has been heavily simplified already
@@ -410,6 +412,7 @@ Status:
 - confirm audio now ships as `SFX_Progression_Confirm` on successful unlock, purchase, and equip
 - leftover next-run spend-change pulse `VFX_SpendChange_Ready` names the last lobby form or meta spend when the next run starts
 - leftover lobby stage-select confirm pulse `VFX_StageSelect_Confirm` marks Stage prev/next on the stage readout
+- leftover meta-purchase confirm pulse `VFX_MetaUpgrade_Confirm` marks a successful Size / Impact / DP buy on that node
 
 Need:
 - cleaner visuals for form unlock targets and meta purchases
@@ -451,6 +454,7 @@ Required assets:
 - `VFX_FormEquip_Confirm` champagne lock-in ring when a lobby form is equipped
 - `VFX_SpendChange_Ready` jade ready plate on the next run after a lobby form or meta spend
 - `VFX_StageSelect_Confirm` ice-slate bracket pulse when a lobby stage is selected
+- `VFX_MetaUpgrade_Confirm` copper diamond pulse when a meta upgrade is purchased
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
@@ -641,6 +645,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_FormEquip_Confirm` champagne lobby form-equip lock-in ring
 - [x] `VFX_SpendChange_Ready` jade next-run spend-change ready plate
 - [x] `VFX_StageSelect_Confirm` ice-slate lobby stage-select confirm brackets
+- [x] `VFX_MetaUpgrade_Confirm` copper lobby meta-purchase confirm diamond
 - [x] `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - [x] `UI_MetaNode_SizeCore` Size Core node chip
 - [x] `UI_MetaNode_ImpactCore` Impact Core node chip

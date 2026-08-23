@@ -11,7 +11,8 @@ param(
     [string]$FormEquipConfirmPath = "",
     [string]$SpendChangeReadyPath = "",
     [string]$StageSelectConfirmPath = "",
-    [string]$UiFlowPath = ""
+    [string]$UiFlowPath = "",
+    [string]$MetaUpgradeConfirmPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -69,6 +70,7 @@ $formEquipConfirmSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Ove
 $spendChangeReadySourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $SpendChangeReadyPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.SpendChangeReady.cs"
 $stageSelectConfirmSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageSelectConfirmPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageSelectConfirm.cs"
 $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UiFlowPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UIFlow.cs"
+$metaUpgradeConfirmSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $MetaUpgradeConfirmPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.MetaUpgradeConfirm.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherOutgameProgressionChecklist.md"
@@ -93,7 +95,8 @@ $formEquipConfirmText = Read-SourceText -Path $formEquipConfirmSourcePath
 $spendChangeReadyText = Read-SourceText -Path $spendChangeReadySourcePath
 $stageSelectConfirmText = Read-SourceText -Path $stageSelectConfirmSourcePath
 $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
-$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText + $spendChangeReadyText + $stageSelectConfirmText + $uiFlowText
+$metaUpgradeConfirmText = Read-SourceText -Path $metaUpgradeConfirmSourcePath
+$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText + $spendChangeReadyText + $stageSelectConfirmText + $uiFlowText + $metaUpgradeConfirmText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -107,7 +110,8 @@ foreach ($needle in @(
     "DpAmplifier",
     "lastLobbyActionStatus",
     "GetRecommendedMetaContextTag",
-    "ArmSpendChangeReadyFromMeta"
+    "ArmSpendChangeReadyFromMeta",
+    "PlayMetaUpgradeConfirmPulse"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $metaProgressionText -Needle $needle
 }
@@ -154,6 +158,13 @@ foreach ($needle in @(
     "PlayStageSelectConfirmPulse"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $uiFlowText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_MetaUpgrade_Confirm",
+    "PlayMetaUpgradeConfirmPulse"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $metaUpgradeConfirmText -Needle $needle
 }
 
 foreach ($needle in @(
@@ -231,7 +242,8 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Category = "Audio"; Asset = "SFX_Progression_Locked"; RuntimeUse = "not enough DP or stage locked"; State = "locked, insufficient DP"; Folder = "Assets/Audio/SFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_FormEquip_Confirm"; RuntimeUse = "lobby form equip confirmation pulse"; State = "equipped lock-in flash"; Folder = "Assets/Art/VFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_SpendChange_Ready"; RuntimeUse = "next-run spend-change readout on StartStage"; State = "form ready, meta ready"; Folder = "Assets/Art/VFX/UI/" },
-    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_StageSelect_Confirm"; RuntimeUse = "lobby stage select confirmation pulse"; State = "stage locked-in flash"; Folder = "Assets/Art/VFX/UI/" }
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_StageSelect_Confirm"; RuntimeUse = "lobby stage select confirmation pulse"; State = "stage locked-in flash"; Folder = "Assets/Art/VFX/UI/" },
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_MetaUpgrade_Confirm"; RuntimeUse = "lobby meta purchase confirmation pulse"; State = "purchased lock-in flash"; Folder = "Assets/Art/VFX/UI/" }
 )
 
 $productionBatches = @(
@@ -276,6 +288,12 @@ $productionBatches = @(
         Goal = "make lobby stage select feel locked-in before stage start"
         Targets = @("VFX_StageSelect_Confirm")
         Acceptance = "selecting a lobby stage shows a short ice-slate bracket pulse on the stage readout that is not the champagne form-equip ring, jade spend-change plate, result badges, unlock banners, or in-run smash/route VFX"
+    },
+    [pscustomobject]@{
+        Batch = "H. Meta purchase confirm pulse"
+        Goal = "make a lobby meta spend feel locked-in before the next run"
+        Targets = @("VFX_MetaUpgrade_Confirm")
+        Acceptance = "buying a meta upgrade shows a short copper diamond pulse on that node that is not the champagne form-equip ring, ice-slate stage-select brackets, jade spend-change plate, result badges, or in-run smash/route VFX"
     }
 )
 
