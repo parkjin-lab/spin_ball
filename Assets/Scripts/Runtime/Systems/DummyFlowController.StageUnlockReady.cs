@@ -7,7 +7,9 @@ namespace AlienCrusher.Systems
 	public partial class DummyFlowController
 	{
 		private const string StageUnlockReadyVfxId = "VFX_StageUnlock_Ready";
-		private static readonly Color StageUnlockHoney = new Color(0.98f, 0.86f, 0.52f, 0.92f);
+		private const string ResultStageUnlockResidualName = "ResultStageUnlockResidual";
+		private const string LobbyStageUnlockResidualName = "LobbyStageUnlockResidual";
+		private static readonly Color StageUnlockHoney = new Color(0.98f, 0.86f, 0.52f, 0.72f);
 
 		private Sprite stageUnlockReadySprite;
 		private bool stageUnlockReadyPlayedOnResult;
@@ -19,22 +21,22 @@ namespace AlienCrusher.Systems
 			{
 				stageUnlockReadyPlayedOnResult = false;
 				stageUnlockReadyPlayedOnLobby = false;
-				HideStageUnlockReadyPulse(resultPanel != null ? resultPanel.transform : null, ResultUnlockBannerName);
-				HideStageUnlockReadyPulse(lobbyPanel != null ? lobbyPanel.transform : null, LobbyUnlockBannerName);
+				HideStageUnlockReadyPulse(resultPanel != null ? resultPanel.transform : null, ResultStageUnlockResidualName);
+				HideStageUnlockReadyPulse(lobbyPanel != null ? lobbyPanel.transform : null, LobbyStageUnlockResidualName);
 				return;
 			}
 
 			if (currentUiViewState == UiViewState.Result)
 			{
-				PlayStageUnlockReadyOnBanner(resultPanel != null ? resultPanel.transform : null, ResultUnlockBannerName, ref stageUnlockReadyPlayedOnResult);
-				HideStageUnlockReadyPulse(lobbyPanel != null ? lobbyPanel.transform : null, LobbyUnlockBannerName);
+				PlayStageUnlockReadyBesideBanner(resultPanel != null ? resultPanel.transform : null, ResultUnlockBannerName, ResultStageUnlockResidualName, ref stageUnlockReadyPlayedOnResult);
+				HideStageUnlockReadyPulse(lobbyPanel != null ? lobbyPanel.transform : null, LobbyStageUnlockResidualName);
 				return;
 			}
 
 			if (currentUiViewState == UiViewState.Lobby)
 			{
-				PlayStageUnlockReadyOnBanner(lobbyPanel != null ? lobbyPanel.transform : null, LobbyUnlockBannerName, ref stageUnlockReadyPlayedOnLobby);
-				HideStageUnlockReadyPulse(resultPanel != null ? resultPanel.transform : null, ResultUnlockBannerName);
+				PlayStageUnlockReadyBesideBanner(lobbyPanel != null ? lobbyPanel.transform : null, LobbyUnlockBannerName, LobbyStageUnlockResidualName, ref stageUnlockReadyPlayedOnLobby);
+				HideStageUnlockReadyPulse(resultPanel != null ? resultPanel.transform : null, ResultStageUnlockResidualName);
 			}
 		}
 
@@ -44,7 +46,7 @@ namespace AlienCrusher.Systems
 			stageUnlockReadyPlayedOnLobby = false;
 		}
 
-		private void PlayStageUnlockReadyOnBanner(Transform panel, string bannerName, ref bool played)
+		private void PlayStageUnlockReadyBesideBanner(Transform panel, string bannerName, string residualName, ref bool played)
 		{
 			if ((Object)(object)panel == (Object)null)
 			{
@@ -57,18 +59,24 @@ namespace AlienCrusher.Systems
 				return;
 			}
 
-			Image image = EnsureNamedIconImage(banner, StageUnlockReadyVfxId);
+			Image image = EnsureNamedIconImage(panel, residualName);
 			if ((Object)(object)image == (Object)null)
 			{
 				return;
 			}
 
+			RectTransform source = banner.GetComponent<RectTransform>();
+			if ((Object)(object)source == (Object)null)
+			{
+				return;
+			}
+
 			RectTransform rect = image.rectTransform;
-			rect.anchorMin = Vector2.zero;
-			rect.anchorMax = Vector2.one;
+			rect.anchorMin = source.anchorMin;
+			rect.anchorMax = source.anchorMax;
 			rect.pivot = new Vector2(0.5f, 0.5f);
-			rect.offsetMin = new Vector2(-14f, -10f);
-			rect.offsetMax = new Vector2(14f, 10f);
+			rect.sizeDelta = source.sizeDelta + new Vector2(36f, 22f);
+			rect.anchoredPosition = source.anchoredPosition + new Vector2(0f, -6f);
 			image.sprite = EnsureStageUnlockReadySprite();
 			image.color = StageUnlockHoney;
 			image.preserveAspect = false;
@@ -86,23 +94,17 @@ namespace AlienCrusher.Systems
 				driver = image.gameObject.AddComponent<StageUnlockReadyDriver>();
 			}
 
-			driver.Play(StageUnlockHoney, 1.08f);
+			driver.Play(StageUnlockHoney, 1.35f);
 		}
 
-		private void HideStageUnlockReadyPulse(Transform panel, string bannerName)
+		private void HideStageUnlockReadyPulse(Transform panel, string residualName)
 		{
 			if ((Object)(object)panel == (Object)null)
 			{
 				return;
 			}
 
-			Transform banner = FindDirectChild(panel, bannerName);
-			if ((Object)(object)banner == (Object)null)
-			{
-				return;
-			}
-
-			Transform existing = FindDirectChild(banner, StageUnlockReadyVfxId);
+			Transform existing = FindDirectChild(panel, residualName);
 			if ((Object)(object)existing == (Object)null)
 			{
 				return;
@@ -136,16 +138,12 @@ namespace AlienCrusher.Systems
 			{
 				for (int x = 0; x < width; x++)
 				{
-					float nx = x / (float)(width - 1);
-					float ny = y / (float)(height - 1);
 					float dx = Mathf.Abs(x - center.x) / (width * 0.5f);
 					float dy = Mathf.Abs(y - center.y) / (height * 0.5f);
-					float corner = ((nx < 0.12f || nx > 0.88f) && (ny < 0.22f || ny > 0.78f)) ? 0.85f : 0f;
-					float rise = (ny > 0.72f && Mathf.Abs(nx - 0.5f) < 0.18f) ? Mathf.Clamp01(1f - Mathf.Abs(nx - 0.5f) / 0.18f) * 0.7f : 0f;
-					float underline = (ny < 0.16f && dx < 0.86f) ? 0.55f : 0f;
-					float slit = ((nx < 0.08f || nx > 0.92f) && Mathf.Abs(ny - 0.5f) < 0.28f) ? 0.4f : 0f;
-					float rim = Mathf.Clamp01(1f - Mathf.Abs(Mathf.Max(dx - 0.9f, dy - 0.72f)) / 0.1f);
-					byte alpha = (byte)Mathf.Clamp(Mathf.RoundToInt((corner * 0.9f + rise * 0.35f + underline * 0.28f + slit * 0.22f + rim * 0.18f) * 255f), 0, 255);
+					float dist = Mathf.Max(dx * 0.72f, dy);
+					float glow = Mathf.Clamp01(1f - dist);
+					float halo = Mathf.Clamp01(1f - Mathf.Abs(dist - 0.58f) / 0.26f);
+					byte alpha = (byte)Mathf.Clamp(Mathf.RoundToInt((glow * 0.26f + halo * 0.64f) * 255f), 0, 255);
 					pixels[y * width + x] = new Color32(250, 220, 132, alpha);
 				}
 			}
@@ -165,13 +163,13 @@ namespace AlienCrusher.Systems
 			private float age;
 			private Vector3 startScale;
 
-			public void Play(Color pulseColor, float life)
+			public void Play(Color glowColor, float life)
 			{
 				image = GetComponent<Image>();
-				color = pulseColor;
-				duration = Mathf.Max(0.4f, life);
+				color = glowColor;
+				duration = Mathf.Max(0.5f, life);
 				age = 0f;
-				startScale = Vector3.one * 0.88f;
+				startScale = Vector3.one * 0.94f;
 				transform.localScale = startScale;
 				if ((Object)(object)image != (Object)null)
 				{
@@ -186,12 +184,11 @@ namespace AlienCrusher.Systems
 			{
 				age += Time.unscaledDeltaTime;
 				float t = Mathf.Clamp01(age / duration);
-				float hold = Mathf.Clamp01(t / 0.18f);
-				transform.localScale = Vector3.Lerp(startScale, Vector3.one * 1.08f, hold);
+				transform.localScale = Vector3.Lerp(startScale, Vector3.one * 1.16f, t);
 				if ((Object)(object)image != (Object)null)
 				{
 					Color faded = color;
-					faded.a = t < 0.64f ? color.a : Mathf.Lerp(color.a, 0f, (t - 0.64f) / 0.36f);
+					faded.a = t < 0.38f ? color.a : Mathf.Lerp(color.a, 0f, (t - 0.38f) / 0.62f);
 					image.color = faded;
 				}
 

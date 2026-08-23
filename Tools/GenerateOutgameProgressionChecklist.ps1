@@ -280,7 +280,7 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_MetaUpgrade_Confirm"; RuntimeUse = "lobby meta purchase confirmation pulse"; State = "purchased lock-in flash"; Folder = "Assets/Art/VFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_DP_Gain_Residual"; RuntimeUse = "result/lobby DP gain residual afterglow"; State = "small gain afterglow, big gain afterglow"; Folder = "Assets/Art/VFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_NextAction_Ready"; RuntimeUse = "result next-action ready pulse"; State = "form ready, meta ready, recommended"; Folder = "Assets/Art/VFX/UI/" },
-    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_StageUnlock_Ready"; RuntimeUse = "result/lobby stage-unlock banner pulse"; State = "new best, next stage"; Folder = "Assets/Art/VFX/UI/" }
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_StageUnlock_Ready"; RuntimeUse = "result/lobby stage-unlock banner residual afterglow"; State = "new best, next stage"; Folder = "Assets/Art/VFX/UI/" }
 )
 
 $productionBatches = @(
@@ -348,7 +348,7 @@ $productionBatches = @(
         Batch = "K. Stage unlock banner pulse"
         Goal = "make a newly unlocked stage readable before the next run"
         Targets = @("VFX_StageUnlock_Ready")
-        Acceptance = "a first-time stage clear shows a short honey-ivory tick pulse on Banner_StageUnlocked that is not the ice-slate stage-select brackets, lilac next-action caret, aqua DP residual, copper meta diamond, champagne form-equip ring, jade spend-change plate, or in-run smash/route VFX"
+        Acceptance = "a first-time stage clear shows a short honey-ivory residual afterglow beside Banner_StageUnlocked that is not the banner itself, ice-slate stage-select brackets, lilac next-action caret, aqua DP residual, copper meta diamond, champagne form-equip ring, jade spend-change plate, or in-run smash/route VFX"
     }
 )
 
@@ -433,7 +433,7 @@ $lines.Add("- Outgame UX should answer: what did I earn, what can I buy, what sh
 $lines.Add("- Do not add more lobby text until the card/node states carry the meaning visually.")
 $lines.Add("- Result badges should point to one next action, not celebrate everything equally.")
 $lines.Add("- Leftover `VFX_NextAction_Ready` is the ready pulse on that one result next-action badge, not a second advice system.")
-$lines.Add("- Leftover `VFX_StageUnlock_Ready` is the ready pulse on the existing stage-unlock banner, not a second banner or stage-select confirm.")
+$lines.Add("- Leftover `VFX_StageUnlock_Ready` is the residual afterglow beside the existing stage-unlock banner, not a second banner or stage-select confirm.")
 $lines.Add("- Save confirmation should stay lightweight; interruption-heavy modals would slow the run-return rhythm.")
 
 $report = [string]::Join([Environment]::NewLine, $lines) + [Environment]::NewLine

@@ -289,7 +289,7 @@ Deliverables:
 - `VFX_MetaUpgrade_Confirm` copper diamond pulse when a meta upgrade is purchased
 - `VFX_DP_Gain_Residual` aqua afterglow after a result/lobby DP gain burst
 - `VFX_NextAction_Ready` lilac caret pulse on the one result next-action badge
-- `VFX_StageUnlock_Ready` honey-ivory tick pulse on the stage-unlock banner
+- `VFX_StageUnlock_Ready` honey-ivory afterglow beside the stage-unlock banner
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
