@@ -93,6 +93,7 @@ namespace AlienCrusher.Systems
 		{
 			outgameStageUnlockBannerArmed = false;
 			outgameSaveToastArmed = false;
+			ResetStageUnlockReadyPulse();
 		}
 
 		private void RefreshOutgameProgressionVisuals()
@@ -113,6 +114,7 @@ namespace AlienCrusher.Systems
 			PlaceReadyBadge(resultAdviceText, "ResultFormReadyBadge", badgeFormReadySprite, ShouldShowFormReadyBadge());
 			PlaceReadyBadge(resultAdviceText, "ResultMetaReadyBadge", badgeMetaReadySprite, ShouldShowMetaReadyBadge());
 			PlaceNextActionReadyPulse();
+			PlaceStageUnlockReadyPulse();
 		}
 
 		private bool ShouldShowStageUnlockBanner()
