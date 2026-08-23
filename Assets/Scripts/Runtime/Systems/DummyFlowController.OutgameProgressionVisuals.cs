@@ -112,6 +112,7 @@ namespace AlienCrusher.Systems
 			PlacePanelSprite(lobbyPanel != null ? lobbyPanel.transform : null, LobbySaveToastName, toastProgressionSavedSprite, ShouldShowSaveToast() && currentUiViewState == UiViewState.Lobby, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(140f, 40f), new Vector2(-24f, 24f));
 			PlaceReadyBadge(resultAdviceText, "ResultFormReadyBadge", badgeFormReadySprite, ShouldShowFormReadyBadge());
 			PlaceReadyBadge(resultAdviceText, "ResultMetaReadyBadge", badgeMetaReadySprite, ShouldShowMetaReadyBadge());
+			PlaceNextActionReadyPulse();
 		}
 
 		private bool ShouldShowStageUnlockBanner()

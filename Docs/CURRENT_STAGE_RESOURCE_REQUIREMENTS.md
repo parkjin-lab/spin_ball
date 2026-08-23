@@ -256,6 +256,7 @@ Status:
 - leftover lobby stage-select confirm pulse `VFX_StageSelect_Confirm` now marks Stage prev/next on the stage readout
 - leftover meta-purchase confirm pulse `VFX_MetaUpgrade_Confirm` now marks a successful Size / Impact / DP buy on that node
 - leftover DP gain residual `VFX_DP_Gain_Residual` now leaves an aqua afterglow after `UI_DP_GainBurst` on result/lobby earn
+- leftover result next-action pulse `VFX_NextAction_Ready` now marks the one form-ready, meta-ready, or recommended badge when result opens
 - Icons A/B/C and district palettes were not restyled
 
 Need:
@@ -299,6 +300,7 @@ Required assets:
 - `VFX_StageSelect_Confirm` ice-slate lobby stage-select confirm brackets
 - `VFX_MetaUpgrade_Confirm` copper diamond pulse when a meta upgrade is purchased
 - `VFX_DP_Gain_Residual` aqua afterglow after a result/lobby DP gain burst
+- `VFX_NextAction_Ready` lilac caret pulse on the one result next-action badge
 
 Why this matters now:
 - UI text has been heavily simplified already
@@ -418,6 +420,7 @@ Status:
 - leftover lobby stage-select confirm pulse `VFX_StageSelect_Confirm` marks Stage prev/next on the stage readout
 - leftover meta-purchase confirm pulse `VFX_MetaUpgrade_Confirm` marks a successful Size / Impact / DP buy on that node
 - leftover DP gain residual `VFX_DP_Gain_Residual` leaves an aqua afterglow after `UI_DP_GainBurst` on result/lobby earn
+- leftover result next-action pulse `VFX_NextAction_Ready` marks the one form-ready, meta-ready, or recommended badge when result opens
 
 Need:
 - cleaner visuals for form unlock targets and meta purchases
@@ -461,6 +464,7 @@ Required assets:
 - `VFX_StageSelect_Confirm` ice-slate bracket pulse when a lobby stage is selected
 - `VFX_MetaUpgrade_Confirm` copper diamond pulse when a meta upgrade is purchased
 - `VFX_DP_Gain_Residual` aqua afterglow after a result/lobby DP gain burst
+- `VFX_NextAction_Ready` lilac caret pulse on the one result next-action badge
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
@@ -657,6 +661,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_StageSelect_Confirm` ice-slate lobby stage-select confirm brackets
 - [x] `VFX_MetaUpgrade_Confirm` copper lobby meta-purchase confirm diamond
 - [x] `VFX_DP_Gain_Residual` aqua result/lobby DP gain afterglow
+- [x] `VFX_NextAction_Ready` lilac result next-action ready pulse
 - [x] `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - [x] `UI_MetaNode_SizeCore` Size Core node chip
 - [x] `UI_MetaNode_ImpactCore` Impact Core node chip
