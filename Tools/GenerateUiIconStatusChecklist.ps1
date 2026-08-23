@@ -164,6 +164,11 @@ foreach ($needle in @(
     "Badge_Result_Clear",
     "Badge_Boss_Clear",
     "Badge_Result_Failure",
+    "Badge_Fail_Opening",
+    "Badge_Fail_Hold",
+    "Badge_Fail_Drift",
+    "Badge_Fail_Push",
+    "Badge_Fail_Boss",
     "Badge_Locked",
     "Badge_Recommended",
     "EnsureResultLobbyBadges"
@@ -188,6 +193,11 @@ $iconCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Result_Clear"; RuntimeUse = "result success state"; Shape = "wide badge with upward shard"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Boss_Clear"; RuntimeUse = "result boss victory state"; Shape = "wide steel plate with down chevron and slit eye"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Result_Failure"; RuntimeUse = "result failure bucket state"; Shape = "wide badge with broken route notch"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Opening"; RuntimeUse = "result OPENING FAILED state"; Shape = "rust plate with stacked low-rise bars"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Hold"; RuntimeUse = "result ROUTE HOLD MISSED state"; Shape = "rust plate with broken trail and beacon diamond"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Drift"; RuntimeUse = "result MID-RUN DRIFT state"; Shape = "rust plate with offset broken chevrons"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Push"; RuntimeUse = "result FINAL PUSH FAILED state"; Shape = "rust plate with notched forward wedge"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Boss"; RuntimeUse = "result BOSS PHASE fail state"; Shape = "steel plate with cracked slit eye, not the victory down-chevron"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Locked"; RuntimeUse = "locked form/meta state"; Shape = "small lock plate"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Recommended"; RuntimeUse = "recommended next upgrade/form"; Shape = "small focus chevron"; Folder = "Assets/Resources/UI/Badges/" }
 )
@@ -216,6 +226,12 @@ $productionBatches = @(
         Goal = "make clear, failure, locked, and recommended states visible before reading breakdown copy"
         Targets = @("Badge_Result_Clear", "Badge_Result_Failure", "Badge_Locked", "Badge_Recommended")
         Acceptance = "result/lobby cards show success, failure, lock, and recommendation states at a glance"
+    },
+    [pscustomobject]@{
+        Batch = "E. Failure bucket badges"
+        Goal = "make the last-run fail reason scannable on result before reading advice copy"
+        Targets = @("Badge_Fail_Opening", "Badge_Fail_Hold", "Badge_Fail_Drift", "Badge_Fail_Push", "Badge_Fail_Boss")
+        Acceptance = "OPENING FAILED, ROUTE HOLD MISSED, MID-RUN DRIFT, FINAL PUSH FAILED, and BOSS PHASE use distinct result plates, not one shared rust notch"
     }
 )
 

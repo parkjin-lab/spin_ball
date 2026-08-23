@@ -618,6 +618,11 @@ This section can be used as a working production checklist.
 - [x] `Badge_Result_Clear` mint success plate with upward shard
 - [x] `Badge_Boss_Clear` steel Sentinel-down plate with downward chevron
 - [x] `Badge_Result_Failure` rust fail plate with broken route notch
+- [x] `Badge_Fail_Opening` rust stacked-bar plate for OPENING FAILED
+- [x] `Badge_Fail_Hold` rust trail-and-beacon plate for ROUTE HOLD MISSED
+- [x] `Badge_Fail_Drift` rust offset-chevron plate for MID-RUN DRIFT
+- [x] `Badge_Fail_Push` rust notched-wedge plate for FINAL PUSH FAILED
+- [x] `Badge_Fail_Boss` steel cracked-eye plate for BOSS PHASE fail
 - [x] `Badge_Locked` steel lock plate
 - [x] `Badge_Recommended` gold focus chevron
 - [x] `UI_DP_GainBurst` teal reward burst for earn / spend / insufficient

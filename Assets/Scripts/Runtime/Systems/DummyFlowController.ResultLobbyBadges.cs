@@ -10,6 +10,11 @@ namespace AlienCrusher.Systems
 		private const string BadgeResultClearId = "Badge_Result_Clear";
 		private const string BadgeBossClearId = "Badge_Boss_Clear";
 		private const string BadgeResultFailureId = "Badge_Result_Failure";
+		private const string BadgeFailOpeningId = "Badge_Fail_Opening";
+		private const string BadgeFailHoldId = "Badge_Fail_Hold";
+		private const string BadgeFailDriftId = "Badge_Fail_Drift";
+		private const string BadgeFailPushId = "Badge_Fail_Push";
+		private const string BadgeFailBossId = "Badge_Fail_Boss";
 		private const string BadgeLockedId = "Badge_Locked";
 		private const string BadgeRecommendedId = "Badge_Recommended";
 		private const string ResultOutcomeBadgeName = "ResultOutcomeBadge";
@@ -22,6 +27,11 @@ namespace AlienCrusher.Systems
 		private Sprite badgeResultClearSprite;
 		private Sprite badgeBossClearSprite;
 		private Sprite badgeResultFailureSprite;
+		private Sprite badgeFailOpeningSprite;
+		private Sprite badgeFailHoldSprite;
+		private Sprite badgeFailDriftSprite;
+		private Sprite badgeFailPushSprite;
+		private Sprite badgeFailBossSprite;
 		private Sprite badgeLockedSprite;
 		private Sprite badgeRecommendedSprite;
 		private bool resultLobbyBadgesCached;
@@ -42,6 +52,11 @@ namespace AlienCrusher.Systems
 			badgeResultClearSprite = LoadResultLobbyBadgeSprite(BadgeResultClearId);
 			badgeBossClearSprite = LoadResultLobbyBadgeSprite(BadgeBossClearId);
 			badgeResultFailureSprite = LoadResultLobbyBadgeSprite(BadgeResultFailureId);
+			badgeFailOpeningSprite = LoadResultLobbyBadgeSprite(BadgeFailOpeningId);
+			badgeFailHoldSprite = LoadResultLobbyBadgeSprite(BadgeFailHoldId);
+			badgeFailDriftSprite = LoadResultLobbyBadgeSprite(BadgeFailDriftId);
+			badgeFailPushSprite = LoadResultLobbyBadgeSprite(BadgeFailPushId);
+			badgeFailBossSprite = LoadResultLobbyBadgeSprite(BadgeFailBossId);
 			badgeLockedSprite = LoadResultLobbyBadgeSprite(BadgeLockedId);
 			badgeRecommendedSprite = LoadResultLobbyBadgeSprite(BadgeRecommendedId);
 			resultLobbyBadgesCached = true;
@@ -82,6 +97,31 @@ namespace AlienCrusher.Systems
 			if (badgeId == BadgeResultFailureId)
 			{
 				return badgeResultFailureSprite;
+			}
+
+			if (badgeId == BadgeFailOpeningId)
+			{
+				return badgeFailOpeningSprite;
+			}
+
+			if (badgeId == BadgeFailHoldId)
+			{
+				return badgeFailHoldSprite;
+			}
+
+			if (badgeId == BadgeFailDriftId)
+			{
+				return badgeFailDriftSprite;
+			}
+
+			if (badgeId == BadgeFailPushId)
+			{
+				return badgeFailPushSprite;
+			}
+
+			if (badgeId == BadgeFailBossId)
+			{
+				return badgeFailBossSprite;
 			}
 
 			if (badgeId == BadgeLockedId)
@@ -207,7 +247,38 @@ namespace AlienCrusher.Systems
 				return BadgeBossClearId;
 			}
 
-			return DidStageEndInSuccess() ? BadgeResultClearId : BadgeResultFailureId;
+			return DidStageEndInSuccess() ? BadgeResultClearId : ResolveFailureBucketBadgeId();
+		}
+
+		private string ResolveFailureBucketBadgeId()
+		{
+			string bucket = GetLastRunFailureBucket();
+			if (bucket == "OPENING FAILED")
+			{
+				return BadgeFailOpeningId;
+			}
+
+			if (bucket == "ROUTE HOLD MISSED")
+			{
+				return BadgeFailHoldId;
+			}
+
+			if (bucket == "MID-RUN DRIFT")
+			{
+				return BadgeFailDriftId;
+			}
+
+			if (bucket == "FINAL PUSH FAILED")
+			{
+				return BadgeFailPushId;
+			}
+
+			if (bucket == "BOSS PHASE")
+			{
+				return BadgeFailBossId;
+			}
+
+			return BadgeResultFailureId;
 		}
 
 		private bool DidStageEndWithBossClear()
@@ -233,7 +304,7 @@ namespace AlienCrusher.Systems
 				return BadgeBossClearId;
 			}
 
-			return DidStageEndInSuccess() ? BadgeResultClearId : BadgeResultFailureId;
+			return DidStageEndInSuccess() ? BadgeResultClearId : ResolveFailureBucketBadgeId();
 		}
 
 		private void ApplyFormCardStateBadge(string buttonName, FormType formType)

@@ -374,6 +374,11 @@ Deliverables:
 - `Badge_Result_Clear` mint success plate with upward shard
 - `Badge_Boss_Clear` steel Sentinel-down plate with downward chevron
 - `Badge_Result_Failure` rust fail plate with broken route notch
+- `Badge_Fail_Opening` rust stacked-bar plate for OPENING FAILED
+- `Badge_Fail_Hold` rust trail-and-beacon plate for ROUTE HOLD MISSED
+- `Badge_Fail_Drift` rust offset-chevron plate for MID-RUN DRIFT
+- `Badge_Fail_Push` rust notched-wedge plate for FINAL PUSH FAILED
+- `Badge_Fail_Boss` steel cracked-eye plate for BOSS PHASE fail
 - `Badge_Locked` steel lock plate
 - `Badge_Recommended` gold focus chevron
 - draft sprites at `Assets/Resources/UI/Icons/`
