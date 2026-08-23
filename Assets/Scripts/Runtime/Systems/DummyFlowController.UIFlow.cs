@@ -1421,10 +1421,15 @@ namespace AlienCrusher.Systems
 			{
 				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
 			}
+			int previousStage = currentStageNumber;
 			currentStageNumber = Mathf.Max(1, currentStageNumber - 1);
 			formUnlockSystem?.SetCurrentLobbyStage(currentStageNumber);
 			UpdateMetaProgressUi();
 			UpdateLobbyMissionGuide();
+			if (currentStageNumber != previousStage)
+			{
+				PlayStageSelectConfirmPulse();
+			}
 		}
 
 		private void HandleNextLobbyStage()
@@ -1434,10 +1439,15 @@ namespace AlienCrusher.Systems
 				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
 			}
 			int num = (((Object)(object)formUnlockSystem != (Object)null) ? formUnlockSystem.HighestUnlockedStage : Mathf.Max(1, currentStageNumber));
+			int previousStage = currentStageNumber;
 			currentStageNumber = Mathf.Clamp(currentStageNumber + 1, 1, num);
 			formUnlockSystem?.SetCurrentLobbyStage(currentStageNumber);
 			UpdateMetaProgressUi();
 			UpdateLobbyMissionGuide();
+			if (currentStageNumber != previousStage)
+			{
+				PlayStageSelectConfirmPulse();
+			}
 		}
 
 			private void CacheUiReferences()
