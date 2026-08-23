@@ -131,7 +131,7 @@ namespace AlienCrusher.Systems
 		private void RefreshBossSentinelLobbyResultIcon()
 		{
 			CacheBossReadabilityIconSprites();
-			Sprite sprite = GetBossReadabilityIconSprite(IconBossSentinelId);
+			Sprite sprite = GetBossReadabilityIconSprite("Icon_Boss_Sentinel");
 			if ((Object)(object)canvasRootTransform == (Object)null)
 			{
 				return;
