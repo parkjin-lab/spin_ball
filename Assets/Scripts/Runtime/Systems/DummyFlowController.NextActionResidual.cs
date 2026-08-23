@@ -15,61 +15,8 @@ namespace AlienCrusher.Systems
 
 		private void PlaceNextActionResidual()
 		{
-			if (currentUiViewState != UiViewState.Result)
-			{
-				nextActionResidualPlayed = false;
-				HideNextActionResidual();
-				return;
-			}
-
-			if (!ShouldShowNextActionReadyPulse())
-			{
-				HideNextActionResidual();
-				return;
-			}
-
-			if ((Object)(object)resultAdviceText == (Object)null)
-			{
-				return;
-			}
-
-			Transform parent = resultAdviceText.transform.parent;
-			if ((Object)(object)parent == (Object)null)
-			{
-				return;
-			}
-
-			Image image = EnsureNamedIconImage(parent, ResultNextActionResidualName);
-			if ((Object)(object)image == (Object)null)
-			{
-				return;
-			}
-
-			RectTransform source = resultAdviceText.rectTransform;
-			RectTransform rect = image.rectTransform;
-			rect.anchorMin = source.anchorMin;
-			rect.anchorMax = source.anchorMin;
-			rect.pivot = new Vector2(0.5f, 0.5f);
-			rect.sizeDelta = new Vector2(62f, 62f);
-			rect.anchoredPosition = source.anchoredPosition + ResolveNextActionReadyOffset();
-			image.sprite = EnsureNextActionResidualSprite();
-			image.color = NextActionMist;
-			image.preserveAspect = true;
-			image.raycastTarget = false;
-			image.transform.SetAsLastSibling();
-			if (nextActionResidualPlayed)
-			{
-				return;
-			}
-
-			nextActionResidualPlayed = true;
-			NextActionResidualDriver driver = image.GetComponent<NextActionResidualDriver>();
-			if ((Object)(object)driver == (Object)null)
-			{
-				driver = image.gameObject.AddComponent<NextActionResidualDriver>();
-			}
-
-			driver.Play(NextActionMist, 1.45f);
+			nextActionResidualPlayed = false;
+			HideNextActionResidual();
 		}
 
 		private void HideNextActionResidual()

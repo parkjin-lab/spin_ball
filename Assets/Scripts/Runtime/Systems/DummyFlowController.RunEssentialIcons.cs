@@ -30,8 +30,8 @@ namespace AlienCrusher.Systems
 			{
 				EnsureHudRunEssentialIconStrip(hud);
 				EnsureIconBesideText(FindText(canvasRootTransform, "InfoText"), IconStageId, new Vector2(-36f, 0f), 40f);
-				EnsureIconBesideText(FindText(canvasRootTransform, "ObjectiveText"), IconNextStepId, new Vector2(-28f, -8f), 36f);
-				EnsureIconBesideText(hudRouteIndicatorText, IconRouteId, new Vector2(-210f, 0f), 36f);
+				EnsureIconBesideText(FindText(canvasRootTransform, "ObjectiveText"), IconNextStepId, new Vector2(-22f, -4f), 32f);
+				EnsureIconBesideText(hudRouteIndicatorText, IconRouteId, new Vector2(-92f, 0f), 36f);
 			}
 
 			if ((Object)(object)lobbyPanel != (Object)null)
@@ -45,7 +45,7 @@ namespace AlienCrusher.Systems
 			{
 				EnsureIconBesideText(resultSummaryText, IconDpId, new Vector2(-52f, 18f), 40f);
 				EnsureIconBesideText(resultSummaryText, IconStageId, new Vector2(-52f, -22f), 36f);
-				EnsureIconBesideText(resultAdviceText, IconNextStepId, new Vector2(-48f, -6f), 36f);
+				EnsureIconBesideText(resultAdviceText, IconNextStepId, new Vector2(-36f, -2f), 32f);
 			}
 
 			EnsureResultLobbyBadges();
@@ -160,6 +160,7 @@ namespace AlienCrusher.Systems
 			image.color = Color.white;
 			image.preserveAspect = true;
 			image.raycastTarget = false;
+			image.enabled = (Object)(object)image.sprite != (Object)null;
 		}
 
 		private void EnsureIconBesideText(Text text, string iconId, Vector2 anchoredOffset, float size)
@@ -193,6 +194,7 @@ namespace AlienCrusher.Systems
 			image.color = Color.white;
 			image.preserveAspect = true;
 			image.raycastTarget = false;
+			image.enabled = (Object)(object)image.sprite != (Object)null;
 		}
 
 		private static Image EnsureNamedIconImage(Transform parent, string name)

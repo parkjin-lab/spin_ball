@@ -139,6 +139,7 @@ namespace AlienCrusher.Systems
 				image.color = Color.white;
 				image.preserveAspect = true;
 				image.raycastTarget = false;
+				image.enabled = (Object)(object)image.sprite != (Object)null;
 			}
 		}
 

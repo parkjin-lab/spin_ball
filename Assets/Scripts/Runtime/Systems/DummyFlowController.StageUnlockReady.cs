@@ -17,27 +17,10 @@ namespace AlienCrusher.Systems
 
 		private void PlaceStageUnlockReadyPulse()
 		{
-			if (!ShouldShowStageUnlockBanner())
-			{
-				stageUnlockReadyPlayedOnResult = false;
-				stageUnlockReadyPlayedOnLobby = false;
-				HideStageUnlockReadyPulse(resultPanel != null ? resultPanel.transform : null, ResultStageUnlockResidualName);
-				HideStageUnlockReadyPulse(lobbyPanel != null ? lobbyPanel.transform : null, LobbyStageUnlockResidualName);
-				return;
-			}
-
-			if (currentUiViewState == UiViewState.Result)
-			{
-				PlayStageUnlockReadyBesideBanner(resultPanel != null ? resultPanel.transform : null, ResultUnlockBannerName, ResultStageUnlockResidualName, ref stageUnlockReadyPlayedOnResult);
-				HideStageUnlockReadyPulse(lobbyPanel != null ? lobbyPanel.transform : null, LobbyStageUnlockResidualName);
-				return;
-			}
-
-			if (currentUiViewState == UiViewState.Lobby)
-			{
-				PlayStageUnlockReadyBesideBanner(lobbyPanel != null ? lobbyPanel.transform : null, LobbyUnlockBannerName, LobbyStageUnlockResidualName, ref stageUnlockReadyPlayedOnLobby);
-				HideStageUnlockReadyPulse(resultPanel != null ? resultPanel.transform : null, ResultStageUnlockResidualName);
-			}
+			stageUnlockReadyPlayedOnResult = false;
+			stageUnlockReadyPlayedOnLobby = false;
+			HideStageUnlockReadyPulse(resultPanel != null ? resultPanel.transform : null, ResultStageUnlockResidualName);
+			HideStageUnlockReadyPulse(lobbyPanel != null ? lobbyPanel.transform : null, LobbyStageUnlockResidualName);
 		}
 
 		private void ResetStageUnlockReadyPulse()

@@ -1,5 +1,13 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-23 HUD / Copy Readability Batch
+
+- Creator qualitative playtest (tester 진웅 박, not a full `F10` log) is now in `Docs/AlienCrusherStagePlaytestNotes.md` under **Qualitative Playtest (2026-08-23)**. Stage 01-07 evidence fields stay empty. Do not invent `F10` telemetry.
+- First follow-up batch shipped: shorter in-run HUD / banner / toast / result / lobby labels, one growth beat per event (no stacked residuals), and HUD/result/lobby chrome contrast/truncate/empty-frame hides.
+- How to see it: Play Mode, Stage 1 run. HUD should read as `LANE`, `HOLD 72%  4  8s`, `WRECK 12/40`, `CORE 3s`. Result should be a few scannable lines plus one advice label. A clear should show either the DP burst or the stage-unlock banner, not residual glow + save toast stacked on both screens.
+- Do **not** change route timing, payoff counts, target placement, stage rhythm presets, boss pressure, DP/cost/unlock numbers, or map size in later leftover pulses. Next requested batches (map size, destruction variety) stay later.
+- Evidence-lock still holds. Next human action is still a real `F10` Stage 1-7 sweep.
+
 ## 2026-08-23 Juice Exhausted / Next Human Action
 
 - Production juice leftovers are exhausted on this PR. Do **not** invent more micro-pulses, VFX residuals, or lobby confirm flashes.
@@ -181,6 +189,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-23: HUD/copy/toast readability batch from creator qualitative notes (tester 진웅 박). Stage 1 HUD/result/lobby labels are short; growth residuals no longer stack on the same beat. `F10` evidence is still missing.
 - 2026-08-23: recorded that production juice leftovers are exhausted. In-run smash/route/form/district/audio/HUD/boss climax and outgame leftovers E–M are on this PR. Next human action is a creator `F10` Stage 1-7 sweep, stage notes, and save/load smoke. Unattended work must stop inventing juice.
 - Added rhythm design review support across the design artifacts instead of leaving rhythm as an implicit feel goal.
 - Updated `Docs/GDD_ALIEN_CRUSHER.md` with explicit rhythm design principles and stage rhythm variation rules.

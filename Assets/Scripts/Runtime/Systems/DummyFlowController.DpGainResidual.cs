@@ -26,38 +26,13 @@ namespace AlienCrusher.Systems
 				return;
 			}
 
-			bool gain = signal == OutgameDpSignal.SmallGain || signal == OutgameDpSignal.BigGain;
 			Image image = EnsureNamedIconImage(parent, childName);
 			if ((Object)(object)image == (Object)null)
 			{
 				return;
 			}
 
-			RectTransform source = text.rectTransform;
-			RectTransform rect = image.rectTransform;
-			rect.anchorMin = source.anchorMin;
-			rect.anchorMax = source.anchorMin;
-			rect.pivot = new Vector2(0f, 1f);
-			rect.sizeDelta = new Vector2(size, size);
-			rect.anchoredPosition = source.anchoredPosition + anchoredOffset;
-			image.sprite = EnsureDpGainResidualSprite();
-			image.color = DpGainResidualAqua;
-			image.preserveAspect = true;
-			image.raycastTarget = false;
-			image.enabled = gain && (Object)(object)image.sprite != (Object)null;
-			image.transform.SetAsLastSibling();
-			if (!gain)
-			{
-				return;
-			}
-
-			DpGainResidualDriver driver = image.GetComponent<DpGainResidualDriver>();
-			if ((Object)(object)driver == (Object)null)
-			{
-				driver = image.gameObject.AddComponent<DpGainResidualDriver>();
-			}
-
-			driver.Play(DpGainResidualAqua, signal == OutgameDpSignal.BigGain ? 1.45f : 1.2f);
+			image.enabled = false;
 		}
 
 		private Sprite EnsureDpGainResidualSprite()

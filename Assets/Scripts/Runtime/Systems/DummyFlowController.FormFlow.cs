@@ -38,13 +38,13 @@ namespace AlienCrusher.Systems
 				if (formUnlockSystem.IsUnlocked(form))
 				{
 					formUnlockSystem.TrySelect(form);
-					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} equipped.";
+					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} ON";
 					PlayProgressionConfirmCue();
 				}
 				else if (!formUnlockSystem.TryUnlockAndSelectWithCost(form, out requiredCost))
 				{
 					Debug.Log((object)$"[AlienCrusher] Need {requiredCost} DP to unlock {form}. Current DP: {formUnlockSystem.DpBalance}");
-					lastLobbyActionStatus = $"Need {Mathf.Max(0, requiredCost - formUnlockSystem.DpBalance):0} more DP for {form.ToString().ToUpperInvariant()}.";
+					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()}  NEED {Mathf.Max(0, requiredCost - formUnlockSystem.DpBalance):0}";
 					SignalOutgameDpInsufficient();
 					UpdateFormButtons();
 					UpdateMetaProgressUi();
@@ -52,7 +52,7 @@ namespace AlienCrusher.Systems
 				}
 				else
 				{
-					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} unlocked and equipped.";
+					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} UNLOCKED";
 					SignalOutgameDpSpend();
 					unlockedNow = true;
 				}

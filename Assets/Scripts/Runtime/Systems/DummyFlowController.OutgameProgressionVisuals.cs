@@ -79,7 +79,6 @@ namespace AlienCrusher.Systems
 		private void SignalOutgameStageUnlocked()
 		{
 			outgameStageUnlockBannerArmed = true;
-			outgameSaveToastArmed = true;
 			RefreshOutgameProgressionVisuals();
 		}
 
@@ -125,7 +124,9 @@ namespace AlienCrusher.Systems
 
 		private bool ShouldShowSaveToast()
 		{
-			return outgameSaveToastArmed;
+			return outgameSaveToastArmed
+				&& currentUiViewState == UiViewState.Lobby
+				&& !ShouldShowStageUnlockBanner();
 		}
 
 		private bool ShouldShowFormReadyBadge()
@@ -137,7 +138,7 @@ namespace AlienCrusher.Systems
 		private bool ShouldShowMetaReadyBadge()
 		{
 			int dp = ((Object)(object)formUnlockSystem != (Object)null) ? formUnlockSystem.DpBalance : 0;
-			return currentUiViewState == UiViewState.Result && HasReadyMetaUpgrade(dp);
+			return currentUiViewState == UiViewState.Result && HasReadyMetaUpgrade(dp) && !ShouldShowFormReadyBadge();
 		}
 
 		private void ApplyFormCardStateFrame(string buttonName, FormType formType)

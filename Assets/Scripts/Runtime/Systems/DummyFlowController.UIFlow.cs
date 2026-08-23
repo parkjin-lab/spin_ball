@@ -263,6 +263,10 @@ namespace AlienCrusher.Systems
 			{
 				return string.Empty;
 			}
+			if (hint.Length <= 18)
+			{
+				return hint;
+			}
 			if (hint.StartsWith("BREAK WINDOW OPEN:", StringComparison.Ordinal))
 			{
 				return hint.Replace("BREAK WINDOW OPEN:", "BREAK WINDOW  /", StringComparison.Ordinal).Replace("unload now", "dump damage", StringComparison.Ordinal);
@@ -373,6 +377,11 @@ namespace AlienCrusher.Systems
 			ConfigureMobileSafeText(hudStageGoalText, 20, 11, wrap: false);
 			ConfigureMobileSafeText(hudRouteIndicatorText, 20, 11, wrap: false);
 			ConfigureMobileSafeText(hudBossStatusText, 18, 11, wrap: true);
+			ConfigureMobileSafeText(lobbyMissionText, 20, 12, wrap: true);
+			ConfigureMobileSafeText(lobbyRecommendationText, 18, 11, wrap: true);
+			ConfigureMobileSafeText(resultSummaryText, 20, 12, wrap: true);
+			ConfigureMobileSafeText(resultAdviceText, 18, 11, wrap: true);
+			ConfigureMobileSafeText(resultBreakdownText, 16, 10, wrap: true);
 		}
 
 		private void UpdateHudGuidanceTexts()
@@ -404,36 +413,36 @@ namespace AlienCrusher.Systems
 			}
 			if ((Object)(object)hudObjectiveText != (Object)null)
 			{
-				string text = (flag ? "NEXT STEP\nDestroy city and defeat Justice Sentinel" : "NEXT STEP\nCrush city structures");
+				string text = flag ? "SENTINEL" : "CRUSH";
 				if (!flag && flag3a && GetEarlyCrushBonusTier(num) < 3)
 				{
-					text = $"NEXT STEP\nCrush starter lane\nLANE BREAK {Mathf.Min(num, GetEarlyCrushLaneBreakTarget()):0}/{GetEarlyCrushLaneBreakTarget():0}";
+					text = $"LANE {Mathf.Min(num, GetEarlyCrushLaneBreakTarget()):0}/{GetEarlyCrushLaneBreakTarget():0}";
 				}
 				else if (!flag && IsRouteHoldObjectiveActive(num))
 				{
 					int routeHoldPercent = Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f);
-					text = $"NEXT STEP\n{(routeOpenBeatActive ? "ROUTE OPEN" : "Hold the route")}\nROUTE HOLD {routeHoldPercent:0}%  {GetRouteHoldRemainingWrecks(num):0} LEFT  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
+					text = routeOpenBeatActive ? $"OPEN  {routeHoldPercent:0}%  {GetRouteHoldRemainingWrecks(num):0}  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s" : $"HOLD  {routeHoldPercent:0}%  {GetRouteHoldRemainingWrecks(num):0}  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
 				}
 				else if (!flag && routeOpenBeatActive)
 				{
-					text = "NEXT STEP\nRoute opened\nFollow beacon";
+					text = "OPEN";
 				}
 				else if (!flag && forwardSmashTargetActive)
 				{
-					text = "NEXT STEP\nSmash opened cluster\nFORWARD TARGET";
+					text = "SMASH";
 				}
 				else if (!flag && openingMissed)
 				{
-					text = $"NEXT STEP\nRecover momentum\nFind dense low-rise lane";
+					text = "RECOVER";
 				}
 				if (enableStageAdvanceGoal && stageAdvanceDestroyTarget > 0)
 				{
-					text = $"{text}\nSTAGE TARGET {Mathf.Max(0, num):0}/{stageAdvanceDestroyTarget:0}";
+					text = $"{text}  {Mathf.Max(0, num):0}/{stageAdvanceDestroyTarget:0}";
 				}
 				if (HasActiveStripClearMission())
 				{
-					string text2 = stripClearMissionCompleted ? "COMPLETE" : $"{stageStripClearCount:0}/{stageStripClearTarget:0}";
-					text = $"{text}\nMISSION\nStrip Clear {text2}";
+					string text2 = stripClearMissionCompleted ? "DONE" : $"{stageStripClearCount:0}/{stageStripClearTarget:0}";
+					text = $"{text}  STRIP {text2}";
 				}
 				hudObjectiveText.text = text;
 				Color val = default(Color);
@@ -455,12 +464,12 @@ namespace AlienCrusher.Systems
 				if (!flag && IsRouteHoldObjectiveActive(num))
 				{
 					float routeHoldProgress = GetRouteHoldProgress01(num);
-					hudProgressText.text = $"HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {GetRouteHoldRemainingWrecks(num):0} LEFT  /  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
+					hudProgressText.text = $"HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  {GetRouteHoldRemainingWrecks(num):0}  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
 					hudProgressText.color = Color.Lerp(new Color(0.64f, 1f, 0.88f, 1f), new Color(1f, 0.86f, 0.36f, 1f), routeHoldProgress + Mathf.PingPong(Time.time * 5.4f, 1f) * 0.18f);
 				}
 				else
 				{
-					hudProgressText.text = flag2 ? $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  {Mathf.RoundToInt(num3 * 100f)}%  /  NEXT" : $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  {Mathf.RoundToInt(num3 * 100f)}%";
+					hudProgressText.text = $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}";
 					hudProgressText.color = flag2 ? Color.Lerp(Color.white, new Color(1f, 0.72f, 0.36f, 1f), Mathf.PingPong(Time.time * 5.6f, 1f)) : Color.white;
 				}
 			}
@@ -473,7 +482,7 @@ namespace AlienCrusher.Systems
 				string text4;
 				if (levelUpOpen)
 				{
-					text4 = "NEXT STEP  /  Pick one upgrade";
+					text4 = "PICK";
 				}
 				else if (flag2)
 				{
@@ -489,39 +498,39 @@ namespace AlienCrusher.Systems
 				}
 				else if (flag3)
 				{
-					text4 = $"NEXT STEP  /  Keep PANIC CHAIN x{trafficPanicChainStack} alive";
+					text4 = $"PANIC x{trafficPanicChainStack}";
 				}
 				else if (routeOpenBeatActive)
 				{
-					text4 = "ROUTE OPEN  /  Follow beacon, keep crushing";
+					text4 = "OPEN  BEACON";
 				}
 				else if (forwardSmashTargetActive)
 				{
-					text4 = "CLUSTER OPEN  /  Smash highlighted target";
+					text4 = "SMASH";
 				}
 				else if (IsRouteHoldObjectiveActive(num))
 				{
-					text4 = $"NEXT  /  HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%, {GetRouteHoldRemainingWrecks(num):0} left";
+					text4 = $"HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%  {GetRouteHoldRemainingWrecks(num):0}";
 				}
 				else if (overdriveActive)
 				{
-					text4 = "NEXT STEP  /  Keep the chain alive during OVERDRIVE";
+					text4 = "OVERDRIVE";
 				}
 				else if (flag4)
 				{
-					text4 = $"NEXT STEP  /  STRIP CLEAR {stageStripClearCount}/{stageStripClearTarget}";
+					text4 = $"STRIP {stageStripClearCount}/{stageStripClearTarget}";
 				}
 				else if (stripClearMissionCompleted)
 				{
-					text4 = "MISSION COMPLETE  /  Bonus score and DP secured";
+					text4 = "STRIP DONE";
 				}
 				else if (flag5)
 				{
-					text4 = "NEXT STEP  /  Follow the route beacon and keep crushing forward";
+					text4 = "BEACON";
 				}
 				else
 				{
-					text4 = "NEXT STEP  /  Build chain for stronger bursts";
+					text4 = "CHAIN";
 				}
 				text4 = CompactHudHint(text4);
 				int num4 = GetHudHintPriority(levelUpOpen, flag2, stageStartHintRemaining > 0f && flag3a, flag, flag3, overdriveActive, flag4, stripClearMissionCompleted, flag5);
@@ -646,22 +655,22 @@ namespace AlienCrusher.Systems
 		{
 			if (stageBossEncounterActive)
 			{
-				return "NEXT STEP  /  Build speed, break pylons, burst core on BREAK";
+				return "PYLONS  then CORE";
 			}
 			int num = Mathf.Max(1, currentStageNumber);
 			if (num <= 2)
 			{
-				return $"NEXT STEP  /  Crush starter lane to {GetEarlyCrushLaneBreakTarget():0} wrecks for LANE BREAK";
+				return $"LANE  {GetEarlyCrushLaneBreakTarget():0} for BREAK";
 			}
 			if (num <= 4)
 			{
-				return "NEXT STEP  /  Hit storefront lanes first, then fold into mid-rise blocks";
+				return "STORES  then MID";
 			}
 			if (num <= 6)
 			{
-				return "NEXT STEP  /  Crack dense mid-rise lanes before towers slow you down";
+				return "MID  then TOWERS";
 			}
-			return "NEXT STEP  /  Keep to fortified lanes, protect speed, then breach hard targets";
+			return "FORT  then BREACH";
 		}
 
 		private void UpdateHudBossStatus(bool bossAlive)
@@ -679,27 +688,27 @@ namespace AlienCrusher.Systems
 			}
 			if (!bossAlive)
 			{
-				hudBossStatusText.text = "SENTINEL\nDOWN";
+				hudBossStatusText.text = "DOWN";
 				hudBossStatusText.color = new Color(0.82f, 1f, 0.8f, 1f);
 				RefreshHudBossReadabilityIcon(bossAlive);
 				return;
 			}
-			string text = $"SENTINEL  {Mathf.RoundToInt(GetStageBossDurabilityRatio() * 100f):0}%\nTHREAT  {GetBossThreatLabel()}";
+			string text = $"{Mathf.RoundToInt(GetStageBossDurabilityRatio() * 100f):0}%  {GetBossThreatLabel()}";
 			if (IsBossBreakWindowActive())
 			{
-				text = $"{text}\nCORE OPEN  {Mathf.CeilToInt(stageBossBreakRemaining):0}s";
+				text = $"CORE  {Mathf.CeilToInt(stageBossBreakRemaining):0}s";
 			}
 			else if (stageBossShieldActiveCount > 0)
 			{
-				text = $"{text}\nPYLONS  {stageBossShieldActiveCount:0}  /  REGEN";
+				text = $"PYLONS  {stageBossShieldActiveCount:0}";
 			}
 			else if (stageBossPhaseTwoDroneRecoveryRemaining > 0.001f)
 			{
-				text = $"{text}\nDRONES DOWN  {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
+				text = $"DRONES  {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
 			}
 			else if (stageBossPhaseTwoActive)
 			{
-				text = $"{text}\nPHASE 2 ACTIVE";
+				text = "PHASE 2";
 			}
 			hudBossStatusText.text = text;
 			bool flag = IsLatePressureWindow((((Object)(object)scoreSystem != (Object)null) ? Mathf.Max(0, scoreSystem.DestroyedCount) : 0), bossAlive);
@@ -722,29 +731,29 @@ namespace AlienCrusher.Systems
 			{
 				if (IsBossBreakWindowActive())
 				{
-					return $"BREAK WINDOW OPEN: unload now ({Mathf.CeilToInt(stageBossBreakRemaining):0}s)";
+					return $"CORE {Mathf.CeilToInt(stageBossBreakRemaining):0}s";
 				}
 				if (stageBossPhaseTwoDroneRecoveryRemaining > 0.001f)
 				{
-					return $"DRONES DOWN: core pressure window ({Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s)";
+					return $"DRONES {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
 				}
 				if (stageBossShieldActiveCount > 0)
 				{
-					return $"BOSS BLOCKING GATE: destroy {stageBossShieldActiveCount:0} shield pylons";
+					return $"PYLONS {stageBossShieldActiveCount:0}";
 				}
 			}
 			if (IsBossApproachWindow() && currentStageNumber >= bossStageStart)
 			{
-				return "SENTINEL AHEAD: hold center lane and keep speed";
+				return "SENTINEL";
 			}
 			if (!bossAlive && IsRouteHoldObjectiveActive(destroyedCount) && GetRouteHoldRemainingSeconds() <= 10f)
 			{
 				int routeHoldTarget = GetRouteHoldTarget();
-				return $"ROUTE HOLD CLOSING: need {Mathf.Max(0, routeHoldTarget - destroyedCount):0} wrecks in {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
+				return $"HOLD  {Mathf.Max(0, routeHoldTarget - destroyedCount):0}  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";
 			}
 			if (!bossAlive && HasMissedEarlyCrushLaneBreak(destroyedCount))
 			{
-				return $"OPENING MISSED: find dense low-rise lane ({Mathf.Min(destroyedCount, GetEarlyCrushLaneBreakTarget()):0}/{GetEarlyCrushLaneBreakTarget():0})";
+				return $"OPENING  {Mathf.Min(destroyedCount, GetEarlyCrushLaneBreakTarget()):0}/{GetEarlyCrushLaneBreakTarget():0}";
 			}
 			if (enableStageAdvanceGoal && stageAdvanceDestroyTarget > 0 && !stageAdvanceGoalReached)
 			{
@@ -753,20 +762,20 @@ namespace AlienCrusher.Systems
 				float num3 = (num2 <= 0.01f) ? (float)stageAdvanceDestroyTarget : (float)num / Mathf.Max(1f, num2);
 				if (num2 <= 18f && num > 0)
 				{
-					return $"TIME CRITICAL: need {num:0} more wrecks in {Mathf.CeilToInt(num2):0}s";
+					return $"TIME  {num:0}  {Mathf.CeilToInt(num2):0}s";
 				}
 				if (num2 <= 30f && num3 > 0.6f)
 				{
-					return $"PACE TOO LOW: cut through small blocks, {num:0} wrecks still needed";
+					return $"PACE  {num:0}";
 				}
 				if (num > 0 && destroyedCount < Mathf.RoundToInt(stageAdvanceDestroyTarget * 0.45f) && num2 <= 45f)
 				{
-					return "FALLING BEHIND: ignore isolated targets and enter a denser lane";
+					return "LANE";
 				}
 			}
 			if (trafficPanicChainStack <= 0 && !overdriveActive && remainingStageTime <= 16f)
 			{
-				return "FINAL SECONDS: protect momentum and commit to the goal route";
+				return "LAST";
 			}
 			return string.Empty;
 		}
@@ -784,23 +793,27 @@ namespace AlienCrusher.Systems
 			}
 			float num = 0.62f;
 			float num2 = flag ? 0.55f : 1.5f;
-			if (urgencyHint.Contains("BREAK WINDOW", StringComparison.Ordinal) || urgencyHint.Contains("TIME CRITICAL", StringComparison.Ordinal) || urgencyHint.Contains("ROUTE HOLD CLOSING", StringComparison.Ordinal))
+			if (urgencyHint.StartsWith("CORE", StringComparison.Ordinal) || urgencyHint.StartsWith("TIME", StringComparison.Ordinal) || urgencyHint.StartsWith("HOLD  ", StringComparison.Ordinal))
 			{
 				num = 1f;
-				num2 = flag ? 0.3f : 0.9f;
+				num2 = flag ? 0.9f : 1.8f;
 			}
-			else if (urgencyHint.Contains("FALLING BEHIND", StringComparison.Ordinal) || urgencyHint.Contains("PACE TOO LOW", StringComparison.Ordinal) || urgencyHint.Contains("OPENING MISSED", StringComparison.Ordinal))
+			else if (urgencyHint.StartsWith("LANE", StringComparison.Ordinal) || urgencyHint.StartsWith("PACE", StringComparison.Ordinal) || urgencyHint.StartsWith("OPENING", StringComparison.Ordinal))
 			{
 				num = 0.84f;
-				num2 = flag ? 0.45f : 1.15f;
+				num2 = flag ? 1.1f : 2.0f;
 			}
-			else if (urgencyHint.Contains("FINAL SECONDS", StringComparison.Ordinal) || urgencyHint.Contains("BOSS BLOCKING", StringComparison.Ordinal))
+			else if (urgencyHint.StartsWith("LAST", StringComparison.Ordinal) || urgencyHint.StartsWith("PYLONS", StringComparison.Ordinal))
 			{
 				num = 0.74f;
-				num2 = flag ? 0.5f : 1.25f;
+				num2 = flag ? 1.2f : 2.2f;
+			}
+			else
+			{
+				num2 = flag ? 1.4f : 2.4f;
 			}
 			feedbackSystem?.PlayHudWarningFeedback(bossRelated, num);
-			if (urgencyHint.Contains("ROUTE HOLD CLOSING", StringComparison.Ordinal))
+			if (urgencyHint.StartsWith("HOLD  ", StringComparison.Ordinal))
 			{
 				Vector3 warningOrigin = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero);
 				RouteHoldWarningVfx.Play(warningOrigin);
@@ -1181,7 +1194,7 @@ namespace AlienCrusher.Systems
 				string text5 = DescribeStagePressure(currentStageNumber);
 				string text6 = DescribeStageObjective(currentStageNumber);
 				string text7 = enableStripClearMission ? $"MISSION BONUS  /  SCORE +{Mathf.Max(0, stripClearMissionCompleteScore):0}  DP +{Mathf.Max(0, stripClearMissionCompleteDp):0}+" : "MISSION BONUS  /  OFF";
-				lobbyMissionText.text = $"MISSION BRIEF  /  STAGE {currentStageNumber:00}  /  BEST {num3:00}\nFORM  /  {text}\nNEXT STEP  /  {text6}\nDISTRICT  /  {text3}\nTRAFFIC  /  {text4}\nPRESSURE  /  {text5}\nWEAK POINTS  /  ELITE ONLY ({num2:0})\n{text7}\n{text2}";
+				lobbyMissionText.text = $"STAGE {currentStageNumber:00}  BEST {num3:00}\n{text}  {text6}\n{text3}";
 				UpdateLobbyRecommendationUi();
 				UpdateLobbyStageSelectUi();
 				RefreshBossSentinelLobbyResultIcon();
@@ -1247,27 +1260,27 @@ namespace AlienCrusher.Systems
 				}
 				else if (stageAdvanceGoalReached)
 				{
-					hudStageGoalText.text = $"NEXT STAGE READY  {num:0}/{num2:0}";
+					hudStageGoalText.text = $"READY  {num:0}/{num2:0}";
 				}
 				else if (routeHoldActive)
 				{
-					hudStageGoalText.text = $"HOLD  {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {routeHoldRemaining:0} LEFT";
+					hudStageGoalText.text = $"HOLD  {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  {routeHoldRemaining:0}";
 				}
 				else if (flag)
 				{
-					hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  BOSS";
+					hudStageGoalText.text = $"GOAL  {num:0}/{num2:0}  BOSS";
 				}
 				else if (flag2)
 				{
-					hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  PUSH";
+					hudStageGoalText.text = $"GOAL  {num:0}/{num2:0}  PUSH";
 				}
 				else if (flag2a)
 				{
-					hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  START";
+					hudStageGoalText.text = $"GOAL  {num:0}/{num2:0}  START";
 				}
 				else
 				{
-					hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}";
+					hudStageGoalText.text = $"GOAL  {num:0}/{num2:0}";
 				}
 				hudStageGoalText.color = stageAdvanceGoalReached
 					? new Color(1f, 0.9f, 0.56f, 1f)
@@ -1287,25 +1300,25 @@ namespace AlienCrusher.Systems
 			int num = Mathf.Max(1, stageNumber);
 			if (num <= 2)
 			{
-				return "low-rise suburb / open on tight house rows";
+				return "SUBURB";
 			}
 			if (num <= 4)
 			{
-				return "mixed commercial strip / enter storefront lanes first";
+				return "MARKET";
 			}
 			if (num <= 6)
 			{
-				return "dense core / crack mid-rise lanes before towers";
+				return "CORE";
 			}
 			if (num <= 7)
 			{
-				return "fortified skyline / heavy structures hold the route";
+				return "SKYLINE";
 			}
 			if (num <= 9)
 			{
-				return "metro frontier / transit and harbor chains split the route";
+				return "METRO";
 			}
-			return "civic core / break the uplink ring before the center";
+			return "CIVIC";
 		}
 
 		private static string DescribeStageTraffic(int stageNumber)
@@ -1364,26 +1377,26 @@ namespace AlienCrusher.Systems
 		{
 			if (!enableStripClearMission)
 			{
-				return "open on low-rise blocks and keep pushing forward";
+				return "CRUSH LANE";
 			}
 
 			int num = Mathf.Max(1, stageNumber);
 			int target = GetStripClearMissionTarget();
 			if (target <= 0)
 			{
-				return "open on low-rise blocks and keep pushing forward";
+				return "CRUSH LANE";
 			}
 
 			if (num <= 2)
 			{
-				return $"open with low-rise crush, then finish {target:0} storefront clear";
+				return $"LANE  then STRIP {target:0}";
 			}
 			if (num <= 5)
 			{
-				return $"push storefront lanes and finish {target:0} strip clears";
+				return $"STORES  STRIP {target:0}";
 			}
 
-			return $"finish {target:0} strip clears before fortified pressure closes in";
+			return $"STRIP {target:0}";
 		}
 
 		private void UpdateLobbyStageSelectUi()
@@ -1482,7 +1495,7 @@ namespace AlienCrusher.Systems
 				lobbyMissionText.alignment = TextAnchor.UpperCenter;
 				lobbyMissionText.lineSpacing = 1.12f;
 				lobbyMissionText.horizontalOverflow = HorizontalWrapMode.Wrap;
-				lobbyMissionText.verticalOverflow = VerticalWrapMode.Overflow;
+				lobbyMissionText.verticalOverflow = VerticalWrapMode.Truncate;
 			}
 			EnsureLobbyRecommendationUi();
 			EnsureLobbyMetaDetailUi();
@@ -1594,7 +1607,7 @@ namespace AlienCrusher.Systems
 				hudStageGoalText.fontSize = 22;
 				hudStageGoalText.fontStyle = FontStyle.Bold;
 				hudStageGoalText.horizontalOverflow = HorizontalWrapMode.Overflow;
-				hudStageGoalText.verticalOverflow = VerticalWrapMode.Overflow;
+				hudStageGoalText.verticalOverflow = VerticalWrapMode.Truncate;
 				hudStageGoalText.color = Color.white;
 				if ((Object)(object)hudStageGoalText.font == (Object)null)
 				{
@@ -1637,7 +1650,7 @@ namespace AlienCrusher.Systems
 				hudRouteIndicatorText.fontSize = 20;
 				hudRouteIndicatorText.fontStyle = FontStyle.Bold;
 				hudRouteIndicatorText.horizontalOverflow = HorizontalWrapMode.Overflow;
-				hudRouteIndicatorText.verticalOverflow = VerticalWrapMode.Overflow;
+				hudRouteIndicatorText.verticalOverflow = VerticalWrapMode.Truncate;
 				hudRouteIndicatorText.color = new Color(1f, 0.92f, 0.7f, 1f);
 				if ((Object)(object)hudRouteIndicatorText.font == (Object)null)
 				{
@@ -1740,7 +1753,7 @@ namespace AlienCrusher.Systems
 				hudBossStatusText.fontSize = 18;
 				hudBossStatusText.fontStyle = FontStyle.Bold;
 				hudBossStatusText.horizontalOverflow = HorizontalWrapMode.Wrap;
-				hudBossStatusText.verticalOverflow = VerticalWrapMode.Overflow;
+				hudBossStatusText.verticalOverflow = VerticalWrapMode.Truncate;
 				hudBossStatusText.color = new Color(1f, 0.82f, 0.62f, 1f);
 				if ((Object)(object)hudBossStatusText.font == (Object)null)
 				{
@@ -1783,7 +1796,7 @@ namespace AlienCrusher.Systems
 				lobbyRecommendationText.fontSize = 19;
 				lobbyRecommendationText.fontStyle = FontStyle.Bold;
 				lobbyRecommendationText.horizontalOverflow = HorizontalWrapMode.Wrap;
-				lobbyRecommendationText.verticalOverflow = VerticalWrapMode.Overflow;
+				lobbyRecommendationText.verticalOverflow = VerticalWrapMode.Truncate;
 				lobbyRecommendationText.color = new Color(0.92f, 0.95f, 1f, 1f);
 				if ((Object)(object)lobbyRecommendationText.font == (Object)null)
 				{
@@ -1827,7 +1840,7 @@ namespace AlienCrusher.Systems
 				lobbyMetaDetailText.fontSize = 17;
 				lobbyMetaDetailText.fontStyle = FontStyle.Bold;
 				lobbyMetaDetailText.horizontalOverflow = HorizontalWrapMode.Wrap;
-				lobbyMetaDetailText.verticalOverflow = VerticalWrapMode.Overflow;
+				lobbyMetaDetailText.verticalOverflow = VerticalWrapMode.Truncate;
 				lobbyMetaDetailText.color = new Color(0.82f, 0.88f, 0.96f, 1f);
 				if ((Object)(object)lobbyMetaDetailText.font == (Object)null)
 				{
@@ -1871,8 +1884,8 @@ namespace AlienCrusher.Systems
 				resultHighlightText.fontSize = 23;
 				resultHighlightText.fontStyle = FontStyle.Bold;
 				resultHighlightText.horizontalOverflow = HorizontalWrapMode.Wrap;
-				resultHighlightText.verticalOverflow = VerticalWrapMode.Overflow;
-				resultHighlightText.color = new Color(1f, 0.9f, 0.62f, 1f);
+				resultHighlightText.verticalOverflow = VerticalWrapMode.Truncate;
+				resultHighlightText.color = new Color(1f, 0.96f, 0.78f, 1f);
 				if ((Object)(object)resultHighlightText.font == (Object)null)
 				{
 					resultHighlightText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -1915,8 +1928,8 @@ namespace AlienCrusher.Systems
 				resultMetaProgressText.fontSize = 19;
 				resultMetaProgressText.fontStyle = FontStyle.Bold;
 				resultMetaProgressText.horizontalOverflow = HorizontalWrapMode.Wrap;
-				resultMetaProgressText.verticalOverflow = VerticalWrapMode.Overflow;
-				resultMetaProgressText.color = new Color(0.82f, 0.94f, 1f, 1f);
+				resultMetaProgressText.verticalOverflow = VerticalWrapMode.Truncate;
+				resultMetaProgressText.color = new Color(0.9f, 0.97f, 1f, 1f);
 				if ((Object)(object)resultMetaProgressText.font == (Object)null)
 				{
 					resultMetaProgressText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -1959,7 +1972,7 @@ namespace AlienCrusher.Systems
 				resultStatusBadgeText.fontSize = 20;
 				resultStatusBadgeText.fontStyle = FontStyle.Bold;
 				resultStatusBadgeText.horizontalOverflow = HorizontalWrapMode.Wrap;
-				resultStatusBadgeText.verticalOverflow = VerticalWrapMode.Overflow;
+				resultStatusBadgeText.verticalOverflow = VerticalWrapMode.Truncate;
 				resultStatusBadgeText.color = Color.white;
 				resultStatusBadgeText.supportRichText = true;
 				if ((Object)(object)resultStatusBadgeText.font == (Object)null)
@@ -2003,8 +2016,8 @@ namespace AlienCrusher.Systems
 				resultAdviceText.fontSize = 17;
 				resultAdviceText.fontStyle = FontStyle.Bold;
 				resultAdviceText.horizontalOverflow = HorizontalWrapMode.Wrap;
-				resultAdviceText.verticalOverflow = VerticalWrapMode.Overflow;
-				resultAdviceText.color = new Color(0.95f, 0.88f, 0.68f, 1f);
+				resultAdviceText.verticalOverflow = VerticalWrapMode.Truncate;
+				resultAdviceText.color = new Color(1f, 0.94f, 0.78f, 1f);
 				if ((Object)(object)resultAdviceText.font == (Object)null)
 				{
 					resultAdviceText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");

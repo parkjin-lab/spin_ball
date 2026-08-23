@@ -49,7 +49,6 @@ namespace AlienCrusher.Systems
 					formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
 				}
 				formUnlockSystem?.AddDp(lastEarnedDp);
-				SignalOutgameProgressionSaved();
 			}
 		}
 
@@ -73,21 +72,21 @@ namespace AlienCrusher.Systems
 			int num = Mathf.Max(previousHighestStage + 1, currentHighestStage);
 			if (previousHighestStage <= 1 && currentHighestStage > previousHighestStage)
 			{
-				return $"Stage {num:00} unlocked. SPIKE is now your first form target.";
+				return $"STAGE {num:00} OPEN";
 			}
 			if (previousHighestStage <= 2 && currentHighestStage > previousHighestStage)
 			{
-				return $"Stage {num:00} unlocked. RAM and SAUCER routes are now your next medium-term targets.";
+				return $"STAGE {num:00} OPEN";
 			}
 			if (previousHighestStage <= 3 && currentHighestStage > previousHighestStage)
 			{
-				return $"Stage {num:00} unlocked. BOSS-TIER progression is getting closer.";
+				return $"STAGE {num:00} OPEN";
 			}
 			if (currentHighestStage > previousHighestStage)
 			{
-				return $"Stage {num:00} unlocked. Lobby progression advanced.";
+				return $"STAGE {num:00} OPEN";
 			}
-			return $"Stage {currentStageNumber:00} cleared.";
+			return $"STAGE {currentStageNumber:00} CLEAR";
 		}
 
 		private void UpdateMetaProgressUi()
@@ -150,20 +149,20 @@ namespace AlienCrusher.Systems
 			}
 			if (formUnlockSystem.IsMetaUpgradeMaxed(upgradeType))
 			{
-				lastLobbyActionStatus = $"{GetMetaUpgradeName(upgradeType)} is already maxed.";
+				lastLobbyActionStatus = $"{GetMetaUpgradeShortTag(upgradeType)} MAXED";
 				UpdateMetaProgressUi();
 				return;
 			}
 			if (!formUnlockSystem.TryPurchaseMetaUpgrade(upgradeType, out var requiredCost))
 			{
 				Debug.Log((object)$"[AlienCrusher] Need {requiredCost} DP to buy {GetMetaUpgradeName(upgradeType)}. Current DP: {formUnlockSystem.DpBalance}");
-				lastLobbyActionStatus = $"Need {Mathf.Max(0, requiredCost - formUnlockSystem.DpBalance):0} more DP for {GetMetaUpgradeName(upgradeType)}.";
+				lastLobbyActionStatus = $"{GetMetaUpgradeShortTag(upgradeType)}  NEED {Mathf.Max(0, requiredCost - formUnlockSystem.DpBalance):0}";
 				SignalOutgameDpInsufficient();
 				UpdateMetaProgressUi();
 				return;
 			}
 			ApplyPermanentMetaUpgrades();
-			lastLobbyActionStatus = $"{GetMetaUpgradeName(upgradeType)} purchased.";
+			lastLobbyActionStatus = $"{GetMetaUpgradeShortTag(upgradeType)} BOUGHT";
 			SignalOutgameDpSpend();
 			ArmSpendChangeReadyFromMeta(upgradeType);
 			if (stageRunning)
@@ -358,12 +357,12 @@ namespace AlienCrusher.Systems
 			}
 			if ((Object)(object)formUnlockSystem == (Object)null)
 			{
-				lobbyRecommendationText.text = "RECOMMENDED UPGRADE  /  Progression system offline";
+				lobbyRecommendationText.text = "OFFLINE";
 				return;
 			}
 			if (!ShouldShowAdvancedLobbyGuidance())
 			{
-				lobbyRecommendationText.text = "NEXT STEP  /  Enter the district and start crushing.\nRECOMMENDATIONS unlock after your first real run.";
+				lobbyRecommendationText.text = "GO";
 				lobbyRecommendationText.color = new Color(0.86f, 0.9f, 0.96f, 1f);
 				return;
 			}
@@ -374,28 +373,11 @@ namespace AlienCrusher.Systems
 			int metaUpgradeLevel = formUnlockSystem.GetMetaUpgradeLevel(previewMetaUpgradeType);
 			int metaUpgradeMaxLevel = formUnlockSystem.GetMetaUpgradeMaxLevel(previewMetaUpgradeType);
 			int metaUpgradeCost = formUnlockSystem.GetMetaUpgradeCost(previewMetaUpgradeType);
-			string text = GetMetaUpgradeName(previewMetaUpgradeType);
-			string text2 = (metaUpgradeCost <= 0) ? $"MAXED ({metaUpgradeLevel}/{metaUpgradeMaxLevel})" : ((num >= metaUpgradeCost) ? $"READY  /  {metaUpgradeCost:0} DP" : $"NEED {Mathf.Max(0, metaUpgradeCost - num):0} MORE DP");
-			string text3 = GetRecommendedFormUnlockHint(num);
-			string text4 = string.IsNullOrWhiteSpace(lastLobbyActionStatus) ? string.Empty : $"ACTION  /  {lastLobbyActionStatus}";
-			string text5 = $"NEXT STEP  /  {GetMetaUpgradeShortTag(previewMetaUpgradeType)}  LV {metaUpgradeLevel}/{metaUpgradeMaxLevel}\n{text2}";
-			string firstActionLine = GetLastRunFirstActionLine();
-			if (!string.IsNullOrWhiteSpace(firstActionLine))
-			{
-				text5 = $"{firstActionLine}\n{text5}";
-			}
-			if (!string.IsNullOrWhiteSpace(reason))
-			{
-				text5 = $"{text5}\nWHY  /  {GetCompactLobbyReason(reason, text)}";
-			}
-			if (!string.IsNullOrWhiteSpace(text3) && !text3.Contains("is still a valid pick") && !text3.Contains("HOLD SPHERE"))
-			{
-				text5 = $"{text5}\n{text3}";
-			}
-			if (!string.IsNullOrWhiteSpace(text4) && !text4.Contains("equipped.", System.StringComparison.OrdinalIgnoreCase))
-			{
-				text5 = $"{text5}\n{text4}";
-			}
+			string readyTag = (metaUpgradeCost <= 0) ? "MAXED" : ((num >= metaUpgradeCost) ? "READY" : $"NEED {Mathf.Max(0, metaUpgradeCost - num):0}");
+			string formHint = GetRecommendedFormUnlockHint(num);
+			string text5 = (!string.IsNullOrWhiteSpace(formHint) && formHint.IndexOf("READY", System.StringComparison.Ordinal) >= 0)
+				? formHint
+				: $"{GetMetaUpgradeShortTag(previewMetaUpgradeType)}  LV {metaUpgradeLevel}/{metaUpgradeMaxLevel}  {readyTag}";
 			lobbyRecommendationText.text = text5;
 			lobbyRecommendationBaseColor = (metaUpgradeCost > 0 && num >= metaUpgradeCost) ? new Color(0.9f, 0.98f, 0.9f, 1f) : new Color(0.9f, 0.93f, 0.98f, 1f);
 			ApplyLobbyRecommendationPresentation();
@@ -453,39 +435,39 @@ namespace AlienCrusher.Systems
 			}
 			if (reason.Contains("OPENING FAILED", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} fixes the opening.";
+				return $"{upgradeName}  open";
 			}
 			if (reason.Contains("RECOVERY BREAK", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} makes recovery unnecessary.";
+				return $"{upgradeName}  recover";
 			}
 			if (reason.Contains("ROUTE HOLD", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} stabilizes post-opening routes.";
+				return $"{upgradeName}  HOLD";
 			}
 			if (reason.Contains("LANE BREAK", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} extends strong openings.";
+				return $"{upgradeName}  BREAK";
 			}
 			if (reason.Contains("FINAL PUSH FAILED", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} helps close the stage.";
+				return $"{upgradeName}  close";
 			}
 			if (reason.Contains("MID-RUN DRIFT", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} stabilizes the route.";
+				return $"{upgradeName}  route";
 			}
 			if (reason.Contains("BOSS PHASE", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} helps crack the boss.";
+				return $"{upgradeName}  boss";
 			}
 			if (reason.Contains("Early districts", System.StringComparison.Ordinal) || reason.Contains("opening route", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} smooths early crush flow.";
+				return $"{upgradeName}  early";
 			}
 			if (reason.Contains("midgame", System.StringComparison.Ordinal) || reason.Contains("fund", System.StringComparison.Ordinal))
 			{
-				return $"{upgradeName} speeds long-term growth.";
+				return $"{upgradeName}  fund";
 			}
 			return reason;
 		}
@@ -686,24 +668,16 @@ namespace AlienCrusher.Systems
 			{
 				if (lastRunFailureBucket == "OPENING FAILED")
 				{
-					return "FORM FOCUS  /  HOLD SPHERE. Fix the opening with SIZE CORE and denser lane routing first.";
+					return "SPHERE  open first";
 				}
 				return GetStageBasedFormPathHint();
 			}
 			int unlockCost = formUnlockSystem.GetUnlockCost(lastRecommendedFormUnlock);
 			int num = Mathf.Max(0, unlockCost - dpBalance);
 			string text = lastRecommendedFormUnlock.ToString().ToUpperInvariant();
-			string text2 = lastRunFailureBucket switch
-			{
-				"ROUTE HOLD MISSED" => "  /  route hold target",
-				"MID-RUN DRIFT" => "  /  route stability target",
-				"FINAL PUSH FAILED" => "  /  finish-line pressure target",
-				"BOSS PHASE" => "  /  boss breach target",
-				_ => string.Empty,
-			};
 			return num <= 0
-				? $"FORM FOCUS  /  {text} READY ({unlockCost:0} DP){text2}"
-				: $"FORM FOCUS  /  {text} NEXT STEP, NEED {num:0} MORE DP{text2}";
+				? $"{text} READY"
+				: $"{text}  NEED {num:0} DP";
 		}
 
 		private FormType GetRecommendedFormUnlock()
@@ -757,17 +731,17 @@ namespace AlienCrusher.Systems
 			int num = ((Object)(object)formUnlockSystem != (Object)null) ? Mathf.Max(1, formUnlockSystem.HighestUnlockedStage) : 1;
 			if (num <= 1)
 			{
-				return "FORM PATH  /  Clear the first district, then aim for SPIKE.";
+				return "SPIKE NEXT";
 			}
 			if (num == 2)
 			{
-				return "FORM PATH  /  SPIKE first, then build toward RAM or SAUCER.";
+				return "SPIKE  then RAM";
 			}
 			if (num == 3)
 			{
-				return "FORM PATH  /  Mid-tier forms open route variety. CRUSHER remains the boss-tier target.";
+				return "CRUSHER NEXT";
 			}
-			return $"FORM PATH  /  Current {GetCurrentSelectedForm().ToString().ToUpperInvariant()} build is valid. Push deeper stages for boss-tier unlocks.";
+			return GetCurrentSelectedForm().ToString().ToUpperInvariant();
 		}
 
 		private void ApplyRecommendedFormButtonStyle(string buttonName, FormType formType)

@@ -348,11 +348,11 @@ namespace AlienCrusher.Systems
 		{
 			if (IsBossBreakWindowActive())
 			{
-				return $"CORE EXPOSED: unload everything for {Mathf.CeilToInt(stageBossBreakRemaining):0}s";
+				return $"CORE  {Mathf.CeilToInt(stageBossBreakRemaining):0}s";
 			}
 			if (stageBossShieldActiveCount > 0)
 			{
-				return $"JUSTICE SENTINEL SHIELDED: break {stageBossShieldActiveCount:0} pylon(s) to expose the core";
+				return $"PYLONS  {stageBossShieldActiveCount:0}";
 			}
 			if (stageBossPhaseTwoActive)
 			{
@@ -360,20 +360,20 @@ namespace AlienCrusher.Systems
 				{
 					if (stageBossPhaseTwoDroneRecoveryRemaining <= Mathf.Max(0.45f, bossPhaseTwoDroneRespawnWarningDuration))
 					{
-						return $"JUSTICE SENTINEL PHASE 2: drone swarm returning in {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
+						return $"DRONES  {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
 					}
-					return $"JUSTICE SENTINEL PHASE 2: drones down, push damage for {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
+					return $"PUSH  {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
 				}
-				return "JUSTICE SENTINEL PHASE 2: break drones to open a safe push window";
+				return "DRONES";
 			}
 			switch (Mathf.Clamp(this.stageBossThreatLevel, 1, 3))
 			{
 			case 3:
-				return "JUSTICE SENTINEL FURY: avoid burst pulses and break the weak point now";
+				return "FURY";
 			case 2:
-				return "JUSTICE SENTINEL LOCKED: circle wide between pulses, then drive through the weak point";
+				return "LOCKED";
 			default:
-				return "JUSTICE SENTINEL SCANNING: watch scan pulses, build speed, then line up the weak point";
+				return "SCAN";
 			}
 		}
 

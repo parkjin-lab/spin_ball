@@ -15,6 +15,11 @@ This document tracks the current project state, the next production priorities, 
 
 ## 1. Current Project State
 
+### Qualitative Playtest / HUD Readability Batch
+Creator feel notes from 2026-08-23 (tester 진웅 박) are in `Docs/AlienCrusherStagePlaytestNotes.md`. Fun overall, but growth UI popped too often, HUD/copy was too long, the map felt small/fast, destruction needed more variety, and UI still looked unfinished. This batch shortens HUD/result/lobby labels and stops stacked growth residuals/toasts only. Map size and destruction variety stay later. No invented `F10` telemetry.
+
+How to see it: Play Mode Stage 1. HUD labels should be short (`HOLD 72%  4  8s`, `WRECK n/t`, `SENTINEL`). Result/lobby advice should be one scannable line. A clear should fire one unlock or DP beat, not a residual+toast storm.
+
 ### Juice Exhausted / Next Human Action
 Production juice leftovers are exhausted on this PR. Do not invent more micro-pulses, VFX residuals, or lobby confirm flashes.
 
@@ -31,7 +36,7 @@ Log pointer: `Logs/AlienCrusherPlaytestTelemetry.log` is still missing. That fil
 - Destruction progression exists through score, chain timing, ball growth, landing shockwave, overdrive, combo rush, retail frenzy, strip clear, traffic panic, seismic bursts, and result feedback.
 - Form and meta progression exist around the current runtime forms `Sphere`, `Spike`, `Ram`, `Saucer`, and `Crusher`, plus meta upgrades such as `SizeCore`, `ImpactCore`, and `DpAmplifier`.
 - LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, `LANE BREAK -> ROUTE OPEN` feedback, HUD guidance, world beacon, route trail pips, route reward, FORWARD SMASH cluster payoff, result badges, and lobby/meta recommendations are connected.
-- Failure result and lobby recommendation copy now start with one bucket-specific first action before explaining the upgrade reason.
+- Failure result and lobby recommendation copy now use one short scannable label per event instead of stacked first-action / why / next-step paragraphs.
 - Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines and append the same route telemetry to `Logs/AlienCrusherPlaytestTelemetry.log` for `SWEEP_START`, stage start, route open, route hold clear, route bonus, forward smash, stage end, and `SWEEP_END`. ROUTE HOLD telemetry now also samples target distance, closest/average/farthest distance, in-range percentage, and elapsed route time.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` can convert the telemetry log into a markdown report with a current tuning snapshot, rhythm snapshot, `Tune Next` decision block, sweep-level summaries, stage trend rollups, route adherence metrics, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdowns for faster Stage 1-7 review.
 - Runtime map rebuilds happen at stage start. Stage 1-7 preserve the original compact-to-skyline curve; Stage 8-10 continue growth from 66m/20x20 to 74m/22x22 without shrinking the earlier layouts.
