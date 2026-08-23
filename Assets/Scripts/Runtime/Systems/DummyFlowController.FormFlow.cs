@@ -57,6 +57,7 @@ namespace AlienCrusher.Systems
 				ApplySelectedFormToPlayer();
 				UpdateFormButtons();
 				UpdateMetaProgressUi();
+				PlayFormEquipConfirmPulse(form);
 			}
 		}
 

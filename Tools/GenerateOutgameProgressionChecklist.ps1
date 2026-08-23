@@ -7,7 +7,8 @@ param(
     [string]$FormUnlockSystemPath = "",
     [string]$ProgressionSaveSystemPath = "",
     [string]$DpEconomyHookPath = "",
-    [string]$ProgressionVisualsHookPath = ""
+    [string]$ProgressionVisualsHookPath = "",
+    [string]$FormEquipConfirmPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -61,6 +62,7 @@ $formUnlockSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverrideP
 $progressionSaveSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ProgressionSaveSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\ProgressionSaveSystem.cs"
 $dpEconomyHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $DpEconomyHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.OutgameDpEconomy.cs"
 $progressionVisualsHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ProgressionVisualsHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.OutgameProgressionVisuals.cs"
+$formEquipConfirmSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FormEquipConfirmPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.FormEquipConfirm.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherOutgameProgressionChecklist.md"
@@ -81,7 +83,8 @@ $formUnlockText = Read-SourceText -Path $formUnlockSourcePath
 $progressionSaveText = Read-SourceText -Path $progressionSaveSourcePath
 $dpEconomyHookText = Read-SourceText -Path $dpEconomyHookSourcePath
 $progressionVisualsHookText = Read-SourceText -Path $progressionVisualsHookSourcePath
-$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText
+$formEquipConfirmText = Read-SourceText -Path $formEquipConfirmSourcePath
+$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -105,9 +108,17 @@ foreach ($needle in @(
     "TryUnlockAndSelectWithCost",
     "EQUIPPED",
     "RECOMMENDED",
-    "GetEarlyLobbyFormUnlockHint"
+    "GetEarlyLobbyFormUnlockHint",
+    "PlayFormEquipConfirmPulse"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $formFlowText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_FormEquip_Confirm",
+    "PlayFormEquipConfirmPulse"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $formEquipConfirmText -Needle $needle
 }
 
 foreach ($needle in @(
@@ -181,7 +192,8 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P0"; Category = "Banner"; Asset = "Banner_StageUnlocked"; RuntimeUse = "stage clear and highest-stage advance"; State = "new best, next stage, boss-tier approaching"; Folder = "Assets/Resources/UI/Rewards/" },
     [pscustomobject]@{ Priority = "P1"; Category = "Toast"; Asset = "Toast_ProgressionSaved"; RuntimeUse = "save confirmation after DP spend/unlock/stage clear"; State = "saved, backup restored, migration complete"; Folder = "Assets/Resources/UI/Rewards/" },
     [pscustomobject]@{ Priority = "P1"; Category = "Audio"; Asset = "SFX_Progression_Confirm"; RuntimeUse = "purchase/unlock/selected positive confirmation"; State = "purchase, unlock, equip"; Folder = "Assets/Audio/SFX/UI/" },
-    [pscustomobject]@{ Priority = "P1"; Category = "Audio"; Asset = "SFX_Progression_Locked"; RuntimeUse = "not enough DP or stage locked"; State = "locked, insufficient DP"; Folder = "Assets/Audio/SFX/UI/" }
+    [pscustomobject]@{ Priority = "P1"; Category = "Audio"; Asset = "SFX_Progression_Locked"; RuntimeUse = "not enough DP or stage locked"; State = "locked, insufficient DP"; Folder = "Assets/Audio/SFX/UI/" },
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_FormEquip_Confirm"; RuntimeUse = "lobby form equip confirmation pulse"; State = "equipped lock-in flash"; Folder = "Assets/Art/VFX/UI/" }
 )
 
 $productionBatches = @(
@@ -208,6 +220,12 @@ $productionBatches = @(
         Goal = "confirm unlocks, purchases, equips, and save safety without slowing the run-return rhythm"
         Targets = @("Toast_ProgressionSaved", "SFX_Progression_Confirm", "SFX_Progression_Locked")
         Acceptance = "positive/locked/save feedback is noticeable but does not require modal acknowledgement"
+    },
+    [pscustomobject]@{
+        Batch = "E. Form equip confirm pulse"
+        Goal = "make lobby form equip feel locked-in before stage start"
+        Targets = @("VFX_FormEquip_Confirm")
+        Acceptance = "equipping a form shows a short champagne ring pulse on that card that is not the cyan equipped frame, result badges, or in-run smash/route VFX"
     }
 )
 

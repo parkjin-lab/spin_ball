@@ -281,6 +281,7 @@ Deliverables:
 - `UI_DP_GainBurst` DP gain / spend / insufficient burst
 - `SFX_Progression_Locked` insufficient-DP / locked purchase cue
 - `SFX_Progression_Confirm` purchase / unlock / equip confirmation cue
+- `VFX_FormEquip_Confirm` champagne lock-in ring when a lobby form is equipped
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip

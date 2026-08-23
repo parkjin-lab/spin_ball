@@ -398,6 +398,8 @@ if ($errors.Count -eq 0) {
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "B. Form and meta choice states" -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "C. Result-to-lobby payoff" -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "D. Persistence and confirmation feedback" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "E. Form equip confirm pulse" -Label "Outgame progression checklist"
+        Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle 'VFX_FormEquip_Confirm' -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "## Next Outgame Progression Batch Task Card" -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "Runtime uses: UI_DP_GainBurst: result DP reward and lobby total DP update" -Label "Outgame progression checklist"
         Add-Check -Errors $errors -ReportText $outgameProgressionChecklistText -Needle "Done means: DP gain, DP total, spend, and insufficient states have draft visuals" -Label "Outgame progression checklist"

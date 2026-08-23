@@ -441,6 +441,7 @@ Required assets:
 - `UI_DP_GainBurst` DP gain / spend / insufficient burst
 - `SFX_Progression_Locked` insufficient-DP / locked purchase cue
 - `SFX_Progression_Confirm` purchase / unlock / equip confirmation cue
+- `VFX_FormEquip_Confirm` champagne lock-in ring when a lobby form is equipped
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
@@ -628,6 +629,7 @@ This section can be used as a working production checklist.
 - [x] `UI_DP_GainBurst` teal reward burst for earn / spend / insufficient
 - [x] `SFX_Progression_Locked` muted locked-purchase cue
 - [x] `SFX_Progression_Confirm` bright unlock / purchase / equip cue
+- [x] `VFX_FormEquip_Confirm` champagne lobby form-equip lock-in ring
 - [x] `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - [x] `UI_MetaNode_SizeCore` Size Core node chip
 - [x] `UI_MetaNode_ImpactCore` Impact Core node chip
