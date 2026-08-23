@@ -339,7 +339,7 @@ Deliverables:
 - boss armor / shield / exposed-core material set
 - boss core expose burst VFX
 - `Badge_Boss_Clear` steel result badge for Sentinel victory
-- leftover boss HUD icon (`Icon_Boss_Sentinel`) if `Icon_Boss` is not enough
+- `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run boss identity
 
 Generated checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
@@ -361,6 +361,7 @@ Deliverables:
 - `Icon_Shield` cyan shield plate with pylon ticks
 - `Icon_WeakPoint` gold bullseye with glow dot
 - `Icon_Boss` sentinel eye inside steel frame
+- `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run identity
 - `Icon_Overdrive` orange speed ring with flame notch
 - `Icon_Panic` car with radial warning spikes
 - `Icon_Seismic` ground crack wave

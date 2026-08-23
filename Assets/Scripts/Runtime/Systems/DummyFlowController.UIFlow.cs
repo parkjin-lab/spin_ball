@@ -1179,6 +1179,7 @@ namespace AlienCrusher.Systems
 				lobbyMissionText.text = $"MISSION BRIEF  /  STAGE {currentStageNumber:00}  /  BEST {num3:00}\nFORM  /  {text}\nNEXT STEP  /  {text6}\nDISTRICT  /  {text3}\nTRAFFIC  /  {text4}\nPRESSURE  /  {text5}\nWEAK POINTS  /  ELITE ONLY ({num2:0})\n{text7}\n{text2}";
 				UpdateLobbyRecommendationUi();
 				UpdateLobbyStageSelectUi();
+				RefreshBossSentinelLobbyResultIcon();
 			}
 		}
 

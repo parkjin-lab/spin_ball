@@ -10,11 +10,13 @@ namespace AlienCrusher.Systems
 		private const string IconShieldId = "Icon_Shield";
 		private const string IconWeakPointId = "Icon_WeakPoint";
 		private const string IconBossId = "Icon_Boss";
+		private const string IconBossSentinelId = "Icon_Boss_Sentinel";
 
 		private Sprite iconBreakWindowSprite;
 		private Sprite iconShieldSprite;
 		private Sprite iconWeakPointSprite;
 		private Sprite iconBossSprite;
+		private Sprite iconBossSentinelSprite;
 		private bool bossReadabilityIconsCached;
 
 		private void EnsureBossReadabilityIcons()
@@ -44,6 +46,7 @@ namespace AlienCrusher.Systems
 			}
 
 			RefreshHudBossReadabilityIcon(IsStageBossAlive());
+			RefreshBossSentinelLobbyResultIcon();
 		}
 
 		private void CacheBossReadabilityIconSprites()
@@ -57,6 +60,7 @@ namespace AlienCrusher.Systems
 			iconShieldSprite = LoadRunEssentialIconSprite(IconShieldId);
 			iconWeakPointSprite = LoadRunEssentialIconSprite(IconWeakPointId);
 			iconBossSprite = LoadRunEssentialIconSprite(IconBossId);
+			iconBossSentinelSprite = LoadRunEssentialIconSprite(IconBossSentinelId);
 			bossReadabilityIconsCached = true;
 		}
 
@@ -81,6 +85,11 @@ namespace AlienCrusher.Systems
 			if (iconId == IconBossId)
 			{
 				return iconBossSprite;
+			}
+
+			if (iconId == IconBossSentinelId)
+			{
+				return iconBossSentinelSprite;
 			}
 
 			return null;

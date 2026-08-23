@@ -249,6 +249,7 @@ Status:
 - route/boss readability draft icons `Icon_BreakWindow`, `Icon_Shield`, `Icon_WeakPoint`, and `Icon_Boss` now sit on a top-right HUD strip, swap beside Sentinel status, and mark elite weak-point copy
 - upgrade/chaos status draft icons `Icon_Overdrive`, `Icon_Panic`, `Icon_Seismic`, `Icon_Retail`, and `Icon_Traffic` now sit on a compact HUD/lobby strip and beside chain, upgrade, and TRAFFIC labels
 - result/lobby draft badges `Badge_Result_Clear`, `Badge_Result_Failure`, `Badge_Locked`, and `Badge_Recommended` now mark success, fail, lock, and recommendation at a glance
+- leftover boss-stage next-run icon `Icon_Boss_Sentinel` now marks lobby Stage 4+ select and result next-action when the next run is a Sentinel encounter
 - Icons A/B/C and district palettes were not restyled
 
 Need:
@@ -270,6 +271,7 @@ Required assets:
 - `Icon_Retail`
 - `Icon_Traffic`
 - `Icon_Boss`
+- `Icon_Boss_Sentinel`
 - `Badge_Result_Clear`
 - `Badge_Boss_Clear`
 - `Badge_Result_Failure`
@@ -297,7 +299,7 @@ Status:
 - phase, shield, drone, and break window systems are already implemented
 - runtime silhouette kits now separate the main body, shield pylons, and phase-2 drones from ordinary city props
 - climax warning/break/down VFX now punctuate inbound, CORE EXPOSED, and Sentinel down as three different silhouettes
-- result boss-clear badge now ships as `Badge_Boss_Clear`; remaining identity work is optional boss-specific armor/core materials (`MAT_Boss_*`) and leftover expose burst
+- result boss-clear badge now ships as `Badge_Boss_Clear`; leftover `Icon_Boss_Sentinel` now marks lobby/result when the next run is a Sentinel stage. Remaining identity work is optional boss-specific armor/core materials (`MAT_Boss_*`) and leftover expose burst
 
 Required assets:
 - `BOSS_Sentinel_Body_Kit` sentinel body silhouette kit
@@ -312,7 +314,7 @@ Required assets:
 - core exposed material / emissive state
 - boss core expose burst VFX
 - `Badge_Boss_Clear` steel result badge for Sentinel victory (`Assets/Resources/UI/Badges/`)
-- leftover boss-only HUD icon (`Icon_Boss_Sentinel`) if `Icon_Boss` is not enough
+- `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run boss identity (`Assets/Resources/UI/Icons/`)
 
 Generated production checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
@@ -595,6 +597,7 @@ This section can be used as a working production checklist.
 - [x] `Icon_Shield` cyan shield plate with pylon ticks
 - [x] `Icon_WeakPoint` gold bullseye with glow dot
 - [x] `Icon_Boss` sentinel eye inside steel frame
+- [x] `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run identity
 - [x] `Icon_Overdrive` orange speed ring with flame notch
 - [x] `Icon_Panic` car with radial warning spikes
 - [x] `Icon_Seismic` ground crack wave

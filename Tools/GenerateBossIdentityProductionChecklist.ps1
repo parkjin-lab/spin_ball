@@ -144,7 +144,9 @@ foreach ($needle in @(
 
 foreach ($needle in @(
     "Badge_Boss_Clear",
-    "DidStageEndWithBossClear"
+    "DidStageEndWithBossClear",
+    "Icon_Boss_Sentinel",
+    "RefreshBossSentinelLobbyResultIcon"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $resultBadgeText -Needle $needle
 }
@@ -190,6 +192,12 @@ $productionBatches = @(
         Goal = "separate Sentinel victory from a normal district clear on the result screen"
         Targets = @("Badge_Boss_Clear")
         Acceptance = "boss-stage success uses a steel down-badge, not the mint district-clear plate"
+    },
+    [pscustomobject]@{
+        Batch = "E. Lobby/result Sentinel icon"
+        Goal = "make the next Sentinel run scannable before stage start"
+        Targets = @("Icon_Boss_Sentinel")
+        Acceptance = "lobby/result show a tall steel Sentinel body icon on boss-tier stages, not the in-run eye-in-frame"
     }
 )
 

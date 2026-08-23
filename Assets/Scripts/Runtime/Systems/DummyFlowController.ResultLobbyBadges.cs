@@ -16,6 +16,8 @@ namespace AlienCrusher.Systems
 		private const string ResultAdviceBadgeName = "ResultAdviceBadge";
 		private const string LobbyRecommendBadgeName = "LobbyRecommendBadge";
 		private const string CardStateBadgeName = "CardStateBadge";
+		private const string LobbyBossSentinelIconName = "LobbyBossSentinelIcon";
+		private const string ResultBossSentinelIconName = "ResultBossSentinelIcon";
 
 		private Sprite badgeResultClearSprite;
 		private Sprite badgeBossClearSprite;
@@ -123,6 +125,74 @@ namespace AlienCrusher.Systems
 			ApplyMetaCardStateBadge("MetaUpgrade_SizeButton", FormUnlockSystem.MetaUpgradeType.SizeCore);
 			ApplyMetaCardStateBadge("MetaUpgrade_ImpactButton", FormUnlockSystem.MetaUpgradeType.ImpactCore);
 			ApplyMetaCardStateBadge("MetaUpgrade_DpButton", FormUnlockSystem.MetaUpgradeType.DpAmplifier);
+			RefreshBossSentinelLobbyResultIcon();
+		}
+
+		private void RefreshBossSentinelLobbyResultIcon()
+		{
+			CacheBossReadabilityIconSprites();
+			Sprite sprite = GetBossReadabilityIconSprite(IconBossSentinelId);
+			if ((Object)(object)canvasRootTransform == (Object)null)
+			{
+				return;
+			}
+
+			PlaceToggleIconBesideText(FindText(canvasRootTransform, "StageSelectText"), LobbyBossSentinelIconName, sprite, ShouldShowLobbyBossSentinelIcon(), new Vector2(48f, 0f), 36f);
+			PlaceToggleIconBesideText(resultAdviceText, ResultBossSentinelIconName, sprite, ShouldShowResultBossSentinelIcon(), new Vector2(88f, -6f), 36f);
+		}
+
+		private bool IsBossEncounterStage(int stageNumber)
+		{
+			return enableStageBossEncounter && stageNumber >= Mathf.Max(2, bossStageStart);
+		}
+
+		private bool ShouldShowLobbyBossSentinelIcon()
+		{
+			return currentUiViewState == UiViewState.Lobby && IsBossEncounterStage(currentStageNumber);
+		}
+
+		private bool ShouldShowResultBossSentinelIcon()
+		{
+			if (currentUiViewState != UiViewState.Result)
+			{
+				return false;
+			}
+
+			int nextStage = DidStageEndInSuccess() ? currentStageNumber + 1 : currentStageNumber;
+			return IsBossEncounterStage(nextStage);
+		}
+
+		private void PlaceToggleIconBesideText(Text text, string childName, Sprite sprite, bool visible, Vector2 anchoredOffset, float size)
+		{
+			if ((Object)(object)text == (Object)null)
+			{
+				return;
+			}
+
+			Transform parent = text.transform.parent;
+			if ((Object)(object)parent == (Object)null)
+			{
+				return;
+			}
+
+			Image image = EnsureNamedIconImage(parent, childName);
+			if ((Object)(object)image == (Object)null)
+			{
+				return;
+			}
+
+			RectTransform source = text.rectTransform;
+			RectTransform rect = image.rectTransform;
+			rect.anchorMin = source.anchorMin;
+			rect.anchorMax = source.anchorMin;
+			rect.pivot = new Vector2(1f, 1f);
+			rect.sizeDelta = new Vector2(size, size);
+			rect.anchoredPosition = source.anchoredPosition + anchoredOffset;
+			image.sprite = sprite;
+			image.color = Color.white;
+			image.preserveAspect = true;
+			image.raycastTarget = false;
+			image.enabled = visible && (Object)(object)sprite != (Object)null;
 		}
 
 		private string ResolveResultOutcomeBadgeId()
