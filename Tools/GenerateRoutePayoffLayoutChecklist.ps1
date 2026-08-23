@@ -200,8 +200,7 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-    "Smash opened cluster",
-    "FORWARD TARGET",
+    "OPEN  BEACON",
     "SMASH"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $uiFlowText -Needle $needle

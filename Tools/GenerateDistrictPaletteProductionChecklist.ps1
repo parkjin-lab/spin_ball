@@ -118,10 +118,10 @@ foreach ($needle in @(
 
 foreach ($needle in @(
     "DescribeStageDistrict",
-    "low-rise suburb",
-    "mixed commercial strip",
-    "dense core",
-    "fortified skyline"
+    "SUBURB",
+    "MARKET",
+    "CORE",
+    "SKYLINE"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $uiFlowText -Needle $needle
 }
