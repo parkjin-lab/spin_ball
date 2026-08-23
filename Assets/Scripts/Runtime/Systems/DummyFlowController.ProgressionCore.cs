@@ -556,6 +556,7 @@ namespace AlienCrusher.Systems
 			Vector3 val = position + Vector3.up * 0.28f;
 			feedbackSystem?.PlayTotalDestructionFeedback(val, 0.8f);
 			feedbackSystem?.PlayComboRushFeedback(val, 0.72f, 4.8f);
+			RouteBonusSuccessVfx.Play(val);
 			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(Mathf.Max(0.1f, stageAdvanceRouteRewardCameraImpulse));
 			string districtLabel = GetRouteDistrictPayoffLabel();

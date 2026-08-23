@@ -316,6 +316,7 @@ Deliverables:
 - `VFX_LaneBreak_Residual` ivory-ash residual crack at the wreck that completed LANE BREAK
 - `VFX_RouteChase_Pulse` cobalt wedges from the opened ROUTE BONUS cluster toward the next smash target
 - `VFX_RouteHold_Warning` rose inward ticks at the beacon when ROUTE HOLD is closing
+- `VFX_RouteBonus_Success` amethyst bloom plus upward petals when ROUTE BONUS opens at the cluster
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:
