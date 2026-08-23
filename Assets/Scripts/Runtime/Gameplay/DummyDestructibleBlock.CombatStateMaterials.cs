@@ -35,15 +35,21 @@ namespace AlienCrusher.Gameplay
         private bool combatCracksBuilt;
         private Transform weakPointHalo;
         private Renderer weakPointHaloRenderer;
-        private readonly MaterialPropertyBlock combatStatePropertyBlock = new MaterialPropertyBlock();
+        private MaterialPropertyBlock combatStatePropertyBlock;
         private bool lastCombatPylonActive;
         private bool lastCombatExposureActive;
         private bool combatPylonStateApplied;
         private bool combatExposureStateApplied;
         private int lastCombatCrackCount = -1;
 
+        private MaterialPropertyBlock EnsureCombatStatePropertyBlock()
+        {
+            return combatStatePropertyBlock ??= new MaterialPropertyBlock();
+        }
+
         private void RefreshCombatStateReadability()
         {
+            EnsureCombatStatePropertyBlock();
             EnsureCombatStateMaterials();
             ApplyWeakPointCombatMaterial();
 
@@ -104,7 +110,7 @@ namespace AlienCrusher.Gameplay
             if (weakPointHaloRenderer != null && weakPointHalo != null && weakPointHalo.gameObject.activeSelf)
             {
                 AssignNamedMaterial(weakPointHaloRenderer, weakPointGlowMaterial);
-                ApplyEmissiveBlock(weakPointHaloRenderer, combatStatePropertyBlock, WeakPointGlowColor, WeakPointGlowEmission);
+                ApplyEmissiveBlock(weakPointHaloRenderer, EnsureCombatStatePropertyBlock(), WeakPointGlowColor, WeakPointGlowEmission);
             }
         }
 
@@ -211,7 +217,7 @@ namespace AlienCrusher.Gameplay
 
             Renderer renderer = barrier.GetComponent<Renderer>();
             AssignNamedMaterial(renderer, shieldedPylonMaterial);
-            ApplyEmissiveBlock(renderer, combatStatePropertyBlock, ShieldedPylonColor, ShieldedPylonEmission);
+            ApplyEmissiveBlock(renderer, EnsureCombatStatePropertyBlock(), ShieldedPylonColor, ShieldedPylonEmission);
         }
 
         private void ApplyExposedCoreCombatMaterial()
@@ -355,7 +361,7 @@ namespace AlienCrusher.Gameplay
                     Mathf.Max(0.08f, Mathf.Abs(localScale.z)));
                 Renderer renderer = go.GetComponent<Renderer>();
                 AssignNamedMaterial(renderer, damageCrackOverlayMaterial);
-                ApplyEmissiveBlock(renderer, combatStatePropertyBlock, CrackOverlayColor, CrackOverlayEmission);
+                ApplyEmissiveBlock(renderer, EnsureCombatStatePropertyBlock(), CrackOverlayColor, CrackOverlayEmission);
                 go.SetActive(false);
                 combatCrackPieces.Add(go.transform);
             }
@@ -483,7 +489,7 @@ namespace AlienCrusher.Gameplay
                 AssignNamedMaterial(renderer, material);
             }
 
-            ApplyEmissiveBlock(renderer, combatStatePropertyBlock, color, emission);
+            ApplyEmissiveBlock(renderer, EnsureCombatStatePropertyBlock(), color, emission);
         }
 
         private static void AssignNamedMaterial(Renderer renderer, Material material)
