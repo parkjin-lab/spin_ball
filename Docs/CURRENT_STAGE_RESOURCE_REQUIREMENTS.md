@@ -423,7 +423,7 @@ Status:
 - leftover meta-purchase confirm pulse `VFX_MetaUpgrade_Confirm` marks a successful Size / Impact / DP buy on that node
 - leftover DP gain residual `VFX_DP_Gain_Residual` leaves an aqua afterglow after `UI_DP_GainBurst` on result/lobby earn
 - leftover result next-action pulse `VFX_NextAction_Ready` marks the one form-ready, meta-ready, or recommended badge when result opens
-- leftover stage-unlock banner pulse `VFX_StageUnlock_Ready` marks `Banner_StageUnlocked` on a first-time stage clear
+- leftover stage-unlock residual `VFX_StageUnlock_Ready` leaves a honey-ivory afterglow beside `Banner_StageUnlocked` on a first-time stage clear
 
 Need:
 - cleaner visuals for form unlock targets and meta purchases
