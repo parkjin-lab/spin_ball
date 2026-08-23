@@ -1,5 +1,14 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-23 Juice Exhausted / Next Human Action
+
+- Production juice leftovers are exhausted on this PR. Do **not** invent more micro-pulses, VFX residuals, or lobby confirm flashes.
+- This branch already carries in-run smash / route / form / district / audio / HUD / boss climax kits, plus outgame leftovers E–M (`VFX_FormEquip_Confirm` through `VFX_NextAction_Residual`).
+- Evidence-lock still holds: no route timing, payoff counts, target placement, stage rhythm presets, or boss pressure until `Logs/AlienCrusherPlaytestTelemetry.log` and populated `Docs/AlienCrusherStagePlaytestNotes.md` exist.
+- **Next to-do (creator):** Unity `F10` Stage 1-7 sweep, fill Stage 01-07 notes, run save/load smoke, then regenerate the telemetry summary.
+- Unattended work should stop inventing juice. Do not start another leftover pulse from `Logs/AlienCrusherResourceProductionBacklog.md`. Safe leftover is tooling/docs only if it unblocks the sweep; otherwise stop.
+- Log pointer: `Logs/AlienCrusherPlaytestTelemetry.log` is still missing. That file plus `Docs/AlienCrusherStagePlaytestNotes.md` are the evidence lock. The generated telemetry summary is a readiness artifact until the first real `F10` sweep writes the log.
+
 ## 2026-07-14 Latest Review
 
 - 최신 프로젝트 상태의 **정본은 `Docs/PROJECT_STATE_REVIEW_2026-07-14.md`**다. 목표 충돌, 재미 판정, 코드 위험, 상태 분류, 2주 우선순위와 즉시 업무는 이 문서를 먼저 따른다.
@@ -13,7 +22,7 @@
 - 2026-08-19 FormUnlockSystem은 명시 참조를 우선하고 자신의 부모 또는 현재 씬 루트 _Systems에서 ProgressionSaveSystem을 결정적으로 찾는다. 표준 경로의 FindFirstObjectByType 및 GameObject.Find("_Systems") 의존은 제거했다.
 - 실제 sweep, Stage 1-7의 28개 관찰 노트, progression save smoke 전까지 재미 판정은 **미검증**이며 리듬·보상·보스의 광범위한 튜닝은 잠근다.
 - `ROUTE HOLD`를 필수 승리 조건으로 만들지 고득점 선택지로 유지할지는 사람의 기획 결정이 필요하다.
-- 아래의 2026-06-08 검증·readiness 상태와 이를 전제로 한 지시는 **historical 기록**이다. 현재 상태나 우선순위로 해석하지 말고, 충돌 시 2026-07-14 정본을 따른다.
+- 아래의 2026-06-08 검증·readiness 상태와 이를 전제로 한 지시는 **historical 기록**이다. 현재 상태나 우선순위로 해석하지 말고, juice/F10 다음 동작은 2026-08-23 절을, 그 밖의 충돌은 2026-07-14 정본을 따른다.
 
 ## Validation Snapshot
 - Latest Unity batch validation: 2026-05-05 (`Tools/RunUnityBatchChecks.ps1` passed; scene and map audit logs refreshed)
@@ -21,29 +30,29 @@
 - Real Stage 1-7 playtest telemetry: still not captured as of 2026-07-12; the summary pipeline is ready but still waiting on the first true `F10` sweep
 - No telemetry log or unparseable telemetry means the summary is a readiness artifact only; do not tune rhythm, payoff, boss, or route timing from it.
 - Latest design policy review: 2026-05-25 sub-agent gap review produced `Docs/GAME_DESIGN_GAP_POLICY.md`; `Tools/TestPlaytestEvidenceGate.ps1` now checks the real evidence gate and `Tools/TestPlaytestEvidenceGateRegression.ps1` protects that gate with fixture coverage. Feedback audio hook points, first-pass mobile HUD text safeguards, a Stage 4 Sentinel checkpoint landmark, ROUTE HOLD route-adherence telemetry, static landmark value records, and progression save smoke gating now exist, but audio clips/assets, device/screenshot readability, Stage 4 boss-approach readability, route-adherence evidence, landmark value evidence, and real save/load smoke evidence still need playtest confirmation. Treat real evidence gates as the next design policy backlog.
-- Resource production planning now consolidates 108 resource items, 33 production batches, and 5 recommended production batches through `Logs/AlienCrusherResourceProductionBacklog.md`; unattended agents should use `## Recommended Production Batch Order` before choosing isolated asset tasks.
-- Production checklist handoff is now consolidated: all 9 production checklist generators expose a `Next ... Batch Task Card`, and `Logs/AlienCrusherAutomationStatusSummary.md` reports this as 9 / 9 coverage.
+- Resource production planning still consolidates 108 resource items, 33 production batches, and 5 recommended production batches through `Logs/AlienCrusherResourceProductionBacklog.md`. Those batches, including leftover Outgame E–M, are already shipped on this PR. Unattended agents must not pick another juice batch from that file.
+- Production checklist handoff remains consolidated (9 / 9 next-batch task cards). The cards are historical; they are not a license to invent more residuals.
 
 ## Current Blocking State
 - `Logs/AlienCrusherPlaytestTelemetry.log` is still missing, so Evidence Green cannot pass yet.
 - `Docs/AlienCrusherStagePlaytestNotes.md` still needs Stage 01-07 evidence-quality notes and screenshot/video references.
 - Progression Save Smoke Pass still needs a concrete save/load result.
 - Rhythm/payoff/boss tuning remains locked until `Tools/TestPlaytestEvidenceGate.ps1` passes without `-ReportOnly`.
-- While waiting, unattended agents should use `Logs/AlienCrusherAutonomousWorkBacklog.md`, `Logs/AlienCrusherResourceProductionBacklog.md`, `Logs/AlienCrusherArchitectureExtractionPlan.md`, `Logs/AlienCrusherAutomationStatusSummary.md`, and `Docs/AUTOMATION_RUNBOOK.md` for safe non-tuning work.
+- Production juice leftovers are exhausted. Unattended agents must not invent micro-pulses, VFX residuals, or lobby confirm flashes. Stop instead of starting another leftover from `Logs/AlienCrusherResourceProductionBacklog.md`.
 
 ## Immediate First Action
-1. Run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`
-2. If an asset/resource pass is next, run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists`
-3. Inspect `Logs/AlienCrusherAutonomousWorkBacklog.md` for safe non-tuning work if the creator is not available.
-4. Inspect `Logs/AlienCrusherResourceProductionBacklog.md` if the next unattended lane is asset/resource planning.
-5. Inspect `Logs/AlienCrusherArchitectureExtractionPlan.md` if the next unattended lane is architecture planning.
-6. Inspect `Logs/AlienCrusherAutomationStatusSummary.md` for the current progress, validation, blockers, and next to-do snapshot.
-7. If continuing without creator input, start from `## Recommended Production Batch Order` and prefer complete batches such as route/failure audio, route payoff markers, boss identity, district readability, or run-essential UI icons over one-off cosmetic assets.
-8. Run the progression save smoke pass from the generated stage checklist.
-9. Run one Unity `F10` sweep and capture Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`
-10. Re-run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1`, then compare the rhythm snapshot against the checklist notes
-11. Pick one dominant broken beat, one variable family, and the exact stages to retest before making any broader tuning pass
-12. Before tuning, compare the decision against `Docs/GAME_DESIGN_GAP_POLICY.md`
+Creator next step (the only P0 human work):
+1. Enter Play Mode and run one Unity `F10` Stage 1-7 sweep. `F6` previous, `F7` next, `F8` reset, `F9` overlay remain available.
+2. Confirm `Logs/AlienCrusherPlaytestTelemetry.log` exists with `SWEEP_START`, Stage 01-07 `STAGE_START` / `STAGE_END`, and `SWEEP_END`.
+3. Fill Stage 01-07 notes plus the progression save/load smoke result in `Docs/AlienCrusherStagePlaytestNotes.md`.
+4. Re-run `powershell -ExecutionPolicy Bypass -File Tools/GeneratePlaytestTelemetrySummary.ps1`, then `Tools/TestPlaytestEvidenceGate.ps1`.
+
+Unattended agents: stop inventing juice. In-run smash / route / form / district / audio / HUD / boss climax and outgame leftovers E–M are already on this PR. Do not start another leftover pulse.
+
+Optional prep only (does not replace the sweep):
+1. Run `powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1` if checklists are stale.
+2. Inspect `Logs/AlienCrusherAutomationStatusSummary.md` for blockers. Ignore production-batch task cards as a next juice assignment.
+3. After the creator sweep, compare the rhythm snapshot against the notes and `Docs/GAME_DESIGN_GAP_POLICY.md` before any tuning.
 
 Done only when:
 - `Logs/AlienCrusherPlaytestTelemetry.log` exists
@@ -87,7 +96,7 @@ Rule:
 - Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines for `SWEEP_START`, `STAGE_START`, `ROUTE_OPEN`, `ROUTE_HOLD_CLEAR`, `ROUTE_BONUS`, `FORWARD_SMASH`, `STAGE_END`, and `SWEEP_END`, and append the same lines to `Logs/AlienCrusherPlaytestTelemetry.log`.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now parses that telemetry log into `Logs/AlienCrusherPlaytestTelemetrySummary.md`, grouping runs under sweep-level summaries when `F10` is used and adding a current tuning snapshot, rhythm snapshot, `Tune Next` decision block, stage trend, tuning candidate, first-pass experiment, and failure bucket action rollup.
 - Rhythm is now an explicit design lens: playtests should judge opener -> pivot -> sustain -> payoff -> climax cadence, and neighboring stages should differ by rhythm problem rather than size alone.
-- No real Stage 1-7 sweep telemetry has been captured yet as of 2026-06-08, so the next important evidence is still the first true `F10` playtest pass plus progression save smoke confirmation.
+- No real Stage 1-7 sweep telemetry has been captured yet as of 2026-08-23. Juice leftovers are exhausted; the next important evidence is still the first true `F10` playtest pass plus progression save smoke confirmation.
 - 2026-05-25 design gap review: four sub-agent roles reviewed rhythm/core loop, map/content growth, feedback/sensory design, and production/validation policy. The result is `Docs/GAME_DESIGN_GAP_POLICY.md`, which turns the findings into guardrails: evidence before tuning, one broken beat at a time, ROUTE HOLD as route-readability plus count goal, audio/HUD/failure feedback as rhythm work, landmark gameplay value audits, Stage 4 boss-approach identity, and evidence gate automation.
 - Added `Tools/TestPlaytestEvidenceGate.ps1` as the blocking Evidence Green check. It verifies real telemetry, summary freshness, Stage 1-7 `STAGE_START`/`STAGE_END` coverage, `SWEEP_START`/`SWEEP_END`, populated stage notes, and optional post-sweep decision fields. Use `-ReportOnly` before the first real sweep.
 - Added `Tools/TestPlaytestEvidenceGateRegression.ps1` and wired it into `Tools/RunStaticAudits.ps1` so the Evidence Green checker itself is tested without requiring a live Unity playtest.
@@ -172,6 +181,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-23: recorded that production juice leftovers are exhausted. In-run smash/route/form/district/audio/HUD/boss climax and outgame leftovers E–M are on this PR. Next human action is a creator `F10` Stage 1-7 sweep, stage notes, and save/load smoke. Unattended work must stop inventing juice.
 - Added rhythm design review support across the design artifacts instead of leaving rhythm as an implicit feel goal.
 - Updated `Docs/GDD_ALIEN_CRUSHER.md` with explicit rhythm design principles and stage rhythm variation rules.
 - Updated `Docs/GAME_UPDATE_ROADMAP.md` so the core loop is reviewed through opener -> pivot -> sustain -> payoff -> climax cadence.
@@ -323,6 +333,7 @@ Rule:
 - Unity batch logs include a non-blocking temp allocator leak warning during editor shutdown; validation itself completed successfully.
 
 ## Recommended Next Session Work
+0. Creator: run the in-editor `F10` Stage 1-7 sweep first, fill `Docs/AlienCrusherStagePlaytestNotes.md`, and complete save/load smoke. Do not invent more juice while waiting.
 1. Start with the safer Unity batch wrapper:
    `powershell -ExecutionPolicy Bypass -File Tools/RunUnityBatchChecks.ps1`
 2. If it reports a stale Unity lock after confirming the project is not open in Unity, rerun:
@@ -380,6 +391,6 @@ Useful mobile HUD readability audit command: `powershell -ExecutionPolicy Bypass
 Useful static fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRuntimeMapLayoutStatic.ps1`
 Useful ROUTE HOLD fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/AuditRouteHoldTuningStatic.ps1`
 Useful combined fallback audit command: `powershell -ExecutionPolicy Bypass -File Tools/RunStaticAudits.ps1`
-Next priority: run `Tools/RunPlaytestReadinessPrep.ps1`, then do a real in-editor/mobile playtest from Stage 1 through Stage 7 and fill `Docs/AlienCrusherStagePlaytestNotes.md`. After the sweep, run `Tools/RunPlaytestReadinessPrep.ps1` again, then compare the markdown summary against the checklist notes and `Docs/GAME_DESIGN_GAP_POLICY.md`. Confirm map growth, object variety, landmark gameplay value, Stage 4 boss-approach identity, opener -> pivot -> sustain -> payoff -> climax rhythm, LANE BREAK -> ROUTE OPEN -> ROUTE HOLD readability, route meter clarity, trail/beacon clarity, target distance, timer pressure, mobile HUD readability, audio/feedback gaps, and that route reward opens one readable district SMASH target cluster. Then choose one dominant broken beat, one variable family, and the retest stages before touching broader stage presets or boss windows. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any tuning. If stable, extract ROUTE HOLD/stage route code out of `DummyFlowController`.
+Next priority: creator `F10` Stage 1-7 playtest. Production juice leftovers are exhausted on this PR (in-run smash/route/form/district/audio/HUD/boss climax plus outgame E–M). Do not invent more micro-pulses. Evidence-lock still holds until `Logs/AlienCrusherPlaytestTelemetry.log` and populated `Docs/AlienCrusherStagePlaytestNotes.md` exist, including save/load smoke. After the sweep, run `Tools/GeneratePlaytestTelemetrySummary.ps1` and `Tools/TestPlaytestEvidenceGate.ps1`, then compare the markdown summary against the notes and `Docs/GAME_DESIGN_GAP_POLICY.md`. Confirm map growth, landmark value, Stage 4 boss-approach identity, opener -> pivot -> sustain -> payoff -> climax rhythm, LANE BREAK -> ROUTE OPEN -> ROUTE HOLD readability, trail/beacon clarity, and that route reward opens one readable district SMASH cluster. Then choose one dominant broken beat, one variable family, and the retest stages before touching broader stage presets or boss windows. Keep `Tools/RunUnityBatchChecks.ps1` and `Tools/RunStaticAudits.ps1` green after any later tuning. Unattended work should stop inventing juice.
 Known risks: MCP unreliable; no hands-on playmode/mobile pass yet; route pips may be visually noisy; `DummyFlowController` remains an architecture risk; Unity editor shutdown logs a non-blocking temp allocator warning.
 ```

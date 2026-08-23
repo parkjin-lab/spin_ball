@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-08-22
+Last updated: 2026-08-23
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -14,6 +14,17 @@ This document tracks the current project state, the next production priorities, 
 ---
 
 ## 1. Current Project State
+
+### Juice Exhausted / Next Human Action
+Production juice leftovers are exhausted on this PR. Do not invent more micro-pulses, VFX residuals, or lobby confirm flashes.
+
+This branch already ships in-run smash / route / form / district / audio / HUD / boss climax kits, plus outgame leftovers E–M (`VFX_FormEquip_Confirm` through `VFX_NextAction_Residual`). Street Props D, Form Identity D, and Destruction D are already complete. Boss Identity B leftover expose burst stays skipped as a duplicate of Destruction B/C.
+
+Evidence-lock still holds: no route timing, payoff counts, target placement, stage rhythm presets, or boss pressure until `Logs/AlienCrusherPlaytestTelemetry.log` and populated `Docs/AlienCrusherStagePlaytestNotes.md` exist.
+
+**Next to-do:** creator `F10` Stage 1-7 sweep, fill stage notes, save/load smoke. Unattended work should stop inventing juice.
+
+Log pointer: `Logs/AlienCrusherPlaytestTelemetry.log` is still missing. That file plus `Docs/AlienCrusherStagePlaytestNotes.md` are the evidence lock.
 
 ### Implemented Playable Foundation
 - Stage flow exists from lobby into stage start, HUD, level-up choice, result, restart, and next stage.
@@ -80,7 +91,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/RunPlaytestReadinessPrep.ps1` now ends with a "Next Autonomous Work While Waiting" block so recurring agents can keep improving readiness, reports, resource planning, and handoff docs without violating the no-evidence tuning lock.
 - `Tools/GenerateAutonomousWorkBacklog.ps1` generates `Logs/AlienCrusherAutonomousWorkBacklog.md`, a current safe-work list for unattended agents while real playtest evidence is still missing.
 - `Tools/GenerateResourceProductionBacklog.ps1` merges generated production checklists into `Logs/AlienCrusherResourceProductionBacklog.md`, so unattended agents can prioritize audio, route payoff, boss identity, district palette, and UI/icon work without touching tuning.
-- `Logs/AlienCrusherResourceProductionBacklog.md` now includes `## Recommended Production Batch Order` and `## Production Batch Focus`, consolidating 5 recommended batches, 33 total production batches, and 108 individual resource items. Use the recommended batch order when assigning unattended resource work so assets are produced in readable gameplay groups instead of isolated one-offs.
+- `Logs/AlienCrusherResourceProductionBacklog.md` still lists `## Recommended Production Batch Order` and `## Production Batch Focus` (5 recommended batches, 33 total, 108 items). Those batches, including leftover Outgame E–M, are already shipped on this PR. Do not assign another juice batch from that file.
 - `Tools/GenerateArchitectureExtractionPlan.ps1` maps `DummyFlowController` partial ownership into `Logs/AlienCrusherArchitectureExtractionPlan.md`, so architecture planning can proceed without changing gameplay behavior before Evidence Green.
 - `Tools/GenerateAutomationStatusSummary.ps1` writes `Logs/AlienCrusherAutomationStatusSummary.md`, a one-page heartbeat artifact for progress, validation, current blockers, next safe work, resource item count, and production batch count.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
@@ -98,7 +109,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/GenerateOutgameProgressionChecklist.ps1` generates disposable outgame progression output at `Logs/AlienCrusherOutgameProgressionChecklist.md`, mapping DP gain, form card states, meta nodes, result badges, stage unlock banners, and save confirmation targets to the current lobby/result systems.
 - `Tools/GenerateRoutePayoffLayoutChecklist.ps1` generates disposable route payoff layout output at `Logs/AlienCrusherRoutePayoffLayoutChecklist.md`, mapping ROUTE BONUS, district payoff layouts, cluster markers, and Forward Smash confirmation to current route reward code paths.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
-- As of 2026-06-08, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`, and a completed progression save smoke result.
+- As of 2026-08-23, no real `F10` sweep telemetry log exists yet. Juice leftovers are exhausted. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, populated Stage 1-7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`, and a completed progression save smoke result.
 - `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
 - `Tools/TestPlaytestEvidenceGate.ps1` now provides the blocking Evidence Green check for real telemetry, summary freshness, Stage 1-7 marker coverage, and populated playtest notes. Use `-ReportOnly` when checking readiness before evidence exists.
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
@@ -114,7 +125,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/AuditRuntimeMapLayoutStatic.ps1` now records landmark value metadata beyond count: role, target relationship, payoff object mix, entry lane, and exit lane for every active landmark.
 
 ### Current Main Risk
-The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure. The current design policy treats this as an evidence problem first and blocks rhythm/payoff/boss tuning until real Stage 1-7 playtest telemetry exists.
+The prototype has enough systems to be interesting, juice leftovers are exhausted, and the automated validation loop is green again except the known Linux lock-path test. The remaining risk is play feel: a real creator `F10` Stage 1-7 sweep must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion. The current design policy treats this as an evidence problem first and blocks rhythm/payoff/boss tuning until `Logs/AlienCrusherPlaytestTelemetry.log` and populated `Docs/AlienCrusherStagePlaytestNotes.md` exist. Unattended work should stop inventing juice.
 
 ---
 
@@ -131,14 +142,22 @@ Done when:
 - `Logs/AlienCrusherMapLayoutAudit.log` exists and covers Stage 1-7.
 - Unity batch logs are from the current run, not stale files.
 
-### P0 - Stage 1-7 Editor Playtest
-Before entering play mode, run the autonomous readiness prep:
+### P0 - Creator F10 Stage 1-7 Playtest
+This is the next human step. Production juice leftovers are exhausted. Do not invent more micro-pulses, VFX residuals, or lobby confirm flashes.
+
+Required evidence lock:
+- `Logs/AlienCrusherPlaytestTelemetry.log` from a real editor/development `F10` sweep
+- populated Stage 01-07 notes plus save/load smoke in `Docs/AlienCrusherStagePlaytestNotes.md`
+
+Until those exist, do not change route timing, payoff counts, target placement, stage rhythm presets, or boss pressure.
+
+Before entering play mode, optional autonomous readiness prep:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1
 ```
 
-If an asset/resource pass is next, include the production checklists in the same run:
+Do not start another leftover juice batch. If checklists are stale only, include the production checklists in the same run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists
@@ -249,23 +268,16 @@ Done when:
 
 ### P0 - Autonomous Continuity While The Creator Is Away
 
-Recurring agents may continue work without new creator input only inside the safe pre-evidence lanes:
+Production juice leftovers are exhausted. Recurring agents must **not** invent more micro-pulses, VFX residuals, or lobby confirm flashes, and must not pick another leftover from `Logs/AlienCrusherResourceProductionBacklog.md`.
 
-1. Keep readiness automation readable and green.
-2. Improve generated checklist/report diagnostics.
-3. Update handoff docs with the latest verified next step.
-4. Expand resource planning from existing runtime hooks and generated checklist gaps.
-5. Add static/regression coverage for tooling changes.
+Safe leftover work, if any, is only tooling or docs that unblock the creator `F10` sweep. Otherwise stop and wait for evidence.
 
 Do not use autonomous time to tune route timing, payoff counts, target placement, stage rhythm presets, or boss pressure before Evidence Green.
 
 Done when:
-- `Tools/RunPlaytestReadinessPrep.ps1` clearly prints both the required human evidence and safe autonomous work.
-- `Logs/AlienCrusherResourceProductionBacklog.md` exists and identifies the highest-value resource tasks that support rhythm readability without changing gameplay numbers.
-- `Logs/AlienCrusherArchitectureExtractionPlan.md` exists and identifies safe extraction order before any `DummyFlowController` behavior refactor.
-- `Logs/AlienCrusherAutomationStatusSummary.md` exists and summarizes progress, validation, blockers, resource order, and architecture order for the next unattended agent.
-- `Docs/NEXT_SESSION_CONTEXT_PACKET.md` names the next safe task for an unattended agent.
-- readiness prep regression protects those instructions.
+- `Docs/NEXT_SESSION_CONTEXT_PACKET.md` names the creator `F10` Stage 1-7 sweep as the next human step.
+- Unattended agents stop inventing juice.
+- `Logs/AlienCrusherPlaytestTelemetry.log` and populated `Docs/AlienCrusherStagePlaytestNotes.md` exist after the creator sweep.
 
 ---
 
