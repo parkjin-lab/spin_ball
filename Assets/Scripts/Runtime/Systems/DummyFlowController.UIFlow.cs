@@ -800,6 +800,11 @@ namespace AlienCrusher.Systems
 				num2 = flag ? 0.5f : 1.25f;
 			}
 			feedbackSystem?.PlayHudWarningFeedback(bossRelated, num);
+			if (urgencyHint.Contains("ROUTE HOLD CLOSING", StringComparison.Ordinal))
+			{
+				Vector3 warningOrigin = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero);
+				RouteHoldWarningVfx.Play(warningOrigin);
+			}
 			hudUrgencyPulseCooldownRemaining = num2;
 			lastHudUrgencyHint = urgencyHint;
 		}

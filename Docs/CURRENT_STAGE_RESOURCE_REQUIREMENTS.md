@@ -381,6 +381,7 @@ Required assets:
 - `VFX_RouteOpen_Trail` magenta path dashes when LANE BREAK flips to ROUTE OPEN (`Assets/Art/VFX/Route/`)
 - `VFX_LaneBreak_Residual` ivory-ash residual crack at the wreck that completed LANE BREAK (`Assets/Art/VFX/Route/`)
 - `VFX_RouteChase_Pulse` cobalt wedges from the opened ROUTE BONUS cluster toward the next smash target (`Assets/Art/VFX/Route/`)
+- `VFX_RouteHold_Warning` rose inward ticks at the beacon when ROUTE HOLD is closing (`Assets/Art/VFX/Route/`)
 - Forward Smash confirmation VFX/SFX
 
 Generated production checklist:
@@ -557,6 +558,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_RouteOpen_Trail` magenta ROUTE OPEN path dashes
 - [x] `VFX_LaneBreak_Residual` ivory-ash LANE BREAK residual crack
 - [x] `VFX_RouteChase_Pulse` cobalt ROUTE BONUS chase wedges
+- [x] `VFX_RouteHold_Warning` rose ROUTE HOLD CLOSING ticks
 - [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 
@@ -574,6 +576,7 @@ This section can be used as a working production checklist.
 - [x] `VFX_RouteOpen_Trail` magenta ROUTE OPEN path dashes
 - [x] `VFX_LaneBreak_Residual` ivory-ash LANE BREAK residual crack
 - [x] `VFX_RouteChase_Pulse` cobalt ROUTE BONUS chase wedges
+- [x] `VFX_RouteHold_Warning` rose ROUTE HOLD CLOSING ticks
 - [x] `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - [x] `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
 - [ ] shield break burst
