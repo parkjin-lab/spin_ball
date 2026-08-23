@@ -250,6 +250,7 @@ Status:
 - upgrade/chaos status draft icons `Icon_Overdrive`, `Icon_Panic`, `Icon_Seismic`, `Icon_Retail`, and `Icon_Traffic` now sit on a compact HUD/lobby strip and beside chain, upgrade, and TRAFFIC labels
 - result/lobby draft badges `Badge_Result_Clear`, `Badge_Result_Failure`, `Badge_Locked`, and `Badge_Recommended` now mark success, fail, lock, and recommendation at a glance
 - leftover boss-stage next-run icon `Icon_Boss_Sentinel` now marks lobby Stage 4+ select and result next-action when the next run is a Sentinel encounter
+- leftover next-run spend-change pulse `VFX_SpendChange_Ready` now names the last lobby form or meta spend on stage start
 - Icons A/B/C and district palettes were not restyled
 
 Need:
@@ -288,6 +289,8 @@ Required assets:
 - `Badge_MetaReady` (`Assets/Resources/UI/Badges/`)
 - `Banner_StageUnlocked`
 - `Toast_ProgressionSaved` (`Assets/Resources/UI/Rewards/`)
+- `VFX_FormEquip_Confirm` champagne lobby form-equip lock-in ring
+- `VFX_SpendChange_Ready` jade next-run spend-change ready plate
 
 Why this matters now:
 - UI text has been heavily simplified already
@@ -403,6 +406,7 @@ Status:
 - form cards, meta nodes, stage-unlock banners, and save toasts now ship as readable visuals (`UI_FormCard_StateSet`, `UI_MetaNode_SizeCore`, `UI_MetaNode_ImpactCore`, `UI_MetaNode_DpAmplifier`, `Badge_FormReady`, `Badge_MetaReady`, `Banner_StageUnlocked`, `Toast_ProgressionSaved`)
 - Icons A-D and district palettes were not restyled
 - confirm audio now ships as `SFX_Progression_Confirm` on successful unlock, purchase, and equip
+- leftover next-run spend-change pulse `VFX_SpendChange_Ready` names the last lobby form or meta spend when the next run starts
 
 Need:
 - cleaner visuals for form unlock targets and meta purchases
@@ -442,6 +446,7 @@ Required assets:
 - `SFX_Progression_Locked` insufficient-DP / locked purchase cue
 - `SFX_Progression_Confirm` purchase / unlock / equip confirmation cue
 - `VFX_FormEquip_Confirm` champagne lock-in ring when a lobby form is equipped
+- `VFX_SpendChange_Ready` jade ready plate on the next run after a lobby form or meta spend
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip
@@ -630,6 +635,7 @@ This section can be used as a working production checklist.
 - [x] `SFX_Progression_Locked` muted locked-purchase cue
 - [x] `SFX_Progression_Confirm` bright unlock / purchase / equip cue
 - [x] `VFX_FormEquip_Confirm` champagne lobby form-equip lock-in ring
+- [x] `VFX_SpendChange_Ready` jade next-run spend-change ready plate
 - [x] `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - [x] `UI_MetaNode_SizeCore` Size Core node chip
 - [x] `UI_MetaNode_ImpactCore` Impact Core node chip

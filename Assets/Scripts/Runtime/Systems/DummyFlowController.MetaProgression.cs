@@ -165,6 +165,7 @@ namespace AlienCrusher.Systems
 			ApplyPermanentMetaUpgrades();
 			lastLobbyActionStatus = $"{GetMetaUpgradeName(upgradeType)} purchased.";
 			SignalOutgameDpSpend();
+			ArmSpendChangeReadyFromMeta(upgradeType);
 			if (stageRunning)
 			{
 				SetHudActionButtonsVisible(ShouldShowActionButtons());

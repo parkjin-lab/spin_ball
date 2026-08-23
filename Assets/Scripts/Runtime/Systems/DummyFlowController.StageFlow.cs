@@ -66,6 +66,7 @@ namespace AlienCrusher.Systems
 			LogPlaytestStageStart();
 			Vector3 val = (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero);
 			feedbackSystem?.PlayStageStartFeedback(val + Vector3.up * 0.22f);
+			PlaySpendChangeReadyPulse();
 			if (useStageEntryImpact)
 			{
 				((MonoBehaviour)this).Invoke("PlayStageEntryImpact", Mathf.Max(0f, stageEntryDelaySeconds));

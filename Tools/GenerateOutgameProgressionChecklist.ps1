@@ -8,7 +8,8 @@ param(
     [string]$ProgressionSaveSystemPath = "",
     [string]$DpEconomyHookPath = "",
     [string]$ProgressionVisualsHookPath = "",
-    [string]$FormEquipConfirmPath = ""
+    [string]$FormEquipConfirmPath = "",
+    [string]$SpendChangeReadyPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -63,6 +64,7 @@ $progressionSaveSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Over
 $dpEconomyHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $DpEconomyHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.OutgameDpEconomy.cs"
 $progressionVisualsHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ProgressionVisualsHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.OutgameProgressionVisuals.cs"
 $formEquipConfirmSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FormEquipConfirmPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.FormEquipConfirm.cs"
+$spendChangeReadySourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $SpendChangeReadyPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.SpendChangeReady.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherOutgameProgressionChecklist.md"
@@ -84,7 +86,8 @@ $progressionSaveText = Read-SourceText -Path $progressionSaveSourcePath
 $dpEconomyHookText = Read-SourceText -Path $dpEconomyHookSourcePath
 $progressionVisualsHookText = Read-SourceText -Path $progressionVisualsHookSourcePath
 $formEquipConfirmText = Read-SourceText -Path $formEquipConfirmSourcePath
-$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText
+$spendChangeReadyText = Read-SourceText -Path $spendChangeReadySourcePath
+$allOutgameHookText = $metaProgressionText + $formFlowText + $stageFlowText + $dpEconomyHookText + $progressionVisualsHookText + $formEquipConfirmText + $spendChangeReadyText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -97,7 +100,8 @@ foreach ($needle in @(
     "ImpactCore",
     "DpAmplifier",
     "lastLobbyActionStatus",
-    "GetRecommendedMetaContextTag"
+    "GetRecommendedMetaContextTag",
+    "ArmSpendChangeReadyFromMeta"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $metaProgressionText -Needle $needle
 }
@@ -109,7 +113,8 @@ foreach ($needle in @(
     "EQUIPPED",
     "RECOMMENDED",
     "GetEarlyLobbyFormUnlockHint",
-    "PlayFormEquipConfirmPulse"
+    "PlayFormEquipConfirmPulse",
+    "ArmSpendChangeReadyFromForm"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $formFlowText -Needle $needle
 }
@@ -122,13 +127,23 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
+    "VFX_SpendChange_Ready",
+    "PlaySpendChangeReadyPulse",
+    "ArmSpendChangeReadyFromForm",
+    "ArmSpendChangeReadyFromMeta"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $spendChangeReadyText -Needle $needle
+}
+
+foreach ($needle in @(
     "UpdateResultStatusBadges",
     "UpdateResultMetaProgress",
     "GetResultNextFormHint",
     "GetResultNextMetaHint",
     "RETURN TO LOBBY / SPEND DP",
     "DP +",
-    "BEST STAGE"
+    "BEST STAGE",
+    "PlaySpendChangeReadyPulse"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $stageFlowText -Needle $needle
 }
@@ -193,7 +208,8 @@ $assetCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Category = "Toast"; Asset = "Toast_ProgressionSaved"; RuntimeUse = "save confirmation after DP spend/unlock/stage clear"; State = "saved, backup restored, migration complete"; Folder = "Assets/Resources/UI/Rewards/" },
     [pscustomobject]@{ Priority = "P1"; Category = "Audio"; Asset = "SFX_Progression_Confirm"; RuntimeUse = "purchase/unlock/selected positive confirmation"; State = "purchase, unlock, equip"; Folder = "Assets/Audio/SFX/UI/" },
     [pscustomobject]@{ Priority = "P1"; Category = "Audio"; Asset = "SFX_Progression_Locked"; RuntimeUse = "not enough DP or stage locked"; State = "locked, insufficient DP"; Folder = "Assets/Audio/SFX/UI/" },
-    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_FormEquip_Confirm"; RuntimeUse = "lobby form equip confirmation pulse"; State = "equipped lock-in flash"; Folder = "Assets/Art/VFX/UI/" }
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_FormEquip_Confirm"; RuntimeUse = "lobby form equip confirmation pulse"; State = "equipped lock-in flash"; Folder = "Assets/Art/VFX/UI/" },
+    [pscustomobject]@{ Priority = "P1"; Category = "VFX"; Asset = "VFX_SpendChange_Ready"; RuntimeUse = "next-run spend-change readout on StartStage"; State = "form ready, meta ready"; Folder = "Assets/Art/VFX/UI/" }
 )
 
 $productionBatches = @(
@@ -226,6 +242,12 @@ $productionBatches = @(
         Goal = "make lobby form equip feel locked-in before stage start"
         Targets = @("VFX_FormEquip_Confirm")
         Acceptance = "equipping a form shows a short champagne ring pulse on that card that is not the cyan equipped frame, result badges, or in-run smash/route VFX"
+    },
+    [pscustomobject]@{
+        Batch = "F. Next-run spend change pulse"
+        Goal = "make the next run name what the last lobby spend changed"
+        Targets = @("VFX_SpendChange_Ready")
+        Acceptance = "starting a run after a lobby form or meta spend shows a short jade ready plate naming that change, not the champagne form-equip ring, result badges, or in-run smash/route VFX"
     }
 )
 

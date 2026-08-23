@@ -282,6 +282,7 @@ Deliverables:
 - `SFX_Progression_Locked` insufficient-DP / locked purchase cue
 - `SFX_Progression_Confirm` purchase / unlock / equip confirmation cue
 - `VFX_FormEquip_Confirm` champagne lock-in ring when a lobby form is equipped
+- `VFX_SpendChange_Ready` jade ready plate naming the last lobby spend when the next run starts
 - `UI_FormCard_StateSet` form card lock / ready / equipped frame
 - `UI_MetaNode_SizeCore` Size Core node chip
 - `UI_MetaNode_ImpactCore` Impact Core node chip

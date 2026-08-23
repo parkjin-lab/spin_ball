@@ -58,6 +58,7 @@ namespace AlienCrusher.Systems
 				UpdateFormButtons();
 				UpdateMetaProgressUi();
 				PlayFormEquipConfirmPulse(form);
+				ArmSpendChangeReadyFromForm(form);
 			}
 		}
 
