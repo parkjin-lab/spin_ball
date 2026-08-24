@@ -198,6 +198,16 @@ namespace AlienCrusher.Systems
 			return false;
 		}
 
+		private bool HasLiveStageBossBlock()
+		{
+			if ((Object)(object)stageBossBlock == (Object)null)
+			{
+				stageBossBlock = null;
+				return false;
+			}
+			return true;
+		}
+
 		private void ResetStageBossTelemetry()
 		{
 			stageBossIntroAnnounced = false;
@@ -234,7 +244,11 @@ namespace AlienCrusher.Systems
 			if (!flag)
 			{
 				SetBossPhaseTwoDronesActive(active: false);
-				stageBossBlock?.SetBossCoreExposure(false);
+				if (!HasLiveStageBossBlock())
+				{
+					return;
+				}
+				stageBossBlock.SetBossCoreExposure(false);
 				if (!stageBossDestroyedAnnounced)
 				{
 					stageBossDestroyedAnnounced = true;
@@ -384,7 +398,10 @@ namespace AlienCrusher.Systems
 			stageBossShieldIntroAnnounced = false;
 			if (!enableBossShieldPylons || (Object)(object)stageBossBlock == (Object)null || candidates == null || candidates.Count <= 0)
 			{
-				stageBossBlock?.SetStageEncounterDamageScale(1f);
+				if (HasLiveStageBossBlock())
+				{
+					stageBossBlock.SetStageEncounterDamageScale(1f);
+				}
 				return;
 			}
 			Vector3 position = ((Component)stageBossBlock).transform.position;
@@ -537,7 +554,10 @@ namespace AlienCrusher.Systems
 			if (!enableBossBreakWindow || (Object)(object)stageBossBlock == (Object)null)
 			{
 				stageBossBreakRemaining = 0f;
-				stageBossBlock?.SetStageEncounterDamageScale(1f);
+				if (HasLiveStageBossBlock())
+				{
+					stageBossBlock.SetStageEncounterDamageScale(1f);
+				}
 				return;
 			}
 			float num = stageBossPhaseTwoActive ? Mathf.Clamp(bossBreakWindowDuration * Mathf.Clamp(bossPhaseTwoBreakDurationScale, 0.4f, 1f), 1f, bossBreakWindowDuration) : Mathf.Max(1f, bossBreakWindowDuration);
@@ -565,7 +585,11 @@ namespace AlienCrusher.Systems
 				return;
 			}
 			stageBossBreakRemaining = Mathf.Max(0f, stageBossBreakRemaining - Mathf.Max(0f, deltaTime));
-			if (stageBossBreakRemaining > 0f || (Object)(object)stageBossBlock == (Object)null)
+			if (!HasLiveStageBossBlock())
+			{
+				return;
+			}
+			if (stageBossBreakRemaining > 0f)
 			{
 				stageBossBlock.SetBossCoreExposure(true, stageBossPhaseTwoActive ? 1.85f : 1.45f);
 				return;
@@ -805,7 +829,10 @@ namespace AlienCrusher.Systems
 			{
 				stageBossPhaseTwoDroneRecoveryRemaining = Mathf.Max(1.8f, bossPhaseTwoDroneRecoveryDuration);
 				stageBossPhaseTwoDroneRespawnWarned = false;
-				stageBossBlock?.SetBossCoreExposure(true, 1.9f);
+				if (HasLiveStageBossBlock())
+				{
+					stageBossBlock.SetBossCoreExposure(true, 1.9f);
+				}
 				PushAnnouncement("DRONE SWARM BROKEN", AnnouncementTone.BossMajor, 1.25f);
 				damageNumberSystem?.ShowTag(position + Vector3.up * 1.2f, $"WINDOW {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s", true);
 				feedbackSystem?.PlayDroneBreakFeedback(position + Vector3.up * 0.18f, 0.95f, swarmBroken: true);

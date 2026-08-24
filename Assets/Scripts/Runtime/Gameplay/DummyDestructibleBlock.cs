@@ -330,6 +330,11 @@ namespace AlienCrusher.Gameplay
 
         public void SetBossCoreExposure(bool exposed, float intensity = 1f)
         {
+            if ((UnityEngine.Object)(object)this == (UnityEngine.Object)null)
+            {
+                return;
+            }
+
             bossCoreExposureActive = exposed && stageEncounterRole == StageEncounterRole.BossSentinel;
             bossCoreExposureIntensity = Mathf.Clamp(intensity, 0.5f, 2.5f);
 
@@ -1557,6 +1562,11 @@ namespace AlienCrusher.Gameplay
         }
         private void EnsureWeakPointSetup()
         {
+            if ((UnityEngine.Object)(object)this == (UnityEngine.Object)null)
+            {
+                return;
+            }
+
             if (!enableWeakPointCritical)
             {
                 SetWeakPointVisible(false);
@@ -1602,6 +1612,11 @@ namespace AlienCrusher.Gameplay
 
         private void EnsureBossCoreTelegraphSetup()
         {
+            if ((UnityEngine.Object)(object)this == (UnityEngine.Object)null)
+            {
+                return;
+            }
+
             if (bossCoreRingVisual == null)
             {
                 var ringNode = transform.Find("_BossCoreRing");
@@ -1672,6 +1687,11 @@ namespace AlienCrusher.Gameplay
 
         private void ConfigureWeakPointForCurrentState()
         {
+            if ((UnityEngine.Object)(object)this == (UnityEngine.Object)null)
+            {
+                return;
+            }
+
             if (!enableWeakPointCritical)
             {
                 SetWeakPointVisible(false);

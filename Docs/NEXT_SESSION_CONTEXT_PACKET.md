@@ -1,5 +1,12 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-24 Stage 7 Boss Telemetry Crash
+
+- Play-blocker from the 2026-08-24 Seoul creator playtest (tester 진웅 박). Stage 7 started after a Stage 6 boss-clear, then `UpdateStageBossTelemetry` called `SetBossCoreExposure` on a Unity-destroyed `DummyDestructibleBlock`.
+- Fix only: Unity fake-null checks before `.transform` / weak-point setup, and skip SENTINEL DOWN / stage-end when the boss reference is destroyed rather than combat-inactive. Boss timing, exposure intensity, HP, and pressure numbers are unchanged.
+- How to see it: Play Mode, clear the Stage 6 boss, start Stage 7. Console should not throw `MissingReferenceException: DummyDestructibleBlock has been destroyed`. Stage 7 should keep running toward a real `STAGE_END`.
+- Creator notes for that session are in `Docs/AlienCrusherStagePlaytestNotes.md` under **Qualitative Playtest (2026-08-24)**. Stages 02-03 were skipped; do not invent `F10` `STAGE_START`/`STAGE_END` for them. Stage 01-07 evidence fields stay empty.
+
 ## 2026-08-23 Street-Prop Density Batch
 
 - After the HUD/copy pass: extra smashable lamps, parked cars, kiosks, benches, and barrels now fill existing road-edge gaps between Target_A and Target_B. Reuses Street Props A/B/C kits only. No Street Props D fence/mailbox/shed clutter. Target_A/B, HOLD pips, route timing, payoff counts, and map size are unchanged.
@@ -194,6 +201,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-24: Stage 7 play-blocker after Stage 6 boss-clear. Boss telemetry no longer calls `SetBossCoreExposure` / weak-point setup on a Unity-destroyed `DummyDestructibleBlock`. Not a juice or tuning change.
 - 2026-08-23: HUD/copy/toast readability batch from creator qualitative notes (tester 진웅 박). Stage 1 HUD/result/lobby labels are short; growth residuals no longer stack on the same beat. `F10` evidence is still missing.
 - 2026-08-23: recorded that production juice leftovers are exhausted. In-run smash/route/form/district/audio/HUD/boss climax and outgame leftovers E–M are on this PR. Next human action is a creator `F10` Stage 1-7 sweep, stage notes, and save/load smoke. Unattended work must stop inventing juice.
 - Added rhythm design review support across the design artifacts instead of leaving rhythm as an implicit feel goal.
