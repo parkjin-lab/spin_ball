@@ -1,5 +1,12 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-25 Unity 6.5 MCP Compile Fix
+
+- After the `6000.5.9f1` open, MCPForUnity Runtime failed on obsolete `GetInstanceID` / `InstanceIDToObject` (CS0619) and `FindObjectsOfType` (CS0618).
+- Converter now uses `GetEntityId` + `EntityId.ToULong` / `FromULong` + `EditorUtility.EntityIdToObject`. JSON still uses the `instanceID` field; the value is the lossless 64-bit EntityId mapping, not a truncated int.
+- Screenshot camera lookup uses `FindObjectsByType<Camera>()` (no-sort overload; `FindObjectsSortMode` is also obsolete on 6.5).
+- How to verify: open in Unity `6000.5.9f1`. Console must not show those three CS0619 errors or the ScreenshotUtility CS0618 warning.
+
 ## 2026-08-25 Unity Editor Bump
 
 - Project editor pin is now Unity `6000.5.9f1` (`b57deb96f08d`). Open the project in that editor, not `6000.3.8f1`.
@@ -207,6 +214,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-25: MCPForUnity Runtime compile fix for Unity 6.5 obsolete InstanceID / FindObjectsOfType APIs. No gameplay change.
 - 2026-08-25: Unity editor pin bumped to `6000.5.9f1` (`b57deb96f08d`). Open the project in that editor. No gameplay or package retarget.
 - 2026-08-24: Stage 7 play-blocker after Stage 6 boss-clear. Boss telemetry no longer calls `SetBossCoreExposure` / weak-point setup on a Unity-destroyed `DummyDestructibleBlock`. Not a juice or tuning change.
 - 2026-08-23: HUD/copy/toast readability batch from creator qualitative notes (tester 진웅 박). Stage 1 HUD/result/lobby labels are short; growth residuals no longer stack on the same beat. `F10` evidence is still missing.

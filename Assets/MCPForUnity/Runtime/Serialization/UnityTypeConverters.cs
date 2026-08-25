@@ -278,8 +278,7 @@ namespace MCPForUnity.Runtime.Serialization
                     writer.WriteStartObject();
                     writer.WritePropertyName("name");
                     writer.WriteValue(value.name);
-                    writer.WritePropertyName("instanceID");
-                    writer.WriteValue(value.GetInstanceID());
+                    WriteSerializedObjectIdentity(writer, value);
                     writer.WritePropertyName("isAssetWithoutPath");
                     writer.WriteValue(true);
                     writer.WriteEndObject();
@@ -291,8 +290,7 @@ namespace MCPForUnity.Runtime.Serialization
                 writer.WriteStartObject();
                 writer.WritePropertyName("name");
                 writer.WriteValue(value.name);
-                writer.WritePropertyName("instanceID");
-                writer.WriteValue(value.GetInstanceID());
+                WriteSerializedObjectIdentity(writer, value);
                 writer.WriteEndObject();
             }
 #else
@@ -300,8 +298,7 @@ namespace MCPForUnity.Runtime.Serialization
             writer.WriteStartObject();
             writer.WritePropertyName("name");
             writer.WriteValue(value.name);
-            writer.WritePropertyName("instanceID");
-            writer.WriteValue(value.GetInstanceID());
+            WriteSerializedObjectIdentity(writer, value);
              writer.WritePropertyName("warning");
             writer.WriteValue("UnityEngineObjectConverter running in non-Editor mode, asset path unavailable.");
             writer.WriteEndObject();
@@ -360,11 +357,10 @@ namespace MCPForUnity.Runtime.Serialization
                     return null;
                 }
 
-                // Try to resolve by instanceID
-                if (jo.TryGetValue("instanceID", out JToken idToken) && idToken.Type == JTokenType.Integer)
+                // Try to resolve by instanceID (EntityId raw ulong on Unity 6.5+)
+                if (jo.TryGetValue("instanceID", out JToken idToken) && TryReadSerializedObjectIdentity(idToken, out EntityId entityId))
                 {
-                    int instanceId = idToken.ToObject<int>();
-                    UnityEngine.Object obj = UnityEditor.EditorUtility.InstanceIDToObject(instanceId);
+                    UnityEngine.Object obj = UnityEditor.EditorUtility.EntityIdToObject(entityId);
                     if (obj != null)
                     {
                         // Direct type match
@@ -387,17 +383,17 @@ namespace MCPForUnity.Runtime.Serialization
                             {
                                 return component;
                             }
-                            UnityEngine.Debug.LogWarning($"[UnityEngineObjectConverter] GameObject '{gameObj.name}' (ID: {instanceId}) does not have a '{objectType.Name}' component.");
+                            UnityEngine.Debug.LogWarning($"[UnityEngineObjectConverter] GameObject '{gameObj.name}' (ID: {entityId}) does not have a '{objectType.Name}' component.");
                             return null;
                         }
 
                         // Type mismatch with no automatic conversion available
-                        UnityEngine.Debug.LogWarning($"[UnityEngineObjectConverter] Instance ID {instanceId} resolved to '{obj.GetType().Name}' but expected '{objectType.Name}'.");
+                        UnityEngine.Debug.LogWarning($"[UnityEngineObjectConverter] Instance ID {entityId} resolved to '{obj.GetType().Name}' but expected '{objectType.Name}'.");
                         return null;
                     }
                     // Instance ID lookup failed - this can happen if the object was destroyed or ID is stale
                     string objectName = jo.TryGetValue("name", out JToken nameToken) ? nameToken.ToString() : "unknown";
-                    UnityEngine.Debug.LogWarning($"[UnityEngineObjectConverter] Could not resolve instance ID {instanceId} (name: '{objectName}') to a valid {objectType.Name}. The object may have been destroyed or the ID is stale.");
+                    UnityEngine.Debug.LogWarning($"[UnityEngineObjectConverter] Could not resolve instance ID {entityId} (name: '{objectName}') to a valid {objectType.Name}. The object may have been destroyed or the ID is stale.");
                     return null;
                 }
 
@@ -430,6 +426,32 @@ namespace MCPForUnity.Runtime.Serialization
             // Return existing value since we can't deserialize without Editor APIs
             return existingValue;
 #endif
+        }
+
+        /// <summary>
+        /// Writes the Unity 6.5 object identity as the existing instanceID JSON field.
+        /// EntityId is 64-bit, so the value is the lossless ToULong mapping, not a truncated int.
+        /// </summary>
+        private static void WriteSerializedObjectIdentity(JsonWriter writer, UnityEngine.Object value)
+        {
+            writer.WritePropertyName("instanceID");
+            writer.WriteValue(EntityId.ToULong(value.GetEntityId()));
+        }
+
+        /// <summary>
+        /// Reads the instanceID JSON field back into an EntityId for EntityIdToObject.
+        /// Accepts the integer token the converter previously wrote, including 64-bit values.
+        /// </summary>
+        private static bool TryReadSerializedObjectIdentity(JToken idToken, out EntityId entityId)
+        {
+            entityId = EntityId.None;
+            if (idToken == null || idToken.Type != JTokenType.Integer)
+            {
+                return false;
+            }
+
+            entityId = EntityId.FromULong(idToken.ToObject<ulong>());
+            return true;
         }
 
         /// <summary>
