@@ -369,7 +369,7 @@ namespace MCPForUnity.Editor.Tools
 
                 // Check Screen Capture module availability and warn if not available
                 bool screenCaptureAvailable = ScreenshotUtility.IsScreenCaptureModuleAvailable;
-                bool hasCameraFallback = Camera.main != null || UnityEngine.Object.FindObjectsOfType<Camera>().Length > 0;
+                bool hasCameraFallback = Camera.main != null || UnityEngine.Object.FindObjectsByType<Camera>().Length > 0;
 
 #if UNITY_2022_1_OR_NEWER
                 if (!screenCaptureAvailable && !hasCameraFallback)
@@ -704,11 +704,11 @@ namespace MCPForUnity.Editor.Tools
 
             try
             {
-                if (targetToken.Type == JTokenType.Integer || int.TryParse(targetToken.ToString(), out _))
+                if (targetToken.Type == JTokenType.Integer || UnityObjectIdentity.TryParseSerializedId(targetToken.ToString(), out _))
                 {
-                    if (int.TryParse(targetToken.ToString(), out int id))
+                    if (UnityObjectIdentity.TryParseSerializedId(targetToken.ToString(), out ulong id))
                     {
-                        var obj = EditorUtility.InstanceIDToObject(id);
+                        var obj = GameObjectLookup.FindObjectById(id);
                         if (obj is GameObject go) return go;
                         if (obj is Component c) return c.gameObject;
                     }
@@ -786,7 +786,7 @@ namespace MCPForUnity.Editor.Tools
             var d = new Dictionary<string, object>
             {
                 { "name", go.name },
-                { "instanceID", go.GetInstanceID() },
+                { "instanceID", go.ToSerializedId() },
                 { "activeSelf", go.activeSelf },
                 { "activeInHierarchy", go.activeInHierarchy },
                 { "tag", go.tag },

@@ -59,7 +59,7 @@ namespace MCPForUnity.Editor.Tools
                 var allIds = GameObjectLookup.SearchGameObjects(searchMethod, searchTerm, includeInactive, 0);
                 
                 // Use standard pagination response
-                var paginatedResult = PaginationResponse<int>.Create(allIds, pagination);
+                var paginatedResult = PaginationResponse<ulong>.Create(allIds, pagination);
 
                 return new SuccessResponse("Found GameObjects", new
                 {

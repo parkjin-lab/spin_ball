@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 using MCPForUnity.Editor.Helpers; // For Response class
+using MCPForUnity.Runtime.Helpers;
 using MCPForUnity.Editor.Tools;
 
 #if UNITY_6000_0_OR_NEWER
@@ -802,7 +803,7 @@ namespace MCPForUnity.Editor.Tools
                     .Select(comp => new
                     {
                         typeName = comp.GetType().FullName,
-                        instanceID = comp.GetInstanceID(),
+                        instanceID = comp.ToSerializedId(),
                         // TODO: Add more component-specific details here if needed in the future?
                         //       Requires reflection or specific handling per component type.
                     })
@@ -1104,7 +1105,7 @@ namespace MCPForUnity.Editor.Tools
                 name = Path.GetFileNameWithoutExtension(path),
                 fileName = Path.GetFileName(path),
                 isFolder = AssetDatabase.IsValidFolder(path),
-                instanceID = asset?.GetInstanceID() ?? 0,
+                instanceID = asset?.ToSerializedId() ?? 0,
                 lastWriteTimeUtc = File.GetLastWriteTimeUtc(
                         Path.Combine(Directory.GetCurrentDirectory(), path)
                     )

@@ -1,3 +1,4 @@
+using MCPForUnity.Runtime.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -435,7 +436,7 @@ namespace MCPForUnity.Runtime.Serialization
         private static void WriteSerializedObjectIdentity(JsonWriter writer, UnityEngine.Object value)
         {
             writer.WritePropertyName("instanceID");
-            writer.WriteValue(EntityId.ToULong(value.GetEntityId()));
+            writer.WriteValue(value.ToSerializedId());
         }
 
         /// <summary>
@@ -450,7 +451,7 @@ namespace MCPForUnity.Runtime.Serialization
                 return false;
             }
 
-            entityId = EntityId.FromULong(idToken.ToObject<ulong>());
+            entityId = UnityObjectIdentity.FromSerializedId(idToken.ToObject<ulong>());
             return true;
         }
 

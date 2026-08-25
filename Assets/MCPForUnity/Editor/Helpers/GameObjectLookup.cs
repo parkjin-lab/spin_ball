@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MCPForUnity.Runtime.Helpers;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -67,11 +68,14 @@ namespace MCPForUnity.Editor.Helpers
         /// <summary>
         /// Finds a GameObject by its instance ID.
         /// </summary>
-        public static GameObject FindById(int instanceId)
+        public static GameObject FindById(ulong instanceId)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            return EditorUtility.InstanceIDToObject(instanceId) as GameObject;
-#pragma warning restore CS0618
+            return EditorUtility.EntityIdToObject(UnityObjectIdentity.FromSerializedId(instanceId)) as GameObject;
+        }
+
+        public static Object FindObjectById(ulong instanceId)
+        {
+            return EditorUtility.EntityIdToObject(UnityObjectIdentity.FromSerializedId(instanceId));
         }
 
         /// <summary>
@@ -82,7 +86,7 @@ namespace MCPForUnity.Editor.Helpers
         /// <param name="includeInactive">Whether to include inactive objects</param>
         /// <param name="maxResults">Maximum number of results to return (0 = unlimited)</param>
         /// <returns>List of instance IDs</returns>
-        public static List<int> SearchGameObjects(string searchMethod, string searchTerm, bool includeInactive = false, int maxResults = 0)
+        public static List<ulong> SearchGameObjects(string searchMethod, string searchTerm, bool includeInactive = false, int maxResults = 0)
         {
             var method = ParseSearchMethod(searchMethod);
             return SearchGameObjects(method, searchTerm, includeInactive, maxResults);
@@ -96,18 +100,16 @@ namespace MCPForUnity.Editor.Helpers
         /// <param name="includeInactive">Whether to include inactive objects</param>
         /// <param name="maxResults">Maximum number of results to return (0 = unlimited)</param>
         /// <returns>List of instance IDs</returns>
-        public static List<int> SearchGameObjects(SearchMethod method, string searchTerm, bool includeInactive = false, int maxResults = 0)
+        public static List<ulong> SearchGameObjects(SearchMethod method, string searchTerm, bool includeInactive = false, int maxResults = 0)
         {
-            var results = new List<int>();
+            var results = new List<ulong>();
 
             switch (method)
             {
                 case SearchMethod.ById:
-                    if (int.TryParse(searchTerm, out int instanceId))
+                    if (UnityObjectIdentity.TryParseSerializedId(searchTerm, out ulong instanceId))
                     {
-#pragma warning disable CS0618 // Type or member is obsolete
-                        var obj = EditorUtility.InstanceIDToObject(instanceId) as GameObject;
-#pragma warning restore CS0618
+                        var obj = FindById(instanceId);
                         if (obj != null && (includeInactive || obj.activeInHierarchy))
                         {
                             results.Add(instanceId);
@@ -139,7 +141,7 @@ namespace MCPForUnity.Editor.Helpers
             return results;
         }
 
-        private static IEnumerable<int> SearchByName(string name, bool includeInactive, int maxResults)
+        private static IEnumerable<ulong> SearchByName(string name, bool includeInactive, int maxResults)
         {
             var allObjects = GetAllSceneObjects(includeInactive);
             var matching = allObjects.Where(go => go.name == name);
@@ -147,10 +149,10 @@ namespace MCPForUnity.Editor.Helpers
             if (maxResults > 0)
                 matching = matching.Take(maxResults);
 
-            return matching.Select(go => go.GetInstanceID());
+            return matching.Select(go => go.ToSerializedId());
         }
 
-        private static IEnumerable<int> SearchByPath(string path, bool includeInactive)
+        private static IEnumerable<ulong> SearchByPath(string path, bool includeInactive)
         {
             // Check Prefab Stage first - GameObject.Find() doesn't work in Prefab Stage
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -162,7 +164,7 @@ namespace MCPForUnity.Editor.Helpers
                 {
                     if (MatchesPath(go, path))
                     {
-                        yield return go.GetInstanceID();
+                        yield return go.ToSerializedId();
                     }
                 }
                 yield break;
@@ -179,7 +181,7 @@ namespace MCPForUnity.Editor.Helpers
                 {
                     if (MatchesPath(go, path))
                     {
-                        yield return go.GetInstanceID();
+                        yield return go.ToSerializedId();
                     }
                 }
             }
@@ -189,12 +191,12 @@ namespace MCPForUnity.Editor.Helpers
                 var found = GameObject.Find(path);
                 if (found != null)
                 {
-                    yield return found.GetInstanceID();
+                    yield return found.ToSerializedId();
                 }
             }
         }
 
-        private static IEnumerable<int> SearchByTag(string tag, bool includeInactive, int maxResults)
+        private static IEnumerable<ulong> SearchByTag(string tag, bool includeInactive, int maxResults)
         {
             GameObject[] taggedObjects;
             try
@@ -222,11 +224,11 @@ namespace MCPForUnity.Editor.Helpers
 
             foreach (var go in results)
             {
-                yield return go.GetInstanceID();
+                yield return go.ToSerializedId();
             }
         }
 
-        private static IEnumerable<int> SearchByLayer(string layerName, bool includeInactive, int maxResults)
+        private static IEnumerable<ulong> SearchByLayer(string layerName, bool includeInactive, int maxResults)
         {
             int layer = LayerMask.NameToLayer(layerName);
             if (layer == -1)
@@ -246,11 +248,11 @@ namespace MCPForUnity.Editor.Helpers
 
             foreach (var go in matching)
             {
-                yield return go.GetInstanceID();
+                yield return go.ToSerializedId();
             }
         }
 
-        private static IEnumerable<int> SearchByComponent(string componentTypeName, bool includeInactive, int maxResults)
+        private static IEnumerable<ulong> SearchByComponent(string componentTypeName, bool includeInactive, int maxResults)
         {
             Type componentType = FindComponentType(componentTypeName);
             if (componentType == null)
@@ -266,7 +268,7 @@ namespace MCPForUnity.Editor.Helpers
             {
                 if (go.GetComponent(componentType) != null)
                 {
-                    yield return go.GetInstanceID();
+                    yield return go.ToSerializedId();
                     count++;
 
                     if (maxResults > 0 && count >= maxResults)

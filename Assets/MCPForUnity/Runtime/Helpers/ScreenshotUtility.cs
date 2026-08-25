@@ -70,7 +70,7 @@ namespace MCPForUnity.Runtime.Helpers
 
             try
             {
-                // No-sort FindObjectsByType: FindObjectsOfType and FindObjectsSortMode are obsolete on Unity 6.5.
+                // No-sort camera lookup; Unity 6.5 dropped identifier-ordered find APIs.
                 var cams = UnityEngine.Object.FindObjectsByType<Camera>();
                 return cams.FirstOrDefault();
             }

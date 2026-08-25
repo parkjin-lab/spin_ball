@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MCPForUnity.Editor.Helpers;
+using MCPForUnity.Runtime.Helpers;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -24,27 +25,15 @@ namespace MCPForUnity.Editor.Resources.Scene
                 return new ErrorResponse("Parameters cannot be null.");
             }
 
-            // Get instance ID from params
-            int? instanceID = null;
-            
             var idToken = @params["instanceID"] ?? @params["instance_id"] ?? @params["id"];
-            if (idToken != null)
-            {
-                instanceID = ParamCoercion.CoerceInt(idToken, -1);
-                if (instanceID == -1)
-                {
-                    instanceID = null;
-                }
-            }
-
-            if (!instanceID.HasValue)
+            if (idToken == null || !UnityObjectIdentity.TryParseSerializedId(idToken.ToString(), out ulong instanceID))
             {
                 return new ErrorResponse("'instanceID' parameter is required.");
             }
 
             try
             {
-                var go = EditorUtility.InstanceIDToObject(instanceID.Value) as GameObject;
+                var go = GameObjectLookup.FindById(instanceID);
                 if (go == null)
                 {
                     return new ErrorResponse($"GameObject with instance ID {instanceID} not found.");
@@ -81,15 +70,15 @@ namespace MCPForUnity.Editor.Resources.Scene
                 .ToList();
 
             // Get children instance IDs (not full serialization)
-            var childrenIds = new List<int>();
+            var childrenIds = new List<ulong>();
             foreach (Transform child in transform)
             {
-                childrenIds.Add(child.gameObject.GetInstanceID());
+                childrenIds.Add(child.gameObject.ToSerializedId());
             }
 
             return new
             {
-                instanceID = go.GetInstanceID(),
+                instanceID = go.ToSerializedId(),
                 name = go.name,
                 tag = go.tag,
                 layer = go.layer,
@@ -106,7 +95,7 @@ namespace MCPForUnity.Editor.Resources.Scene
                     scale = SerializeVector3(transform.localScale),
                     lossyScale = SerializeVector3(transform.lossyScale)
                 },
-                parent = transform.parent != null ? transform.parent.gameObject.GetInstanceID() : (int?)null,
+                parent = transform.parent != null ? transform.parent.gameObject.ToSerializedId() : (ulong?)null,
                 children = childrenIds,
                 componentTypes = componentTypes,
                 path = GameObjectLookup.GetGameObjectPath(go)
@@ -135,8 +124,7 @@ namespace MCPForUnity.Editor.Resources.Scene
             }
 
             var idToken = @params["instanceID"] ?? @params["instance_id"] ?? @params["id"];
-            int instanceID = ParamCoercion.CoerceInt(idToken, -1);
-            if (instanceID == -1)
+            if (idToken == null || !UnityObjectIdentity.TryParseSerializedId(idToken.ToString(), out ulong instanceID))
             {
                 return new ErrorResponse("'instanceID' parameter is required.");
             }
@@ -150,7 +138,7 @@ namespace MCPForUnity.Editor.Resources.Scene
 
             try
             {
-                var go = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+                var go = GameObjectLookup.FindById(instanceID);
                 if (go == null)
                 {
                     return new ErrorResponse($"GameObject with instance ID {instanceID} not found.");
@@ -173,7 +161,7 @@ namespace MCPForUnity.Editor.Resources.Scene
                         componentData.Add(new
                         {
                             typeName = component.GetType().FullName,
-                            instanceID = component.GetInstanceID()
+                            instanceID = component.ToSerializedId()
                         });
                     }
                 }
@@ -221,8 +209,7 @@ namespace MCPForUnity.Editor.Resources.Scene
             }
 
             var idToken = @params["instanceID"] ?? @params["instance_id"] ?? @params["id"];
-            int instanceID = ParamCoercion.CoerceInt(idToken, -1);
-            if (instanceID == -1)
+            if (idToken == null || !UnityObjectIdentity.TryParseSerializedId(idToken.ToString(), out ulong instanceID))
             {
                 return new ErrorResponse("'instanceID' parameter is required.");
             }
@@ -235,7 +222,7 @@ namespace MCPForUnity.Editor.Resources.Scene
 
             try
             {
-                var go = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+                var go = GameObjectLookup.FindById(instanceID);
                 if (go == null)
                 {
                     return new ErrorResponse($"GameObject with instance ID {instanceID} not found.");
