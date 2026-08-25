@@ -73,7 +73,7 @@ namespace MCPForUnity.Editor.Helpers
             return EditorUtility.EntityIdToObject(UnityObjectIdentity.FromSerializedId(instanceId)) as GameObject;
         }
 
-        public static Object FindObjectById(ulong instanceId)
+        public static UnityEngine.Object FindObjectById(ulong instanceId)
         {
             return EditorUtility.EntityIdToObject(UnityObjectIdentity.FromSerializedId(instanceId));
         }

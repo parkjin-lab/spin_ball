@@ -5,7 +5,8 @@
 - After the `6000.5.9f1` open, MCPForUnity Runtime and Editor failed on obsolete InstanceID APIs (`GetInstanceID`, `InstanceIDToObject`, `Selection.activeInstanceID`) and identifier-ordered find APIs.
 - Shared helper `UnityObjectIdentity` maps `GetEntityId` through `EntityId.ToULong` / `FromULong`. JSON/API fields still named `instanceID` carry the lossless 64-bit value. Lookups use `EditorUtility.EntityIdToObject`.
 - Find calls use `FindObjectsByType` without `FindObjectsSortMode`. `Resources.FindObjectsOfTypeAll` is unchanged (different API, still valid).
-- How to verify: reopen in Unity `6000.5.9f1`. Console must not show CS0619 for those InstanceID APIs anywhere under `Assets/MCPForUnity`.
+- Follow-up: `GameObjectLookup.FindObjectById` used a bare `Object` return type (`using System` + `using UnityEngine` → CS0104). It is now `UnityEngine.Object`. Nearby identity helpers qualify `UnityEngine.Object` the same way.
+- How to verify: reopen in Unity `6000.5.9f1` and confirm the console shows no CS0104 or CS0619 under `Assets/MCPForUnity`. Then Play Mode / Stage 1-7 can run.
 
 ## 2026-08-25 Unity Editor Bump
 
@@ -214,6 +215,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-25: MCPForUnity CS0104 fix: `FindObjectById` now returns `UnityEngine.Object` so `using System` + `using UnityEngine` no longer clash. No gameplay change.
 - 2026-08-25: MCPForUnity Editor+Runtime compile fix for Unity 6.5 obsolete InstanceID / find APIs. JSON `instanceID` fields now store EntityId.ToULong. No gameplay change.
 - 2026-08-25: Unity editor pin bumped to `6000.5.9f1` (`b57deb96f08d`). Open the project in that editor. No gameplay or package retarget.
 - 2026-08-24: Stage 7 play-blocker after Stage 6 boss-clear. Boss telemetry no longer calls `SetBossCoreExposure` / weak-point setup on a Unity-destroyed `DummyDestructibleBlock`. Not a juice or tuning change.

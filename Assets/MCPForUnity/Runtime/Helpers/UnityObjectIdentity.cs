@@ -9,7 +9,7 @@ namespace MCPForUnity.Runtime.Helpers
     /// </summary>
     public static class UnityObjectIdentity
     {
-        public static ulong ToSerializedId(this Object obj)
+        public static ulong ToSerializedId(this UnityEngine.Object obj)
         {
             if (obj == null)
             {
