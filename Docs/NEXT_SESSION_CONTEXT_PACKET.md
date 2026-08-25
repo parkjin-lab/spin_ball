@@ -1,5 +1,11 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-25 Unity Editor Bump
+
+- Project editor pin is now Unity `6000.5.9f1` (`b57deb96f08d`). Open the project in that editor, not `6000.3.8f1`.
+- How to open it: Unity Hub -> Installs -> add `6000.5.9f1` if needed -> Open `D:\uni\spinball` / this repo with that editor. Confirm `ProjectSettings/ProjectVersion.txt` reads `6000.5.9f1 (b57deb96f08d)` before Play Mode.
+- No gameplay retarget, juice, package bump, or scene YAML in this pass.
+
 ## 2026-08-24 Stage 7 Boss Telemetry Crash
 
 - Play-blocker from the 2026-08-24 Seoul creator playtest (tester 진웅 박). Stage 7 started after a Stage 6 boss-clear, then `UpdateStageBossTelemetry` called `SetBossCoreExposure` on a Unity-destroyed `DummyDestructibleBlock`.
@@ -201,6 +207,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-25: Unity editor pin bumped to `6000.5.9f1` (`b57deb96f08d`). Open the project in that editor. No gameplay or package retarget.
 - 2026-08-24: Stage 7 play-blocker after Stage 6 boss-clear. Boss telemetry no longer calls `SetBossCoreExposure` / weak-point setup on a Unity-destroyed `DummyDestructibleBlock`. Not a juice or tuning change.
 - 2026-08-23: HUD/copy/toast readability batch from creator qualitative notes (tester 진웅 박). Stage 1 HUD/result/lobby labels are short; growth residuals no longer stack on the same beat. `F10` evidence is still missing.
 - 2026-08-23: recorded that production juice leftovers are exhausted. In-run smash/route/form/district/audio/HUD/boss climax and outgame leftovers E–M are on this PR. Next human action is a creator `F10` Stage 1-7 sweep, stage notes, and save/load smoke. Unattended work must stop inventing juice.
@@ -386,7 +393,7 @@ Rule:
 
 ## Next Session Paste Context Packet
 ```text
-Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.3.8f1.
+Project: D:\uni\spinball / Unity Alien Crusher / Unity 6000.5.9f1.
 MCP may be unavailable; use filesystem, Unity batchmode, and logs first.
 Latest completed work: ROUTE HOLD is wired after LANE BREAK, LANE BREAK triggers a short ROUTE OPEN beat, ROUTE HOLD progress is now shown as a faster-read HUD/gauge meter, ROUTE BONUS opens a district-flavored SMASH target cluster before normal Forward Smash resolution, failure result/lobby advice now starts with one next-run first action for the last failure bucket, and editor/development playtests now emit structured `[AlienCrusher][Playtest]` telemetry to both the Console and `Logs/AlienCrusherPlaytestTelemetry.log`. The telemetry stream now includes `SWEEP_START` and `SWEEP_END` around `F10` stage sweeps, and `Tools/GeneratePlaytestTelemetrySummary.ps1` now converts the log into `Logs/AlienCrusherPlaytestTelemetrySummary.md` with a current tuning snapshot, rhythm snapshot, `Tune Next` decision block, sweep-level summaries, stage trend rollups, tuning candidates, first-pass experiment suggestions, failure bucket action cues, and per-run breakdowns. Rhythm is now an explicit design lens, so the next pass should judge opener -> pivot -> sustain -> payoff -> climax cadence rather than only route readability. HUD shows route/hold/smash guidance, route beacon, and distance-aware world-space trail pips toward Target_A/Target_B. Runtime map generation now resets/rebuilds the managed city layout on stage start using the current stage number, so stages grow from a compact starter district into wider, denser maps with more varied buildings, traffic props, commercial objects, barrels, transformers, stage-gated landmark districts, and wider target marker positions. `Docs/GAME_DESIGN_GAP_POLICY.md` now records the 2026-05-25 sub-agent design review and blocks rhythm/payoff/boss tuning until real Stage 1-7 evidence exists. Use `[AlienCrusher][MapLayout]` console logs, `Tools/Alien Crusher/Audit Runtime Map Layout`, the map layout overlay, `[AlienCrusher][Playtest]` filtering, the playtest telemetry log file, the telemetry summary file, and the design gap policy to compare stage, theme, size, grid, destructible count, prop counts, landmark value, target positions, warnings, and route event order during playtest. In editor/development builds, use `F6`/`F7`/`F8` for quick stage cycling, `F9` to toggle the overlay, and `F10` to sweep Stage 1-7.
 Latest validation: `Tools/RunUnityBatchChecks.ps1` passed on 2026-05-05. `Logs/AlienCrusherSceneValidation.log` refreshed at 21:14 with `Result: 0 error(s), 0 warning(s)`, and `Logs/AlienCrusherMapLayoutAudit.log` refreshed at 21:15 with Stage 1-7 `Result: 0 error(s), 0 warning(s)`. Unity-free scene essentials, static map audit, ROUTE HOLD static audit, playtest telemetry wiring audit, playtest telemetry summary regression, readiness report generator regression, progression save safety audit, playtest evidence gate regression, and `Tools/RunStaticAudits.ps1` were refreshed again on 2026-06-08 through `Tools/RunPlaytestReadinessPrep.ps1`. As of 2026-06-08, no real `F10` sweep telemetry log exists yet. The route open beat/map rebuild/landmark/audit/route-hold trail/sweep telemetry and progression save smoke changes still need the first real in-editor or mobile-style `F10` sweep for feel.
