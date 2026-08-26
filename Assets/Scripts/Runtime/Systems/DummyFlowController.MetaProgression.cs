@@ -11,7 +11,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if ((Object)(object)formUnlockSystem != (Object)null)
 			{
@@ -23,7 +23,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if ((Object)(object)formUnlockSystem == (Object)null)
 			{
@@ -46,7 +46,7 @@ namespace AlienCrusher.Systems
 				lastEarnedDp = CalculateStageDpReward(score) + Mathf.Max(0, stripClearMissionDpAwarded);
 				if (formUnlockSystem == null)
 				{
-					formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+					formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 				}
 				formUnlockSystem?.AddDp(lastEarnedDp);
 			}
@@ -57,7 +57,7 @@ namespace AlienCrusher.Systems
 			int num = Mathf.Max(0, Mathf.FloorToInt((float)score * 0.03f));
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if ((Object)(object)formUnlockSystem == (Object)null)
 			{
@@ -93,7 +93,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if ((Object)(object)lobbyDpText != (Object)null)
 			{
@@ -141,7 +141,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if ((Object)(object)formUnlockSystem == (Object)null)
 			{
@@ -210,7 +210,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if (!((Object)(object)formUnlockSystem == (Object)null))
 			{
@@ -251,7 +251,7 @@ namespace AlienCrusher.Systems
 			}
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if ((Object)(object)formUnlockSystem == (Object)null)
 			{
@@ -336,7 +336,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			ResolvePlayerController();
 			float permanentBaseScaleBonus = (((Object)(object)formUnlockSystem != (Object)null) ? formUnlockSystem.GetPermanentStartScaleBonus() : 0f);
@@ -353,7 +353,7 @@ namespace AlienCrusher.Systems
 			}
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if ((Object)(object)formUnlockSystem == (Object)null)
 			{

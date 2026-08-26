@@ -176,7 +176,7 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -191,7 +191,7 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.58f);
 			PushAnnouncement($"SPHERE PULSE +{num5}", AnnouncementTone.Burst, Mathf.Max(0.56f, comboRushAnnouncementSeconds * 0.7f));
@@ -226,7 +226,7 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -241,7 +241,7 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.7f);
 			PushAnnouncement($"SPIKE BURST +{num5}", AnnouncementTone.Burst, Mathf.Max(0.6f, comboRushAnnouncementSeconds * 0.75f));
@@ -316,7 +316,7 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -331,7 +331,7 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.82f);
 			PushAnnouncement($"RAM BREACH +{num5}", AnnouncementTone.Burst, Mathf.Max(0.64f, comboRushAnnouncementSeconds * 0.78f));
@@ -406,7 +406,7 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -421,7 +421,7 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.62f);
 			PushAnnouncement($"SAUCER DASH +{num5}", AnnouncementTone.Burst, Mathf.Max(0.55f, comboRushAnnouncementSeconds * 0.7f));
@@ -471,7 +471,7 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -486,7 +486,7 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.9f);
 			PushAnnouncement($"CRUSHER SLAM +{num5}", AnnouncementTone.Destruction, Mathf.Max(0.7f, comboRushAnnouncementSeconds * 0.82f));
@@ -707,7 +707,7 @@ namespace AlienCrusher.Systems
 			}
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null && num9 > 0)
 			{
@@ -716,7 +716,7 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(num6 * (overdriveSynergy ? 1.2f : 1f));
 			string text = BuildSynergySuffix(drillSynergy, overdriveSynergy);
@@ -797,7 +797,7 @@ namespace AlienCrusher.Systems
 			//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
 			//IL_00d9: Unknown result type (might be due to invalid IL or missing references)
 			//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
-			DummyStreetPropReactive[] array = Object.FindObjectsByType<DummyStreetPropReactive>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			DummyStreetPropReactive[] array = Object.FindObjectsByType<DummyStreetPropReactive>((FindObjectsInactive)1);
 			if (array == null || array.Length == 0)
 			{
 				return 0;

@@ -132,7 +132,8 @@ if ($errors.Count -eq 0) {
         $errors.Add("Purchase paths must not save DP separately before granting the purchased item")
     }
     if ($formUnlockText.Contains('GameObject.Find("_Systems")') -or
-        $formUnlockText.Contains('FindFirstObjectByType<ProgressionSaveSystem>()')) {
+        $formUnlockText.Contains('FindFirstObjectByType<ProgressionSaveSystem>()') -or
+        $formUnlockText.Contains('FindAnyObjectByType<ProgressionSaveSystem>()')) {
         $errors.Add("FormUnlockSystem must resolve progression storage from an explicit reference or its canonical _Systems root")
     }
 

@@ -1182,7 +1182,7 @@ namespace AlienCrusher.Systems
 			{
 				if (formUnlockSystem == null)
 				{
-					formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+					formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 				}
 				string text = GetCurrentSelectedForm().ToString().ToUpperInvariant();
 				int num = Mathf.Max(2, bossStageStart);
@@ -1407,7 +1407,7 @@ namespace AlienCrusher.Systems
 			}
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			Text text = FindText(canvasRootTransform, "StageSelectText");
 			if ((Object)(object)text != (Object)null)
@@ -1432,7 +1432,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			int previousStage = currentStageNumber;
 			currentStageNumber = Mathf.Max(1, currentStageNumber - 1);
@@ -1449,7 +1449,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			int num = (((Object)(object)formUnlockSystem != (Object)null) ? formUnlockSystem.HighestUnlockedStage : Mathf.Max(1, currentStageNumber));
 			int previousStage = currentStageNumber;
@@ -2241,7 +2241,7 @@ namespace AlienCrusher.Systems
 
 		private void SetGameplayInputEnabled(bool enabled)
 		{
-			VirtualJoystickUI virtualJoystickUI = Object.FindFirstObjectByType<VirtualJoystickUI>(FindObjectsInactive.Include);
+			VirtualJoystickUI virtualJoystickUI = Object.FindAnyObjectByType<VirtualJoystickUI>(FindObjectsInactive.Include);
 			if ((Object)(object)virtualJoystickUI != (Object)null)
 			{
 				virtualJoystickUI.SetInputEnabled(enabled);
@@ -2284,7 +2284,7 @@ namespace AlienCrusher.Systems
 			{
 				return;
 			}
-			Transform[] array = Object.FindObjectsByType<Transform>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			Transform[] array = Object.FindObjectsByType<Transform>((FindObjectsInactive)1);
 			foreach (Transform val in array)
 			{
 				if (!((Object)(object)val == (Object)null) && !(((Object)val).name != objectName))
@@ -2372,7 +2372,7 @@ namespace AlienCrusher.Systems
 		private static void EnsureUiInputModuleMode()
 		{
 			//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-			EventSystem eventSystem = Object.FindFirstObjectByType<EventSystem>();
+			EventSystem eventSystem = Object.FindAnyObjectByType<EventSystem>();
 			if ((Object)(object)eventSystem == (Object)null)
 			{
 				eventSystem = new GameObject("EventSystem", new Type[1] { typeof(EventSystem) }).GetComponent<EventSystem>();

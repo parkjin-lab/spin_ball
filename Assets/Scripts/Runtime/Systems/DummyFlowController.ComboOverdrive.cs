@@ -18,12 +18,12 @@ namespace AlienCrusher.Systems
 			cachedPlayerController?.ClearTemporaryOverdrive();
 			if (damageNumberSystem == null)
 			{
-				damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+				damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
 			}
 			damageNumberSystem?.SetOverdriveMode(active: false);
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.SetOverdriveCameraState(active: false);
 			StopOverdriveTimePulse();
@@ -78,12 +78,12 @@ namespace AlienCrusher.Systems
 			cachedPlayerController?.ApplyTemporaryOverdrive(Mathf.Max(1f, overdriveSpeedScale), Mathf.Max(1f, overdriveImpactScale));
 			if (damageNumberSystem == null)
 			{
-				damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+				damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
 			}
 			damageNumberSystem?.SetOverdriveMode(active: true);
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.SetOverdriveCameraState(active: true);
 			scoreSystem?.AddScore(Mathf.Max(0, overdriveStartBonusScore));
@@ -94,7 +94,7 @@ namespace AlienCrusher.Systems
 			}
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)playerTransform != (Object)null)
 			{
@@ -114,12 +114,12 @@ namespace AlienCrusher.Systems
 				cachedPlayerController?.ClearTemporaryOverdrive();
 				if (damageNumberSystem == null)
 				{
-					damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+					damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
 				}
 				damageNumberSystem?.SetOverdriveMode(active: false);
 				if (cameraFollowSystem == null)
 				{
-					cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+					cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 				}
 				cameraFollowSystem?.SetOverdriveCameraState(active: false);
 			}
@@ -199,11 +199,11 @@ namespace AlienCrusher.Systems
 				CacheSceneReferences();
 			}
 			Vector3 val = (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero);
-			damageNumberSystem = (damageNumberSystem ?? Object.FindFirstObjectByType<DamageNumberSystem>());
+			damageNumberSystem = (damageNumberSystem ?? Object.FindAnyObjectByType<DamageNumberSystem>());
 			damageNumberSystem?.ShowTag(val + Vector3.up * 1.15f, "CHAIN LOST", brokenChain >= GetCurrentComboRushChainGate());
-			feedbackSystem = (feedbackSystem ?? Object.FindFirstObjectByType<FeedbackSystem>());
+			feedbackSystem = (feedbackSystem ?? Object.FindAnyObjectByType<FeedbackSystem>());
 			feedbackSystem?.PlayHitFeedback(val + Vector3.up * 0.2f, Mathf.Clamp01(0.32f + (float)brokenChain * 0.015f));
-			cameraFollowSystem = (cameraFollowSystem ?? Object.FindFirstObjectByType<CameraFollowSystem>());
+			cameraFollowSystem = (cameraFollowSystem ?? Object.FindAnyObjectByType<CameraFollowSystem>());
 			cameraFollowSystem?.AddImpulse(Mathf.Clamp(0.18f + (float)brokenChain * 0.008f, 0.2f, 0.42f));
 		}
 
@@ -339,7 +339,7 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			float normalizedIntensity = Mathf.Clamp01(0.45f + (float)num4 * 0.03f + (float)chain * Mathf.Lerp(0.015f, 0.021f, num5a));
 			if ((Object)(object)feedbackSystem != (Object)null)
@@ -351,7 +351,7 @@ namespace AlienCrusher.Systems
 			{
 				if (cameraFollowSystem == null)
 				{
-					cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+					cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 				}
 				cameraFollowSystem?.AddImpulse(Mathf.Lerp(0.42f, 0.88f, Mathf.Clamp01((float)chain / 24f)));
 			}
@@ -418,7 +418,7 @@ namespace AlienCrusher.Systems
 			//IL_00f1: Unknown result type (might be due to invalid IL or missing references)
 			//IL_00f6: Unknown result type (might be due to invalid IL or missing references)
 			//IL_00fa: Unknown result type (might be due to invalid IL or missing references)
-			DummyStreetPropReactive[] array = Object.FindObjectsByType<DummyStreetPropReactive>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			DummyStreetPropReactive[] array = Object.FindObjectsByType<DummyStreetPropReactive>((FindObjectsInactive)1);
 			if (array == null || array.Length == 0)
 			{
 				return 0;
@@ -486,7 +486,7 @@ namespace AlienCrusher.Systems
 			Vector3 val = (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			feedbackSystem?.PlayDestroyFeedback(val + Vector3.up * 0.35f, 1f);
 			RefreshDestructibleCache();

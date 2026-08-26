@@ -34,5 +34,22 @@ namespace MCPForUnity.Runtime.Helpers
 
             return ulong.TryParse(text.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out raw);
         }
+
+        /// <summary>
+        /// Deterministic int for System.Random seeds only. XOR-folds
+        /// EntityId.ToULong so both 32-bit halves contribute without an
+        /// EntityId-to-int cast (Unity treats that as identifier truncation).
+        /// Do not use this value for object lookup.
+        /// </summary>
+        public static int ToDeterministicSeed(this UnityEngine.Object obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+
+            ulong raw = EntityId.ToULong(obj.GetEntityId());
+            return unchecked((int)(raw ^ (raw >> 32)));
+        }
     }
 }

@@ -156,10 +156,10 @@ namespace AlienCrusher.Gameplay
             counterSurgePropertyBlock = new MaterialPropertyBlock();
             if (virtualJoystick == null)
             {
-                virtualJoystick = Object.FindFirstObjectByType<VirtualJoystickUI>(FindObjectsInactive.Include);
+                virtualJoystick = Object.FindAnyObjectByType<VirtualJoystickUI>(FindObjectsInactive.Include);
             }
 
-            feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+            feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 
             cachedRenderer = GetComponent<Renderer>();
             EnsureDrillVisual();
@@ -256,7 +256,7 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
             if (feedbackSystem == null)
             {
                 return;

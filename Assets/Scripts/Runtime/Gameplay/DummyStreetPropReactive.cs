@@ -141,9 +141,9 @@ namespace AlienCrusher.Gameplay
 
             CaptureBaseStats();
 
-            feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
-            scoreSystem = Object.FindFirstObjectByType<ScoreSystem>();
-            damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+            feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
+            scoreSystem = Object.FindAnyObjectByType<ScoreSystem>();
+            damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
         }
 
         private void OnDisable()
@@ -216,9 +216,9 @@ namespace AlienCrusher.Gameplay
         private void BreakProp(Transform root, Vector3 hitPoint, float impact01, bool drillMode, bool suppressFeedback = false)
         {
             broken = true;
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
-            scoreSystem ??= Object.FindFirstObjectByType<ScoreSystem>();
-            damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
+            scoreSystem ??= Object.FindAnyObjectByType<ScoreSystem>();
+            damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
 
             if (!suppressFeedback)
             {
@@ -313,15 +313,15 @@ namespace AlienCrusher.Gameplay
             }
 
             chainBurstTriggered = true;
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
-            scoreSystem ??= Object.FindFirstObjectByType<ScoreSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
+            scoreSystem ??= Object.FindAnyObjectByType<ScoreSystem>();
 
             var radius = Mathf.Max(0.9f, chainExplosionRadius) * (drillMode ? 1.08f : 1f);
             var minDamage = Mathf.Max(6f, chainExplosionDamageRange.x) * (drillMode ? 1.06f : 1f);
             var maxDamage = Mathf.Max(minDamage + 6f, chainExplosionDamageRange.y) * (drillMode ? 1.1f : 1f);
 
             var destructibleHits = 0;
-            var destructibles = Object.FindObjectsByType<DummyDestructibleBlock>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var destructibles = Object.FindObjectsByType<DummyDestructibleBlock>(FindObjectsInactive.Exclude);
             var radiusSqr = radius * radius;
             for (var i = 0; i < destructibles.Length; i++)
             {
@@ -353,7 +353,7 @@ namespace AlienCrusher.Gameplay
             }
 
             var propHits = 0;
-            var props = Object.FindObjectsByType<DummyStreetPropReactive>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var props = Object.FindObjectsByType<DummyStreetPropReactive>(FindObjectsInactive.Exclude);
             for (var i = 0; i < props.Length; i++)
             {
                 if (propHits >= Mathf.Max(1, chainPropTriggerCap))

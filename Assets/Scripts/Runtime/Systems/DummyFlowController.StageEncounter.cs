@@ -258,7 +258,7 @@ namespace AlienCrusher.Systems
 					damageNumberSystem?.ShowTag(val + Vector3.up * 1.8f, "SENTINEL DOWN", true);
 					feedbackSystem?.PlayBossDownFeedback(val + Vector3.up * 0.4f, 1f);
 					BossClimaxFeedbackVfx.PlayDefeatCascade(val);
-					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+					cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.PlayFinishShot(val + Vector3.up * 0.85f, 1f);
 					TriggerBossFinishSlowMotion();
 					RouteStageVictoryEnd(StageEndReason.BossDefeated, val, StageVictoryFlow.BossCascade);
@@ -531,7 +531,7 @@ namespace AlienCrusher.Systems
 			Vector3 position = ((Component)stageBossBlock).transform.position;
 			if (damageNumberSystem == null)
 			{
-				damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+				damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
 			}
 			if ((Object)(object)damageNumberSystem != (Object)null)
 			{
@@ -540,7 +540,7 @@ namespace AlienCrusher.Systems
 			}
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -568,7 +568,7 @@ namespace AlienCrusher.Systems
 			stageBossBlock.SetStageEncounterDamageScale(Mathf.Max(1f, bossBreakDamageMultiplier));
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -950,7 +950,7 @@ namespace AlienCrusher.Systems
 			}
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -958,12 +958,12 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(Mathf.Lerp(0.34f, 0.82f, num));
 			if (damageNumberSystem == null)
 			{
-				damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+				damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
 			}
 			if ((Object)(object)damageNumberSystem != (Object)null)
 			{

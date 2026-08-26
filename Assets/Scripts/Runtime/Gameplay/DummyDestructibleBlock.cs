@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using AlienCrusher.Systems;
 using DG.Tweening;
+using MCPForUnity.Runtime.Helpers;
 using UnityEngine;
 
 namespace AlienCrusher.Gameplay
@@ -203,9 +204,9 @@ namespace AlienCrusher.Gameplay
             currentDamageScale = initialScale;
             transform.localScale = initialScale;
 
-            scoreSystem = Object.FindFirstObjectByType<ScoreSystem>();
-            feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
-            damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+            scoreSystem = Object.FindAnyObjectByType<ScoreSystem>();
+            feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
+            damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
             smallPropStyle = ResolveSmallPropStyle();
 
             EvaluateLargeBuildingType();
@@ -583,9 +584,9 @@ namespace AlienCrusher.Gameplay
             var damageRatio = 1f - remainingRatio;
             var heavyHit = weakPointHit || forceHeavy || safeDamage >= maxDamagePerHit * 0.4f || impact01 > 0.65f;
 
-            scoreSystem ??= Object.FindFirstObjectByType<ScoreSystem>();
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
-            damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
+            scoreSystem ??= Object.FindAnyObjectByType<ScoreSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
+            damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
 
             scoreSystem?.AddScore(Mathf.RoundToInt(safeDamage * hitScoreMultiplier * GetHitScoreRewardScale()));
             if (weakPointHit)
@@ -787,8 +788,8 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            scoreSystem ??= Object.FindFirstObjectByType<ScoreSystem>();
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+            scoreSystem ??= Object.FindAnyObjectByType<ScoreSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
 
             var bonus = Mathf.Max(0, totalShockwaveHits * Mathf.Max(0, shockwaveBonusScorePerHit) + runtimeShockwaveBonusScoreFlatAdd);
             if (bonus > 0)
@@ -1325,7 +1326,7 @@ namespace AlienCrusher.Gameplay
             cracksBuilt = true;
             crackPieces.Clear();
 
-            var rng = new System.Random(GetInstanceID());
+            var rng = new System.Random(this.ToDeterministicSeed());
             var size = SanitizeScale(initialScale);
             var half = size * 0.5f;
             var baseLength = Mathf.Max(0.2f, Mathf.Min(size.x, size.z) * 0.35f);

@@ -184,7 +184,7 @@ namespace AlienCrusher.Systems
 			}
 			if ((Object)(object)root == (Object)null)
 			{
-				Transform[] array = Object.FindObjectsByType<Transform>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+				Transform[] array = Object.FindObjectsByType<Transform>((FindObjectsInactive)1);
 				foreach (Transform val in array)
 				{
 					if (((Object)val).name == targetName)

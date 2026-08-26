@@ -34,7 +34,7 @@ namespace AlienCrusher.EditorTools
 
             report.AppendLine("[AlienCrusher][MapLayoutAudit] Runtime stage map sweep");
 
-            var flow = Object.FindFirstObjectByType<DummyFlowController>();
+            var flow = Object.FindAnyObjectByType<DummyFlowController>();
             if (flow == null)
             {
                 errors++;

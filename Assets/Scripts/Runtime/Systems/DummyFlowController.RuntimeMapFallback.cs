@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using AlienCrusher.Gameplay;
+using MCPForUnity.Runtime.Helpers;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -37,7 +38,7 @@ namespace AlienCrusher.Systems
 		private void EnsureRuntimeMapFallback()
 		{
 			//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-			DummyDestructibleBlock[] existingDestructibles = Object.FindObjectsByType<DummyDestructibleBlock>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			DummyDestructibleBlock[] existingDestructibles = Object.FindObjectsByType<DummyDestructibleBlock>((FindObjectsInactive)1);
 			if (existingDestructibles.Length < 68)
 			{
 				Transform val = FindChildByName(null, "_Gameplay");
@@ -1848,7 +1849,7 @@ namespace AlienCrusher.Systems
 				return RuntimeCityThemeProfile.IndustrialHarbor;
 			}
 
-			int num2 = Environment.TickCount ^ (((Object)(object)mapRoot != (Object)null) ? (((Object)mapRoot).GetInstanceID() * 397) : 0) ^ num * 733;
+			int num2 = Environment.TickCount ^ (((Object)(object)mapRoot != (Object)null) ? (mapRoot.ToDeterministicSeed() * 397) : 0) ^ num * 733;
 			return (new System.Random(num2).Next(0, 2) == 0) ? RuntimeCityThemeProfile.DenseCore : RuntimeCityThemeProfile.IndustrialHarbor;
 		}
 

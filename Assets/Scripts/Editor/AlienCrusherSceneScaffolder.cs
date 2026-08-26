@@ -2,6 +2,7 @@
 using AlienCrusher.Gameplay;
 using AlienCrusher.Systems;
 using AlienCrusher.UI;
+using MCPForUnity.Runtime.Helpers;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -764,7 +765,7 @@ namespace AlienCrusher.EditorTools
 
         private static CityThemeProfile PickEditorCityTheme(Transform mapRoot)
         {
-            var seed = unchecked((int)(System.DateTime.UtcNow.Ticks ^ (mapRoot != null ? mapRoot.GetInstanceID() * 397L : 0L)));
+            var seed = unchecked((int)(System.DateTime.UtcNow.Ticks ^ (mapRoot != null ? mapRoot.ToDeterministicSeed() * 397L : 0L)));
             var rng = new System.Random(seed);
             return (CityThemeProfile)rng.Next(0, 3);
         }
@@ -1016,12 +1017,12 @@ private static void EnsureTransformer(Transform parent, string name, Vector3 loc
             targetCamera.nearClipPlane = 0.1f;
             targetCamera.farClipPlane = 200f;
 
-            if (Object.FindFirstObjectByType<AudioListener>() == null)
+            if (Object.FindAnyObjectByType<AudioListener>() == null)
             {
                 AddComponentIfMissing<AudioListener>(targetCamera.gameObject);
             }
 
-            var follow = Object.FindFirstObjectByType<CameraFollowSystem>();
+            var follow = Object.FindAnyObjectByType<CameraFollowSystem>();
             if (follow != null)
             {
                 follow.Configure(cameraTransform);
@@ -1032,7 +1033,7 @@ private static void EnsureTransformer(Transform parent, string name, Vector3 loc
         private static void EnsureGameplayLighting(Transform gameplayRoot)
         {
             Light keyLight = null;
-            var lights = Object.FindObjectsByType<Light>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var lights = Object.FindObjectsByType<Light>(FindObjectsInactive.Include);
             foreach (var l in lights)
             {
                 if (l != null && l.type == LightType.Directional)
@@ -1449,7 +1450,7 @@ private static void EnsureTransformer(Transform parent, string name, Vector3 loc
 
         private static void EnsureEventSystem()
         {
-            var eventSystem = Object.FindFirstObjectByType<EventSystem>();
+            var eventSystem = Object.FindAnyObjectByType<EventSystem>();
             if (eventSystem == null)
             {
                 eventSystem = new GameObject("EventSystem", typeof(EventSystem)).GetComponent<EventSystem>();

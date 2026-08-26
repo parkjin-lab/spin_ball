@@ -86,7 +86,7 @@ namespace AlienCrusher.Systems
 				}
 				if (feedbackSystem == null)
 				{
-					feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+					feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 				}
 				if ((Object)(object)feedbackSystem != (Object)null)
 				{
@@ -95,7 +95,7 @@ namespace AlienCrusher.Systems
 				}
 				if (cameraFollowSystem == null)
 				{
-					cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+					cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 				}
 				float magnitude = Mathf.Lerp(0.34f, 1.02f, num) * (flag ? 1.08f : 1f);
 				cameraFollowSystem?.AddImpulse(magnitude);

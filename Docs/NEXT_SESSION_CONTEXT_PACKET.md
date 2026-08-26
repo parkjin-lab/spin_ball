@@ -1,12 +1,19 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-26 Unity 6.5 Game Scripts Compile Fix
+
+- After MCPForUnity compiled, `6000.5.9f1` failed on the game assembly: `GetInstanceID` at `DummyFlowController.RuntimeMapFallback.cs` (late-stage city theme seed) and `DummyDestructibleBlock.cs` (crack-piece seed). Editor `AlienCrusherSceneScaffolder.PickEditorCityTheme` used the same API.
+- Seeds now call `UnityObjectIdentity.ToDeterministicSeed()` (XOR-fold of `EntityId.ToULong`). Same `System.Random` consumers, same `* 397` mix, TickCount / UTC ticks unchanged. Do not use that int for object lookup.
+- Same pass replaced obsolete identifier-ordered finds in `Assets/Scripts`: `FindFirstObjectByType` → `FindAnyObjectByType`, and `FindObjectsByType(..., FindObjectsSortMode)` → no-sort `FindObjectsByType` / `FindObjectsByType(..., FindObjectsInactive)`. `Resources.FindObjectsOfTypeAll` is unchanged.
+- How to verify: reopen in Unity `6000.5.9f1` and confirm the console shows no CS0104 or CS0619 under `Assets/Scripts` **and** `Assets/MCPForUnity`. Then Play Mode / Stage 1-7 can run.
+
 ## 2026-08-25 Unity 6.5 MCP Compile Fix
 
 - After the `6000.5.9f1` open, MCPForUnity Runtime and Editor failed on obsolete InstanceID APIs (`GetInstanceID`, `InstanceIDToObject`, `Selection.activeInstanceID`) and identifier-ordered find APIs.
 - Shared helper `UnityObjectIdentity` maps `GetEntityId` through `EntityId.ToULong` / `FromULong`. JSON/API fields still named `instanceID` carry the lossless 64-bit value. Lookups use `EditorUtility.EntityIdToObject`.
 - Find calls use `FindObjectsByType` without `FindObjectsSortMode`. `Resources.FindObjectsOfTypeAll` is unchanged (different API, still valid).
 - Follow-up: `GameObjectLookup.FindObjectById` used a bare `Object` return type (`using System` + `using UnityEngine` → CS0104). It is now `UnityEngine.Object`. Nearby identity helpers qualify `UnityEngine.Object` the same way.
-- How to verify: reopen in Unity `6000.5.9f1` and confirm the console shows no CS0104 or CS0619 under `Assets/MCPForUnity`. Then Play Mode / Stage 1-7 can run.
+- How to verify: reopen in Unity `6000.5.9f1` and confirm the console shows no CS0104 or CS0619 under `Assets/MCPForUnity` **or** `Assets/Scripts`. Then Play Mode / Stage 1-7 can run.
 
 ## 2026-08-25 Unity Editor Bump
 
@@ -215,6 +222,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-26: Game scripts Unity 6.5 compile fix: `GetInstanceID` seeds now use `ToDeterministicSeed`; `FindFirstObjectByType` / `FindObjectsSortMode` replaced. No route/payoff/boss/map retune.
 - 2026-08-25: MCPForUnity CS0104 fix: `FindObjectById` now returns `UnityEngine.Object` so `using System` + `using UnityEngine` no longer clash. No gameplay change.
 - 2026-08-25: MCPForUnity Editor+Runtime compile fix for Unity 6.5 obsolete InstanceID / find APIs. JSON `instanceID` fields now store EntityId.ToULong. No gameplay change.
 - 2026-08-25: Unity editor pin bumped to `6000.5.9f1` (`b57deb96f08d`). Open the project in that editor. No gameplay or package retarget.

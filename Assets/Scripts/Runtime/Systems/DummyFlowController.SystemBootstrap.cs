@@ -215,7 +215,7 @@ namespace AlienCrusher.Systems
 			//IL_013a: Unknown result type (might be due to invalid IL or missing references)
 			//IL_0158: Unknown result type (might be due to invalid IL or missing references)
 			Light val = null;
-			Light[] array = Object.FindObjectsByType<Light>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			Light[] array = Object.FindObjectsByType<Light>((FindObjectsInactive)1);
 			foreach (Light val2 in array)
 			{
 				if ((Object)(object)val2 != (Object)null && (int)val2.type == 1)
@@ -260,7 +260,7 @@ namespace AlienCrusher.Systems
 			{
 				return;
 			}
-			Renderer[] array = Object.FindObjectsByType<Renderer>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			Renderer[] array = Object.FindObjectsByType<Renderer>((FindObjectsInactive)1);
 			foreach (Renderer val2 in array)
 			{
 				if (!((Object)(object)val2 == (Object)null) && !(val2 is ParticleSystemRenderer) && !((Object)(object)((Component)val2).GetComponent<TextMesh>() != (Object)null))

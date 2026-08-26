@@ -49,7 +49,7 @@ namespace AlienCrusher.Systems
 				}
 				if (feedbackSystem == null)
 				{
-					feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+					feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 				}
 				if ((Object)(object)feedbackSystem != (Object)null)
 				{
@@ -58,7 +58,7 @@ namespace AlienCrusher.Systems
 				}
 				if (cameraFollowSystem == null)
 				{
-					cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+					cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 				}
 				cameraFollowSystem?.AddImpulse(Mathf.Clamp(0.34f + (float)num * 0.06f, 0.2f, 1.2f));
 				PushAnnouncement($"SEISMIC CORE LV.{num} +{num7}", AnnouncementTone.Milestone, Mathf.Max(0.5f, seismicUpgradePulseAnnouncementSeconds));
@@ -116,7 +116,7 @@ namespace AlienCrusher.Systems
 				}
 				if (feedbackSystem == null)
 				{
-					feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+					feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 				}
 				if ((Object)(object)feedbackSystem != (Object)null)
 				{
@@ -125,7 +125,7 @@ namespace AlienCrusher.Systems
 				}
 				if (cameraFollowSystem == null)
 				{
-					cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+					cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 				}
 				cameraFollowSystem?.AddImpulse(Mathf.Clamp(0.58f + (float)num2 * 0.1f, 0.2f, 1.4f));
 				PushAnnouncement($"SEISMIC RESONANCE x{num2} +{num12}", AnnouncementTone.Destruction, Mathf.Max(0.65f, seismicResonanceAnnouncementSeconds));

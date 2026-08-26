@@ -573,7 +573,7 @@ namespace AlienCrusher.Systems
             mainCamera = Camera.main;
             if (mainCamera == null)
             {
-                var cameras = UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                var cameras = UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsInactive.Include);
                 if (cameras.Length > 0)
                 {
                     mainCamera = cameras[0];
@@ -585,7 +585,7 @@ namespace AlienCrusher.Systems
                 baseFov = mainCamera.fieldOfView;
             }
 
-            cameraFollowSystem = UnityEngine.Object.FindFirstObjectByType<CameraFollowSystem>();
+            cameraFollowSystem = UnityEngine.Object.FindAnyObjectByType<CameraFollowSystem>();
             EnsureAudioSource();
         }
 
@@ -680,7 +680,7 @@ namespace AlienCrusher.Systems
         private void EnsureFlashOverlay()
         {
             Canvas canvas = null;
-            var allCanvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var allCanvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include);
             for (var i = 0; i < allCanvas.Length; i++)
             {
                 if (allCanvas[i].name == "Canvas_Dummy")
@@ -690,7 +690,7 @@ namespace AlienCrusher.Systems
                 }
             }
 
-            canvas ??= UnityEngine.Object.FindFirstObjectByType<Canvas>(FindObjectsInactive.Include);
+            canvas ??= UnityEngine.Object.FindAnyObjectByType<Canvas>(FindObjectsInactive.Include);
             if (canvas == null)
             {
                 return;
@@ -1036,7 +1036,7 @@ namespace AlienCrusher.Systems
         }
         private void ApplyCameraFeedback(float impulseMagnitude, float fovPunch)
         {
-            cameraFollowSystem ??= UnityEngine.Object.FindFirstObjectByType<CameraFollowSystem>();
+            cameraFollowSystem ??= UnityEngine.Object.FindAnyObjectByType<CameraFollowSystem>();
             cameraFollowSystem?.AddImpulse(impulseMagnitude);
 
             if (!allowDotween)

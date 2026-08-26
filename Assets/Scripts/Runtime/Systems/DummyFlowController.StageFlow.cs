@@ -146,7 +146,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			int num = Mathf.Max(1, currentStageNumber + 1);
 			if ((Object)(object)formUnlockSystem != (Object)null)
@@ -189,7 +189,7 @@ namespace AlienCrusher.Systems
 			{
 				if (formUnlockSystem == null)
 				{
-					formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+					formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 				}
 				int num = (((Object)(object)scoreSystem != (Object)null) ? scoreSystem.CurrentScore : 0);
 				bool flag = DidStageEndInSuccess();
@@ -232,7 +232,7 @@ namespace AlienCrusher.Systems
 			}
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			string text = string.Empty;
 			int num = 0;
@@ -442,7 +442,7 @@ namespace AlienCrusher.Systems
 			}
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			int num = (((Object)(object)formUnlockSystem != (Object)null) ? Mathf.Max(0, formUnlockSystem.DpBalance) : 0);
 			int num2 = (((Object)(object)formUnlockSystem != (Object)null) ? Mathf.Max(1, formUnlockSystem.HighestUnlockedStage) : Mathf.Max(1, currentStageNumber));
@@ -466,7 +466,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			int num = ((Object)(object)formUnlockSystem != (Object)null) ? Mathf.Max(0, formUnlockSystem.DpBalance) : 0;
 			bool flag = HasReadyFormUnlock(num);

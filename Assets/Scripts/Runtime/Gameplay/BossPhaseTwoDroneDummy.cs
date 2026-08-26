@@ -44,8 +44,8 @@ namespace AlienCrusher.Gameplay
         {
             cachedCollider = GetComponent<Collider>();
             cachedRenderers = GetComponentsInChildren<Renderer>(true);
-            damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
-            feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+            damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
+            feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
             baseLocalPosition = transform.localPosition;
             baseLocalRotation = transform.localRotation;
             Restore();
@@ -205,8 +205,8 @@ namespace AlienCrusher.Gameplay
 
             Vector3 hitPoint = collision.contactCount > 0 ? collision.GetContact(0).point : transform.position;
             float impact01 = Mathf.InverseLerp(impactThreshold, 16f, relativeSpeed);
-            damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+            damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
             damageNumberSystem?.ShowDamage(hitPoint, damage, impact01 >= 0.65f, currentDurability <= 0f);
             feedbackSystem?.PlayHitFeedback(hitPoint, Mathf.Clamp01(impact01));
             wobbleRemaining = Mathf.Max(0.04f, wobbleDuration);

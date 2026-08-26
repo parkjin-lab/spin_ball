@@ -312,7 +312,7 @@ namespace AlienCrusher.Systems
 			ResolvePlayerController();
 			cachedPlayerController?.ApplyCounterSurge(1.04f, 1.08f, 0.9f);
 			feedbackSystem?.PlayComboRushFeedback(val + Vector3.up * 0.18f, 0.48f, 3.2f);
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(0.24f);
 		}
 		private void TriggerEarlyCrushFlowBonus(int bonusIndex)
@@ -354,7 +354,7 @@ namespace AlienCrusher.Systems
 					Vector3 openTrailAim = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : val + Vector3.forward * 6f;
 					RouteOpenTrailVfx.Play(val + Vector3.up * 0.08f, openTrailAim);
 					LaneBreakResidualVfx.Play(val + Vector3.up * 0.06f);
-					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+					cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.AddImpulse(0.32f);
 				}
 			}
@@ -388,7 +388,7 @@ namespace AlienCrusher.Systems
 			ResolvePlayerController();
 			cachedPlayerController?.ApplyCounterSurge(1.05f, 1.1f, Mathf.Max(0.3f, routeHoldCounterDuration));
 			feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.2f, 0.58f, major: false);
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(0.28f);
 			Vector3 holdPulseAim = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : val;
 			RouteHoldSuccessVfx.Play(val + Vector3.up * 0.22f, holdPulseAim);
@@ -557,7 +557,7 @@ namespace AlienCrusher.Systems
 			feedbackSystem?.PlayTotalDestructionFeedback(val, 0.8f);
 			feedbackSystem?.PlayComboRushFeedback(val, 0.72f, 4.8f);
 			RouteBonusSuccessVfx.Play(val);
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(Mathf.Max(0.1f, stageAdvanceRouteRewardCameraImpulse));
 			string districtLabel = GetRouteDistrictPayoffLabel();
 			damageNumberSystem?.ShowTag(val + Vector3.up * 1.05f, $"{districtLabel} +{Mathf.Max(0, stageAdvanceRouteRewardScore):0}", true);
@@ -1011,7 +1011,7 @@ namespace AlienCrusher.Systems
 			feedbackSystem?.PlayTotalDestructionFeedback(position + Vector3.up * 0.26f, 0.92f);
 			feedbackSystem?.PlayComboRushFeedback(position + Vector3.up * 0.18f, 0.88f, Mathf.Max(3.2f, forwardSmashBonusRadius));
 			ForwardSmashConfirmVfx.Play(position);
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(0.95f);
 			TriggerForwardSmashChain(position);
 			forwardSmashTargetBlock = null;
@@ -1083,7 +1083,7 @@ namespace AlienCrusher.Systems
 			{
 				yield return new WaitForSecondsRealtime(num);
 			}
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.PlayFinishShot(center + Vector3.up * 0.45f, 0.8f);
 			cameraFollowSystem?.AddImpulse(0.85f);
 			feedbackSystem?.PlayTotalDestructionFeedback(center + Vector3.up * 0.24f, 0.74f);
@@ -1189,7 +1189,7 @@ namespace AlienCrusher.Systems
 		private void RefreshDestructibleCache()
 		{
 			destructibleCache.Clear();
-			DummyDestructibleBlock[] array = Object.FindObjectsByType<DummyDestructibleBlock>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			DummyDestructibleBlock[] array = Object.FindObjectsByType<DummyDestructibleBlock>((FindObjectsInactive)1);
 			foreach (DummyDestructibleBlock dummyDestructibleBlock in array)
 			{
 				if (!((Object)(object)dummyDestructibleBlock == (Object)null))

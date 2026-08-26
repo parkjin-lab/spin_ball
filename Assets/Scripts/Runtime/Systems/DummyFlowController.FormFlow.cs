@@ -10,7 +10,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			ResolvePlayerController();
 			if (!((Object)(object)formUnlockSystem == (Object)null) && !((Object)(object)cachedPlayerController == (Object)null))
@@ -29,7 +29,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if (!((Object)(object)formUnlockSystem == (Object)null))
 			{
@@ -125,7 +125,7 @@ namespace AlienCrusher.Systems
 		{
 			if (formUnlockSystem == null)
 			{
-				formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+				formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			}
 			if (!((Object)(object)formUnlockSystem != (Object)null))
 			{
