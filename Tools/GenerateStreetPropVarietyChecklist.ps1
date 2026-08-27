@@ -55,6 +55,7 @@ function Add-MissingMarker {
 
 $projectRoot = Resolve-ProjectRoot
 $runtimeMapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RuntimeMapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RuntimeMapFallback.cs"
+$streetPropGapFillSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath "" -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StreetPropGapFill.cs"
 $trafficBootstrapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TrafficBootstrapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.TrafficBootstrap.cs"
 $trafficSpawningSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TrafficSpawningPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.TrafficSpawning.cs"
 $trafficKitsSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $TrafficKitsPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.TrafficSilhouetteKits.cs"
@@ -75,6 +76,8 @@ if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
 }
 
 $runtimeMapText = Read-SourceText -Path $runtimeMapSourcePath
+$streetPropGapFillText = if (Test-Path -Path $streetPropGapFillSourcePath -PathType Leaf) { Read-SourceText -Path $streetPropGapFillSourcePath } else { "" }
+$runtimeMapText = $runtimeMapText + $streetPropGapFillText
 $trafficBootstrapText = Read-SourceText -Path $trafficBootstrapSourcePath
 $trafficSpawningText = Read-SourceText -Path $trafficSpawningSourcePath
 $trafficKitsText = if (Test-Path -Path $trafficKitsSourcePath -PathType Leaf) { Read-SourceText -Path $trafficKitsSourcePath } else { "" }
@@ -98,6 +101,7 @@ foreach ($needle in @(
     "EnsureResidentialMailboxRuntime",
     "EnsureResidentialShedRuntime",
     "FillRouteGapStreetProps",
+    "FillOpeningStretchStreetProps",
     "DummyStreetPropReactive.PropKind.Lamp",
     "DummyStreetPropReactive.PropKind.Tree",
     "DummyStreetPropReactive.PropKind.ChainBarrel",

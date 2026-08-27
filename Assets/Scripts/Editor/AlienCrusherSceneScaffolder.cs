@@ -757,6 +757,7 @@ namespace AlienCrusher.EditorTools
                 }
             }
 
+            FillOpeningStretchStreetProps(streetProps, microProps, buildingFootprints, carColorA, carColorB, chainColorA, chainColorB, commercialAccentA, commercialAccentB);
             EnsureCylinder(targetMarkers, "Target_A", new Vector3(-15f, 0.15f, 12f), new Vector3(1.5f, 0.15f, 1.5f), targetColor);
             EnsureCylinder(targetMarkers, "Target_B", new Vector3(15f, 0.15f, -12f), new Vector3(1.5f, 0.15f, 1.5f), targetColor);
 
@@ -769,6 +770,103 @@ namespace AlienCrusher.EditorTools
             var rng = new System.Random(seed);
             return (CityThemeProfile)rng.Next(0, 3);
         }
+        private static void FillOpeningStretchStreetProps(Transform streetPropsRoot, Transform microPropsRoot, System.Collections.Generic.List<Vector4> footprints, Color carA, Color carB, Color barrelA, Color barrelB, Color shopA, Color shopB)
+        {
+            if (streetPropsRoot == null || footprints == null)
+            {
+                return;
+            }
+
+            var kitParent = microPropsRoot != null ? microPropsRoot : streetPropsRoot;
+            var random = new System.Random(3317);
+            const int maxPlace = 12;
+            const float nearbyRadius = 1.45f;
+            var placed = 0;
+            var targetA = new Vector3(-15f, 0f, 12f);
+            var targetB = new Vector3(15f, 0f, -12f);
+            const float curbX = 3.2f;
+            const float zStart = -19.4f;
+            const float zEnd = -11.6f;
+            const float stepZ = 1.68f;
+
+            for (var z = zStart; z <= zEnd && placed < maxPlace; z += stepZ)
+            {
+                for (var side = 0; side < 2 && placed < maxPlace; side++)
+                {
+                    var x = side == 0 ? -curbX : curbX;
+                    var pos = new Vector3(x, 0f, z);
+                    if (Mathf.Abs(pos.x) < 1.72f)
+                    {
+                        continue;
+                    }
+
+                    var dxA = pos.x - targetA.x;
+                    var dzA = pos.z - targetA.z;
+                    var dxB = pos.x - targetB.x;
+                    var dzB = pos.z - targetB.z;
+                    if (dxA * dxA + dzA * dzA < 3.4f * 3.4f || dxB * dxB + dzB * dzB < 3.4f * 3.4f)
+                    {
+                        continue;
+                    }
+
+                    if (HasNearbyChild(streetPropsRoot, pos, nearbyRadius) || HasNearbyChild(kitParent, pos, nearbyRadius) || OverlapsAnyFootprint(footprints, pos.x, pos.z, 0.42f, 0.42f))
+                    {
+                        continue;
+                    }
+
+                    var suffix = $"Open_01_{placed:00}";
+                    switch (placed % 5)
+                    {
+                        case 0:
+                            EnsureStreetLamp(streetPropsRoot, "GapLamp_" + suffix, pos);
+                            break;
+                        case 1:
+                            EnsureTrafficVehicle(streetPropsRoot, "GapCar_" + suffix, pos, 0f, Color.Lerp(carA, carB, (float)random.NextDouble()));
+                            break;
+                        case 2:
+                            EnsureCommercialBench(kitParent, "GapBench_" + suffix, new Vector3(pos.x, 0.22f, pos.z), Color.Lerp(shopA, shopB, 0.35f));
+                            break;
+                        case 3:
+                            EnsureCommercialKiosk(kitParent, "GapKiosk_" + suffix, new Vector3(pos.x, 0.48f, pos.z), new Vector3(0.68f, 0.68f, 0.58f), Color.Lerp(shopA, shopB, 0.45f));
+                            break;
+                        default:
+                            EnsureExplosiveBarrel(streetPropsRoot, "GapBarrel_" + suffix, pos, Color.Lerp(barrelA, barrelB, (float)random.NextDouble()));
+                            break;
+                    }
+
+                    AddFootprint(footprints, pos.x, pos.z, 0.42f, 0.42f);
+                    placed++;
+                }
+            }
+        }
+
+        private static bool HasNearbyChild(Transform root, Vector3 localPosition, float radius)
+        {
+            if (root == null)
+            {
+                return false;
+            }
+
+            var limit = radius * radius;
+            for (var i = 0; i < root.childCount; i++)
+            {
+                var child = root.GetChild(i);
+                if (child == null)
+                {
+                    continue;
+                }
+
+                var delta = child.localPosition - localPosition;
+                delta.y = 0f;
+                if (delta.sqrMagnitude <= limit)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
 private static void EnsureTrafficVehicle(Transform parent, string name, Vector3 localPosition, float yaw, Color bodyColor)
         {
             var root = CreateOrGetChild(parent, name).transform;

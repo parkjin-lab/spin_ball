@@ -1,5 +1,11 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-27 Stage 1-3 Opening Smash Density
+
+- Stages 1-3 now author curb smashables on the opening stretch during map construction (`FillOpeningStretchStreetProps`), using the same Stage 1 5-kit cycle: `GapLamp_*` / `GapCar_*` / `GapBench_*` / `GapKiosk_*` / `GapBarrel_*`. No Street Props D on the starter lane. Target_A/B stay 3.4m clear; HOLD trail stays on the center guide.
+- This is baked into `BuildFallbackMap` / scaffolder opening curbs, not the late `EnsureOpeningDestructionDensity` patch. Lane-break thresholds, timers, payoff counts, and map size are unchanged.
+- How to see it: Play Mode, start Stage 1 — spawn-lane curbs already show `GapLamp_Open_*` / `GapCar_Open_*` before moving far. F7 to Stage 2 and Stage 3: same first-contact curb smashables. Console should not need a later "Opening density was low" fill to make the opener smashable.
+
 ## 2026-08-27 Smash-Weight Readability
 
 - Lamps/trees/benches now always use `breakSmallClip` + `VFX_Debris_Light`. Mid `Block_*` / kiosks / parked cars use the existing destroy slot forced into `breakLargeClip` mid range + `VFX_Debris_Heavy`. Yard/harbor cranes and large `Block_*` use full `breakLargeClip` + heavier `VFX_Debris_Heavy`.
@@ -235,6 +241,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-27: Stage 1-3 opening smash density. Authored Gap* A/B/C kits on spawn-lane curbs during map construction so Stages 1/2/3 already have smashables on first contact. No Street Props D, no Target_A/B/HOLD cover, no late opening-density fill, no route/timer/map retune.
 - 2026-08-27: Smash-weight readability. Lamp/tree/bench = small break + light debris; mid buildings/kiosks/cars = existing mid/heavy destroy slot; cranes and large Block_* = large collapse. No HP/threshold/score change.
 - 2026-08-27: Smashable-city parity + Stage 2-7 A/B/C gap props. Static street props join wreck count; yard/harbor cranes are DummyDestructibleBlock. No HUD pulse, no D clutter on Stage 1 starter, no route/payoff/boss/map retune.
 - 2026-08-26: Game scripts Unity 6.5 compile fix: `GetInstanceID` seeds now use `ToDeterministicSeed`; `FindFirstObjectByType` / `FindObjectsSortMode` replaced. No route/payoff/boss/map retune.
