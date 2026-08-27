@@ -117,7 +117,8 @@ Break feedback shipped:
 - `VFX_Debris_Heavy` heavier local burst on large/mid collapse, kept short so Target_A/B and HOLD pips stay readable
 - `VFX_Smoke_Damage` near-break smoke on mid/large structures
 - `VFX_WeakPoint_Hit` tight gold/orange crit flash, distinct from ordinary chips
-- runtime VFX only; HP, spawn counts, and timing unchanged
+- draft materials at `Assets/Art/VFX/Destruction/` plus Resources copies; runtime `Resources.Load`s them onto the existing ParticleSystem / flash slots before the Particles Unlit fallback
+- HP, spawn counts, timing, and smash-weight mappings unchanged
 
 Expected output:
 - players can tell easy targets from high-value targets
