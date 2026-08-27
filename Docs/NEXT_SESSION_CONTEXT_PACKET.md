@@ -1,5 +1,12 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-27 District Palette Draft Materials
+
+- Runtime sets were already wired: `PAL_RouteMarker_Tints`, seven `PAL_District_*` families, and `PAL_Ambient_StageBands`. The unused COMPLETE on-disk gap was those named files — no `Assets/Art/Palettes/` drafts existed, so ground/wall/stripe, route discs, and ambient fills still came only from hardcoded colors.
+- This pass adds inspectable drafts at `Assets/Art/Palettes/Districts/`, `Assets/Art/Palettes/UI/`, and `Assets/Art/Palettes/Lighting/` plus Resources copies. `DistrictPaletteDrafts` `Resources.Load`s them (editor `AssetDatabase` fallback). District slots overlay `_BaseColor` / `_EmissionColor` / `_SpecColor` onto the existing ground / wall / stripe after the current recipes. Route Marker / Paint / Trail keep the orchid / magenta / pink-white values baked into `PAL_RouteMarker_Tints`. Ambient Stage 1 / 4 / 7 read opener / Sentinel / skyline slots from `PAL_Ambient_StageBands`; Stage 2/3/5/6 stay the existing mid-value fills. Timing, payoff counts, boss pressure, and map size are unchanged. No Gap* density and no HUD/lobby residual pulse.
+- Stage 1 / 3 / 4 / 7 assignment notes (no HUD required): Stage 1 opener is warm gray-green ground with cream stripes. Stage 3 market is stall-brown ground with orange stripes. Stage 4 Sentinel is cool steel/navy with amber caution stripes. Stage 7 skyline is night plaza with pale crown stripes. `Target_A` / `Target_B` stay bright orchid `(1.00, 0.58, 0.94)`, `routeColor` stays deep magenta `(0.94, 0.18, 0.70)`, and HOLD pips stay pink-white `(1.00, 0.76, 0.98)` — louder than every district fill.
+- How to see it: Play Mode Stage 1, then `F7` to 3, 4, and 7. The four stages should not look interchangeable before reading HUD text. Orchid targets and HOLD pips stay the brightest nav marks on all four. Project window: `Assets/Art/Palettes/Districts/`, `Assets/Art/Palettes/UI/PAL_RouteMarker_Tints.mat`, `Assets/Art/Palettes/Lighting/PAL_Ambient_StageBands.mat`.
+
 ## 2026-08-27 Boss Identity Materials And Climax VFX Drafts
 
 - Runtime kits `BOSS_Sentinel_Body_Kit`, `BOSS_Shield_Pylon_Kit`, and `BOSS_Phase2_Drone_Kit` were already wired. The unused COMPLETE on-disk gap was Boss Identity B/C named files: no `MAT_Boss_Sentinel_Armor` / `MAT_Boss_Shield_Pylon` / `MAT_Boss_Core_Exposed` and no inspectable `VFX_Boss_Core_Expose_Burst` / `VFX_Boss_Warning_Ring` / `VFX_Boss_Defeat_Cascade` materials existed, so kit pieces and climax flashes still used anonymous runtime Unlit copies.

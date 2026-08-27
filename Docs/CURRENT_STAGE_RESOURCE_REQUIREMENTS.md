@@ -354,8 +354,8 @@ Status:
 - core rhythm palettes `PAL_District_StarterResidential`, `PAL_District_MarketPlaza`, `PAL_District_SentinelCheckpoint`, and `PAL_District_SkylineBlock` now tint Stage 1/3/4/7 ground, walls, and landmark pads
 - secondary palettes `PAL_District_PocketPark`, `PAL_District_ConstructionYard`, and `PAL_District_PowerBlock` now tint Stage 2/5/6 ground, walls, and landmark pads
 - building tier kits, Icons A/B/C, and Palette B Stage 1/3/4/7 families were not restyled
-- remaining work is ambient stage bands
 - named runtime set `PAL_Ambient_StageBands` now drives `RenderSettings.ambientLight` per stage band without restyling district palettes or `PAL_RouteMarker_Tints`
+- inspectable `PAL_*` drafts now live at `Assets/Art/Palettes/Districts/`, `Assets/Art/Palettes/UI/`, and `Assets/Art/Palettes/Lighting/`
 
 Need:
 - at least 3 stage palette families so progression feels spatial, not only numeric
@@ -371,7 +371,8 @@ Required assets per district:
 - ground material variant
 - building palette variant
 - prop color variant
-- `PAL_RouteMarker_Tints` shared route marker / `routeColor` / HOLD trail tint set
+- `PAL_RouteMarker_Tints` shared route marker / `routeColor` / HOLD trail tint set (`Assets/Art/Palettes/UI/`)
+- `PAL_District_StarterResidential`, `PAL_District_MarketPlaza`, `PAL_District_SentinelCheckpoint`, `PAL_District_SkylineBlock`, `PAL_District_PocketPark`, `PAL_District_ConstructionYard`, `PAL_District_PowerBlock` (`Assets/Art/Palettes/Districts/`)
 - fog / ambient tint preset
 - `PAL_Ambient_StageBands` stage-band ambient fill (`Assets/Art/Palettes/Lighting/`)
 
