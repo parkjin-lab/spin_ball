@@ -1,5 +1,8 @@
 using UnityEngine;
 using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace AlienCrusher.Gameplay
 {
@@ -9,6 +12,14 @@ namespace AlienCrusher.Gameplay
         private const string WeakPointGlowId = "MAT_WeakPoint_Glow";
         private const string ShieldedPylonId = "MAT_Shielded_Pylon";
         private const string ExposedCoreId = "MAT_Exposed_Core";
+        private const string DamageCrackOverlayResourcesPath = "Materials/Destruction/MAT_Damage_CrackOverlay";
+        private const string WeakPointGlowResourcesPath = "Materials/Destruction/MAT_WeakPoint_Glow";
+        private const string ShieldedPylonResourcesPath = "Materials/Destruction/MAT_Shielded_Pylon";
+        private const string ExposedCoreResourcesPath = "Materials/Destruction/MAT_Exposed_Core";
+        private const string DamageCrackOverlayAssetPath = "Assets/Art/Materials/Destruction/MAT_Damage_CrackOverlay.mat";
+        private const string WeakPointGlowAssetPath = "Assets/Art/Materials/Destruction/MAT_WeakPoint_Glow.mat";
+        private const string ShieldedPylonAssetPath = "Assets/Art/Materials/Destruction/MAT_Shielded_Pylon.mat";
+        private const string ExposedCoreAssetPath = "Assets/Art/Materials/Destruction/MAT_Exposed_Core.mat";
         private const string CombatCrackRootName = "_CombatCrackRoot";
         private const string WeakPointHaloName = "_WeakPointHalo";
         private const string ShieldBarrierName = "ShieldBarrier";
@@ -401,23 +412,85 @@ namespace AlienCrusher.Gameplay
         {
             if (damageCrackOverlayMaterial == null)
             {
-                damageCrackOverlayMaterial = CreateCombatStateMaterial(DamageCrackOverlayId, CrackOverlayColor, 0.02f, 0.08f, CrackOverlayEmission);
+                damageCrackOverlayMaterial = CoalesceCombatStateMaterial(
+                    DamageCrackOverlayId,
+                    DamageCrackOverlayResourcesPath,
+                    DamageCrackOverlayAssetPath,
+                    CrackOverlayColor,
+                    metallic: 0.02f,
+                    smoothness: 0.08f,
+                    CrackOverlayEmission);
             }
 
             if (weakPointGlowMaterial == null)
             {
-                weakPointGlowMaterial = CreateCombatStateMaterial(WeakPointGlowId, WeakPointGlowColor, 0.08f, 0.42f, WeakPointGlowEmission);
+                weakPointGlowMaterial = CoalesceCombatStateMaterial(
+                    WeakPointGlowId,
+                    WeakPointGlowResourcesPath,
+                    WeakPointGlowAssetPath,
+                    WeakPointGlowColor,
+                    metallic: 0.08f,
+                    smoothness: 0.42f,
+                    WeakPointGlowEmission);
             }
 
             if (shieldedPylonMaterial == null)
             {
-                shieldedPylonMaterial = CreateCombatStateMaterial(ShieldedPylonId, ShieldedPylonColor, 0.22f, 0.55f, ShieldedPylonEmission);
+                shieldedPylonMaterial = CoalesceCombatStateMaterial(
+                    ShieldedPylonId,
+                    ShieldedPylonResourcesPath,
+                    ShieldedPylonAssetPath,
+                    ShieldedPylonColor,
+                    metallic: 0.22f,
+                    smoothness: 0.55f,
+                    ShieldedPylonEmission);
             }
 
             if (exposedCoreMaterial == null)
             {
-                exposedCoreMaterial = CreateCombatStateMaterial(ExposedCoreId, ExposedCoreColor, 0.18f, 0.62f, ExposedCoreEmission);
+                exposedCoreMaterial = CoalesceCombatStateMaterial(
+                    ExposedCoreId,
+                    ExposedCoreResourcesPath,
+                    ExposedCoreAssetPath,
+                    ExposedCoreColor,
+                    metallic: 0.18f,
+                    smoothness: 0.62f,
+                    ExposedCoreEmission);
             }
+        }
+
+        private static Material CoalesceCombatStateMaterial(
+            string id,
+            string resourcesPath,
+            string assetPath,
+            Color color,
+            float metallic,
+            float smoothness,
+            Color emission)
+        {
+            Material loaded = LoadDraftCombatStateMaterial(resourcesPath, assetPath);
+            if ((Object)(object)loaded != (Object)null)
+            {
+                return loaded;
+            }
+
+            return CreateCombatStateMaterial(id, color, metallic, smoothness, emission);
+        }
+
+        private static Material LoadDraftCombatStateMaterial(string resourcesPath, string assetPath)
+        {
+            Material material = Resources.Load<Material>(resourcesPath);
+            if ((Object)(object)material != (Object)null)
+            {
+                return material;
+            }
+
+#if UNITY_EDITOR
+            return AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+#else
+            _ = assetPath;
+            return null;
+#endif
         }
 
         private static Material CreateCombatStateMaterial(string id, Color color, float metallic, float smoothness, Color emission)

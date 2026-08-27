@@ -108,7 +108,8 @@ Combat states shipped:
 - `MAT_WeakPoint_Glow` gold pip plus halo so elite crit spots are not ordinary props
 - `MAT_Shielded_Pylon` cool cyan barrier on live pylon panes / caps
 - `MAT_Exposed_Core` hot orange-white chest/core window when shields drop
-- runtime assignment only; HP, break thresholds, shield counts, and timing unchanged
+- draft `.mat` files at `Assets/Art/Materials/Destruction/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- HP, break thresholds, shield counts, and timing unchanged
 - Stage 1 smash shows gold weak points and crack overlays; Stage 4 shows cyan protected pylons vs hot exposed core
 
 Break feedback shipped:
