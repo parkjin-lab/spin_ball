@@ -1572,7 +1572,7 @@ namespace AlienCrusher.Systems
 				}
 			}
 
-			return count;
+			return count + CountOpeningStreetProps(mapRoot, layout);
 		}
 
 		private static bool IsInsideRuntimeMapBounds(Vector3 localPoint, RuntimeStageMapLayout layout, float padding)
