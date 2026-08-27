@@ -262,6 +262,7 @@ Current `FeedbackSystem` slot map:
 - `comboRiseClip` (`SFX_Combo_Rise` in `Assets/Audio/SFX/Skills/`)
 - `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
+- draft materials at `Assets/Art/VFX/Combo/` plus Resources copies; runtime `Resources.Load`s them onto the existing CRUSH RUSH / OVERDRIVE slots before the Unlit fallback
 - `routeOpenClip`, `routeHoldWarningClip`, `routeBonusClip`
 - `bossWarningClip`, `bossBreakClip`, `bossDownClip` (`SFX_Boss_Warning` / `SFX_Boss_Break` / `SFX_Boss_Down` in `Assets/Audio/SFX/Boss/`)
 - `levelUpClip` (`SFX_LevelUp_Open` in `Assets/Audio/SFX/UI/`)
@@ -277,6 +278,7 @@ Suggested file targets:
 - `Assets/Audio/SFX/Failure/`
 - `Assets/Audio/SFX/UI/`
 - `Assets/Art/VFX/Failure/`
+- `Assets/Art/VFX/Combo/`
 
 Done when:
 - silent critical moments no longer exist

@@ -202,6 +202,7 @@ Status:
 - hit/break weight drafts now load at runtime when Inspector slots are empty: `SFX_Hit_Light`, `SFX_Hit_Medium`, `SFX_Hit_Heavy`, `SFX_Break_Small`, `SFX_Break_LargeCollapse` (`Assets/Audio/SFX/Impact/` + Resources copies)
 - climax/progression drafts now load at runtime when Inspector slots are empty: `SFX_Boss_Warning`, `SFX_Boss_Break`, `SFX_Boss_Down` (`Assets/Audio/SFX/Boss/`), `SFX_Combo_Rise` (`Assets/Audio/SFX/Skills/`), `SFX_LevelUp_Open` (`Assets/Audio/SFX/UI/`)
 - CRUSH RUSH now adds named runtime pulse `VFX_Combo_Rise_Pulse` (lime-gold upward ticks at the ball) while still reusing `comboRiseClip`; OVERDRIVE start adds `VFX_Overdrive_Pulse` (orange speed ring plus flame chevrons). Combo thresholds, overdrive duration/damage, and HUD layout stay unchanged.
+- inspectable combo/Overdrive pulse drafts now live at `Assets/Art/VFX/Combo/` plus Resources copies; runtime `Resources.Load`s them onto the existing CRUSH RUSH / OVERDRIVE slots before the Unlit fallback
 - inspectable failure-beat drafts now live at `Assets/Art/VFX/Failure/` plus Resources copies; runtime `Resources.Load`s them onto the existing ordinary / boss-phase defeat slots before the Unlit fallback
 
 Need:

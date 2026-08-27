@@ -1,5 +1,8 @@
 using UnityEngine;
 using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace AlienCrusher.Systems
 {
@@ -7,6 +10,10 @@ namespace AlienCrusher.Systems
 	{
 		public const string ComboRisePulseId = "VFX_Combo_Rise_Pulse";
 		public const string OverdrivePulseId = "VFX_Overdrive_Pulse";
+		private const string ComboRiseResourcesPath = "VFX/Combo/VFX_Combo_Rise_Pulse";
+		private const string OverdriveResourcesPath = "VFX/Combo/VFX_Overdrive_Pulse";
+		private const string ComboRiseAssetPath = "Assets/Art/VFX/Combo/VFX_Combo_Rise_Pulse.mat";
+		private const string OverdriveAssetPath = "Assets/Art/VFX/Combo/VFX_Overdrive_Pulse.mat";
 
 		private static readonly Color ComboLime = new Color(0.58f, 0.96f, 0.22f, 0.94f);
 		private static readonly Color ComboGold = new Color(1f, 0.86f, 0.22f, 0.9f);
@@ -15,7 +22,8 @@ namespace AlienCrusher.Systems
 
 		private static ParticleSystem comboRiseBurst;
 		private static ParticleSystem overdriveBurst;
-		private static Material sharedParticleMaterial;
+		private static Material comboParticleMaterial;
+		private static Material overdriveParticleMaterial;
 
 		public static void PlayComboRisePulse(Vector3 worldPosition)
 		{
@@ -53,7 +61,7 @@ namespace AlienCrusher.Systems
 			DestroyCollider(go);
 			go.transform.position = worldPosition;
 			go.transform.localScale = new Vector3(0.1f, 0.32f, 0.1f);
-			ApplyUnlitColor(go, color, "M_Runtime_ComboRisePulse");
+			ApplyUnlitColor(go, color, "M_Runtime_ComboRisePulse", ComboRiseResourcesPath, ComboRiseAssetPath);
 			PulseFlash flash = go.AddComponent<PulseFlash>();
 			flash.Configure(new Vector3(0.1f, 1.15f, 0.1f), color, 0.22f, Vector3.up * 3.4f);
 		}
@@ -65,7 +73,7 @@ namespace AlienCrusher.Systems
 			DestroyCollider(go);
 			go.transform.position = worldPosition;
 			go.transform.localScale = new Vector3(0.7f, 0.1f, 0.7f);
-			ApplyUnlitColor(go, OverdriveOrange, "M_Runtime_OverdrivePulse");
+			ApplyUnlitColor(go, OverdriveOrange, "M_Runtime_OverdrivePulse", OverdriveResourcesPath, OverdriveAssetPath);
 			PulseFlash flash = go.AddComponent<PulseFlash>();
 			flash.Configure(new Vector3(2.6f, 0.1f, 2.6f), OverdriveFlame, 0.28f, Vector3.zero);
 		}
@@ -78,7 +86,7 @@ namespace AlienCrusher.Systems
 			go.transform.position = worldPosition + Vector3.up * 0.04f;
 			go.transform.rotation = Quaternion.LookRotation(outward, Vector3.up) * Quaternion.Euler(18f, 0f, 45f);
 			go.transform.localScale = new Vector3(0.22f, 0.12f, 0.42f);
-			ApplyUnlitColor(go, color, "M_Runtime_OverdrivePulse");
+			ApplyUnlitColor(go, color, "M_Runtime_OverdrivePulse", OverdriveResourcesPath, OverdriveAssetPath);
 			PulseFlash flash = go.AddComponent<PulseFlash>();
 			flash.Configure(new Vector3(0.16f, 0.1f, 0.72f), color, 0.26f, outward * 2.8f);
 		}
@@ -90,7 +98,7 @@ namespace AlienCrusher.Systems
 				return comboRiseBurst;
 			}
 
-			comboRiseBurst = CreateWorldBurst(ComboRisePulseId, ComboLime, 0.08f, 0.14f, 2.2f, 4.6f, 0.1f, 0.2f, 18);
+			comboRiseBurst = CreateWorldBurst(ComboRisePulseId, ComboLime, 0.08f, 0.14f, 2.2f, 4.6f, 0.1f, 0.2f, 18, ComboRiseResourcesPath, ComboRiseAssetPath, ref comboParticleMaterial);
 			var main = comboRiseBurst.main;
 			main.gravityModifier = -0.85f;
 			return comboRiseBurst;
@@ -103,13 +111,13 @@ namespace AlienCrusher.Systems
 				return overdriveBurst;
 			}
 
-			overdriveBurst = CreateWorldBurst(OverdrivePulseId, OverdriveOrange, 0.1f, 0.18f, 2.6f, 5.2f, 0.12f, 0.22f, 22);
+			overdriveBurst = CreateWorldBurst(OverdrivePulseId, OverdriveOrange, 0.1f, 0.18f, 2.6f, 5.2f, 0.12f, 0.22f, 22, OverdriveResourcesPath, OverdriveAssetPath, ref overdriveParticleMaterial);
 			var main = overdriveBurst.main;
 			main.gravityModifier = 0.05f;
 			return overdriveBurst;
 		}
 
-		private static ParticleSystem CreateWorldBurst(string id, Color color, float sizeMin, float sizeMax, float speedMin, float speedMax, float lifeMin, float lifeMax, int maxParticles)
+		private static ParticleSystem CreateWorldBurst(string id, Color color, float sizeMin, float sizeMax, float speedMin, float speedMax, float lifeMin, float lifeMax, int maxParticles, string resourcesPath, string assetPath, ref Material cache)
 		{
 			Transform root = GetRuntimeRoot();
 			GameObject go = new GameObject(id, typeof(ParticleSystem));
@@ -143,7 +151,7 @@ namespace AlienCrusher.Systems
 			if ((Object)(object)renderer != (Object)null)
 			{
 				renderer.renderMode = ParticleSystemRenderMode.Billboard;
-				renderer.material = GetSharedParticleMaterial();
+				renderer.material = EnsureParticleMaterial(id, resourcesPath, assetPath, ref cache);
 			}
 
 			return ps;
@@ -174,7 +182,7 @@ namespace AlienCrusher.Systems
 			}
 		}
 
-		private static void ApplyUnlitColor(GameObject go, Color color, string materialName)
+		private static void ApplyUnlitColor(GameObject go, Color color, string materialName, string resourcesPath, string assetPath)
 		{
 			Renderer renderer = go.GetComponent<Renderer>();
 			if ((Object)(object)renderer == (Object)null)
@@ -182,16 +190,19 @@ namespace AlienCrusher.Systems
 				return;
 			}
 
-			Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
-			if ((Object)(object)shader == (Object)null)
+			Material material = TryLoadDraftMaterial(resourcesPath, assetPath);
+			if ((Object)(object)material == (Object)null)
 			{
-				return;
+				Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
+				if ((Object)(object)shader == (Object)null)
+				{
+					return;
+				}
+
+				material = new Material(shader);
 			}
 
-			Material material = new Material(shader)
-			{
-				name = materialName
-			};
+			material.name = materialName;
 			if (material.HasProperty("_BaseColor"))
 			{
 				material.SetColor("_BaseColor", color);
@@ -223,11 +234,18 @@ namespace AlienCrusher.Systems
 			return root.transform;
 		}
 
-		private static Material GetSharedParticleMaterial()
+		private static Material EnsureParticleMaterial(string id, string resourcesPath, string assetPath, ref Material cache)
 		{
-			if ((Object)(object)sharedParticleMaterial != (Object)null)
+			if ((Object)(object)cache != (Object)null)
 			{
-				return sharedParticleMaterial;
+				return cache;
+			}
+
+			Material draft = TryLoadDraftMaterial(resourcesPath, assetPath);
+			if ((Object)(object)draft != (Object)null)
+			{
+				cache = draft;
+				return cache;
 			}
 
 			Shader shader = Shader.Find("Universal Render Pipeline/Particles/Unlit")
@@ -238,21 +256,41 @@ namespace AlienCrusher.Systems
 				return null;
 			}
 
-			sharedParticleMaterial = new Material(shader)
+			cache = new Material(shader)
 			{
-				name = "M_Runtime_ComboOverdrivePulseVfx"
+				name = "M_Runtime_" + id
 			};
-			if (sharedParticleMaterial.HasProperty("_Surface"))
+			if (cache.HasProperty("_Surface"))
 			{
-				sharedParticleMaterial.SetFloat("_Surface", 1f);
+				cache.SetFloat("_Surface", 1f);
 			}
 
-			if (sharedParticleMaterial.HasProperty("_Blend"))
+			if (cache.HasProperty("_Blend"))
 			{
-				sharedParticleMaterial.SetFloat("_Blend", 0f);
+				cache.SetFloat("_Blend", 0f);
 			}
 
-			return sharedParticleMaterial;
+			return cache;
+		}
+
+		private static Material TryLoadDraftMaterial(string resourcesPath, string assetPath)
+		{
+			Material loaded = Resources.Load<Material>(resourcesPath);
+			if ((Object)(object)loaded == (Object)null)
+			{
+#if UNITY_EDITOR
+				loaded = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+#else
+				_ = assetPath;
+#endif
+			}
+
+			if ((Object)(object)loaded == (Object)null)
+			{
+				return null;
+			}
+
+			return new Material(loaded);
 		}
 
 		private sealed class PulseFlash : MonoBehaviour
