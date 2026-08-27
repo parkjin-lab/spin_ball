@@ -1622,6 +1622,10 @@ namespace AlienCrusher.Systems
 			{
 				return;
 			}
+			if (rebuildRuntimeMapOnStageStart || HasAuthoredOpeningStretch(mapRoot))
+			{
+				return;
+			}
 			if (CountOpeningDestructibles(existingDestructibles, mapRoot) >= 18)
 			{
 				return;

@@ -207,6 +207,48 @@ namespace AlienCrusher.Systems
 			}
 		}
 
+		private static bool HasAuthoredOpeningStretch(Transform mapRoot)
+		{
+			if ((Object)(object)mapRoot == (Object)null)
+			{
+				return false;
+			}
+
+			return CountAuthoredOpeningStretchKits(FindChildByName(mapRoot, "StreetProps")) > 0
+				|| CountAuthoredOpeningStretchKits(FindChildByName(mapRoot, "MicroProps")) > 0
+				|| CountAuthoredOpeningStretchKits(mapRoot) > 0;
+		}
+
+		private static int CountAuthoredOpeningStretchKits(Transform root)
+		{
+			if ((Object)(object)root == (Object)null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+			for (int i = 0; i < root.childCount; i++)
+			{
+				Transform child = root.GetChild(i);
+				if ((Object)(object)child == (Object)null)
+				{
+					continue;
+				}
+
+				string objectName = ((UnityEngine.Object)child).name;
+				if (!string.IsNullOrEmpty(objectName)
+					&& objectName.StartsWith("Gap", System.StringComparison.OrdinalIgnoreCase)
+					&& objectName.IndexOf("_Open_", System.StringComparison.Ordinal) >= 0)
+				{
+					count++;
+				}
+
+				count += CountAuthoredOpeningStretchKits(child);
+			}
+
+			return count;
+		}
+
 		private static int CountOpeningStreetProps(Transform mapRoot, RuntimeStageMapLayout layout)
 		{
 			if ((Object)(object)mapRoot == (Object)null)

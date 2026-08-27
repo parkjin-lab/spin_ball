@@ -1,5 +1,11 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-27 Skip Double Opening Fill
+
+- `EnsureOpeningDestructionDensity` no longer plants a second starter-lane cluster when the authored opener is already coming. It returns if `rebuildRuntimeMapOnStageStart` is on (BuildFallbackMap plants `Gap*_Open_*`) or if `Gap*_Open_*` kits are already under MapRoot.
+- The old `"Opening density was low, so starter crush lane objects were generated at runtime."` log stays only as a true fallback for an old map with rebuild off, no authored opener, and a sparse opening box. Win counts, route timing, targets, boss, and HUD are unchanged. No extra Gap* kits.
+- How to see it: Play Mode Stage 1 start. Spawn curbs should show one clean `Gap*_Open_*` row, not a second runtime sprinkle. Console should not log the opening-density-was-low generate.
+
 ## 2026-08-27 Stage 8-10 Opening Smash Density
 
 - Stages 8-10 were still gated out of `FillOpeningStretchStreetProps` (`Stage > 7` after `ddb9057`). This pass widened that same helper — no third copy. Same Stage 1 5-kit cycle (`GapLamp/Car/Bench/Kiosk/Barrel_Open_*`). No Street Props D.
@@ -254,6 +260,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-27: Skip double opening fill. Runtime `EnsureOpeningDestructionDensity` is now a fallback only when the authored `Gap*_Open_*` opener is missing. No extra kits, no win/route/boss/HUD change.
 - 2026-08-27: Stage 8-10 opening smash density. Same shared helper now covers 8-10 and thickens starter-lane Gap* so F10 sparse-lane warnings should clear. No Street Props D, no CivicCore/boss cover, no route/timer/map retune.
 - 2026-08-27: Stage 4-7 opening smash density. Same shared `FillOpeningStretchStreetProps` hook now covers 4-7 (they were gated out after Stage 3). No Street Props D, no boss-arena cover, no route/timer/boss/map retune.
 - 2026-08-27: Stage 1-3 opening smash density. Authored Gap* A/B/C kits on spawn-lane curbs during map construction so Stages 1/2/3 already have smashables on first contact. No Street Props D, no Target_A/B/HOLD cover, no late opening-density fill, no route/timer/map retune.
