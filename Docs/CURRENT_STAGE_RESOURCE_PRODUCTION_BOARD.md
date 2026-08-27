@@ -99,7 +99,8 @@ Building tiers shipped:
 - `MAT_Building_Mid` warm city concrete for standard fillers
 - `MAT_Building_Large` charcoal mass for durable targets
 - `MAT_Boss_Structure` cool steel-blue armor for Sentinel / gate / pylon hosts
-- runtime assignment only; HP, break thresholds, and spawn counts unchanged
+- draft `.mat` files at `Assets/Art/Materials/Destruction/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- HP, break thresholds, and spawn counts unchanged
 - Stage 1 is mostly plaster + concrete; Stage 4 adds dark mass plus steel-blue boss structures at the Sentinel checkpoint
 
 Combat states shipped:
