@@ -140,6 +140,18 @@ namespace AlienCrusher.Gameplay
             countsTowardStageWreck = false;
         }
 
+        public SmashBreakWeight ResolveSmashBreakWeight()
+        {
+            switch (propKind)
+            {
+                case PropKind.Lamp:
+                case PropKind.Tree:
+                    return SmashBreakWeight.Light;
+                default:
+                    return SmashBreakWeight.Mid;
+            }
+        }
+
         private void Awake()
         {
             if (propRoot == null)
@@ -230,8 +242,16 @@ namespace AlienCrusher.Gameplay
 
             if (!suppressFeedback)
             {
-                feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01));
-                DestructionBreakFeedbackVfx.PlayDebrisLight(hitPoint, Mathf.Clamp01(impact01));
+                var weight = ResolveSmashBreakWeight();
+                feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01), weight);
+                if (weight == SmashBreakWeight.Light)
+                {
+                    DestructionBreakFeedbackVfx.PlayDebrisLight(hitPoint, Mathf.Clamp01(impact01));
+                }
+                else
+                {
+                    DestructionBreakFeedbackVfx.PlayDebrisHeavy(hitPoint, weight == SmashBreakWeight.Heavy ? 0.9f : 0.62f);
+                }
             }
 
             if (countsTowardStageWreck)

@@ -34,13 +34,18 @@ namespace AlienCrusher.Gameplay
 
             DestructionBreakFeedbackVfx.RenameExistingBreakVfx(debrisParticle, smokeParticle);
 
-            if (!suppressFeedback && !isLargeBuilding && !weakPointHit)
+            if (!suppressFeedback && !weakPointHit)
             {
-                if (destroyed && !IsSmallBuildingTier())
+                var weight = ResolveSmashBreakWeight();
+                if (destroyed && weight == SmashBreakWeight.Heavy)
+                {
+                    DestructionBreakFeedbackVfx.PlayDebrisHeavy(hitPoint, 0.9f);
+                }
+                else if (destroyed && weight == SmashBreakWeight.Mid)
                 {
                     DestructionBreakFeedbackVfx.PlayDebrisHeavy(hitPoint, 0.58f);
                 }
-                else
+                else if (!isLargeBuilding)
                 {
                     DestructionBreakFeedbackVfx.PlayDebrisLight(hitPoint, destroyed ? 0.72f : (heavyHit ? 0.55f : 0.38f));
                 }

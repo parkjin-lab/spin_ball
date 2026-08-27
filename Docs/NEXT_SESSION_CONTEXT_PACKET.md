@@ -1,5 +1,11 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-27 Smash-Weight Readability
+
+- Lamps/trees/benches now always use `breakSmallClip` + `VFX_Debris_Light`. Mid `Block_*` / kiosks / parked cars use the existing destroy slot forced into `breakLargeClip` mid range + `VFX_Debris_Heavy`. Yard/harbor cranes and large `Block_*` use full `breakLargeClip` + heavier `VFX_Debris_Heavy`.
+- HP, break thresholds, and score values are unchanged. No HUD/lobby pulse.
+- How to see it: Play Mode Stage 1, smash a `GapLamp_*` then a `Block_*` / starter building — lamp should chip light, building should collapse heavier. Stage 5, smash `YardCraneMast` — louder large-break and heavier debris than the lamp.
+
 ## 2026-08-27 Smashable-City Parity + Stage 2-7 Gap Props
 
 - Playtest mismatch: lamps, parked `GapCar_*`, trees, barrels, and transformers already smashed via `DummyStreetPropReactive` but only added score/chain, not `DestroyedCount`. Wreck % stayed 8-45% while the route felt emptied. Those static props now call `RegisterDestruction` and join `stageTotalDestructibleCount`. Moving `Car_RT_*` traffic is excluded.
@@ -229,6 +235,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-27: Smash-weight readability. Lamp/tree/bench = small break + light debris; mid buildings/kiosks/cars = existing mid/heavy destroy slot; cranes and large Block_* = large collapse. No HP/threshold/score change.
 - 2026-08-27: Smashable-city parity + Stage 2-7 A/B/C gap props. Static street props join wreck count; yard/harbor cranes are DummyDestructibleBlock. No HUD pulse, no D clutter on Stage 1 starter, no route/payoff/boss/map retune.
 - 2026-08-26: Game scripts Unity 6.5 compile fix: `GetInstanceID` seeds now use `ToDeterministicSeed`; `FindFirstObjectByType` / `FindObjectsSortMode` replaced. No route/payoff/boss/map retune.
 - 2026-08-25: MCPForUnity CS0104 fix: `FindObjectById` now returns `UnityEngine.Object` so `using System` + `using UnityEngine` no longer clash. No gameplay change.

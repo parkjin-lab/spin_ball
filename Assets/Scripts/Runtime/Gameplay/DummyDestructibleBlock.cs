@@ -627,7 +627,7 @@ namespace AlienCrusher.Gameplay
                 EmitSmallPropDestroyed(hitPoint, impact01);
                 if (!suppressFeedback)
                 {
-                    feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01 + 0.25f));
+                    feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01 + 0.25f), ResolveSmashBreakWeight());
                 }
 
                 if (isLargeBuilding)
@@ -1138,6 +1138,47 @@ namespace AlienCrusher.Gameplay
             var mul = Mathf.Clamp01(1f - shrink);
             var scaled = initialScale * mul;
             return SanitizeScale(scaled);
+        }
+
+        public SmashBreakWeight ResolveSmashBreakWeight()
+        {
+            string objectName = ((UnityEngine.Object)this).name;
+            if (isLargeBuilding || IsStageBoss)
+            {
+                return SmashBreakWeight.Heavy;
+            }
+
+            if (!string.IsNullOrEmpty(objectName)
+                && objectName.IndexOf("Crane", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return SmashBreakWeight.Heavy;
+            }
+
+            switch (smallPropStyle)
+            {
+                case SmallPropStyle.Bench:
+                case SmallPropStyle.Mailbox:
+                case SmallPropStyle.Fence:
+                    return SmashBreakWeight.Light;
+                case SmallPropStyle.Kiosk:
+                case SmallPropStyle.ShopAwning:
+                case SmallPropStyle.ShopSign:
+                case SmallPropStyle.BusStop:
+                case SmallPropStyle.Vending:
+                case SmallPropStyle.Shed:
+                    return SmashBreakWeight.Mid;
+            }
+
+            if (!string.IsNullOrEmpty(objectName)
+                && (objectName.StartsWith("Prop_", System.StringComparison.OrdinalIgnoreCase)
+                    || objectName.StartsWith("StarterLotProp_", System.StringComparison.OrdinalIgnoreCase)
+                    || objectName.StartsWith("StarterLaneProp_", System.StringComparison.OrdinalIgnoreCase)
+                    || objectName.StartsWith("GapBench_", System.StringComparison.OrdinalIgnoreCase)))
+            {
+                return SmashBreakWeight.Light;
+            }
+
+            return SmashBreakWeight.Mid;
         }
 
         private void EvaluateLargeBuildingType()
