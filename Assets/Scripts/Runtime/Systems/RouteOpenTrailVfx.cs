@@ -148,16 +148,19 @@ namespace AlienCrusher.Systems
 				return;
 			}
 
-			Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
-			if ((Object)(object)shader == (Object)null)
+			Material material = RoutePayoffVfxDrafts.Instantiate(TrailVfxId);
+			if ((Object)(object)material == (Object)null)
 			{
-				return;
+				Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
+				if ((Object)(object)shader == (Object)null)
+				{
+					return;
+				}
+
+				material = new Material(shader);
 			}
 
-			Material material = new Material(shader)
-			{
-				name = materialName
-			};
+			material.name = materialName;
 			if (material.HasProperty("_BaseColor"))
 			{
 				material.SetColor("_BaseColor", color);
@@ -193,6 +196,13 @@ namespace AlienCrusher.Systems
 		{
 			if ((Object)(object)sharedParticleMaterial != (Object)null)
 			{
+				return sharedParticleMaterial;
+			}
+
+			Material draft = RoutePayoffVfxDrafts.Instantiate(TrailVfxId);
+			if ((Object)(object)draft != (Object)null)
+			{
+				sharedParticleMaterial = draft;
 				return sharedParticleMaterial;
 			}
 

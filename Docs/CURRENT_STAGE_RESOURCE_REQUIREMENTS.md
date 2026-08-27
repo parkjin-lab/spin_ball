@@ -395,6 +395,9 @@ Need:
 - payoff spacing rules that make each district feel like a different route problem
 - a route cluster marker that frames the opened cluster without hiding target guidance
 
+Status:
+- inspectable route-payoff VFX drafts now live at `Assets/Art/VFX/Route/` plus Resources copies; runtime `Resources.Load`s them onto the existing cluster / smash / HOLD / OPEN / residual / chase / warning / bonus slots before the Unlit fallback
+
 Required assets:
 - `PAYOFF_ParkCut_Layout` park cut payoff layout
 - `PAYOFF_MarketChain_Layout` market chain payoff layout

@@ -343,6 +343,7 @@ Deliverables:
 - `VFX_RouteChase_Pulse` cobalt wedges from the opened ROUTE BONUS cluster toward the next smash target
 - `VFX_RouteHold_Warning` rose inward ticks at the beacon when ROUTE HOLD is closing
 - `VFX_RouteBonus_Success` amethyst bloom plus upward petals when ROUTE BONUS opens at the cluster
+- draft materials at `Assets/Art/VFX/Route/` plus Resources copies; runtime `Resources.Load`s them onto the existing cluster / smash / HOLD / OPEN / residual / chase / warning / bonus slots before the Unlit fallback
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:
