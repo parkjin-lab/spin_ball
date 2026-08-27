@@ -9,7 +9,7 @@ namespace AlienCrusher.Systems
 	{
 		private void FillOpeningStretchStreetProps(Transform streetPropsRoot, Transform microPropsRoot, List<Vector4> footprints, RuntimeStageMapLayout layout, Color carA, Color carB, Color barrelA, Color barrelB, Color shopA, Color shopB)
 		{
-			if (layout.Stage < 1 || layout.Stage > 3 || (Object)(object)streetPropsRoot == (Object)null || footprints == null)
+			if (layout.Stage < 1 || layout.Stage > 7 || (Object)(object)streetPropsRoot == (Object)null || footprints == null)
 			{
 				return;
 			}
@@ -26,6 +26,12 @@ namespace AlienCrusher.Systems
 			float zStart = layout.GridStartZ + layout.CellSize * 0.2f;
 			float zEnd = Mathf.Max(layout.SpawnLaneEndZ + layout.CellSize * 0.35f, cluster.y + 6.8f);
 			zEnd = Mathf.Min(zEnd, layout.TargetForwardZ - 4.2f);
+			if (layout.Stage >= 4)
+			{
+				zEnd = Mathf.Min(zEnd, layout.SpawnLaneEndZ + layout.CellSize * 0.85f);
+				zEnd = Mathf.Min(zEnd, layout.MidDistrictEndZ - 2.4f);
+			}
+
 			float stepZ = layout.CellSize * 0.58f;
 
 			for (float z = zStart; z <= zEnd && placed < maxPlace; z += stepZ)
@@ -34,7 +40,9 @@ namespace AlienCrusher.Systems
 				{
 					float x = side == 0 ? -curbX : curbX;
 					Vector3 pos = new Vector3(x, 0f, z);
-					if (Mathf.Abs(pos.x) < 1.72f || IsTooCloseToRouteMarker(pos.x, pos.z, targetA, targetB, 3.4f))
+					if (Mathf.Abs(pos.x) < 1.72f
+						|| IsTooCloseToRouteMarker(pos.x, pos.z, targetA, targetB, 3.4f)
+						|| IsBlockedOpeningSmashSite(pos.x, pos.z, layout))
 					{
 						continue;
 					}
@@ -164,6 +172,30 @@ namespace AlienCrusher.Systems
 					placed++;
 				}
 			}
+		}
+
+		private static bool IsBlockedOpeningSmashSite(float x, float z, RuntimeStageMapLayout layout)
+		{
+			if (z >= layout.MidDistrictEndZ)
+			{
+				return true;
+			}
+
+			if (IsInsideRuntimeLandmarkClearance(x, z, layout))
+			{
+				return true;
+			}
+
+			if (layout.Stage < 4)
+			{
+				return false;
+			}
+
+			// Stage 4+ Sentinel / late-route boss kit: keep opening Gap* off the arena, core, pylons, and weak-points.
+			Vector2 sentinel = ResolveRuntimeLandmarkCenter(layout, 2);
+			float dx = x - sentinel.x;
+			float dz = z - sentinel.y;
+			return dx * dx + dz * dz < 6.4f * 6.4f;
 		}
 
 		private static bool IsBetweenMainRouteTargets(float x, float z, RuntimeStageMapLayout layout)
