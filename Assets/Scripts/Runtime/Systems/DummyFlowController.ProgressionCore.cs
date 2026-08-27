@@ -134,6 +134,15 @@ namespace AlienCrusher.Systems
 					stageTotalDestructibleCount++;
 				}
 			}
+			DummyStreetPropReactive[] wreckProps = Object.FindObjectsByType<DummyStreetPropReactive>((FindObjectsInactive)1);
+			for (int p = 0; p < wreckProps.Length; p++)
+			{
+				DummyStreetPropReactive wreckProp = wreckProps[p];
+				if (!((Object)(object)wreckProp == (Object)null) && wreckProp.CountsTowardStageWreck && ((Component)wreckProp).gameObject.activeInHierarchy)
+				{
+					stageTotalDestructibleCount++;
+				}
+			}
 			stageAdvanceDestroyTarget = GetStageAdvanceDestroyTarget();
 		}
 

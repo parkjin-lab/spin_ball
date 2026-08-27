@@ -16,7 +16,10 @@ namespace AlienCrusher.Systems
 
 			Transform kitParent = (Object)(object)microPropsRoot != (Object)null ? microPropsRoot : streetPropsRoot;
 			System.Random random = new System.Random(7741 + layout.Stage * 211);
-			int maxPlace = Mathf.Clamp(16 + layout.GrowthTier * 2, 16, 28);
+			int maxPlace = layout.Stage <= 1
+				? Mathf.Clamp(16 + layout.GrowthTier * 2, 16, 28)
+				: Mathf.Clamp(20 + layout.Stage * 4 + layout.GrowthTier * 2, 24, 52);
+			float nearbyRadius = layout.Stage <= 1 ? 1.65f : 1.48f;
 			int placed = 0;
 			Vector3 targetA = new Vector3(-layout.TargetX, 0f, layout.TargetForwardZ);
 			Vector3 targetB = new Vector3(layout.TargetX, 0f, layout.TargetReturnZ);
@@ -49,13 +52,14 @@ namespace AlienCrusher.Systems
 						continue;
 					}
 
-					if (HasNearbyStreetProp(streetPropsRoot, kitParent, pos, 1.65f) || OverlapsAnyFootprintRuntime(footprints, pos.x, pos.z, 0.42f, 0.42f))
+					if (HasNearbyStreetProp(streetPropsRoot, kitParent, pos, nearbyRadius) || OverlapsAnyFootprintRuntime(footprints, pos.x, pos.z, 0.42f, 0.42f))
 					{
 						continue;
 					}
 
 					string suffix = $"{placed:00}";
-					switch (placed % 5)
+					int variety = layout.Stage <= 1 ? 5 : 7;
+					switch (placed % variety)
 					{
 						case 0:
 							EnsureStreetLampRuntime(streetPropsRoot, "GapLamp_" + suffix, pos);
@@ -69,8 +73,21 @@ namespace AlienCrusher.Systems
 						case 3:
 							EnsureCommercialKioskRuntime(kitParent, "GapKiosk_" + suffix, new Vector3(pos.x, 0.48f, pos.z), new Vector3(0.68f, 0.68f, 0.58f), Color.Lerp(shopA, shopB, 0.45f));
 							break;
-						default:
+						case 4:
 							EnsureExplosiveBarrelRuntime(streetPropsRoot, "GapBarrel_" + suffix, pos, Color.Lerp(barrelA, barrelB, (float)random.NextDouble()));
+							break;
+						case 5:
+							EnsureStreetTreeRuntime(streetPropsRoot, "GapTree_" + suffix, pos, Color.Lerp(shopA, barrelA, 0.55f));
+							break;
+						default:
+							if ((placed / variety) % 2 == 0)
+							{
+								EnsureCommercialVendingRuntime(kitParent, "GapVending_" + suffix, new Vector3(pos.x, 0.51f, pos.z), Color.Lerp(shopA, shopB, 0.4f));
+							}
+							else
+							{
+								EnsureCommercialBusStopRuntime(kitParent, "GapBusStop_" + suffix, new Vector3(pos.x, 0.63f, pos.z), Color.Lerp(shopA, shopB, 0.5f));
+							}
 							break;
 					}
 

@@ -81,6 +81,11 @@ namespace AlienCrusher.Systems
 			val2.size = new Vector3(1.28f, 0.72f, 2.14f);
 			((Collider)val2).isTrigger = false;
 			EnsureStreetPropReactiveRuntime(((Component)root).gameObject, root, DummyStreetPropReactive.PropKind.Vehicle);
+			DummyStreetPropReactive trafficProp = ((Component)root).GetComponent<DummyStreetPropReactive>();
+			if ((Object)(object)trafficProp != (Object)null)
+			{
+				trafficProp.ExcludeFromStageWreckCount();
+			}
 			Color paint = spawnPoint.BodyColor;
 			if (paint.a <= 0.001f)
 			{

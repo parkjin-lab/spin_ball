@@ -1,5 +1,12 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-27 Smashable-City Parity + Stage 2-7 Gap Props
+
+- Playtest mismatch: lamps, parked `GapCar_*`, trees, barrels, and transformers already smashed via `DummyStreetPropReactive` but only added score/chain, not `DestroyedCount`. Wreck % stayed 8-45% while the route felt emptied. Those static props now call `RegisterDestruction` and join `stageTotalDestructibleCount`. Moving `Car_RT_*` traffic is excluded.
+- Smash-path visual cranes (`YardCraneMast`/`Arm`/`Hook` on Stage 5, `HarborCraneMast`/`Arm` on Stage 9) are now `DummyDestructibleBlock` with existing building-tier materials / debris. Ground paint (`RetailStrip`, sidewalks, Target_A/B) stays visual-only.
+- Stages 2-7 fill more road-edge gaps with existing Street Props A/B/C (`GapLamp_*`, `GapCar_*`, `GapBench_*`, `GapKiosk_*`, `GapBarrel_*`, plus `GapTree_*` / `GapVending_*` / `GapBusStop_*`). Stage 1 starter-lane skip and 5-kit cycle are unchanged. No Street Props D fence/mailbox/shed on the starter lane. Target_A/B, HOLD pips, route timing, payoff counts, and map size are unchanged.
+- How to see it: Play Mode Stage 1, smash lamps/cars/barrels along the Target_A/B roads — WRECK should rise for those hits. Then Stage 4 or 6: more `Gap*` curb props and, on Stage 5+, smashable yard cranes. Orange targets and HOLD pips stay the brightest route marks.
+
 ## 2026-08-26 Unity 6.5 Game Scripts Compile Fix
 
 - After MCPForUnity compiled, `6000.5.9f1` failed on the game assembly: `GetInstanceID` at `DummyFlowController.RuntimeMapFallback.cs` (late-stage city theme seed) and `DummyDestructibleBlock.cs` (crack-piece seed). Editor `AlienCrusherSceneScaffolder.PickEditorCityTheme` used the same API.
@@ -222,6 +229,7 @@ Rule:
 - Added `Tools/GenerateStagePlaytestChecklist.ps1` to generate `Logs/AlienCrusherStagePlaytestChecklist.md` before the Stage 1-7 hands-on pass; durable human observations live in `Docs/AlienCrusherStagePlaytestNotes.md`.
 
 ## Work Completed Immediately Before This Handoff
+- 2026-08-27: Smashable-city parity + Stage 2-7 A/B/C gap props. Static street props join wreck count; yard/harbor cranes are DummyDestructibleBlock. No HUD pulse, no D clutter on Stage 1 starter, no route/payoff/boss/map retune.
 - 2026-08-26: Game scripts Unity 6.5 compile fix: `GetInstanceID` seeds now use `ToDeterministicSeed`; `FindFirstObjectByType` / `FindObjectsSortMode` replaced. No route/payoff/boss/map retune.
 - 2026-08-25: MCPForUnity CS0104 fix: `FindObjectById` now returns `UnityEngine.Object` so `using System` + `using UnityEngine` no longer clash. No gameplay change.
 - 2026-08-25: MCPForUnity Editor+Runtime compile fix for Unity 6.5 obsolete InstanceID / find APIs. JSON `instanceID` fields now store EntityId.ToULong. No gameplay change.

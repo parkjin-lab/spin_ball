@@ -35,6 +35,7 @@ namespace AlienCrusher.Gameplay
         [SerializeField] private float upwardForce = 1.9f;
         [SerializeField] private int scoreReward = 22;
         [SerializeField] private float cleanupDelay = 4.6f;
+        [SerializeField] private bool countsTowardStageWreck = true;
 
         [Header("Chain Explosion")]
         [SerializeField] private bool enableChainExplosion = false;
@@ -62,6 +63,7 @@ namespace AlienCrusher.Gameplay
 
         public PropKind Kind => propKind;
         public bool IsBroken => broken;
+        public bool CountsTowardStageWreck => countsTowardStageWreck;
 
         public void ConfigureForScaffolder(PropKind kind, Transform root)
         {
@@ -130,6 +132,12 @@ namespace AlienCrusher.Gameplay
             }
 
             CaptureBaseStats();
+            countsTowardStageWreck = true;
+        }
+
+        public void ExcludeFromStageWreckCount()
+        {
+            countsTowardStageWreck = false;
         }
 
         private void Awake()
@@ -226,8 +234,15 @@ namespace AlienCrusher.Gameplay
                 DestructionBreakFeedbackVfx.PlayDebrisLight(hitPoint, Mathf.Clamp01(impact01));
             }
 
-            scoreSystem?.AddScore(scoreReward);
-            scoreSystem?.RegisterChainHit();
+            if (countsTowardStageWreck)
+            {
+                scoreSystem?.RegisterDestruction(scoreReward);
+            }
+            else
+            {
+                scoreSystem?.AddScore(scoreReward);
+                scoreSystem?.RegisterChainHit();
+            }
             var breakPosition = root != null ? root.position : transform.position;
             PropBroken?.Invoke(new PropBreakInfo
             {
