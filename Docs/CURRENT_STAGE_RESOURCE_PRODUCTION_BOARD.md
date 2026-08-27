@@ -268,6 +268,7 @@ Current `FeedbackSystem` slot map:
 - `failureWarningClip`, `failureBossClip`
 - `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
 - `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
+- draft materials at `Assets/Art/VFX/Failure/` plus Resources copies; runtime `Resources.Load`s them onto the existing ordinary / boss-phase defeat slots before the Unlit fallback
 
 Suggested file targets:
 - `Assets/Audio/SFX/Impact/`
@@ -275,6 +276,7 @@ Suggested file targets:
 - `Assets/Audio/SFX/Boss/`
 - `Assets/Audio/SFX/Failure/`
 - `Assets/Audio/SFX/UI/`
+- `Assets/Art/VFX/Failure/`
 
 Done when:
 - silent critical moments no longer exist

@@ -202,6 +202,7 @@ Status:
 - hit/break weight drafts now load at runtime when Inspector slots are empty: `SFX_Hit_Light`, `SFX_Hit_Medium`, `SFX_Hit_Heavy`, `SFX_Break_Small`, `SFX_Break_LargeCollapse` (`Assets/Audio/SFX/Impact/` + Resources copies)
 - climax/progression drafts now load at runtime when Inspector slots are empty: `SFX_Boss_Warning`, `SFX_Boss_Break`, `SFX_Boss_Down` (`Assets/Audio/SFX/Boss/`), `SFX_Combo_Rise` (`Assets/Audio/SFX/Skills/`), `SFX_LevelUp_Open` (`Assets/Audio/SFX/UI/`)
 - CRUSH RUSH now adds named runtime pulse `VFX_Combo_Rise_Pulse` (lime-gold upward ticks at the ball) while still reusing `comboRiseClip`; OVERDRIVE start adds `VFX_Overdrive_Pulse` (orange speed ring plus flame chevrons). Combo thresholds, overdrive duration/damage, and HUD layout stay unchanged.
+- inspectable failure-beat drafts now live at `Assets/Art/VFX/Failure/` plus Resources copies; runtime `Resources.Load`s them onto the existing ordinary / boss-phase defeat slots before the Unlit fallback
 
 Need:
 - distinct audio for hit quality, destruction scale, form actions, progression, and boss danger
@@ -223,8 +224,8 @@ Required assets:
 - `SFX_LevelUp_Open` -> `levelUpClip`
 - `SFX_Failure_Warning` -> `failureWarningClip`
 - `SFX_Failure_Boss` -> `failureBossClip`
-- `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
-- `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
+- `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat (`Assets/Art/VFX/Failure/`)
+- `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat (`Assets/Art/VFX/Failure/`)
 
 Next audio slots still needed after the current hook surface:
 - level up confirm
