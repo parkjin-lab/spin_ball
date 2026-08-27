@@ -100,6 +100,11 @@ Required assets:
 - `Form Icon - Crusher`
 - lightweight form accent mesh or addon pieces for each form
 - material presets for each form
+- `MAT_Form_Sphere` cool green (`Assets/Art/Materials/Forms/`)
+- `MAT_Form_Ram` amber plate (`Assets/Art/Materials/Forms/`)
+- `MAT_Form_Saucer` cyan rim (`Assets/Art/Materials/Forms/`)
+- `MAT_Form_Spike` acid tip (`Assets/Art/Materials/Forms/`)
+- `MAT_Form_Crusher` steel plus blue seams (`Assets/Art/Materials/Forms/`)
 
 Design direction:
 - `Sphere`: smooth, alien, stable, default invader body

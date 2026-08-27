@@ -73,8 +73,18 @@ Unity-native fallback allowed now:
 - saucer: flattened sphere + ring disk
 - crusher: layered heavy shell + frontal plate
 
+Form material families shipped:
+- `MAT_Form_Sphere` cool green body / belt language
+- `MAT_Form_Ram` amber plate language
+- `MAT_Form_Saucer` cyan rim language
+- `MAT_Form_Spike` acid tip language
+- `MAT_Form_Crusher` steel body plus blue seam emission
+- draft `.mat` files at `Assets/Art/Materials/Forms/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- form stats, unlock costs, and skill numbers unchanged
+
 Suggested file targets:
 - `Assets/Art/Forms/`
+- `Assets/Art/Materials/Forms/`
 - `Assets/Resources/UI/Forms/`
 - `Assets/Settings/Materials/Forms/`
 - `Assets/Resources/UI/Icons/`
