@@ -323,7 +323,7 @@ Status:
 - phase, shield, drone, and break window systems are already implemented
 - runtime silhouette kits now separate the main body, shield pylons, and phase-2 drones from ordinary city props
 - climax warning/break/down VFX now punctuate inbound, CORE EXPOSED, and Sentinel down as three different silhouettes
-- result boss-clear badge now ships as `Badge_Boss_Clear`; leftover `Icon_Boss_Sentinel` now marks lobby/result when the next run is a Sentinel stage. Remaining identity work is optional boss-specific armor/core materials (`MAT_Boss_*`) and leftover expose burst
+- result boss-clear badge now ships as `Badge_Boss_Clear`; leftover `Icon_Boss_Sentinel` now marks lobby/result when the next run is a Sentinel stage. Named boss armor / shield / exposed-core drafts and `VFX_Boss_Core_Expose_Burst` now sit on disk and hook through the existing Stage 4 identity slots.
 
 Required assets:
 - `BOSS_Sentinel_Body_Kit` sentinel body silhouette kit
@@ -334,9 +334,10 @@ Required assets:
 - `SFX_Boss_Warning` threat pulse / inbound warning
 - `SFX_Boss_Break` break-window open
 - `SFX_Boss_Down` Justice Sentinel defeat
-- boss armor / shield pylon / exposed-core material set
-- core exposed material / emissive state
-- boss core expose burst VFX
+- `MAT_Boss_Sentinel_Armor` default Sentinel body (`Assets/Art/Materials/Boss/`)
+- `MAT_Boss_Shield_Pylon` active shield pylon (`Assets/Art/Materials/Boss/`)
+- `MAT_Boss_Core_Exposed` break-window core (`Assets/Art/Materials/Boss/`)
+- `VFX_Boss_Core_Expose_Burst` pylons-broken / CORE EXPOSED burst (`Assets/Art/VFX/Boss/`)
 - `Badge_Boss_Clear` steel result badge for Sentinel victory (`Assets/Resources/UI/Badges/`)
 - `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run boss identity (`Assets/Resources/UI/Icons/`)
 
@@ -592,7 +593,11 @@ This section can be used as a working production checklist.
 - [x] `BOSS_Sentinel_Body_Kit` runtime sentinel body silhouette kit
 - [x] `BOSS_Shield_Pylon_Kit` runtime shield pylon silhouette kit
 - [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit
+- [x] `MAT_Boss_Sentinel_Armor` steel civic Sentinel body material
+- [x] `MAT_Boss_Shield_Pylon` cyan protected pylon material
+- [x] `MAT_Boss_Core_Exposed` hot-orange break-window core material
 - [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
+- [x] `VFX_Boss_Core_Expose_Burst` hot core-expose / break-window burst
 - [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
 - [x] `VFX_RouteCluster_Marker` mint-slate ROUTE BONUS cluster frame
 - [x] `VFX_ForwardSmash_Confirm` mint-white FORWARD SMASH cash-out star

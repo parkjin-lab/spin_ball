@@ -9,6 +9,9 @@ namespace AlienCrusher.Systems
 		private const string BossSentinelBodyKitId = "BOSS_Sentinel_Body_Kit";
 		private const string BossShieldPylonKitId = "BOSS_Shield_Pylon_Kit";
 		private const string BossPhase2DroneKitId = "BOSS_Phase2_Drone_Kit";
+		private const string BossSentinelArmorId = "MAT_Boss_Sentinel_Armor";
+		private const string BossShieldPylonMatId = "MAT_Boss_Shield_Pylon";
+		private const string BossCoreExposedId = "MAT_Boss_Core_Exposed";
 
 		private static void ClearBossIdentityKits(DummyDestructibleBlock block)
 		{
@@ -101,6 +104,26 @@ namespace AlienCrusher.Systems
 			EnsureVisualPrimitive(kit, "Hip", PrimitiveType.Cube, WorldToLocalOffset(kit, new Vector3(0f, -height * 0.18f, 0f)), WorldToLocalScale(kit, new Vector3(width * 0.5f, height * 0.12f, depth * 0.5f)), plate);
 			EnsureVisualPrimitive(kit, "Leg_L", PrimitiveType.Cube, WorldToLocalOffset(kit, new Vector3(-width * 0.18f, -height * 0.34f, depth * 0.04f)), WorldToLocalScale(kit, new Vector3(width * 0.16f, height * 0.28f, depth * 0.28f)), armor);
 			EnsureVisualPrimitive(kit, "Leg_R", PrimitiveType.Cube, WorldToLocalOffset(kit, new Vector3(width * 0.18f, -height * 0.34f, depth * 0.04f)), WorldToLocalScale(kit, new Vector3(width * 0.16f, height * 0.28f, depth * 0.28f)), armor);
+
+			Material armorMat = ResolveBossIdentityMaterial(BossSentinelArmorId);
+			Color armorEmission = new Color(0.06f, 0.12f, 0.22f, 1f);
+			Color plateEmission = new Color(0.03f, 0.05f, 0.1f, 1f);
+			Color visorEmission = new Color(0.18f, 0.32f, 0.48f, 1f);
+			Color closedCoreEmission = new Color(0.12f, 0.22f, 0.3f, 1f);
+			ApplyBossIdentityMaterial(kit, "StancePlinth", armorMat, plate, plateEmission);
+			ApplyBossIdentityMaterial(kit, "Torso", armorMat, armor, armorEmission);
+			ApplyBossIdentityMaterial(kit, "ChestPlate", armorMat, plate, plateEmission);
+			ApplyBossIdentityMaterial(kit, "ChestCore", ClosedOrExposedCoreMaterial(false), core, closedCoreEmission);
+			ApplyBossIdentityMaterial(kit, "Head", armorMat, armor, armorEmission);
+			ApplyBossIdentityMaterial(kit, "VisorAccent", armorMat, visor, visorEmission);
+			ApplyBossIdentityMaterial(kit, "CrownBlade", armorMat, visor, visorEmission);
+			ApplyBossIdentityMaterial(kit, "Shoulder_L", armorMat, plate, plateEmission);
+			ApplyBossIdentityMaterial(kit, "Shoulder_R", armorMat, plate, plateEmission);
+			ApplyBossIdentityMaterial(kit, "Cannon_L", armorMat, visor, visorEmission);
+			ApplyBossIdentityMaterial(kit, "Cannon_R", armorMat, visor, visorEmission);
+			ApplyBossIdentityMaterial(kit, "Hip", armorMat, plate, plateEmission);
+			ApplyBossIdentityMaterial(kit, "Leg_L", armorMat, armor, armorEmission);
+			ApplyBossIdentityMaterial(kit, "Leg_R", armorMat, armor, armorEmission);
 		}
 
 		private static void BuildShieldPylonKit(Transform kit, Color roleColor)
@@ -121,6 +144,18 @@ namespace AlienCrusher.Systems
 			EnsureVisualPrimitive(kit, "EnergyPaneAccent", PrimitiveType.Cube, WorldToLocalOffset(kit, new Vector3(0f, 0.02f, 0f)), WorldToLocalScale(kit, new Vector3(span * 0.72f, height * 0.72f, 0.08f)), beam);
 			EnsureVisualPrimitive(kit, "Cap_L", PrimitiveType.Sphere, WorldToLocalOffset(kit, new Vector3(-span * 0.5f, height * 0.5f, 0f)), WorldToLocalScale(kit, new Vector3(0.32f, 0.22f, 0.32f)), cap);
 			EnsureVisualPrimitive(kit, "Cap_R", PrimitiveType.Sphere, WorldToLocalOffset(kit, new Vector3(span * 0.5f, height * 0.5f, 0f)), WorldToLocalScale(kit, new Vector3(0.32f, 0.22f, 0.32f)), cap);
+
+			Material pylonMat = ResolveBossIdentityMaterial(BossShieldPylonMatId);
+			Color postEmission = new Color(0.04f, 0.12f, 0.18f, 1f);
+			Color beamEmission = new Color(0.05f, 0.36f, 0.56f, 1f);
+			Color capEmission = new Color(0.08f, 0.42f, 0.62f, 1f);
+			ApplyBossIdentityMaterial(kit, "Threshold", pylonMat, post, postEmission);
+			ApplyBossIdentityMaterial(kit, "Post_L", pylonMat, post, postEmission);
+			ApplyBossIdentityMaterial(kit, "Post_R", pylonMat, post, postEmission);
+			ApplyBossIdentityMaterial(kit, "Lintel", pylonMat, post, postEmission);
+			ApplyBossIdentityMaterial(kit, "EnergyPaneAccent", pylonMat, beam, beamEmission);
+			ApplyBossIdentityMaterial(kit, "Cap_L", pylonMat, cap, capEmission);
+			ApplyBossIdentityMaterial(kit, "Cap_R", pylonMat, cap, capEmission);
 		}
 
 		private static void BuildPhase2DroneKit(Transform kit, Color roleColor)
@@ -198,6 +233,67 @@ namespace AlienCrusher.Systems
 			go.transform.localScale = SanitizeVisualScale(localScale);
 			TintObject(go, color);
 			return go;
+		}
+
+		private static Material ClosedOrExposedCoreMaterial(bool exposed)
+		{
+			return ResolveBossIdentityMaterial(exposed ? BossCoreExposedId : BossSentinelArmorId);
+		}
+
+		private static Material ResolveBossIdentityMaterial(string id)
+		{
+			if (id == BossSentinelArmorId)
+			{
+				return BossIdentityMaterials.Armor;
+			}
+
+			if (id == BossShieldPylonMatId)
+			{
+				return BossIdentityMaterials.ShieldPylon;
+			}
+
+			if (id == BossCoreExposedId)
+			{
+				return BossIdentityMaterials.CoreExposed;
+			}
+
+			return null;
+		}
+
+		private static void ApplyBossIdentityMaterial(Transform kit, string childName, Material material, Color color, Color emission)
+		{
+			if ((Object)(object)kit == (Object)null || (Object)(object)material == (Object)null || string.IsNullOrWhiteSpace(childName))
+			{
+				return;
+			}
+
+			Transform child = FindDirectChild(kit, childName);
+			if ((Object)(object)child == (Object)null)
+			{
+				return;
+			}
+
+			Renderer renderer = child.GetComponent<Renderer>();
+			if ((Object)(object)renderer == (Object)null)
+			{
+				return;
+			}
+
+			if ((Object)(object)renderer.sharedMaterial != (Object)(object)material)
+			{
+				renderer.sharedMaterial = material;
+			}
+
+			MaterialPropertyBlock block = new MaterialPropertyBlock();
+			renderer.GetPropertyBlock(block);
+			block.SetColor("_BaseColor", color);
+			block.SetColor("_Color", color);
+			if (material.HasProperty("_EmissionColor"))
+			{
+				block.SetColor("_EmissionColor", emission);
+			}
+
+			renderer.SetPropertyBlock(block);
 		}
 
 		private static Vector3 AbsLossyScale(Transform target)

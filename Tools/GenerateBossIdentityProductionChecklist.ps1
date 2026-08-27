@@ -131,6 +131,7 @@ foreach ($needle in @(
 
 foreach ($needle in @(
     "VFX_Boss_Warning_Ring",
+    "VFX_Boss_Core_Expose_Burst",
     "VFX_Boss_Defeat_Cascade",
     "SFX_Boss_Warning",
     "SFX_Boss_Break",

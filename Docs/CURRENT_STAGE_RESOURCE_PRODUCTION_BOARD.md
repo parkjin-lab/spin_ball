@@ -359,13 +359,14 @@ Deliverables:
 - `BOSS_Shield_Pylon_Kit` shield pylon kit
 - `BOSS_Phase2_Drone_Kit` phase 2 drone kit
 - `VFX_Boss_Warning_Ring` inbound / pressure-pulse danger ring
+- `VFX_Boss_Core_Expose_Burst` short vertical break-window burst on CORE EXPOSED (not a second warning ring)
 - `VFX_Boss_Defeat_Cascade` Sentinel-down / city-collapse release
-- short vertical break-window burst on CORE EXPOSED (not a second warning ring)
 - `SFX_Boss_Warning` threat pulse / inbound warning
 - `SFX_Boss_Break` break-window open
 - `SFX_Boss_Down` Justice Sentinel defeat
-- boss armor / shield / exposed-core material set
-- boss core expose burst VFX
+- `MAT_Boss_Sentinel_Armor` default Sentinel body
+- `MAT_Boss_Shield_Pylon` active shield pylon
+- `MAT_Boss_Core_Exposed` break-window core
 - `Badge_Boss_Clear` steel result badge for Sentinel victory
 - `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run boss identity
 

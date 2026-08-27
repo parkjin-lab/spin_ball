@@ -436,26 +436,34 @@ namespace AlienCrusher.Gameplay
 
             if (shieldedPylonMaterial == null)
             {
-                shieldedPylonMaterial = CoalesceCombatStateMaterial(
-                    ShieldedPylonId,
-                    ShieldedPylonResourcesPath,
-                    ShieldedPylonAssetPath,
-                    ShieldedPylonColor,
-                    metallic: 0.22f,
-                    smoothness: 0.55f,
-                    ShieldedPylonEmission);
+                shieldedPylonMaterial = BossIdentityMaterials.ShieldPylon;
+                if (shieldedPylonMaterial == null)
+                {
+                    shieldedPylonMaterial = CoalesceCombatStateMaterial(
+                        ShieldedPylonId,
+                        ShieldedPylonResourcesPath,
+                        ShieldedPylonAssetPath,
+                        ShieldedPylonColor,
+                        metallic: 0.22f,
+                        smoothness: 0.55f,
+                        ShieldedPylonEmission);
+                }
             }
 
             if (exposedCoreMaterial == null)
             {
-                exposedCoreMaterial = CoalesceCombatStateMaterial(
-                    ExposedCoreId,
-                    ExposedCoreResourcesPath,
-                    ExposedCoreAssetPath,
-                    ExposedCoreColor,
-                    metallic: 0.18f,
-                    smoothness: 0.62f,
-                    ExposedCoreEmission);
+                exposedCoreMaterial = BossIdentityMaterials.CoreExposed;
+                if (exposedCoreMaterial == null)
+                {
+                    exposedCoreMaterial = CoalesceCombatStateMaterial(
+                        ExposedCoreId,
+                        ExposedCoreResourcesPath,
+                        ExposedCoreAssetPath,
+                        ExposedCoreColor,
+                        metallic: 0.18f,
+                        smoothness: 0.62f,
+                        ExposedCoreEmission);
+                }
             }
         }
 
