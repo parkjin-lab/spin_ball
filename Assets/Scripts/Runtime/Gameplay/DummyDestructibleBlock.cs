@@ -217,7 +217,16 @@ namespace AlienCrusher.Gameplay
 
         private void OnDisable()
         {
-            transform.DOKill();
+            if (!CollisionContactGuard.IsUnityAlive(this))
+            {
+                return;
+            }
+
+            if (CollisionContactGuard.IsUnityAlive(transform))
+            {
+                transform.DOKill();
+            }
+
             StopAndClearParticles();
             SetWeakPointVisible(false);
             SetBossCoreTelegraphVisible(false);
@@ -225,19 +234,29 @@ namespace AlienCrusher.Gameplay
 
         private void Update()
         {
+            if (!CollisionContactGuard.IsBehaviourLive(this))
+            {
+                return;
+            }
+
             UpdateWeakPointVisualPulse();
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (!isActiveAndEnabled || currentDurability <= 0f)
+            if (!CollisionContactGuard.IsUnityAlive(this) || !isActiveAndEnabled || currentDurability <= 0f)
             {
                 return;
             }
 
-            var player = collision.gameObject.GetComponent<PlayerBallDummyController>()
-                         ?? collision.gameObject.GetComponentInParent<PlayerBallDummyController>();
-            if (player == null)
+            if (!CollisionContactGuard.TryGetLiveOther(collision, out _, out var other))
+            {
+                return;
+            }
+
+            var player = other.GetComponent<PlayerBallDummyController>()
+                         ?? other.GetComponentInParent<PlayerBallDummyController>();
+            if (!CollisionContactGuard.IsUnityAlive(player))
             {
                 return;
             }
@@ -258,7 +277,7 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            var hitPoint = collision.contactCount > 0 ? collision.GetContact(0).point : transform.position;
+            var hitPoint = CollisionContactGuard.GetContactPointOrFallback(collision, transform.position);
             var weakPointHit = IsWeakPointHit(hitPoint);
             if (weakPointHit && enableWeakPointCritical)
             {
@@ -276,6 +295,11 @@ namespace AlienCrusher.Gameplay
 
         public void ApplyExternalImpactDamage(float damage, Vector3 hitPoint, float impact01 = 0.8f, bool suppressFeedback = true, bool allowDestructionShockwave = false)
         {
+            if (!CollisionContactGuard.IsUnityAlive(this))
+            {
+                return;
+            }
+
             ApplyDamageInternal(damage, hitPoint, Mathf.Clamp01(impact01), forceHeavy: true, suppressFeedback: suppressFeedback, suppressDamageNumber: suppressFeedback, weakPointHit: false, allowDestructionShockwave: allowDestructionShockwave);
         }
 
@@ -283,7 +307,7 @@ namespace AlienCrusher.Gameplay
         public bool IsLargeBuildingTarget => isLargeBuilding;
         public StageEncounterRole CurrentStageEncounterRole => stageEncounterRole;
         public static System.Action<DummyDestructibleBlock> AfterScaffolderConfigured;
-        public bool IsAlive => currentDurability > 0f && gameObject.activeInHierarchy;
+        public bool IsAlive => CollisionContactGuard.IsUnityAlive(this) && currentDurability > 0f && gameObject.activeInHierarchy;
         public float DurabilityRatio => maxDurability > 0f ? Mathf.Clamp01(currentDurability / maxDurability) : 0f;
         public float CurrentDurability => currentDurability;
         public float MaxDurability => maxDurability;
@@ -566,7 +590,7 @@ namespace AlienCrusher.Gameplay
 
         private void ApplyDamageInternal(float damage, Vector3 hitPoint, float impact01, bool forceHeavy, bool suppressFeedback = false, bool suppressDamageNumber = false, bool weakPointHit = false, bool allowDestructionShockwave = true)
         {
-            if (!isActiveAndEnabled || currentDurability <= 0f)
+            if (!CollisionContactGuard.IsUnityAlive(this) || !isActiveAndEnabled || currentDurability <= 0f)
             {
                 return;
             }
@@ -603,7 +627,11 @@ namespace AlienCrusher.Gameplay
             }
 
             currentDamageScale = ComputeDamageScale(remainingRatio);
-            transform.localScale = currentDamageScale;
+            var destroyedNow = currentDurability <= 0f;
+            var scaleToApply = currentDamageScale;
+            var collapseHitPoint = hitPoint;
+            var collapseImpact = Mathf.Clamp01(impact01 + damageRatio * 0.2f);
+            var collapseAllowShockwave = allowDestructionShockwave;
 
             if (isLargeBuilding)
             {
@@ -611,15 +639,10 @@ namespace AlienCrusher.Gameplay
                 UpdateCrackPieces(damageRatio);
             }
 
-            if (!suppressFeedback)
-            {
-                PlayHitFeedback(impact01, destroyed: currentDurability <= 0f, heavyHit: heavyHit, baseScale: currentDamageScale);
-            }
-
             UpdateTint();
-            PlayNamedBreakFeedback(hitPoint, damageRatio, remainingRatio, heavyHit, weakPointHit, suppressFeedback, currentDurability <= 0f);
+            PlayNamedBreakFeedback(hitPoint, damageRatio, remainingRatio, heavyHit, weakPointHit, suppressFeedback, destroyedNow);
 
-            if (currentDurability <= 0f)
+            if (destroyedNow)
             {
                 SetWeakPointVisible(false);
                 SetBossCoreTelegraphVisible(false);
@@ -641,13 +664,36 @@ namespace AlienCrusher.Gameplay
                 {
                     TriggerDestructionShockwave(hitPoint, impact01, heavyHit, suppressFeedback);
                 }
+            }
+
+            PhysicsCallbackDefer.RunAfterPhysics(() =>
+            {
+                if (!CollisionContactGuard.IsUnityAlive(this) || !CollisionContactGuard.IsUnityAlive(transform))
+                {
+                    return;
+                }
+
+                transform.localScale = scaleToApply;
+                if (!suppressFeedback)
+                {
+                    PlayHitFeedback(impact01, destroyed: destroyedNow, heavyHit: heavyHit, baseScale: scaleToApply);
+                }
+
+                if (!destroyedNow)
+                {
+                    return;
+                }
 
                 if (destroyRoutine != null)
                 {
                     StopCoroutine(destroyRoutine);
                 }
 
-                destroyRoutine = StartCoroutine(IsStageBoss ? DisableBossAfterCollapse(hitPoint, Mathf.Clamp01(impact01 + damageRatio * 0.2f), allowDestructionShockwave) : DisableAfterDelay(destroyDisableDelay));
+                destroyRoutine = StartCoroutine(IsStageBoss ? DisableBossAfterCollapse(collapseHitPoint, collapseImpact, collapseAllowShockwave) : DisableAfterDelay(destroyDisableDelay));
+            });
+
+            if (destroyedNow)
+            {
                 return;
             }
 
@@ -677,7 +723,7 @@ namespace AlienCrusher.Gameplay
 
         private void TriggerDestructionShockwave(Vector3 center, float impact01, bool heavyHit, bool suppressFeedback, float damageScale = 1f, float radiusScale = 1f, int destructibleCapBonus = 0, int propCapBonus = 0)
         {
-            if (!enableDestructionShockwave || !isActiveAndEnabled)
+            if (!CollisionContactGuard.IsUnityAlive(this) || !enableDestructionShockwave || !isActiveAndEnabled)
             {
                 return;
             }
@@ -708,19 +754,19 @@ namespace AlienCrusher.Gameplay
             for (var i = 0; i < hitCount; i++)
             {
                 var col = shockwaveHitBuffer[i];
-                if (col == null || !col.enabled)
+                if (!CollisionContactGuard.IsUnityAlive(col) || !col.enabled)
                 {
                     continue;
                 }
 
                 var colTransform = col.transform;
-                if (colTransform == null)
+                if (!CollisionContactGuard.IsUnityAlive(colTransform))
                 {
                     continue;
                 }
 
                 var block = col.GetComponent<DummyDestructibleBlock>() ?? col.GetComponentInParent<DummyDestructibleBlock>();
-                if (block != null && block != this && block.gameObject.activeInHierarchy && touchedBlocks.Add(block))
+                if (CollisionContactGuard.IsUnityAlive(block) && block != this && block.gameObject.activeInHierarchy && touchedBlocks.Add(block))
                 {
                     var destructibleCap = Mathf.Max(1, shockwaveMaxDestructibleHits + runtimeShockwaveDestructibleCapBonus + destructibleCapBonus);
                     if (destructibleHits < destructibleCap)
@@ -744,7 +790,7 @@ namespace AlienCrusher.Gameplay
                 }
 
                 var prop = col.GetComponent<DummyStreetPropReactive>() ?? col.GetComponentInParent<DummyStreetPropReactive>();
-                if (prop != null && prop.gameObject.activeInHierarchy && touchedProps.Add(prop))
+                if (CollisionContactGuard.IsUnityAlive(prop) && prop.gameObject.activeInHierarchy && touchedProps.Add(prop))
                 {
                     var propCap = Mathf.Max(1, shockwaveMaxPropHits + runtimeShockwavePropCapBonus + propCapBonus);
                     if (propHits >= propCap)
@@ -777,9 +823,21 @@ namespace AlienCrusher.Gameplay
                 }
 
                 var rb = col.attachedRigidbody;
-                if (rb != null && !rb.isKinematic && rb.mass > 0.01f)
+                if (CollisionContactGuard.IsUnityAlive(rb) && !rb.isKinematic && rb.mass > 0.01f)
                 {
-                    rb.AddExplosionForce(Mathf.Max(0f, shockwaveImpulse * runtimeShockwaveImpulseMultiplier), center, radius, 0.55f, ForceMode.Impulse);
+                    var impulseBody = rb;
+                    var impulseCenter = center;
+                    var impulseRadius = radius;
+                    var impulseStrength = Mathf.Max(0f, shockwaveImpulse * runtimeShockwaveImpulseMultiplier);
+                    PhysicsCallbackDefer.RunAfterPhysics(() =>
+                    {
+                        if (!CollisionContactGuard.IsUnityAlive(impulseBody) || impulseBody.isKinematic || impulseBody.mass <= 0.01f)
+                        {
+                            return;
+                        }
+
+                        impulseBody.AddExplosionForce(impulseStrength, impulseCenter, impulseRadius, 0.55f, ForceMode.Impulse);
+                    });
                 }
             }
 
@@ -878,6 +936,11 @@ namespace AlienCrusher.Gameplay
             transform.DORotate(targetRotation, delay, RotateMode.LocalAxisAdd).SetEase(Ease.OutQuad);
 
             yield return new WaitForSeconds(delay);
+            if (!CollisionContactGuard.IsUnityAlive(this) || !CollisionContactGuard.IsUnityAlive(gameObject))
+            {
+                yield break;
+            }
+
             gameObject.SetActive(false);
         }
 
@@ -898,6 +961,11 @@ namespace AlienCrusher.Gameplay
 
             for (int i = 0; i < bursts; i++)
             {
+                if (!CollisionContactGuard.IsUnityAlive(this) || !CollisionContactGuard.IsUnityAlive(transform))
+                {
+                    yield break;
+                }
+
                 float burst01 = bursts <= 1 ? 1f : (float)i / (float)(bursts - 1);
                 float angle = (360f / bursts) * i + Random.Range(-16f, 16f);
                 Vector3 dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
@@ -929,6 +997,11 @@ namespace AlienCrusher.Gameplay
                 transform.DORotate(new Vector3(Random.Range(-8f, 8f), Random.Range(-32f, 32f), Random.Range(-10f, 10f)), Mathf.Max(0.08f, step * 0.7f), RotateMode.LocalAxisAdd).SetEase(Ease.OutQuad);
 
                 yield return new WaitForSeconds(Mathf.Max(0.08f, step));
+            }
+
+            if (!CollisionContactGuard.IsUnityAlive(this) || !CollisionContactGuard.IsUnityAlive(gameObject))
+            {
+                yield break;
             }
 
             UpdateSmokeFromDamage(0f, forceStop: true);
@@ -1800,7 +1873,7 @@ namespace AlienCrusher.Gameplay
 
         private bool IsWeakPointHit(Vector3 hitPoint)
         {
-            if (!enableWeakPointCritical || !weakPointActive || weakPointVisual == null)
+            if (!enableWeakPointCritical || !weakPointActive || !CollisionContactGuard.IsUnityAlive(weakPointVisual))
             {
                 return false;
             }
@@ -1812,7 +1885,11 @@ namespace AlienCrusher.Gameplay
 
         private void UpdateWeakPointVisualPulse()
         {
-            if (!weakPointActive || weakPointRenderer == null || weakPointVisual == null || !weakPointVisual.gameObject.activeSelf)
+            if (!weakPointActive
+                || !CollisionContactGuard.IsUnityAlive(this)
+                || !CollisionContactGuard.IsUnityAlive(weakPointRenderer)
+                || !CollisionContactGuard.IsUnityAlive(weakPointVisual)
+                || !weakPointVisual.gameObject.activeSelf)
             {
                 return;
             }
@@ -1838,8 +1915,13 @@ namespace AlienCrusher.Gameplay
 
         private void SetWeakPointVisible(bool visible)
         {
+            if (!CollisionContactGuard.IsUnityAlive(this))
+            {
+                return;
+            }
+
             weakPointActive = visible;
-            if (weakPointVisual == null)
+            if (!CollisionContactGuard.IsUnityAlive(weakPointVisual))
             {
                 RefreshCombatStateReadability();
                 return;
@@ -1856,7 +1938,7 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            if (weakPointRenderer != null)
+            if (CollisionContactGuard.IsUnityAlive(weakPointRenderer))
             {
                 weakPointRenderer.GetPropertyBlock(weakPointPropertyBlock);
                 weakPointPropertyBlock.SetColor("_BaseColor", weakPointColorA);
@@ -1868,7 +1950,10 @@ namespace AlienCrusher.Gameplay
 
         private void UpdateBossCoreTelegraph(float pulse, Color colorA, Color colorB)
         {
-            if (!bossCoreExposureActive || bossCoreRingVisual == null || bossCoreGroundTelegraphVisual == null)
+            if (!bossCoreExposureActive
+                || !CollisionContactGuard.IsUnityAlive(this)
+                || !CollisionContactGuard.IsUnityAlive(bossCoreRingVisual)
+                || !CollisionContactGuard.IsUnityAlive(bossCoreGroundTelegraphVisual))
             {
                 return;
             }

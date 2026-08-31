@@ -172,14 +172,21 @@ namespace AlienCrusher.Gameplay
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (destroyed || Time.time < lastHitAt + Mathf.Max(0.02f, hitCooldown))
+            if (!CollisionContactGuard.IsUnityAlive(this)
+                || destroyed
+                || Time.time < lastHitAt + Mathf.Max(0.02f, hitCooldown))
             {
                 return;
             }
 
-            PlayerBallDummyController player = collision.gameObject.GetComponent<PlayerBallDummyController>() ??
-                                               collision.gameObject.GetComponentInParent<PlayerBallDummyController>();
-            if (player == null)
+            if (!CollisionContactGuard.TryGetLiveOther(collision, out _, out var other))
+            {
+                return;
+            }
+
+            PlayerBallDummyController player = other.GetComponent<PlayerBallDummyController>() ??
+                                               other.GetComponentInParent<PlayerBallDummyController>();
+            if (!CollisionContactGuard.IsUnityAlive(player))
             {
                 return;
             }
@@ -192,7 +199,7 @@ namespace AlienCrusher.Gameplay
             }
 
             Rigidbody body = player.GetComponent<Rigidbody>();
-            float velocityDamage = (body != null ? body.linearVelocity.magnitude : relativeSpeed) * rigidbodyVelocityDamageScale;
+            float velocityDamage = (CollisionContactGuard.IsUnityAlive(body) ? body.linearVelocity.magnitude : relativeSpeed) * rigidbodyVelocityDamageScale;
             float damage = (relativeSpeed * damagePerSpeed + velocityDamage) * Mathf.Max(0.6f, player.ImpactMultiplier);
             if (player.DrillMode)
             {
@@ -203,7 +210,7 @@ namespace AlienCrusher.Gameplay
             lastHitAt = Time.time;
             currentDurability -= damage;
 
-            Vector3 hitPoint = collision.contactCount > 0 ? collision.GetContact(0).point : transform.position;
+            Vector3 hitPoint = CollisionContactGuard.GetContactPointOrFallback(collision, transform.position);
             float impact01 = Mathf.InverseLerp(impactThreshold, 16f, relativeSpeed);
             damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
             feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
@@ -218,15 +225,28 @@ namespace AlienCrusher.Gameplay
 
             destroyed = true;
             respawnPreviewActive = false;
-            if ((Object)(object)cachedCollider != (Object)null)
+            SetRenderersEnabled(false);
+            damageNumberSystem?.ShowTag(transform.position + Vector3.up * 0.9f, "DRONE DOWN", true);
+            destroyedCallback?.Invoke(this);
+            PhysicsCallbackDefer.RunAfterPhysics(DeactivateAfterPhysics);
+        }
+
+        private void DeactivateAfterPhysics()
+        {
+            if (!CollisionContactGuard.IsUnityAlive(this))
+            {
+                return;
+            }
+
+            if (CollisionContactGuard.IsUnityAlive(cachedCollider))
             {
                 cachedCollider.enabled = false;
             }
 
-            SetRenderersEnabled(false);
-            damageNumberSystem?.ShowTag(transform.position + Vector3.up * 0.9f, "DRONE DOWN", true);
-            destroyedCallback?.Invoke(this);
-            gameObject.SetActive(false);
+            if (CollisionContactGuard.IsUnityAlive(gameObject))
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         private void SetRenderersEnabled(bool enabled)

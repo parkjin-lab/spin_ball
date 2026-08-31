@@ -1,5 +1,13 @@
 # Alien Crusher Handoff - 2026-07-12
 
+## 2026-08-31 Collision Crush MissingReference Guard
+
+- Play-blocker: user still crashed while colliding / destroying things (`자뫼 충돌해서 크러쉬나는 문제`). Screenshot evidence is the Unity Bug Reporter with type **Crash** (empty title) — a native editor/player abort, not only a Console `MissingReferenceException`. The 2026-08-24 Stage 7 telemetry guard (`HasLiveStageBossBlock` / `SetBossCoreExposure` fake-null) is still in place; it does not cover physics-callback mutations.
+- Verified native path: `DummyStreetPropReactive.BreakProp` ran inside `OnCollisionEnter` — `SetParent(null)` on live colliders, `AddComponent<Rigidbody>`, `AddForce`, then `Destroy(root)` while PhysX still holds the contact pair. Block destroy also scaled the collider and started a shrink coroutine (immediate `DOScale`) in the same callback. Drone death called `SetActive(false)` / disabled its collider in `OnCollisionEnter`. Shockwave `AddExplosionForce` wrote other rigidbodies mid-step. A second object in the same pair can die first; the other handler then reads `collision.gameObject` / `GetContact` (managed MissingReference).
+- Fix only: `CollisionContactGuard` fake-null checks on every `OnCollisionEnter` / post-yield disable / `Update` pulse. `PhysicsCallbackDefer` moves reparent / AddRigidbody / Destroy / collider disable / `SetActive` / collider `localScale` / explosion impulses to LateUpdate after the physics step. Durability, score, break thresholds, and spawn rates are unchanged. No juice inventing.
+- How to see it: Play Mode Stage 1 — smash `GapLamp_*` / `GapCar_*` / `Block_*` in a rapid crush combo (and a barrel/transformer if present). Editor should not open Bug Reporter, and Console should not throw `MissingReferenceException` / `NullReferenceException`. `F7` Stage 4/5 — smash pylons, `YardCraneMast`, and street props during OVERDRIVE. Clear Stage 6 boss, start Stage 7 — no `DummyDestructibleBlock has been destroyed` on telemetry Update.
+- If it still dies: `Editor.log` plus `CrashReports` / Bug Reporter dump. Confirm the native stack is `PhysX` / `OnCollisionEnter` / `DummyStreetPropReactive` / `DummyDestructibleBlock` rather than an unrelated editor module.
+
 ## 2026-08-27 Combo And Overdrive Pulse Draft Materials
 
 - Route Payoff B–I drafts were already on disk. The next unused named on-disk gap was leftover combo/Overdrive pulses: runtime already played `VFX_Combo_Rise_Pulse` and `VFX_Overdrive_Pulse` from anonymous Unlit copies. HUD/lobby residual pulses (`VFX_FormEquip_Confirm` through `VFX_NextAction_Residual`) were not drafted.
@@ -124,7 +132,7 @@
 
 - Play-blocker from the 2026-08-24 Seoul creator playtest (tester 진웅 박). Stage 7 started after a Stage 6 boss-clear, then `UpdateStageBossTelemetry` called `SetBossCoreExposure` on a Unity-destroyed `DummyDestructibleBlock`.
 - Fix only: Unity fake-null checks before `.transform` / weak-point setup, and skip SENTINEL DOWN / stage-end when the boss reference is destroyed rather than combat-inactive. Boss timing, exposure intensity, HP, and pressure numbers are unchanged.
-- How to see it: Play Mode, clear the Stage 6 boss, start Stage 7. Console should not throw `MissingReferenceException: DummyDestructibleBlock has been destroyed`. Stage 7 should keep running toward a real `STAGE_END`.
+- How to see it: Play Mode, clear the Stage 6 boss, start Stage 7. Console should not throw `MissingReferenceException: DummyDestructibleBlock has been destroyed`. Stage 7 should keep running toward a real `STAGE_END`. Follow-up 2026-08-31 also guards same-tick collision callbacks (see **2026-08-31 Collision Crush MissingReference Guard**).
 - Creator notes for that session are in `Docs/AlienCrusherStagePlaytestNotes.md` under **Qualitative Playtest (2026-08-24)**. Stages 02-03 were skipped; do not invent `F10` `STAGE_START`/`STAGE_END` for them. Stage 01-07 evidence fields stay empty.
 
 ## 2026-08-23 Street-Prop Density Batch

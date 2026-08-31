@@ -211,6 +211,11 @@ namespace AlienCrusher.Gameplay
         }
         private void FixedUpdate()
         {
+            if (!CollisionContactGuard.IsUnityAlive(this) || !CollisionContactGuard.IsUnityAlive(body))
+            {
+                return;
+            }
+
             var input = ProcessMovementInput(GetMovementInput());
             var hasInput = input.sqrMagnitude > 0.0001f;
 
@@ -229,7 +234,11 @@ namespace AlienCrusher.Gameplay
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (collision.contactCount <= 0)
+            if (!CollisionContactGuard.IsBehaviourLive(this)
+                || !CollisionContactGuard.IsUnityAlive(body)
+                || collision == null
+                || collision.contactCount <= 0
+                || !CollisionContactGuard.TryGetLiveOther(collision, out _, out var other))
             {
                 return;
             }
@@ -243,8 +252,8 @@ namespace AlienCrusher.Gameplay
             reflected.y = preVelocity.y;
             body.linearVelocity = reflected;
 
-            var hitDestructible = collision.gameObject.GetComponent<DummyDestructibleBlock>() != null ||
-                                  collision.gameObject.GetComponentInParent<DummyDestructibleBlock>() != null;
+            var hitDestructible = other.GetComponent<DummyDestructibleBlock>() != null ||
+                                  other.GetComponentInParent<DummyDestructibleBlock>() != null;
             if (hitDestructible)
             {
                 return;
@@ -263,7 +272,7 @@ namespace AlienCrusher.Gameplay
             }
 
             var impact01 = Mathf.InverseLerp(3f, 13f, impact);
-            var point = collision.GetContact(0).point;
+            var point = contact.point;
             feedbackSystem.PlayHitFeedback(point, impact01 * 0.8f);
         }
 

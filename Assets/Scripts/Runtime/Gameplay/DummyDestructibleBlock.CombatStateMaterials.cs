@@ -60,6 +60,11 @@ namespace AlienCrusher.Gameplay
 
         private void RefreshCombatStateReadability()
         {
+            if (!CollisionContactGuard.IsUnityAlive(this))
+            {
+                return;
+            }
+
             EnsureCombatStatePropertyBlock();
             EnsureCombatStateMaterials();
             ApplyWeakPointCombatMaterial();
