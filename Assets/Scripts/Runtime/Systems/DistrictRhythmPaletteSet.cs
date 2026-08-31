@@ -1,4 +1,5 @@
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace AlienCrusher.Systems
 {
@@ -31,46 +32,66 @@ namespace AlienCrusher.Systems
 			if (stageNumber <= 1)
 			{
 				ApplyStarterResidential(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				OverlayDraft(StarterResidentialId, ref ground, ref wall, ref stripe);
 				return true;
 			}
 
 			if (stageNumber == 2)
 			{
 				ApplyPocketPark(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				OverlayDraft(PocketParkId, ref ground, ref wall, ref stripe);
 				return true;
 			}
 
 			if (stageNumber == 3)
 			{
 				ApplyMarketPlaza(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				OverlayDraft(MarketPlazaId, ref ground, ref wall, ref stripe);
 				return true;
 			}
 
 			if (stageNumber == 4)
 			{
 				ApplySentinelCheckpoint(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				OverlayDraft(SentinelCheckpointId, ref ground, ref wall, ref stripe);
 				return true;
 			}
 
 			if (stageNumber == 5)
 			{
 				ApplyConstructionYard(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				OverlayDraft(ConstructionYardId, ref ground, ref wall, ref stripe);
 				return true;
 			}
 
 			if (stageNumber == 6)
 			{
 				ApplyPowerBlock(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				OverlayDraft(PowerBlockId, ref ground, ref wall, ref stripe);
 				return true;
 			}
 
 			if (stageNumber == 7)
 			{
 				ApplySkylineBlock(ref ground, ref wall, ref asphalt, ref stripe, ref sidewalk, ref foliageA, ref foliageB, ref neutralA, ref neutralB, ref accentA, ref accentB, ref hazardA, ref hazardB);
+				OverlayDraft(SkylineBlockId, ref ground, ref wall, ref stripe);
 				return true;
 			}
 
 			return false;
+		}
+
+		private static void OverlayDraft(string paletteId, ref Color ground, ref Color wall, ref Color stripe)
+		{
+			Material draft = DistrictPaletteDrafts.LoadDistrict(paletteId);
+			if ((Object)(object)draft == (Object)null)
+			{
+				return;
+			}
+
+			ground = DistrictPaletteDrafts.ReadColor(draft, "_BaseColor", ground);
+			wall = DistrictPaletteDrafts.ReadColor(draft, "_EmissionColor", wall);
+			stripe = DistrictPaletteDrafts.ReadColor(draft, "_SpecColor", stripe);
 		}
 
 		private static void ApplyStarterResidential(

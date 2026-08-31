@@ -1,5 +1,8 @@
 using UnityEngine;
 using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace AlienCrusher.Systems
 {
@@ -7,6 +10,10 @@ namespace AlienCrusher.Systems
 	{
 		public const string OrdinaryVfxId = "VFX_Failure_Ordinary";
 		public const string BossVfxId = "VFX_Failure_Boss";
+		private const string OrdinaryResourcesPath = "VFX/Failure/VFX_Failure_Ordinary";
+		private const string BossResourcesPath = "VFX/Failure/VFX_Failure_Boss";
+		private const string OrdinaryAssetPath = "Assets/Art/VFX/Failure/VFX_Failure_Ordinary.mat";
+		private const string BossAssetPath = "Assets/Art/VFX/Failure/VFX_Failure_Boss.mat";
 
 		private static readonly Color OrdinaryUmber = new Color(0.64f, 0.3f, 0.16f, 0.92f);
 		private static readonly Color OrdinaryTan = new Color(0.78f, 0.48f, 0.28f, 0.9f);
@@ -40,7 +47,7 @@ namespace AlienCrusher.Systems
 				go.transform.position = origin + dir * 0.28f + Vector3.up * 0.22f;
 				go.transform.rotation = Quaternion.LookRotation(dir, Vector3.up) * Quaternion.Euler(55f, 0f, 0f);
 				go.transform.localScale = new Vector3(0.16f, 0.05f, 0.22f);
-				ApplyUnlitColor(go, color, "M_Runtime_FailureOrdinary");
+				ApplyUnlitColor(go, color, "M_Runtime_FailureOrdinary", OrdinaryResourcesPath, OrdinaryAssetPath);
 				PulseFlash flash = go.AddComponent<PulseFlash>();
 				flash.Configure(new Vector3(0.12f, 0.04f, 0.3f), color, 0.26f + i * 0.02f, Vector3.down * 1.6f);
 			}
@@ -50,7 +57,7 @@ namespace AlienCrusher.Systems
 			DestroyCollider(bar);
 			bar.transform.position = origin;
 			bar.transform.localScale = new Vector3(0.62f, 0.05f, 0.08f);
-			ApplyUnlitColor(bar, OrdinaryUmber, "M_Runtime_FailureOrdinary");
+			ApplyUnlitColor(bar, OrdinaryUmber, "M_Runtime_FailureOrdinary", OrdinaryResourcesPath, OrdinaryAssetPath);
 			PulseFlash barFlash = bar.AddComponent<PulseFlash>();
 			barFlash.Configure(new Vector3(0.18f, 0.04f, 0.06f), OrdinaryTan, 0.24f, Vector3.down * 0.8f);
 		}
@@ -68,7 +75,7 @@ namespace AlienCrusher.Systems
 				go.transform.position = origin + dir * 0.42f + Vector3.up * 0.38f;
 				go.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
 				go.transform.localScale = new Vector3(0.1f, 0.28f, 0.08f);
-				ApplyUnlitColor(go, color, "M_Runtime_FailureBoss");
+				ApplyUnlitColor(go, color, "M_Runtime_FailureBoss", BossResourcesPath, BossAssetPath);
 				PulseFlash flash = go.AddComponent<PulseFlash>();
 				flash.Configure(new Vector3(0.08f, 0.12f, 0.06f), color, 0.3f + i * 0.012f, Vector3.down * 2.2f);
 			}
@@ -78,7 +85,7 @@ namespace AlienCrusher.Systems
 			DestroyCollider(slab);
 			slab.transform.position = origin + Vector3.up * 0.06f;
 			slab.transform.localScale = new Vector3(0.72f, 0.06f, 0.72f);
-			ApplyUnlitColor(slab, BossAsh, "M_Runtime_FailureBoss");
+			ApplyUnlitColor(slab, BossAsh, "M_Runtime_FailureBoss", BossResourcesPath, BossAssetPath);
 			PulseFlash slabFlash = slab.AddComponent<PulseFlash>();
 			slabFlash.Configure(new Vector3(0.34f, 0.04f, 0.34f), BossSlag, 0.28f, Vector3.down * 0.6f);
 		}
@@ -92,7 +99,7 @@ namespace AlienCrusher.Systems
 			}
 		}
 
-		private static void ApplyUnlitColor(GameObject go, Color color, string materialName)
+		private static void ApplyUnlitColor(GameObject go, Color color, string materialName, string resourcesPath, string assetPath)
 		{
 			Renderer renderer = go.GetComponent<Renderer>();
 			if ((Object)(object)renderer == (Object)null)
@@ -100,16 +107,19 @@ namespace AlienCrusher.Systems
 				return;
 			}
 
-			Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
-			if ((Object)(object)shader == (Object)null)
+			Material material = TryLoadDraftMaterial(resourcesPath, assetPath);
+			if ((Object)(object)material == (Object)null)
 			{
-				return;
+				Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
+				if ((Object)(object)shader == (Object)null)
+				{
+					return;
+				}
+
+				material = new Material(shader);
 			}
 
-			Material material = new Material(shader)
-			{
-				name = materialName
-			};
+			material.name = materialName;
 			if (material.HasProperty("_BaseColor"))
 			{
 				material.SetColor("_BaseColor", color);
@@ -127,6 +137,26 @@ namespace AlienCrusher.Systems
 			}
 
 			renderer.sharedMaterial = material;
+		}
+
+		private static Material TryLoadDraftMaterial(string resourcesPath, string assetPath)
+		{
+			Material loaded = Resources.Load<Material>(resourcesPath);
+			if ((Object)(object)loaded == (Object)null)
+			{
+#if UNITY_EDITOR
+				loaded = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+#else
+				_ = assetPath;
+#endif
+			}
+
+			if ((Object)(object)loaded == (Object)null)
+			{
+				return null;
+			}
+
+			return new Material(loaded);
 		}
 
 		private sealed class PulseFlash : MonoBehaviour

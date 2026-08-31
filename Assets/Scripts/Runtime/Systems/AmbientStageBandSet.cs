@@ -6,6 +6,10 @@ namespace AlienCrusher.Systems
 	{
 		public const string AmbientStageBandsId = "PAL_Ambient_StageBands";
 
+		private static readonly Color FallbackOpener = new Color(0.68f, 0.66f, 0.60f, 1f);
+		private static readonly Color FallbackSentinel = new Color(0.56f, 0.60f, 0.72f, 1f);
+		private static readonly Color FallbackSkyline = new Color(0.50f, 0.54f, 0.66f, 1f);
+
 		public static void Apply(int stageNumber)
 		{
 			Color ambient = Resolve(stageNumber);
@@ -17,10 +21,11 @@ namespace AlienCrusher.Systems
 		public static Color Resolve(int stageNumber)
 		{
 			int stage = Mathf.Max(1, stageNumber);
+			Material draft = DistrictPaletteDrafts.LoadAmbient();
 			if (stage <= 1)
 			{
 				// Opener daylight. Warm, not orchid nav.
-				return new Color(0.68f, 0.66f, 0.60f, 1f);
+				return DistrictPaletteDrafts.ReadColor(draft, "_BaseColor", FallbackOpener);
 			}
 
 			if (stage == 2)
@@ -38,7 +43,7 @@ namespace AlienCrusher.Systems
 			if (stage == 4)
 			{
 				// Sentinel approach. Cool steel, close to the old shared default.
-				return new Color(0.56f, 0.60f, 0.72f, 1f);
+				return DistrictPaletteDrafts.ReadColor(draft, "_EmissionColor", FallbackSentinel);
 			}
 
 			if (stage == 5)
@@ -56,7 +61,7 @@ namespace AlienCrusher.Systems
 			if (stage == 7)
 			{
 				// Skyline climax. Cooler night fill that still keeps markers bright.
-				return new Color(0.50f, 0.54f, 0.66f, 1f);
+				return DistrictPaletteDrafts.ReadColor(draft, "_SpecColor", FallbackSkyline);
 			}
 
 			return new Color(0.52f, 0.56f, 0.68f, 1f);

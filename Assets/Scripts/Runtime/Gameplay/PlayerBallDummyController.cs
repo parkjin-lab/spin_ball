@@ -645,23 +645,12 @@ namespace AlienCrusher.Gameplay
                 return null;
             }
 
-            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-            if (shader == null)
+            var material = FormIdentityMaterials.Create(materialName, color, emission);
+            if (material == null)
             {
                 return renderer.sharedMaterial;
             }
 
-            var material = new Material(shader)
-            {
-                name = materialName
-            };
-            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
-            if (material.HasProperty("_Color")) material.SetColor("_Color", color);
-            if (material.HasProperty("_EmissionColor"))
-            {
-                material.EnableKeyword("_EMISSION");
-                material.SetColor("_EmissionColor", emission);
-            }
             renderer.sharedMaterial = material;
             return material;
         }
@@ -816,23 +805,12 @@ namespace AlienCrusher.Gameplay
                 return null;
             }
 
-            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-            if (shader == null)
+            var material = FormIdentityMaterials.Create(materialName, color, emission);
+            if (material == null)
             {
                 return renderer.sharedMaterial;
             }
 
-            var material = new Material(shader)
-            {
-                name = materialName
-            };
-            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
-            if (material.HasProperty("_Color")) material.SetColor("_Color", color);
-            if (material.HasProperty("_EmissionColor"))
-            {
-                material.EnableKeyword("_EMISSION");
-                material.SetColor("_EmissionColor", emission);
-            }
             renderer.sharedMaterial = material;
             return material;
         }

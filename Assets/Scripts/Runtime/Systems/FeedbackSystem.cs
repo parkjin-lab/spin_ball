@@ -10,6 +10,13 @@ using Lofelt.NiceVibrations;
 
 namespace AlienCrusher.Systems
 {
+    public enum SmashBreakWeight
+    {
+        Light = 0,
+        Mid = 1,
+        Heavy = 2
+    }
+
     [DisallowMultipleComponent]
     public class FeedbackSystem : MonoBehaviour
     {
@@ -189,6 +196,30 @@ namespace AlienCrusher.Systems
 
             PlayAudio(normalizedImpact > 0.7f ? breakLargeClip : breakSmallClip, Mathf.Lerp(0.72f, 1f, normalizedImpact), Mathf.Lerp(0.94f, 1.02f, normalizedImpact));
             PlayHaptic(destroyed: true, normalizedImpact);
+        }
+
+        public void PlayDestroyFeedback(Vector3 worldPosition, float normalizedImpact, SmashBreakWeight weight)
+        {
+            if (weight == SmashBreakWeight.Light)
+            {
+                normalizedImpact = Mathf.Clamp01(normalizedImpact);
+                PlayScreenFlash(Color.Lerp(new Color(1f, 0.95f, 0.82f, 1f), burstBaseColor, normalizedImpact),
+                    Mathf.Lerp(hitFlashAlpha * 0.7f, hitFlashAlpha, normalizedImpact), 0.04f, 0.11f);
+                SpawnBurst(worldPosition, normalizedImpact, heavy: false);
+                ApplyCameraFeedback(Mathf.Lerp(hitCameraImpulse * 0.55f, hitCameraImpulse * 0.85f, normalizedImpact),
+                    Mathf.Lerp(fovPunchOnHit * 0.5f, fovPunchOnHit * 0.8f, normalizedImpact));
+                PlayAudio(breakSmallClip, Mathf.Lerp(0.68f, 0.88f, normalizedImpact), Mathf.Lerp(0.98f, 1.04f, normalizedImpact));
+                PlayHaptic(destroyed: true, normalizedImpact);
+                return;
+            }
+
+            if (weight == SmashBreakWeight.Heavy)
+            {
+                PlayDestroyFeedback(worldPosition, 1f);
+                return;
+            }
+
+            PlayDestroyFeedback(worldPosition, Mathf.Clamp(normalizedImpact, 0.72f, 0.86f));
         }
         public void PlayComboRushFeedback(Vector3 worldCenter, float normalizedIntensity, float radius)
         {

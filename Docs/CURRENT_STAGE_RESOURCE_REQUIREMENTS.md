@@ -100,6 +100,11 @@ Required assets:
 - `Form Icon - Crusher`
 - lightweight form accent mesh or addon pieces for each form
 - material presets for each form
+- `MAT_Form_Sphere` cool green (`Assets/Art/Materials/Forms/`)
+- `MAT_Form_Ram` amber plate (`Assets/Art/Materials/Forms/`)
+- `MAT_Form_Saucer` cyan rim (`Assets/Art/Materials/Forms/`)
+- `MAT_Form_Spike` acid tip (`Assets/Art/Materials/Forms/`)
+- `MAT_Form_Crusher` steel plus blue seams (`Assets/Art/Materials/Forms/`)
 
 Design direction:
 - `Sphere`: smooth, alien, stable, default invader body
@@ -197,6 +202,8 @@ Status:
 - hit/break weight drafts now load at runtime when Inspector slots are empty: `SFX_Hit_Light`, `SFX_Hit_Medium`, `SFX_Hit_Heavy`, `SFX_Break_Small`, `SFX_Break_LargeCollapse` (`Assets/Audio/SFX/Impact/` + Resources copies)
 - climax/progression drafts now load at runtime when Inspector slots are empty: `SFX_Boss_Warning`, `SFX_Boss_Break`, `SFX_Boss_Down` (`Assets/Audio/SFX/Boss/`), `SFX_Combo_Rise` (`Assets/Audio/SFX/Skills/`), `SFX_LevelUp_Open` (`Assets/Audio/SFX/UI/`)
 - CRUSH RUSH now adds named runtime pulse `VFX_Combo_Rise_Pulse` (lime-gold upward ticks at the ball) while still reusing `comboRiseClip`; OVERDRIVE start adds `VFX_Overdrive_Pulse` (orange speed ring plus flame chevrons). Combo thresholds, overdrive duration/damage, and HUD layout stay unchanged.
+- inspectable combo/Overdrive pulse drafts now live at `Assets/Art/VFX/Combo/` plus Resources copies; runtime `Resources.Load`s them onto the existing CRUSH RUSH / OVERDRIVE slots before the Unlit fallback
+- inspectable failure-beat drafts now live at `Assets/Art/VFX/Failure/` plus Resources copies; runtime `Resources.Load`s them onto the existing ordinary / boss-phase defeat slots before the Unlit fallback
 
 Need:
 - distinct audio for hit quality, destruction scale, form actions, progression, and boss danger
@@ -218,8 +225,8 @@ Required assets:
 - `SFX_LevelUp_Open` -> `levelUpClip`
 - `SFX_Failure_Warning` -> `failureWarningClip`
 - `SFX_Failure_Boss` -> `failureBossClip`
-- `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
-- `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
+- `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat (`Assets/Art/VFX/Failure/`)
+- `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat (`Assets/Art/VFX/Failure/`)
 
 Next audio slots still needed after the current hook surface:
 - level up confirm
@@ -318,7 +325,7 @@ Status:
 - phase, shield, drone, and break window systems are already implemented
 - runtime silhouette kits now separate the main body, shield pylons, and phase-2 drones from ordinary city props
 - climax warning/break/down VFX now punctuate inbound, CORE EXPOSED, and Sentinel down as three different silhouettes
-- result boss-clear badge now ships as `Badge_Boss_Clear`; leftover `Icon_Boss_Sentinel` now marks lobby/result when the next run is a Sentinel stage. Remaining identity work is optional boss-specific armor/core materials (`MAT_Boss_*`) and leftover expose burst
+- result boss-clear badge now ships as `Badge_Boss_Clear`; leftover `Icon_Boss_Sentinel` now marks lobby/result when the next run is a Sentinel stage. Named boss armor / shield / exposed-core drafts and `VFX_Boss_Core_Expose_Burst` now sit on disk and hook through the existing Stage 4 identity slots.
 
 Required assets:
 - `BOSS_Sentinel_Body_Kit` sentinel body silhouette kit
@@ -329,9 +336,10 @@ Required assets:
 - `SFX_Boss_Warning` threat pulse / inbound warning
 - `SFX_Boss_Break` break-window open
 - `SFX_Boss_Down` Justice Sentinel defeat
-- boss armor / shield pylon / exposed-core material set
-- core exposed material / emissive state
-- boss core expose burst VFX
+- `MAT_Boss_Sentinel_Armor` default Sentinel body (`Assets/Art/Materials/Boss/`)
+- `MAT_Boss_Shield_Pylon` active shield pylon (`Assets/Art/Materials/Boss/`)
+- `MAT_Boss_Core_Exposed` break-window core (`Assets/Art/Materials/Boss/`)
+- `VFX_Boss_Core_Expose_Burst` pylons-broken / CORE EXPOSED burst (`Assets/Art/VFX/Boss/`)
 - `Badge_Boss_Clear` steel result badge for Sentinel victory (`Assets/Resources/UI/Badges/`)
 - `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run boss identity (`Assets/Resources/UI/Icons/`)
 
@@ -348,8 +356,8 @@ Status:
 - core rhythm palettes `PAL_District_StarterResidential`, `PAL_District_MarketPlaza`, `PAL_District_SentinelCheckpoint`, and `PAL_District_SkylineBlock` now tint Stage 1/3/4/7 ground, walls, and landmark pads
 - secondary palettes `PAL_District_PocketPark`, `PAL_District_ConstructionYard`, and `PAL_District_PowerBlock` now tint Stage 2/5/6 ground, walls, and landmark pads
 - building tier kits, Icons A/B/C, and Palette B Stage 1/3/4/7 families were not restyled
-- remaining work is ambient stage bands
 - named runtime set `PAL_Ambient_StageBands` now drives `RenderSettings.ambientLight` per stage band without restyling district palettes or `PAL_RouteMarker_Tints`
+- inspectable `PAL_*` drafts now live at `Assets/Art/Palettes/Districts/`, `Assets/Art/Palettes/UI/`, and `Assets/Art/Palettes/Lighting/`
 
 Need:
 - at least 3 stage palette families so progression feels spatial, not only numeric
@@ -365,7 +373,8 @@ Required assets per district:
 - ground material variant
 - building palette variant
 - prop color variant
-- `PAL_RouteMarker_Tints` shared route marker / `routeColor` / HOLD trail tint set
+- `PAL_RouteMarker_Tints` shared route marker / `routeColor` / HOLD trail tint set (`Assets/Art/Palettes/UI/`)
+- `PAL_District_StarterResidential`, `PAL_District_MarketPlaza`, `PAL_District_SentinelCheckpoint`, `PAL_District_SkylineBlock`, `PAL_District_PocketPark`, `PAL_District_ConstructionYard`, `PAL_District_PowerBlock` (`Assets/Art/Palettes/Districts/`)
 - fog / ambient tint preset
 - `PAL_Ambient_StageBands` stage-band ambient fill (`Assets/Art/Palettes/Lighting/`)
 
@@ -386,6 +395,9 @@ Need:
 - district-specific reward cluster layouts for ROUTE BONUS and Forward Smash
 - payoff spacing rules that make each district feel like a different route problem
 - a route cluster marker that frames the opened cluster without hiding target guidance
+
+Status:
+- inspectable route-payoff VFX drafts now live at `Assets/Art/VFX/Route/` plus Resources copies; runtime `Resources.Load`s them onto the existing cluster / smash / HOLD / OPEN / residual / chase / warning / bonus slots before the Unlit fallback
 
 Required assets:
 - `PAYOFF_ParkCut_Layout` park cut payoff layout
@@ -587,7 +599,11 @@ This section can be used as a working production checklist.
 - [x] `BOSS_Sentinel_Body_Kit` runtime sentinel body silhouette kit
 - [x] `BOSS_Shield_Pylon_Kit` runtime shield pylon silhouette kit
 - [x] `BOSS_Phase2_Drone_Kit` runtime phase 2 drone silhouette kit
+- [x] `MAT_Boss_Sentinel_Armor` steel civic Sentinel body material
+- [x] `MAT_Boss_Shield_Pylon` cyan protected pylon material
+- [x] `MAT_Boss_Core_Exposed` hot-orange break-window core material
 - [x] `VFX_Boss_Warning_Ring` rust-amber inbound / pulse danger ring
+- [x] `VFX_Boss_Core_Expose_Burst` hot core-expose / break-window burst
 - [x] `VFX_Boss_Defeat_Cascade` steel-white Sentinel-down release
 - [x] `VFX_RouteCluster_Marker` mint-slate ROUTE BONUS cluster frame
 - [x] `VFX_ForwardSmash_Confirm` mint-white FORWARD SMASH cash-out star

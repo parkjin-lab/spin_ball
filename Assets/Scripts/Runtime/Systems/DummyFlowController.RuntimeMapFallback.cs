@@ -1142,9 +1142,9 @@ namespace AlienCrusher.Systems
 			Vector3 crane = new Vector3(center.x - 2.85f, 1.2f, center.z + 2.05f);
 			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref crane, 0.34f, 0.34f, mapPadding))
 			{
-				EnsurePrimitive(root, "YardCraneMast", (PrimitiveType)3, crane, new Vector3(0.22f, 2.4f, 0.22f), Color.Lerp(neutralColor, Color.black, 0.18f));
-				EnsurePrimitive(root, "YardCraneArm", (PrimitiveType)3, new Vector3(crane.x + 1.1f, crane.y + 1.16f, crane.z), new Vector3(2.4f, 0.16f, 0.18f), Color.Lerp(hazardB, Color.white, 0.12f));
-				EnsurePrimitive(root, "YardCraneHook", (PrimitiveType)3, new Vector3(crane.x + 2.15f, crane.y + 0.52f, crane.z), new Vector3(0.14f, 0.72f, 0.14f), hazardA);
+				EnsureDestructiblePrimitive(root, "YardCraneMast", (PrimitiveType)3, crane, new Vector3(0.22f, 2.4f, 0.22f), Color.Lerp(neutralColor, Color.black, 0.18f), 3);
+				EnsureDestructiblePrimitive(root, "YardCraneArm", (PrimitiveType)3, new Vector3(crane.x + 1.1f, crane.y + 1.16f, crane.z), new Vector3(2.4f, 0.16f, 0.18f), Color.Lerp(hazardB, Color.white, 0.12f), 2);
+				EnsureDestructiblePrimitive(root, "YardCraneHook", (PrimitiveType)3, new Vector3(crane.x + 2.15f, crane.y + 0.52f, crane.z), new Vector3(0.14f, 0.72f, 0.14f), hazardA, 1);
 			}
 		}
 
@@ -1278,8 +1278,8 @@ namespace AlienCrusher.Systems
 			Vector3 crane = new Vector3(center.x + 3.75f, 1.75f, center.z - 2.55f);
 			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref crane, 0.42f, 0.42f, mapPadding))
 			{
-				EnsurePrimitive(root, "HarborCraneMast", (PrimitiveType)3, crane, new Vector3(0.3f, 3.5f, 0.3f), neutralColor);
-				EnsurePrimitive(root, "HarborCraneArm", (PrimitiveType)3, new Vector3(crane.x - 1.55f, crane.y + 1.62f, crane.z), new Vector3(3.4f, 0.22f, 0.24f), hazardB);
+				EnsureDestructiblePrimitive(root, "HarborCraneMast", (PrimitiveType)3, crane, new Vector3(0.3f, 3.5f, 0.3f), neutralColor, 4);
+				EnsureDestructiblePrimitive(root, "HarborCraneArm", (PrimitiveType)3, new Vector3(crane.x - 1.55f, crane.y + 1.62f, crane.z), new Vector3(3.4f, 0.22f, 0.24f), hazardB, 3);
 			}
 		}
 
@@ -1572,7 +1572,7 @@ namespace AlienCrusher.Systems
 				}
 			}
 
-			return count;
+			return count + CountOpeningStreetProps(mapRoot, layout);
 		}
 
 		private static bool IsInsideRuntimeMapBounds(Vector3 localPoint, RuntimeStageMapLayout layout, float padding)
@@ -1619,6 +1619,10 @@ namespace AlienCrusher.Systems
 		{
 			Transform mapRoot = FindChildByName(null, "MapRoot");
 			if ((Object)(object)mapRoot == (Object)null || (Object)(object)FindChildByName(mapRoot, "StarterClusterBlock_00_00") != (Object)null)
+			{
+				return;
+			}
+			if (rebuildRuntimeMapOnStageStart || HasAuthoredOpeningStretch(mapRoot))
 			{
 				return;
 			}

@@ -35,6 +35,7 @@ namespace AlienCrusher.Gameplay
         [SerializeField] private float upwardForce = 1.9f;
         [SerializeField] private int scoreReward = 22;
         [SerializeField] private float cleanupDelay = 4.6f;
+        [SerializeField] private bool countsTowardStageWreck = true;
 
         [Header("Chain Explosion")]
         [SerializeField] private bool enableChainExplosion = false;
@@ -62,6 +63,7 @@ namespace AlienCrusher.Gameplay
 
         public PropKind Kind => propKind;
         public bool IsBroken => broken;
+        public bool CountsTowardStageWreck => countsTowardStageWreck;
 
         public void ConfigureForScaffolder(PropKind kind, Transform root)
         {
@@ -130,6 +132,24 @@ namespace AlienCrusher.Gameplay
             }
 
             CaptureBaseStats();
+            countsTowardStageWreck = true;
+        }
+
+        public void ExcludeFromStageWreckCount()
+        {
+            countsTowardStageWreck = false;
+        }
+
+        public SmashBreakWeight ResolveSmashBreakWeight()
+        {
+            switch (propKind)
+            {
+                case PropKind.Lamp:
+                case PropKind.Tree:
+                    return SmashBreakWeight.Light;
+                default:
+                    return SmashBreakWeight.Mid;
+            }
         }
 
         private void Awake()
@@ -222,12 +242,27 @@ namespace AlienCrusher.Gameplay
 
             if (!suppressFeedback)
             {
-                feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01));
-                DestructionBreakFeedbackVfx.PlayDebrisLight(hitPoint, Mathf.Clamp01(impact01));
+                var weight = ResolveSmashBreakWeight();
+                feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01), weight);
+                if (weight == SmashBreakWeight.Light)
+                {
+                    DestructionBreakFeedbackVfx.PlayDebrisLight(hitPoint, Mathf.Clamp01(impact01));
+                }
+                else
+                {
+                    DestructionBreakFeedbackVfx.PlayDebrisHeavy(hitPoint, weight == SmashBreakWeight.Heavy ? 0.9f : 0.62f);
+                }
             }
 
-            scoreSystem?.AddScore(scoreReward);
-            scoreSystem?.RegisterChainHit();
+            if (countsTowardStageWreck)
+            {
+                scoreSystem?.RegisterDestruction(scoreReward);
+            }
+            else
+            {
+                scoreSystem?.AddScore(scoreReward);
+                scoreSystem?.RegisterChainHit();
+            }
             var breakPosition = root != null ? root.position : transform.position;
             PropBroken?.Invoke(new PropBreakInfo
             {

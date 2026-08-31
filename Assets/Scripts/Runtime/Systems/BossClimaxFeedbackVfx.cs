@@ -1,15 +1,25 @@
 using UnityEngine;
 using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace AlienCrusher.Systems
 {
 	public static class BossClimaxFeedbackVfx
 	{
 		public const string WarningRingId = "VFX_Boss_Warning_Ring";
+		public const string CoreExposeBurstId = "VFX_Boss_Core_Expose_Burst";
 		public const string DefeatCascadeId = "VFX_Boss_Defeat_Cascade";
 		public const string BossWarningSfxId = "SFX_Boss_Warning";
 		public const string BossBreakSfxId = "SFX_Boss_Break";
 		public const string BossDownSfxId = "SFX_Boss_Down";
+		private const string WarningRingResourcesPath = "VFX/Boss/VFX_Boss_Warning_Ring";
+		private const string CoreExposeBurstResourcesPath = "VFX/Boss/VFX_Boss_Core_Expose_Burst";
+		private const string DefeatCascadeResourcesPath = "VFX/Boss/VFX_Boss_Defeat_Cascade";
+		private const string WarningRingAssetPath = "Assets/Art/VFX/Boss/VFX_Boss_Warning_Ring.mat";
+		private const string CoreExposeBurstAssetPath = "Assets/Art/VFX/Boss/VFX_Boss_Core_Expose_Burst.mat";
+		private const string DefeatCascadeAssetPath = "Assets/Art/VFX/Boss/VFX_Boss_Defeat_Cascade.mat";
 
 		private static readonly Color WarningRingColor = new Color(0.88f, 0.34f, 0.16f, 0.92f);
 		private static readonly Color WarningRingEdge = new Color(0.96f, 0.52f, 0.18f, 0.78f);
@@ -17,12 +27,12 @@ namespace AlienCrusher.Systems
 		private static readonly Color DefeatEmber = new Color(0.42f, 0.58f, 0.78f, 1f);
 		private static readonly Color BreakBurstColor = new Color(1f, 0.62f, 0.18f, 1f);
 		private static readonly Color BreakBurstFlash = new Color(1f, 0.92f, 0.72f, 1f);
-		private const string BreakWindowBurstName = "BossBreakWindowBurst";
-
 		private static ParticleSystem warningSparks;
 		private static ParticleSystem breakSparks;
 		private static ParticleSystem defeatBurst;
-		private static Material sharedParticleMaterial;
+		private static Material warningRingMaterial;
+		private static Material coreExposeBurstMaterial;
+		private static Material defeatCascadeMaterial;
 
 		public static void PlayWarningRing(Vector3 worldPosition, float radius, int threatLevel)
 		{
@@ -57,7 +67,7 @@ namespace AlienCrusher.Systems
 				return warningSparks;
 			}
 
-			warningSparks = CreateWorldBurst(WarningRingId, WarningRingColor, 0.05f, 0.11f, 1.4f, 3.2f, 0.1f, 0.2f, 20);
+			warningSparks = CreateWorldBurst(WarningRingId, WarningRingColor, 0.05f, 0.11f, 1.4f, 3.2f, 0.1f, 0.2f, 20, EnsureWarningRingMaterial());
 			var main = warningSparks.main;
 			main.gravityModifier = 0.08f;
 			return warningSparks;
@@ -70,7 +80,7 @@ namespace AlienCrusher.Systems
 				return breakSparks;
 			}
 
-			breakSparks = CreateWorldBurst(BreakWindowBurstName, BreakBurstFlash, 0.04f, 0.1f, 2.8f, 5.4f, 0.08f, 0.16f, 24);
+			breakSparks = CreateWorldBurst(CoreExposeBurstId, BreakBurstFlash, 0.04f, 0.1f, 2.8f, 5.4f, 0.08f, 0.16f, 24, EnsureCoreExposeBurstMaterial());
 			var main = breakSparks.main;
 			main.gravityModifier = -0.35f;
 			return breakSparks;
@@ -83,13 +93,13 @@ namespace AlienCrusher.Systems
 				return defeatBurst;
 			}
 
-			defeatBurst = CreateWorldBurst(DefeatCascadeId, DefeatSteel, 0.12f, 0.28f, 4.2f, 8.4f, 0.22f, 0.46f, 48);
+			defeatBurst = CreateWorldBurst(DefeatCascadeId, DefeatSteel, 0.12f, 0.28f, 4.2f, 8.4f, 0.22f, 0.46f, 48, EnsureDefeatCascadeMaterial());
 			var main = defeatBurst.main;
 			main.gravityModifier = 1.15f;
 			return defeatBurst;
 		}
 
-		private static ParticleSystem CreateWorldBurst(string id, Color color, float sizeMin, float sizeMax, float speedMin, float speedMax, float lifeMin, float lifeMax, int maxParticles)
+		private static ParticleSystem CreateWorldBurst(string id, Color color, float sizeMin, float sizeMax, float speedMin, float speedMax, float lifeMin, float lifeMax, int maxParticles, Material material)
 		{
 			Transform root = GetRuntimeRoot();
 			GameObject go = new GameObject(id, typeof(ParticleSystem));
@@ -123,7 +133,7 @@ namespace AlienCrusher.Systems
 			if ((Object)(object)renderer != (Object)null)
 			{
 				renderer.renderMode = ParticleSystemRenderMode.Billboard;
-				renderer.material = GetSharedParticleMaterial();
+				renderer.sharedMaterial = material;
 			}
 
 			return ps;
@@ -157,7 +167,7 @@ namespace AlienCrusher.Systems
 
 			go.transform.position = worldPosition + Vector3.up * 0.08f;
 			go.transform.localScale = new Vector3(0.4f, Mathf.Max(0.08f, thickness), 0.4f);
-			ApplyUnlitColor(go, color, "M_Runtime_BossWarningRing");
+			ApplyUnlitColor(go, color, WarningRingId, EnsureWarningRingMaterial());
 			ClimaxRingFlash flash = go.AddComponent<ClimaxRingFlash>();
 			flash.Configure(new Vector3(reach * 2f, Mathf.Max(0.08f, thickness), reach * 2f), color, life);
 		}
@@ -165,7 +175,7 @@ namespace AlienCrusher.Systems
 		private static void SpawnCoreColumn(Vector3 worldPosition)
 		{
 			GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-			go.name = BreakWindowBurstName;
+			go.name = CoreExposeBurstId;
 			Collider collider = go.GetComponent<Collider>();
 			if ((Object)(object)collider != (Object)null)
 			{
@@ -174,7 +184,7 @@ namespace AlienCrusher.Systems
 
 			go.transform.position = worldPosition;
 			go.transform.localScale = new Vector3(0.22f, 0.2f, 0.22f);
-			ApplyUnlitColor(go, BreakBurstFlash, "M_Runtime_BossBreakWindowBurst");
+			ApplyUnlitColor(go, BreakBurstFlash, CoreExposeBurstId, EnsureCoreExposeBurstMaterial());
 			ClimaxRingFlash flash = go.AddComponent<ClimaxRingFlash>();
 			flash.Configure(new Vector3(0.38f, 2.4f, 0.38f), BreakBurstColor, 0.2f);
 		}
@@ -192,12 +202,12 @@ namespace AlienCrusher.Systems
 			go.transform.position = worldPosition;
 			go.transform.rotation = Quaternion.LookRotation(outward, Vector3.up);
 			go.transform.localScale = new Vector3(0.14f, 0.7f, 0.14f);
-			ApplyUnlitColor(go, DefeatSteel, "M_Runtime_BossDefeatShard");
+			ApplyUnlitColor(go, DefeatSteel, DefeatCascadeId, EnsureDefeatCascadeMaterial());
 			ClimaxRingFlash flash = go.AddComponent<ClimaxRingFlash>();
 			flash.Configure(new Vector3(0.1f, 1.8f, 0.1f), DefeatSteel, 0.38f);
 		}
 
-		private static void ApplyUnlitColor(GameObject go, Color color, string materialName)
+		private static void ApplyUnlitColor(GameObject go, Color color, string materialName, Material source)
 		{
 			Renderer renderer = go.GetComponent<Renderer>();
 			if ((Object)(object)renderer == (Object)null)
@@ -205,16 +215,28 @@ namespace AlienCrusher.Systems
 				return;
 			}
 
-			Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
-			if ((Object)(object)shader == (Object)null)
+			Material material;
+			if ((Object)(object)source != (Object)null)
 			{
-				return;
+				material = new Material(source)
+				{
+					name = materialName
+				};
+			}
+			else
+			{
+				Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
+				if ((Object)(object)shader == (Object)null)
+				{
+					return;
+				}
+
+				material = new Material(shader)
+				{
+					name = materialName
+				};
 			}
 
-			Material material = new Material(shader)
-			{
-				name = materialName
-			};
 			if (material.HasProperty("_BaseColor"))
 			{
 				material.SetColor("_BaseColor", color);
@@ -246,11 +268,66 @@ namespace AlienCrusher.Systems
 			return root.transform;
 		}
 
-		private static Material GetSharedParticleMaterial()
+		private static Material EnsureWarningRingMaterial()
 		{
-			if ((Object)(object)sharedParticleMaterial != (Object)null)
+			return CoalesceVfxMaterial(
+				ref warningRingMaterial,
+				WarningRingId,
+				WarningRingResourcesPath,
+				WarningRingAssetPath,
+				WarningRingColor,
+				WarningRingEdge);
+		}
+
+		private static Material EnsureCoreExposeBurstMaterial()
+		{
+			return CoalesceVfxMaterial(
+				ref coreExposeBurstMaterial,
+				CoreExposeBurstId,
+				CoreExposeBurstResourcesPath,
+				CoreExposeBurstAssetPath,
+				BreakBurstColor,
+				BreakBurstFlash);
+		}
+
+		private static Material EnsureDefeatCascadeMaterial()
+		{
+			return CoalesceVfxMaterial(
+				ref defeatCascadeMaterial,
+				DefeatCascadeId,
+				DefeatCascadeResourcesPath,
+				DefeatCascadeAssetPath,
+				DefeatSteel,
+				DefeatEmber);
+		}
+
+		private static Material CoalesceVfxMaterial(
+			ref Material cache,
+			string id,
+			string resourcesPath,
+			string assetPath,
+			Color color,
+			Color emission)
+		{
+			if ((Object)(object)cache != (Object)null)
 			{
-				return sharedParticleMaterial;
+				return cache;
+			}
+
+			Material loaded = Resources.Load<Material>(resourcesPath);
+			if ((Object)(object)loaded == (Object)null)
+			{
+#if UNITY_EDITOR
+				loaded = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+#else
+				_ = assetPath;
+#endif
+			}
+
+			if ((Object)(object)loaded != (Object)null)
+			{
+				cache = loaded;
+				return cache;
 			}
 
 			Shader shader = Shader.Find("Universal Render Pipeline/Particles/Unlit")
@@ -261,21 +338,37 @@ namespace AlienCrusher.Systems
 				return null;
 			}
 
-			sharedParticleMaterial = new Material(shader)
+			cache = new Material(shader)
 			{
-				name = "M_Runtime_BossClimaxVfx"
+				name = id
 			};
-			if (sharedParticleMaterial.HasProperty("_Surface"))
+			if (cache.HasProperty("_Surface"))
 			{
-				sharedParticleMaterial.SetFloat("_Surface", 1f);
+				cache.SetFloat("_Surface", 1f);
 			}
 
-			if (sharedParticleMaterial.HasProperty("_Blend"))
+			if (cache.HasProperty("_Blend"))
 			{
-				sharedParticleMaterial.SetFloat("_Blend", 0f);
+				cache.SetFloat("_Blend", 0f);
 			}
 
-			return sharedParticleMaterial;
+			if (cache.HasProperty("_BaseColor"))
+			{
+				cache.SetColor("_BaseColor", color);
+			}
+
+			if (cache.HasProperty("_Color"))
+			{
+				cache.SetColor("_Color", color);
+			}
+
+			if (cache.HasProperty("_EmissionColor"))
+			{
+				cache.EnableKeyword("_EMISSION");
+				cache.SetColor("_EmissionColor", emission);
+			}
+
+			return cache;
 		}
 
 		private sealed class ClimaxRingFlash : MonoBehaviour

@@ -73,8 +73,18 @@ Unity-native fallback allowed now:
 - saucer: flattened sphere + ring disk
 - crusher: layered heavy shell + frontal plate
 
+Form material families shipped:
+- `MAT_Form_Sphere` cool green body / belt language
+- `MAT_Form_Ram` amber plate language
+- `MAT_Form_Saucer` cyan rim language
+- `MAT_Form_Spike` acid tip language
+- `MAT_Form_Crusher` steel body plus blue seam emission
+- draft `.mat` files at `Assets/Art/Materials/Forms/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- form stats, unlock costs, and skill numbers unchanged
+
 Suggested file targets:
 - `Assets/Art/Forms/`
+- `Assets/Art/Materials/Forms/`
 - `Assets/Resources/UI/Forms/`
 - `Assets/Settings/Materials/Forms/`
 - `Assets/Resources/UI/Icons/`
@@ -99,7 +109,8 @@ Building tiers shipped:
 - `MAT_Building_Mid` warm city concrete for standard fillers
 - `MAT_Building_Large` charcoal mass for durable targets
 - `MAT_Boss_Structure` cool steel-blue armor for Sentinel / gate / pylon hosts
-- runtime assignment only; HP, break thresholds, and spawn counts unchanged
+- draft `.mat` files at `Assets/Art/Materials/Destruction/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- HP, break thresholds, and spawn counts unchanged
 - Stage 1 is mostly plaster + concrete; Stage 4 adds dark mass plus steel-blue boss structures at the Sentinel checkpoint
 
 Combat states shipped:
@@ -107,7 +118,8 @@ Combat states shipped:
 - `MAT_WeakPoint_Glow` gold pip plus halo so elite crit spots are not ordinary props
 - `MAT_Shielded_Pylon` cool cyan barrier on live pylon panes / caps
 - `MAT_Exposed_Core` hot orange-white chest/core window when shields drop
-- runtime assignment only; HP, break thresholds, shield counts, and timing unchanged
+- draft `.mat` files at `Assets/Art/Materials/Destruction/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- HP, break thresholds, shield counts, and timing unchanged
 - Stage 1 smash shows gold weak points and crack overlays; Stage 4 shows cyan protected pylons vs hot exposed core
 
 Break feedback shipped:
@@ -115,7 +127,8 @@ Break feedback shipped:
 - `VFX_Debris_Heavy` heavier local burst on large/mid collapse, kept short so Target_A/B and HOLD pips stay readable
 - `VFX_Smoke_Damage` near-break smoke on mid/large structures
 - `VFX_WeakPoint_Hit` tight gold/orange crit flash, distinct from ordinary chips
-- runtime VFX only; HP, spawn counts, and timing unchanged
+- draft materials at `Assets/Art/VFX/Destruction/` plus Resources copies; runtime `Resources.Load`s them onto the existing ParticleSystem / flash slots before the Particles Unlit fallback
+- HP, spawn counts, timing, and smash-weight mappings unchanged
 
 Expected output:
 - players can tell easy targets from high-value targets
@@ -249,12 +262,14 @@ Current `FeedbackSystem` slot map:
 - `comboRiseClip` (`SFX_Combo_Rise` in `Assets/Audio/SFX/Skills/`)
 - `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
 - `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
+- draft materials at `Assets/Art/VFX/Combo/` plus Resources copies; runtime `Resources.Load`s them onto the existing CRUSH RUSH / OVERDRIVE slots before the Unlit fallback
 - `routeOpenClip`, `routeHoldWarningClip`, `routeBonusClip`
 - `bossWarningClip`, `bossBreakClip`, `bossDownClip` (`SFX_Boss_Warning` / `SFX_Boss_Break` / `SFX_Boss_Down` in `Assets/Audio/SFX/Boss/`)
 - `levelUpClip` (`SFX_LevelUp_Open` in `Assets/Audio/SFX/UI/`)
 - `failureWarningClip`, `failureBossClip`
 - `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
 - `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
+- draft materials at `Assets/Art/VFX/Failure/` plus Resources copies; runtime `Resources.Load`s them onto the existing ordinary / boss-phase defeat slots before the Unlit fallback
 
 Suggested file targets:
 - `Assets/Audio/SFX/Impact/`
@@ -262,6 +277,8 @@ Suggested file targets:
 - `Assets/Audio/SFX/Boss/`
 - `Assets/Audio/SFX/Failure/`
 - `Assets/Audio/SFX/UI/`
+- `Assets/Art/VFX/Failure/`
+- `Assets/Art/VFX/Combo/`
 
 Done when:
 - silent critical moments no longer exist
@@ -328,6 +345,7 @@ Deliverables:
 - `VFX_RouteChase_Pulse` cobalt wedges from the opened ROUTE BONUS cluster toward the next smash target
 - `VFX_RouteHold_Warning` rose inward ticks at the beacon when ROUTE HOLD is closing
 - `VFX_RouteBonus_Success` amethyst bloom plus upward petals when ROUTE BONUS opens at the cluster
+- draft materials at `Assets/Art/VFX/Route/` plus Resources copies; runtime `Resources.Load`s them onto the existing cluster / smash / HOLD / OPEN / residual / chase / warning / bonus slots before the Unlit fallback
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:
@@ -346,13 +364,14 @@ Deliverables:
 - `BOSS_Shield_Pylon_Kit` shield pylon kit
 - `BOSS_Phase2_Drone_Kit` phase 2 drone kit
 - `VFX_Boss_Warning_Ring` inbound / pressure-pulse danger ring
+- `VFX_Boss_Core_Expose_Burst` short vertical break-window burst on CORE EXPOSED (not a second warning ring)
 - `VFX_Boss_Defeat_Cascade` Sentinel-down / city-collapse release
-- short vertical break-window burst on CORE EXPOSED (not a second warning ring)
 - `SFX_Boss_Warning` threat pulse / inbound warning
 - `SFX_Boss_Break` break-window open
 - `SFX_Boss_Down` Justice Sentinel defeat
-- boss armor / shield / exposed-core material set
-- boss core expose burst VFX
+- `MAT_Boss_Sentinel_Armor` default Sentinel body
+- `MAT_Boss_Shield_Pylon` active shield pylon
+- `MAT_Boss_Core_Exposed` break-window core
 - `Badge_Boss_Clear` steel result badge for Sentinel victory
 - `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run boss identity
 

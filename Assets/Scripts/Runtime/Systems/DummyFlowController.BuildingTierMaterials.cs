@@ -1,6 +1,9 @@
 using AlienCrusher.Gameplay;
 using UnityEngine;
 using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace AlienCrusher.Systems
 {
@@ -10,6 +13,14 @@ namespace AlienCrusher.Systems
 		private const string BuildingMaterialMidId = "MAT_Building_Mid";
 		private const string BuildingMaterialLargeId = "MAT_Building_Large";
 		private const string BuildingMaterialBossId = "MAT_Boss_Structure";
+		private const string BuildingMaterialSmallResourcesPath = "Materials/Destruction/MAT_Building_Small";
+		private const string BuildingMaterialMidResourcesPath = "Materials/Destruction/MAT_Building_Mid";
+		private const string BuildingMaterialLargeResourcesPath = "Materials/Destruction/MAT_Building_Large";
+		private const string BuildingMaterialBossResourcesPath = "Materials/Destruction/MAT_Boss_Structure";
+		private const string BuildingMaterialSmallAssetPath = "Assets/Art/Materials/Destruction/MAT_Building_Small.mat";
+		private const string BuildingMaterialMidAssetPath = "Assets/Art/Materials/Destruction/MAT_Building_Mid.mat";
+		private const string BuildingMaterialLargeAssetPath = "Assets/Art/Materials/Destruction/MAT_Building_Large.mat";
+		private const string BuildingMaterialBossAssetPath = "Assets/Art/Materials/Destruction/MAT_Boss_Structure.mat";
 		private const string BossSentinelKitName = "BOSS_Sentinel_Body_Kit";
 		private const string BossShieldPylonKitName = "BOSS_Shield_Pylon_Kit";
 		private const string BossPhase2DroneKitName = "BOSS_Phase2_Drone_Kit";
@@ -153,8 +164,10 @@ namespace AlienCrusher.Systems
 		{
 			if ((Object)(object)buildingMaterialSmall == (Object)null)
 			{
-				buildingMaterialSmall = CreateBuildingTierMaterial(
+				buildingMaterialSmall = CoalesceBuildingTierMaterial(
 					BuildingMaterialSmallId,
+					BuildingMaterialSmallResourcesPath,
+					BuildingMaterialSmallAssetPath,
 					BuildingSmallHealthy,
 					metallic: 0f,
 					smoothness: 0.06f,
@@ -163,8 +176,10 @@ namespace AlienCrusher.Systems
 
 			if ((Object)(object)buildingMaterialMid == (Object)null)
 			{
-				buildingMaterialMid = CreateBuildingTierMaterial(
+				buildingMaterialMid = CoalesceBuildingTierMaterial(
 					BuildingMaterialMidId,
+					BuildingMaterialMidResourcesPath,
+					BuildingMaterialMidAssetPath,
 					BuildingMidHealthy,
 					metallic: 0.04f,
 					smoothness: 0.16f,
@@ -173,8 +188,10 @@ namespace AlienCrusher.Systems
 
 			if ((Object)(object)buildingMaterialLarge == (Object)null)
 			{
-				buildingMaterialLarge = CreateBuildingTierMaterial(
+				buildingMaterialLarge = CoalesceBuildingTierMaterial(
 					BuildingMaterialLargeId,
+					BuildingMaterialLargeResourcesPath,
+					BuildingMaterialLargeAssetPath,
 					BuildingLargeHealthy,
 					metallic: 0.14f,
 					smoothness: 0.28f,
@@ -183,13 +200,49 @@ namespace AlienCrusher.Systems
 
 			if ((Object)(object)buildingMaterialBoss == (Object)null)
 			{
-				buildingMaterialBoss = CreateBuildingTierMaterial(
+				buildingMaterialBoss = CoalesceBuildingTierMaterial(
 					BuildingMaterialBossId,
+					BuildingMaterialBossResourcesPath,
+					BuildingMaterialBossAssetPath,
 					BuildingBossHealthy,
 					metallic: 0.32f,
 					smoothness: 0.44f,
 					emission: new Color(0.04f, 0.08f, 0.16f, 1f));
 			}
+		}
+
+		private static Material CoalesceBuildingTierMaterial(
+			string id,
+			string resourcesPath,
+			string assetPath,
+			Color color,
+			float metallic,
+			float smoothness,
+			Color emission)
+		{
+			Material loaded = LoadDraftBuildingMaterial(resourcesPath, assetPath);
+			if ((Object)(object)loaded != (Object)null)
+			{
+				return loaded;
+			}
+
+			return CreateBuildingTierMaterial(id, color, metallic, smoothness, emission);
+		}
+
+		private static Material LoadDraftBuildingMaterial(string resourcesPath, string assetPath)
+		{
+			Material material = Resources.Load<Material>(resourcesPath);
+			if ((Object)(object)material != (Object)null)
+			{
+				return material;
+			}
+
+#if UNITY_EDITOR
+			return AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+#else
+			_ = assetPath;
+			return null;
+#endif
 		}
 
 		private static Material CreateBuildingTierMaterial(string id, Color color, float metallic, float smoothness, Color emission)
