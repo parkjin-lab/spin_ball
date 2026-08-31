@@ -187,12 +187,15 @@ namespace AlienCrusher.Systems
         {
             normalizedImpact = Mathf.Clamp01(normalizedImpact);
 
-            PlayScreenFlash(Color.Lerp(burstBaseColor, burstHotColor, normalizedImpact),
-                Mathf.Lerp(destroyFlashAlpha * 0.72f, destroyFlashAlpha, normalizedImpact), 0.05f, 0.17f);
+            if (SmashVfxBudget.TryConsumeDestroyVisual())
+            {
+                PlayScreenFlash(Color.Lerp(burstBaseColor, burstHotColor, normalizedImpact),
+                    Mathf.Lerp(destroyFlashAlpha * 0.72f, destroyFlashAlpha, normalizedImpact), 0.05f, 0.17f);
 
-            SpawnBurst(worldPosition, normalizedImpact, heavy: true);
-            ApplyCameraFeedback(Mathf.Lerp(destroyCameraImpulse * 0.7f, destroyCameraImpulse, normalizedImpact),
-                Mathf.Lerp(fovPunchOnDestroy * 0.65f, fovPunchOnDestroy, normalizedImpact));
+                SpawnBurst(worldPosition, normalizedImpact, heavy: true);
+                ApplyCameraFeedback(Mathf.Lerp(destroyCameraImpulse * 0.7f, destroyCameraImpulse, normalizedImpact),
+                    Mathf.Lerp(fovPunchOnDestroy * 0.65f, fovPunchOnDestroy, normalizedImpact));
+            }
 
             PlayAudio(normalizedImpact > 0.7f ? breakLargeClip : breakSmallClip, Mathf.Lerp(0.72f, 1f, normalizedImpact), Mathf.Lerp(0.94f, 1.02f, normalizedImpact));
             PlayHaptic(destroyed: true, normalizedImpact);
@@ -203,11 +206,15 @@ namespace AlienCrusher.Systems
             if (weight == SmashBreakWeight.Light)
             {
                 normalizedImpact = Mathf.Clamp01(normalizedImpact);
-                PlayScreenFlash(Color.Lerp(new Color(1f, 0.95f, 0.82f, 1f), burstBaseColor, normalizedImpact),
-                    Mathf.Lerp(hitFlashAlpha * 0.7f, hitFlashAlpha, normalizedImpact), 0.04f, 0.11f);
-                SpawnBurst(worldPosition, normalizedImpact, heavy: false);
-                ApplyCameraFeedback(Mathf.Lerp(hitCameraImpulse * 0.55f, hitCameraImpulse * 0.85f, normalizedImpact),
-                    Mathf.Lerp(fovPunchOnHit * 0.5f, fovPunchOnHit * 0.8f, normalizedImpact));
+                if (SmashVfxBudget.TryConsumeDestroyVisual())
+                {
+                    PlayScreenFlash(Color.Lerp(new Color(1f, 0.95f, 0.82f, 1f), burstBaseColor, normalizedImpact),
+                        Mathf.Lerp(hitFlashAlpha * 0.7f, hitFlashAlpha, normalizedImpact), 0.04f, 0.11f);
+                    SpawnBurst(worldPosition, normalizedImpact, heavy: false);
+                    ApplyCameraFeedback(Mathf.Lerp(hitCameraImpulse * 0.55f, hitCameraImpulse * 0.85f, normalizedImpact),
+                        Mathf.Lerp(fovPunchOnHit * 0.5f, fovPunchOnHit * 0.8f, normalizedImpact));
+                }
+
                 PlayAudio(breakSmallClip, Mathf.Lerp(0.68f, 0.88f, normalizedImpact), Mathf.Lerp(0.98f, 1.04f, normalizedImpact));
                 PlayHaptic(destroyed: true, normalizedImpact);
                 return;
@@ -224,22 +231,26 @@ namespace AlienCrusher.Systems
         public void PlayComboRushFeedback(Vector3 worldCenter, float normalizedIntensity, float radius)
         {
             normalizedIntensity = Mathf.Clamp01(normalizedIntensity);
-            var flashColor = Color.Lerp(comboRushFlashColorA, comboRushFlashColorB, normalizedIntensity);
-            var flashAlpha = Mathf.Lerp(comboRushFlashAlpha * 0.65f, comboRushFlashAlpha, normalizedIntensity);
-            PlayScreenFlash(flashColor, flashAlpha, 0.035f, 0.22f);
-            PlayComboRushRing(normalizedIntensity);
-            var bursts = Mathf.Max(2, comboRushBurstCount + Mathf.RoundToInt(normalizedIntensity * 3f));
-            var spread = Mathf.Max(0.85f, comboRushBurstSpread + Mathf.Min(radius, 6f) * 0.25f);
-            for (var i = 0; i < bursts; i++)
+            if (SmashVfxBudget.TryConsumeComboRushVisual())
             {
-                var angle = (360f / bursts) * i + Random.Range(-18f, 18f);
-                var dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
-                var pos = worldCenter + dir * spread * Random.Range(0.55f, 1f);
-                SpawnBurst(pos + Vector3.up * 0.35f, Mathf.Clamp01(0.62f + normalizedIntensity * 0.38f), heavy: true);
+                var flashColor = Color.Lerp(comboRushFlashColorA, comboRushFlashColorB, normalizedIntensity);
+                var flashAlpha = Mathf.Lerp(comboRushFlashAlpha * 0.65f, comboRushFlashAlpha, normalizedIntensity);
+                PlayScreenFlash(flashColor, flashAlpha, 0.035f, 0.22f);
+                PlayComboRushRing(normalizedIntensity);
+                var bursts = Mathf.Max(2, comboRushBurstCount + Mathf.RoundToInt(normalizedIntensity * 3f));
+                var spread = Mathf.Max(0.85f, comboRushBurstSpread + Mathf.Min(radius, 6f) * 0.25f);
+                for (var i = 0; i < bursts; i++)
+                {
+                    var angle = (360f / bursts) * i + Random.Range(-18f, 18f);
+                    var dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+                    var pos = worldCenter + dir * spread * Random.Range(0.55f, 1f);
+                    SpawnBurst(pos + Vector3.up * 0.35f, Mathf.Clamp01(0.62f + normalizedIntensity * 0.38f), heavy: true);
+                }
+                SpawnBurst(worldCenter + Vector3.up * 0.4f, Mathf.Clamp01(0.8f + normalizedIntensity * 0.2f), heavy: true);
+                ApplyCameraFeedback(Mathf.Lerp(comboRushCameraImpulse * 0.68f, comboRushCameraImpulse, normalizedIntensity),
+                    Mathf.Lerp(comboRushFovPunch * 0.6f, comboRushFovPunch, normalizedIntensity));
             }
-            SpawnBurst(worldCenter + Vector3.up * 0.4f, Mathf.Clamp01(0.8f + normalizedIntensity * 0.2f), heavy: true);
-            ApplyCameraFeedback(Mathf.Lerp(comboRushCameraImpulse * 0.68f, comboRushCameraImpulse, normalizedIntensity),
-                Mathf.Lerp(comboRushFovPunch * 0.6f, comboRushFovPunch, normalizedIntensity));
+
             PlayAudio(comboRiseClip, Mathf.Lerp(0.72f, 1f, normalizedIntensity), Mathf.Lerp(1f, 1.12f, normalizedIntensity));
             PlayHaptic(destroyed: true, Mathf.Clamp01(0.75f + normalizedIntensity * 0.25f));
         }
@@ -872,7 +883,7 @@ namespace AlienCrusher.Systems
 
         private void SpawnBurst(Vector3 worldPosition, float normalizedImpact, bool heavy)
         {
-            if (burstPool == null || burstPool.Length == 0)
+            if (burstPool == null || burstPool.Length == 0 || !SmashVfxBudget.TryConsumeBurstSpawn())
             {
                 return;
             }
@@ -908,7 +919,7 @@ namespace AlienCrusher.Systems
 
         private void PlayScreenFlash(Color color, float peakAlpha, float riseDuration, float fallDuration)
         {
-            if (!allowDotween || flashOverlay == null)
+            if (!allowDotween || flashOverlay == null || !SmashVfxBudget.TryConsumeScreenFlash())
             {
                 return;
             }

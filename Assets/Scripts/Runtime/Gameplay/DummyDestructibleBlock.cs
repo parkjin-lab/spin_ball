@@ -1556,7 +1556,7 @@ namespace AlienCrusher.Gameplay
 
         private void EmitDebris(Vector3 hitPoint, float damageRatio, bool heavy)
         {
-            if (debrisParticle == null)
+            if (debrisParticle == null || !AlienCrusher.Systems.SmashVfxBudget.TryConsumeDebrisVisual())
             {
                 return;
             }

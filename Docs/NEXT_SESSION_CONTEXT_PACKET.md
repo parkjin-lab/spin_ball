@@ -1,12 +1,18 @@
 # Alien Crusher Handoff - 2026-07-12
 
-## 2026-08-31 Collision Crush MissingReference Guard
+## 2026-08-31 Crush Crash: D3D12 Device Removal + Collision Hardening
 
-- Play-blocker: user still crashed while colliding / destroying things (`자뫼 충돌해서 크러쉬나는 문제`). Screenshot evidence is the Unity Bug Reporter with type **Crash** (empty title) — a native editor/player abort, not only a Console `MissingReferenceException`. The 2026-08-24 Stage 7 telemetry guard (`HasLiveStageBossBlock` / `SetBossCoreExposure` fake-null) is still in place; it does not cover physics-callback mutations.
-- Verified native path: `DummyStreetPropReactive.BreakProp` ran inside `OnCollisionEnter` — `SetParent(null)` on live colliders, `AddComponent<Rigidbody>`, `AddForce`, then `Destroy(root)` while PhysX still holds the contact pair. Block destroy also scaled the collider and started a shrink coroutine (immediate `DOScale`) in the same callback. Drone death called `SetActive(false)` / disabled its collider in `OnCollisionEnter`. Shockwave `AddExplosionForce` wrote other rigidbodies mid-step. A second object in the same pair can die first; the other handler then reads `collision.gameObject` / `GetContact` (managed MissingReference).
-- Fix only: `CollisionContactGuard` fake-null checks on every `OnCollisionEnter` / post-yield disable / `Update` pulse. `PhysicsCallbackDefer` moves reparent / AddRigidbody / Destroy / collider disable / `SetActive` / collider `localScale` / explosion impulses to LateUpdate after the physics step. Durability, score, break thresholds, and spawn rates are unchanged. No juice inventing.
-- How to see it: Play Mode Stage 1 — smash `GapLamp_*` / `GapCar_*` / `Block_*` in a rapid crush combo (and a barrel/transformer if present). Editor should not open Bug Reporter, and Console should not throw `MissingReferenceException` / `NullReferenceException`. `F7` Stage 4/5 — smash pylons, `YardCraneMast`, and street props during OVERDRIVE. Clear Stage 6 boss, start Stage 7 — no `DummyDestructibleBlock has been destroyed` on telemetry Update.
-- If it still dies: the project Editor.log is `C:/uni/spinball/Logs/Editor.log` (not the short Hub boot stubs). Also `CrashReports` / Bug Reporter dump. Confirm `Crash!!!` / `Stacktrace` / `Obtained` lines are `PhysX` / `OnCollisionEnter` / `DummyStreetPropReactive` / `DummyDestructibleBlock` rather than an unrelated editor module. Laptop Bug Reporter sessions today (KST): 18:22:43, 18:24:01, 18:34:04. Local editor on the laptop is `6000.5.10f1`; repo pin stays `6000.5.9f1`.
+- Play-blocker: user crashes when colliding / destroying things (`자뫼 충돌해서 크러쉬나는 문제`). Bug Reporter type **Crash**. Laptop sessions today (KST): 18:22:43, 18:24:01, 18:34:04.
+- **(A) Confirmed hard-crash root cause (Editor.log):** native **GPU device removal**, not a managed MissingReference:
+  - `D3D12Fence::Wait` / `Device removal` / `887a0005` / `Unrecoverable GPU device error!` / `Crash!!!`
+  - Stack: `CheckDeviceStatus` → `D3D12Fence::Wait` → `GfxDeviceD3D12::QueuePresent` → `D3D12Window::EndRendering`
+  - GPU: RTX 2070 Super Max-Q, VRAM ~8 GB. Driver in log: `26.21.14.4345` (2019-era). Hybrid Intel iGPU also loaded. Local editor `6000.5.10f1`; repo pin `6000.5.9f1`.
+  - **User workaround (outside this PR):** update NVIDIA driver; try Hub player/editor arg `-force-d3d11`.
+- **(B) Code hardening on this branch (still ship):** smash cascades were also unsafe / GPU-heavy.
+  1. Physics: `BreakProp` reparented colliders, `AddComponent<Rigidbody>`, and `Destroy(root)` inside `OnCollisionEnter`; blocks scaled colliders / started shrink tweens mid-contact; drones `SetActive(false)` mid-contact. `PhysicsCallbackDefer` + `CollisionContactGuard` move those mutations after the physics step and fake-null collision accessors.
+  2. VFX throttle: a shockwave/chain crush could fire unbounded `PlayDestroyFeedback` / `PlayComboRushFeedback` / debris emits plus per-hit `CreatePrimitive` weak-point flashes. `SmashVfxBudget` caps those per frame; weak-point flash is pooled (no new juice art). Damage/score/thresholds unchanged.
+- How to see it: Play Mode Stage 1 — rapid crush on `GapLamp_*` / `GapCar_*` / `Block_*`. Prefer updated GPU driver or `-force-d3d11`. Editor should not open Bug Reporter; Console should not throw MissingReference. `F7` Stage 4/5 smash during OVERDRIVE. Stage 6→7: no destroyed-boss telemetry MissingReference.
+- If it still dies: send `C:/uni/spinball/Logs/Editor.log` (`Crash!!!` / `Stacktrace` / `Obtained`). If still `887a0005` / `QueuePresent`, it is the GPU/driver path — finish the driver / D3D11 workaround before blaming gameplay code.
 
 ## 2026-08-27 Combo And Overdrive Pulse Draft Materials
 

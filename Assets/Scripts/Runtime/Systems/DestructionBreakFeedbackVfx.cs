@@ -35,6 +35,22 @@ namespace AlienCrusher.Systems
 		private static Material debrisHeavyMaterial;
 		private static Material smokeDamageMaterial;
 		private static Material weakPointHitMaterial;
+		private static WeakPointHitFlash pooledWeakPointFlash;
+		private static Material pooledWeakPointFlashMaterial;
+
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+		private static void ResetStatics()
+		{
+			debrisLight = null;
+			debrisHeavy = null;
+			weakPointHit = null;
+			debrisLightMaterial = null;
+			debrisHeavyMaterial = null;
+			smokeDamageMaterial = null;
+			weakPointHitMaterial = null;
+			pooledWeakPointFlash = null;
+			pooledWeakPointFlashMaterial = null;
+		}
 
 		public static void PlayDebrisLight(Vector3 worldPosition, float intensity = 0.55f)
 		{
@@ -225,7 +241,7 @@ namespace AlienCrusher.Systems
 
 		private static void EmitBurst(ParticleSystem ps, Vector3 worldPosition, float intensity, int minCount, int maxCount, Color colorA, Color colorB)
 		{
-			if ((Object)(object)ps == (Object)null)
+			if ((Object)(object)ps == (Object)null || !SmashVfxBudget.TryConsumeDebrisVisual())
 			{
 				return;
 			}
@@ -241,27 +257,64 @@ namespace AlienCrusher.Systems
 
 		private static void SpawnWeakPointFlash(Vector3 worldPosition, Color color, bool bossCore)
 		{
+			if (!SmashVfxBudget.TryConsumeWeakPointFlash())
+			{
+				return;
+			}
+
+			WeakPointHitFlash flash = EnsurePooledWeakPointFlash();
+			if ((Object)(object)flash == (Object)null)
+			{
+				return;
+			}
+
+			float reach = bossCore ? 0.72f : 0.46f;
+			ApplyWeakPointFlashMaterial(flash, color);
+			flash.Configure(
+				worldPosition,
+				new Vector3(0.16f, 0.06f, 0.16f),
+				new Vector3(reach, 0.06f, reach),
+				color,
+				bossCore ? 0.2f : 0.14f);
+		}
+
+		private static WeakPointHitFlash EnsurePooledWeakPointFlash()
+		{
+			if ((Object)(object)pooledWeakPointFlash != (Object)null)
+			{
+				return pooledWeakPointFlash;
+			}
+
 			GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 			go.name = WeakPointHitId;
+			go.transform.SetParent(GetRuntimeRoot(), false);
 			Collider collider = go.GetComponent<Collider>();
 			if ((Object)(object)collider != (Object)null)
 			{
 				Object.Destroy(collider);
 			}
 
-			float reach = bossCore ? 0.72f : 0.46f;
-			go.transform.position = worldPosition;
-			go.transform.localScale = new Vector3(0.16f, 0.06f, 0.16f);
-			Renderer renderer = go.GetComponent<Renderer>();
-			if ((Object)(object)renderer != (Object)null)
+			pooledWeakPointFlash = go.AddComponent<WeakPointHitFlash>();
+			go.SetActive(false);
+			return pooledWeakPointFlash;
+		}
+
+		private static void ApplyWeakPointFlashMaterial(WeakPointHitFlash flash, Color color)
+		{
+			Renderer renderer = flash.GetComponent<Renderer>();
+			if ((Object)(object)renderer == (Object)null)
+			{
+				return;
+			}
+
+			if ((Object)(object)pooledWeakPointFlashMaterial == (Object)null)
 			{
 				Material source = EnsureWeakPointHitMaterial();
-				Material material;
 				if ((Object)(object)source != (Object)null)
 				{
-					material = new Material(source)
+					pooledWeakPointFlashMaterial = new Material(source)
 					{
-						name = WeakPointHitId
+						name = WeakPointHitId + "_Pooled"
 					};
 				}
 				else
@@ -269,41 +322,34 @@ namespace AlienCrusher.Systems
 					Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
 					if ((Object)(object)shader == (Object)null)
 					{
-						material = null;
-					}
-					else
-					{
-						material = new Material(shader)
-						{
-							name = WeakPointHitId
-						};
-					}
-				}
-
-				if ((Object)(object)material != (Object)null)
-				{
-					if (material.HasProperty("_BaseColor"))
-					{
-						material.SetColor("_BaseColor", color);
+						return;
 					}
 
-					if (material.HasProperty("_Color"))
+					pooledWeakPointFlashMaterial = new Material(shader)
 					{
-						material.SetColor("_Color", color);
-					}
-
-					if (material.HasProperty("_EmissionColor"))
-					{
-						material.EnableKeyword("_EMISSION");
-						material.SetColor("_EmissionColor", color * 1.2f);
-					}
-
-					renderer.sharedMaterial = material;
+						name = WeakPointHitId + "_Pooled"
+					};
 				}
 			}
 
-			WeakPointHitFlash flash = go.AddComponent<WeakPointHitFlash>();
-			flash.Configure(new Vector3(reach, 0.06f, reach), color, bossCore ? 0.2f : 0.14f);
+			if (pooledWeakPointFlashMaterial.HasProperty("_BaseColor"))
+			{
+				pooledWeakPointFlashMaterial.SetColor("_BaseColor", color);
+			}
+
+			if (pooledWeakPointFlashMaterial.HasProperty("_Color"))
+			{
+				pooledWeakPointFlashMaterial.SetColor("_Color", color);
+			}
+
+			if (pooledWeakPointFlashMaterial.HasProperty("_EmissionColor"))
+			{
+				pooledWeakPointFlashMaterial.EnableKeyword("_EMISSION");
+				pooledWeakPointFlashMaterial.SetColor("_EmissionColor", color * 1.2f);
+			}
+
+			renderer.sharedMaterial = pooledWeakPointFlashMaterial;
+			flash.BindMaterial(pooledWeakPointFlashMaterial);
 		}
 
 		private static Transform GetRuntimeRoot()
@@ -447,29 +493,35 @@ namespace AlienCrusher.Systems
 
 		private sealed class WeakPointHitFlash : MonoBehaviour
 		{
+			private Vector3 startScale;
 			private Vector3 endScale;
 			private Color color;
 			private float duration;
 			private float age;
 			private Material material;
 
-			public void Configure(Vector3 targetScale, Color markColor, float life)
+			public void BindMaterial(Material shared)
 			{
+				material = shared;
+			}
+
+			public void Configure(Vector3 worldPosition, Vector3 fromScale, Vector3 targetScale, Color markColor, float life)
+			{
+				age = 0f;
+				startScale = fromScale;
 				endScale = targetScale;
 				color = markColor;
 				duration = Mathf.Max(0.1f, life);
-				Renderer renderer = GetComponent<Renderer>();
-				if ((Object)(object)renderer != (Object)null)
-				{
-					material = renderer.material;
-				}
+				transform.position = worldPosition;
+				transform.localScale = fromScale;
+				gameObject.SetActive(true);
 			}
 
 			private void Update()
 			{
 				age += Time.unscaledDeltaTime;
 				float t = Mathf.Clamp01(age / duration);
-				transform.localScale = Vector3.Lerp(transform.localScale, endScale, t);
+				transform.localScale = Vector3.Lerp(startScale, endScale, t);
 				if ((Object)(object)material != (Object)null)
 				{
 					Color faded = color;
@@ -487,12 +539,7 @@ namespace AlienCrusher.Systems
 
 				if (t >= 1f)
 				{
-					if ((Object)(object)material != (Object)null)
-					{
-						Object.Destroy(material);
-					}
-
-					Object.Destroy(gameObject);
+					gameObject.SetActive(false);
 				}
 			}
 		}

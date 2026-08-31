@@ -5,10 +5,11 @@ using UnityEngine;
 namespace AlienCrusher.Gameplay
 {
     /// <summary>
-    /// PhysX can abort the editor/player (Unity Bug Reporter, type Crash) when
-    /// collision callbacks Destroy, disable, reparent, or add Rigidbodies on
-    /// objects still in the current contact graph. Queue those mutations until
-    /// after the physics step. Durability, score, and feedback stay immediate.
+    /// Collision callbacks that Destroy, disable, reparent, or add Rigidbodies
+    /// while PhysX still holds the contact graph can abort the player or spike
+    /// GPU work during smash cascades (see SmashVfxBudget for D3D12 TDR caps).
+    /// Queue those mutations until after the physics step. Durability, score,
+    /// and feedback stay immediate.
     /// </summary>
     [DefaultExecutionOrder(32000)]
     internal sealed class PhysicsCallbackDefer : MonoBehaviour
