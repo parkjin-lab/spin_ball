@@ -131,10 +131,16 @@ if ($errors.Count -eq 0) {
     if ($formUnlockText.Contains('TrySpendDp(requiredCost)')) {
         $errors.Add("Purchase paths must not save DP separately before granting the purchased item")
     }
+    if ($formUnlockText.Contains('data.meta.dpBalance = balance - requiredCost')) {
+        $errors.Add("Purchase lambdas must copy out parameter requiredCost to a local committedCost before capture")
+    }
     if ($formUnlockText.Contains('GameObject.Find("_Systems")') -or
         $formUnlockText.Contains('FindFirstObjectByType<ProgressionSaveSystem>()') -or
         $formUnlockText.Contains('FindAnyObjectByType<ProgressionSaveSystem>()')) {
         $errors.Add("FormUnlockSystem must resolve progression storage from an explicit reference or its canonical _Systems root")
+    }
+    if ($saveSystemText -match 'File\.Move\([^;\r\n]*overwrite\s*:') {
+        $errors.Add("ProgressionSaveSystem must use the Unity-compatible MoveOverwrite helper instead of File.Move overwrite named arguments")
     }
 
     foreach ($needle in @(
