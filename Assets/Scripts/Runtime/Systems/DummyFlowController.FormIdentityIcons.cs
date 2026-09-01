@@ -34,11 +34,11 @@ namespace AlienCrusher.Systems
 		private void EnsureFormIdentityIcons()
 		{
 			CacheFormIdentityIconSprites();
-			EnsureLobbyFormIcon("Form_Sphere", IconFormSphereId, iconFormSphereSprite);
-			EnsureLobbyFormIcon("Form_Ram", IconFormRamId, iconFormRamSprite);
-			EnsureLobbyFormIcon("Form_Saucer", IconFormSaucerId, iconFormSaucerSprite);
-			EnsureLobbyFormIcon("Form_Spike", IconFormSpikeId, iconFormSpikeSprite);
-			EnsureLobbyFormIcon("Form_Crusher", IconFormCrusherId, iconFormCrusherSprite);
+			EnsureLobbyFormIcon(FormCatalog.GetButtonName(FormType.Sphere), IconFormSphereId, iconFormSphereSprite);
+			EnsureLobbyFormIcon(FormCatalog.GetButtonName(FormType.Ram), IconFormRamId, iconFormRamSprite);
+			EnsureLobbyFormIcon(FormCatalog.GetButtonName(FormType.Saucer), IconFormSaucerId, iconFormSaucerSprite);
+			EnsureLobbyFormIcon(FormCatalog.GetButtonName(FormType.Spike), IconFormSpikeId, iconFormSpikeSprite);
+			EnsureLobbyFormIcon(FormCatalog.GetButtonName(FormType.Crusher), IconFormCrusherId, iconFormCrusherSprite);
 			RefreshFormIdentitySkillIcons();
 			EnsureResultLobbyBadges();
 			EnsureOutgameDpEconomy();
@@ -118,9 +118,13 @@ namespace AlienCrusher.Systems
 			{
 				FormActiveSkill.SpherePulse => iconSkillSpherePulseSprite,
 				FormActiveSkill.RamBreach => iconSkillRamBreachSprite,
+				FormActiveSkill.ChargeBurst => iconSkillRamBreachSprite,
 				FormActiveSkill.SaucerDash => iconSkillSaucerDashSprite,
+				FormActiveSkill.UfoRay => iconSkillSaucerDashSprite,
 				FormActiveSkill.SpikeBurst => iconSkillSpikeBurstSprite,
+				FormActiveSkill.DrillBurrow => iconSkillSpikeBurstSprite,
 				FormActiveSkill.CrusherSlam => iconSkillCrusherSlamSprite,
+				FormActiveSkill.MagnetGrab => iconSkillCrusherSlamSprite,
 				_ => null
 			};
 			bool show = (Object)(object)sprite != (Object)null;

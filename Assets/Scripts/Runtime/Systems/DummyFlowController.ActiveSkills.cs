@@ -13,10 +13,14 @@ namespace AlienCrusher.Systems
 			return skill switch
 			{
 				FormActiveSkill.SpherePulse => Mathf.Max(0.1f, spherePulseCooldown), 
-				FormActiveSkill.SpikeBurst => Mathf.Max(0.1f, spikeBurstCooldown), 
-				FormActiveSkill.RamBreach => Mathf.Max(0.1f, ramBreachCooldown), 
-				FormActiveSkill.SaucerDash => Mathf.Max(0.1f, saucerDashCooldown), 
-				FormActiveSkill.CrusherSlam => Mathf.Max(0.1f, crusherSlamCooldown), 
+				FormActiveSkill.SpikeBurst => DrillBurrowCooldown, 
+				FormActiveSkill.RamBreach => ChargeBurstCooldown, 
+				FormActiveSkill.SaucerDash => UfoRayTickSeconds, 
+				FormActiveSkill.CrusherSlam => MagnetDetonateCooldown, 
+				FormActiveSkill.DrillBurrow => DrillBurrowCooldown, 
+				FormActiveSkill.ChargeBurst => ChargeBurstCooldown, 
+				FormActiveSkill.UfoRay => UfoRayTickSeconds, 
+				FormActiveSkill.MagnetGrab => MagnetDetonateCooldown, 
 				_ => 0f, 
 			};
 		}
@@ -36,6 +40,7 @@ namespace AlienCrusher.Systems
 
 		private void ResetFormActiveSkillRuntime()
 		{
+			ResetFormSmashMethodRuntime();
 			formSkillCooldownRemaining = 0f;
 			cachedTransformButtonLabel = string.Empty;
 			cachedSpecial1ButtonLabel = string.Empty;
@@ -108,23 +113,30 @@ namespace AlienCrusher.Systems
 				flag = ExecuteSpherePulseSkill();
 				break;
 			case FormActiveSkill.SpikeBurst:
-				flag = ExecuteSpikeBurstSkill();
+			case FormActiveSkill.DrillBurrow:
+				flag = TryTriggerFormSmashMethod(FormSmashMethod.DrillBurrow);
 				break;
 			case FormActiveSkill.RamBreach:
-				flag = ExecuteRamBreachSkill();
+			case FormActiveSkill.ChargeBurst:
+				flag = TryTriggerFormSmashMethod(FormSmashMethod.ChargeBurst);
 				break;
 			case FormActiveSkill.SaucerDash:
-				flag = ExecuteSaucerDashSkill();
+			case FormActiveSkill.UfoRay:
+				flag = TryTriggerFormSmashMethod(FormSmashMethod.UfoRay);
 				break;
 			case FormActiveSkill.CrusherSlam:
-				flag = ExecuteCrusherSlamSkill();
+			case FormActiveSkill.MagnetGrab:
+				flag = TryTriggerFormSmashMethod(FormSmashMethod.MagnetGrab);
 				break;
 			}
 			if (!flag)
 			{
 				return false;
 			}
-			ApplyFormSkillSynergyEffects(formActiveSkill, drillSynergy, overdriveSynergy);
+			if (formActiveSkill == FormActiveSkill.SpherePulse)
+			{
+				ApplyFormSkillSynergyEffects(formActiveSkill, drillSynergy, overdriveSynergy);
+			}
 			float formSkillCooldownScale = GetFormSkillCooldownScale(formActiveSkill, drillSynergy, overdriveSynergy);
 			formSkillCooldownRemaining = GetFormActiveSkillCooldown(formActiveSkill) * formSkillCooldownScale;
 			RefreshActionSkillButtons(force: true);
@@ -534,12 +546,15 @@ namespace AlienCrusher.Systems
 			switch (skill)
 			{
 			case FormActiveSkill.SpikeBurst:
+			case FormActiveSkill.DrillBurrow:
 				num += (drillSynergy ? 0.04f : 0f);
 				break;
 			case FormActiveSkill.RamBreach:
+			case FormActiveSkill.ChargeBurst:
 				num += (overdriveSynergy ? 0.04f : 0f);
 				break;
 			case FormActiveSkill.CrusherSlam:
+			case FormActiveSkill.MagnetGrab:
 				num += 0.05f;
 				break;
 			}
@@ -835,8 +850,17 @@ namespace AlienCrusher.Systems
 			FormActiveSkill formActiveSkill = GetFormActiveSkill(GetCurrentSelectedForm());
 			bool flag = enableFormActiveSkills && formActiveSkill != FormActiveSkill.None;
 			bool flag2 = flag && formSkillCooldownRemaining <= 0f;
-			string text = ((!flag) ? "FORM\nPASSIVE" : (flag2 ? (GetFormActiveSkillName(formActiveSkill) + "\nREADY") : $"{GetFormActiveSkillName(formActiveSkill)}\n{Mathf.CeilToInt(formSkillCooldownRemaining)}s"));
-			string text2 = (flag ? "TAP: TRIGGER" : "NO ACTIVE");
+			FormSmashMethod smashMethod = FormCatalog.GetSmashMethod(GetCurrentSelectedForm());
+			string holdHint = smashMethod switch
+			{
+				FormSmashMethod.UfoRay => "HOLD/TAP: RAY",
+				FormSmashMethod.ChargeBurst => "HOLD: CHARGE",
+				FormSmashMethod.DrillBurrow => "HOLD/TAP: DRILL",
+				FormSmashMethod.MagnetGrab => "TAP: PULL",
+				_ => "TAP: TRIGGER"
+			};
+			string text = ((!flag) ? "FORM\nPASSIVE" : (flag2 ? (GetFormActiveSkillName(formActiveSkill) + "\nREADY") : $"{GetFormActiveSkillName(formActiveSkill)}\n{Mathf.CeilToInt(Mathf.Max(formSkillCooldownRemaining, formSmashMethodCooldown))}s"));
+			string text2 = (flag ? holdHint : "NO ACTIVE");
 			string text3 = (flag ? "AUTO" : "---");
 			if (force || cachedTransformButtonLabel != text)
 			{
@@ -853,8 +877,12 @@ namespace AlienCrusher.Systems
 				SetButtonLabel("Special2Button", text3);
 				cachedSpecial2ButtonLabel = text3;
 			}
-			SetButtonInteractable("TransformButton", flag && flag2 && stageRunning && !levelUpOpen);
-			SetButtonInteractable("Special1Button", flag && flag2 && stageRunning && !levelUpOpen);
+			bool holdMethod = smashMethod == FormSmashMethod.UfoRay
+				|| smashMethod == FormSmashMethod.ChargeBurst
+				|| smashMethod == FormSmashMethod.DrillBurrow
+				|| smashMethod == FormSmashMethod.MagnetGrab;
+			SetButtonInteractable("TransformButton", flag && (flag2 || holdMethod) && stageRunning && !levelUpOpen);
+			SetButtonInteractable("Special1Button", flag && (flag2 || holdMethod) && stageRunning && !levelUpOpen);
 			SetButtonInteractable("Special2Button", interactable: false);
 			bool flag3 = (actionSkillReadyVisualActive = flag && flag2 && stageRunning && !levelUpOpen);
 			if ((force || flag3 != previousActionSkillReadyVisualState) && flag3)

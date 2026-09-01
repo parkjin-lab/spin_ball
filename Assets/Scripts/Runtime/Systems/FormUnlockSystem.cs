@@ -292,6 +292,14 @@ namespace AlienCrusher.Systems
             return true;
         }
 
+#if UNITY_EDITOR
+        public bool TryEditorPreviewSelect(FormType form)
+        {
+            CurrentForm = form;
+            return true;
+        }
+#endif
+
         public bool TrySelect(FormType form)
         {
             if (!IsUnlocked(form))

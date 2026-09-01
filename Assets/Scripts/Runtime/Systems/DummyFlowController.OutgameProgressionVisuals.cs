@@ -98,11 +98,12 @@ namespace AlienCrusher.Systems
 		private void RefreshOutgameProgressionVisuals()
 		{
 			CacheOutgameProgressionVisuals();
-			ApplyFormCardStateFrame("Form_Sphere", FormType.Sphere);
-			ApplyFormCardStateFrame("Form_Spike", FormType.Spike);
-			ApplyFormCardStateFrame("Form_Ram", FormType.Ram);
-			ApplyFormCardStateFrame("Form_Saucer", FormType.Saucer);
-			ApplyFormCardStateFrame("Form_Crusher", FormType.Crusher);
+			for (int i = 0; i < FormCatalog.All.Length; i++)
+			{
+				FormCatalog.Entry entry = FormCatalog.All[i];
+				ApplyFormCardStateFrame(entry.ButtonName, entry.Type);
+			}
+			EnsureFormStrategyHints();
 			ApplyMetaNodeVisual("MetaUpgrade_SizeButton", FormUnlockSystem.MetaUpgradeType.SizeCore, metaNodeSizeCoreSprite);
 			ApplyMetaNodeVisual("MetaUpgrade_ImpactButton", FormUnlockSystem.MetaUpgradeType.ImpactCore, metaNodeImpactCoreSprite);
 			ApplyMetaNodeVisual("MetaUpgrade_DpButton", FormUnlockSystem.MetaUpgradeType.DpAmplifier, metaNodeDpAmplifierSprite);

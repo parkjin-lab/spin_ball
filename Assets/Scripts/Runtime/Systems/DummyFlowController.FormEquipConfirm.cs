@@ -49,14 +49,7 @@ namespace AlienCrusher.Systems
 
 		private static string GetFormEquipButtonName(FormType form)
 		{
-			return form switch
-			{
-				FormType.Spike => "Form_Spike",
-				FormType.Ram => "Form_Ram",
-				FormType.Saucer => "Form_Saucer",
-				FormType.Crusher => "Form_Crusher",
-				_ => "Form_Sphere"
-			};
+			return FormCatalog.GetButtonName(form);
 		}
 
 		private Sprite EnsureFormEquipConfirmSprite()

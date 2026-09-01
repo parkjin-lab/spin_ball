@@ -1184,7 +1184,7 @@ namespace AlienCrusher.Systems
 				{
 					formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 				}
-				string text = GetCurrentSelectedForm().ToString().ToUpperInvariant();
+				string text = FormCatalog.GetDisplayName(GetCurrentSelectedForm());
 				int num = Mathf.Max(2, bossStageStart);
 				int num2 = Mathf.Clamp(eliteWeakPointBaseCount + Mathf.Max(0, currentStageNumber - 1) * Mathf.Max(0, eliteWeakPointPerStage), 0, Mathf.Max(0, eliteWeakPointMaxCount));
 				int num3 = (((Object)(object)formUnlockSystem != (Object)null) ? formUnlockSystem.HighestUnlockedStage : Mathf.Max(1, currentStageNumber));
@@ -2166,6 +2166,7 @@ namespace AlienCrusher.Systems
 			});
 			WireButton("TransformButton", new UnityAction(HandlePrimaryActionSkill));
 			WireButton("Special1Button", new UnityAction(HandlePrimaryActionSkill));
+			EnsureFormSkillHoldTrackers();
 			WireButton("Special2Button", new UnityAction(HandleActionButtonPlaceholder));
 			WireButton("SkillOption_A", new UnityAction(ChooseSkillOptionA));
 			WireButton("SkillOption_B", new UnityAction(ChooseSkillOptionB));

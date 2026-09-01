@@ -674,10 +674,11 @@ namespace AlienCrusher.Systems
 			}
 			int unlockCost = formUnlockSystem.GetUnlockCost(lastRecommendedFormUnlock);
 			int num = Mathf.Max(0, unlockCost - dpBalance);
-			string text = lastRecommendedFormUnlock.ToString().ToUpperInvariant();
+			string text = FormCatalog.GetDisplayName(lastRecommendedFormUnlock);
+			string method = FormCatalog.Get(lastRecommendedFormUnlock).MethodShortLabel;
 			return num <= 0
-				? $"{text} READY"
-				: $"{text}  NEED {num:0} DP";
+				? $"{text} {method} READY"
+				: $"{text} {method}  NEED {num:0} DP";
 		}
 
 		private FormType GetRecommendedFormUnlock()
@@ -731,17 +732,17 @@ namespace AlienCrusher.Systems
 			int num = ((Object)(object)formUnlockSystem != (Object)null) ? Mathf.Max(1, formUnlockSystem.HighestUnlockedStage) : 1;
 			if (num <= 1)
 			{
-				return "SPIKE NEXT";
+				return "DRILL NEXT";
 			}
 			if (num == 2)
 			{
-				return "SPIKE  then RAM";
+				return "DRILL  then TANK";
 			}
 			if (num == 3)
 			{
-				return "CRUSHER NEXT";
+				return "UFO RAY NEXT";
 			}
-			return GetCurrentSelectedForm().ToString().ToUpperInvariant();
+			return FormCatalog.GetDisplayName(GetCurrentSelectedForm());
 		}
 
 		private void ApplyRecommendedFormButtonStyle(string buttonName, FormType formType)

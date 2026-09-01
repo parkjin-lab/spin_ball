@@ -271,7 +271,7 @@ namespace AlienCrusher.Gameplay
                 return;
             }
 
-            var damage = ComputeDamage(collision, body, relativeSpeed, player.transform, impactMultiplier, drillMode);
+            var damage = ComputeDamage(collision, body, relativeSpeed, player.transform, impactMultiplier, drillMode); * player.GetBodySmashScale();
             if (damage <= 0.001f)
             {
                 return;

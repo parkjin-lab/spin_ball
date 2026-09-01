@@ -63,6 +63,7 @@ namespace AlienCrusher.Gameplay
 
         public PropKind Kind => propKind;
         public bool IsBroken => broken;
+        public bool IsAlive => CollisionContactGuard.IsUnityAlive(this) && !broken && isActiveAndEnabled && stageLayoutVisible;
         public bool CountsTowardStageWreck => countsTowardStageWreck;
 
         public void ConfigureForScaffolder(PropKind kind, Transform root)
@@ -215,7 +216,7 @@ namespace AlienCrusher.Gameplay
 
             var relativeSpeed = collision.relativeVelocity.magnitude;
             var fallbackSpeed = Mathf.Max(relativeSpeed, playerSpeed * 0.78f, Mathf.Abs(playerSpeed - vehicleSpeed) * 1.05f);
-            var impact = fallbackSpeed * Mathf.Max(0.58f, player.ImpactMultiplier);
+            var impact = fallbackSpeed * Mathf.Max(0.58f, player.ImpactMultiplier) * player.GetBodySmashScale();
             if (impact < wobbleImpactThreshold)
             {
                 return;

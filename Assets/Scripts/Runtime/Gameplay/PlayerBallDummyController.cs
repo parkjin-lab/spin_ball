@@ -62,6 +62,8 @@ namespace AlienCrusher.Gameplay
         private Transform ramVisual;
         private Transform saucerVisual;
         private Transform crusherVisual;
+        private Transform saucerRayEmitter;
+        private Transform crusherMagnetRing;
         private Transform sphereVisual;
         private Renderer sphereBeltRenderer;
         private Material sphereBeltMaterial;
@@ -137,16 +139,119 @@ namespace AlienCrusher.Gameplay
         public event Action<LandingShockwaveData> LandingShockwaveTriggered;
 
         public Transform VfxAnchor => vfxAnchor;
+        public FormType CurrentBaseForm => currentBaseForm;
         public float ImpactMultiplier => impactMultiplier * temporaryImpactMultiplier * permanentImpactMultiplier * formImpactMultiplier * counterImpactMultiplier;
         public bool DrillMode => drillMode;
         public bool HasCounterSurge => counterUntilTime > Time.time;
         public float CounterSurgeRemaining => Mathf.Max(0f, counterUntilTime - Time.time);
+
+        public float GetBodySmashScale()
+        {
+            return FormCatalog.GetSmashMethod(currentBaseForm) switch
+            {
+                FormSmashMethod.UfoRay => 0.12f,
+                FormSmashMethod.MagnetGrab => 0.42f,
+                FormSmashMethod.ChargeBurst => 0.68f,
+                FormSmashMethod.DrillBurrow => 0.52f,
+                _ => 1f
+            };
+        }
+
+        public Vector3 GetPlanarFacing()
+        {
+            if (CollisionContactGuard.IsUnityAlive(body))
+            {
+                var velocity = new Vector3(body.linearVelocity.x, 0f, body.linearVelocity.z);
+                if (velocity.sqrMagnitude > 0.04f)
+                {
+                    return velocity.normalized;
+                }
+            }
+
+            var input = smoothedMovementInput;
+            if (input.sqrMagnitude > 0.01f)
+            {
+                return new Vector3(input.x, 0f, input.y).normalized;
+            }
+
+            var forward = transform.forward;
+            forward.y = 0f;
+            return forward.sqrMagnitude > 0.001f ? forward.normalized : Vector3.forward;
+        }
+
+        public void SetFormSmashCharge(float charge01)
+        {
+            if (currentBaseForm != FormType.Ram || ramVisual == null)
+            {
+                return;
+            }
+
+            var pulse = Mathf.Clamp01(charge01);
+            ramVisual.localScale = Vector3.one * (1f + pulse * 0.18f);
+            ApplyFormAccentPulse(ramPlateMaterial, ramPlateBaseColor, ramPlateEmissionColor, new Color(1f, 0.82f, 0.4f, 1f), pulse);
+        }
+
+        public void SetFormSmashBeam(bool active, Vector3 facing, float length)
+        {
+            EnsureSaucerRayEmitter();
+            if (saucerRayEmitter == null)
+            {
+                return;
+            }
+
+            saucerRayEmitter.gameObject.SetActive(active && currentBaseForm == FormType.Saucer);
+            if (!active)
+            {
+                return;
+            }
+
+            facing.y = 0f;
+            if (facing.sqrMagnitude < 0.0001f)
+            {
+                facing = Vector3.forward;
+            }
+
+            facing.Normalize();
+            var safeLength = Mathf.Clamp(length, 1.2f, 10f);
+            saucerRayEmitter.localPosition = new Vector3(0f, -0.08f, safeLength * 0.18f);
+            saucerRayEmitter.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            saucerRayEmitter.localScale = new Vector3(0.18f, 0.08f, 0.18f);
+            ApplyFormAccentPulse(saucerRimMaterial, saucerRimBaseColor, saucerRimEmissionColor, new Color(0.72f, 0.98f, 1f, 1f), 1f);
+        }
+
+        public void SetFormSmashMagnet(bool active)
+        {
+            EnsureCrusherMagnetRing();
+            if (crusherMagnetRing == null)
+            {
+                return;
+            }
+
+            crusherMagnetRing.gameObject.SetActive(active && currentBaseForm == FormType.Crusher);
+            if (active)
+            {
+                ApplyFormAccentPulse(crusherSeamMaterial, crusherSeamBaseColor, crusherSeamEmissionColor, new Color(0.7f, 0.9f, 1f, 1f), 1f);
+            }
+        }
 
         public void SetBaseForm(FormType form)
         {
             currentBaseForm = form;
             baseForm = form;
             ApplyFormStats();
+            if (ramVisual != null)
+            {
+                ramVisual.localScale = Vector3.one;
+            }
+
+            if (saucerVisual != null && form != FormType.Saucer)
+            {
+                saucerVisual.localPosition = Vector3.zero;
+            }
+
+            SetFormSmashCharge(0f);
+            SetFormSmashBeam(false, Vector3.forward, 0f);
+            SetFormSmashMagnet(false);
             UpdateFormVisibility();
             UpdateCounterSurgeVisual();
         }
@@ -208,6 +313,7 @@ namespace AlienCrusher.Gameplay
             TickSaucerDashMark();
             TickSpikeBurstMark();
             TickCrusherSlamMark();
+            TickSaucerHover();
         }
         private void FixedUpdate()
         {
@@ -283,6 +389,9 @@ namespace AlienCrusher.Gameplay
             temporarySpeedMultiplier = 1f;
             temporaryImpactMultiplier = 1f;
             drillMode = false;
+            SetFormSmashCharge(0f);
+            SetFormSmashBeam(false, Vector3.forward, 0f);
+            SetFormSmashMagnet(false);
             UpdateFormVisibility();
 
             acceleration = baseAcceleration;
@@ -499,8 +608,39 @@ namespace AlienCrusher.Gameplay
             EnsureFormIdentityPrimitive(root, "SaucerCanopy", PrimitiveType.Cube, new Vector3(0f, 0.18f, 0.12f), new Vector3(0.22f, 0.1f, 0.18f), Vector3.zero);
             ApplyFormIdentityMaterial(root.Find("SaucerCanopy") != null ? root.Find("SaucerCanopy").gameObject : null, "M_Runtime_SaucerCanopy", new Color(0.86f, 0.96f, 0.98f, 1f), paleGlow);
 
+            EnsureSaucerRayEmitter(root);
             saucerVisual = root;
             saucerVisual.gameObject.SetActive(false);
+        }
+
+        private void EnsureSaucerRayEmitter(Transform root = null)
+        {
+            if (saucerRayEmitter != null)
+            {
+                return;
+            }
+
+            var parent = root != null ? root : saucerVisual;
+            if (parent == null)
+            {
+                return;
+            }
+
+            var emitterGo = EnsureFormIdentityPrimitive(parent, "SaucerRayEmitter", PrimitiveType.Cylinder, new Vector3(0f, -0.12f, 0f), new Vector3(0.22f, 0.08f, 0.22f), Vector3.zero);
+            ApplyFormIdentityMaterial(emitterGo, "M_Runtime_SaucerRayEmitter", new Color(0.55f, 0.95f, 1f, 1f), saucerRimEmissionColor);
+            saucerRayEmitter = emitterGo.transform;
+            saucerRayEmitter.gameObject.SetActive(currentBaseForm == FormType.Saucer);
+        }
+
+        private void TickSaucerHover()
+        {
+            if (saucerVisual == null || currentBaseForm != FormType.Saucer || drillMode)
+            {
+                return;
+            }
+
+            var bob = Mathf.Sin(Time.time * 3.4f) * 0.06f;
+            saucerVisual.localPosition = new Vector3(0f, 0.08f + bob, 0f);
         }
 
         public void PlayRamBreachVisualCue()
@@ -694,8 +834,28 @@ namespace AlienCrusher.Gameplay
             EnsureFormIdentityPrimitive(root, "CrusherSeam_V", PrimitiveType.Cube, new Vector3(0f, 0.08f, 0.78f), new Vector3(0.12f, 0.68f, 0.12f), Vector3.zero);
             ApplyFormIdentityMaterial(root.Find("CrusherSeam_V").gameObject, "M_Runtime_CrusherSeamV", crusherSeamBaseColor, crusherSeamEmissionColor);
 
+            EnsureCrusherMagnetRing(root);
             crusherVisual = root;
             crusherVisual.gameObject.SetActive(false);
+        }
+
+        private void EnsureCrusherMagnetRing(Transform root = null)
+        {
+            if (crusherMagnetRing != null)
+            {
+                return;
+            }
+
+            var parent = root != null ? root : crusherVisual;
+            if (parent == null)
+            {
+                return;
+            }
+
+            var ringGo = EnsureFormIdentityPrimitive(parent, "CrusherMagnetRing", PrimitiveType.Cylinder, new Vector3(0f, -0.02f, 0f), new Vector3(2.05f, 0.05f, 2.05f), Vector3.zero);
+            ApplyFormIdentityMaterial(ringGo, "M_Runtime_CrusherMagnetRing", new Color(0.42f, 0.78f, 1f, 1f), crusherSeamEmissionColor);
+            crusherMagnetRing = ringGo.transform;
+            crusherMagnetRing.gameObject.SetActive(false);
         }
 
         private void EnsureSphereVisual()
@@ -917,9 +1077,19 @@ namespace AlienCrusher.Gameplay
                 saucerVisual.gameObject.SetActive(!drillActive && currentBaseForm == FormType.Saucer);
             }
 
+            if (saucerRayEmitter != null)
+            {
+                saucerRayEmitter.gameObject.SetActive(!drillActive && currentBaseForm == FormType.Saucer);
+            }
+
             if (crusherVisual != null)
             {
                 crusherVisual.gameObject.SetActive(!drillActive && currentBaseForm == FormType.Crusher);
+            }
+
+            if (crusherMagnetRing != null && (drillActive || currentBaseForm != FormType.Crusher))
+            {
+                crusherMagnetRing.gameObject.SetActive(false);
             }
 
             if (sphereVisual != null)

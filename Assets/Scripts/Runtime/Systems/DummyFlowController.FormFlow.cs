@@ -38,21 +38,31 @@ namespace AlienCrusher.Systems
 				if (formUnlockSystem.IsUnlocked(form))
 				{
 					formUnlockSystem.TrySelect(form);
-					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} ON";
+					lastLobbyActionStatus = $"{FormCatalog.GetDisplayName(form)} ON";
 					PlayProgressionConfirmCue();
 				}
 				else if (!formUnlockSystem.TryUnlockAndSelectWithCost(form, out requiredCost))
 				{
-					Debug.Log((object)$"[AlienCrusher] Need {requiredCost} DP to unlock {form}. Current DP: {formUnlockSystem.DpBalance}");
-					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()}  NEED {Mathf.Max(0, requiredCost - formUnlockSystem.DpBalance):0}";
+#if UNITY_EDITOR
+					formUnlockSystem.TryEditorPreviewSelect(form);
+					lastLobbyActionStatus = $"{FormCatalog.GetDisplayName(form)} EDITOR PREVIEW";
+					ApplySelectedFormToPlayer();
+					UpdateFormButtons();
+					UpdateMetaProgressUi();
+					PlayFormEquipConfirmPulse(form);
+					return;
+#else
+					Debug.Log((object)$"[AlienCrusher] Need {requiredCost} DP to unlock {FormCatalog.GetDisplayName(form)}. Current DP: {formUnlockSystem.DpBalance}");
+					lastLobbyActionStatus = $"{FormCatalog.GetDisplayName(form)}  NEED {Mathf.Max(0, requiredCost - formUnlockSystem.DpBalance):0}";
 					SignalOutgameDpInsufficient();
 					UpdateFormButtons();
 					UpdateMetaProgressUi();
 					return;
+#endif
 				}
 				else
 				{
-					lastLobbyActionStatus = $"{form.ToString().ToUpperInvariant()} UNLOCKED";
+					lastLobbyActionStatus = $"{FormCatalog.GetDisplayName(form)} UNLOCKED";
 					SignalOutgameDpSpend();
 					unlockedNow = true;
 				}
@@ -75,11 +85,13 @@ namespace AlienCrusher.Systems
 		{
 			if (!((Object)(object)formUnlockSystem == (Object)null))
 			{
-				UpdateFormButton("Form_Sphere", "SPHERE", FormType.Sphere);
-				UpdateFormButton("Form_Spike", "SPIKE", FormType.Spike);
-				UpdateFormButton("Form_Ram", "RAM", FormType.Ram);
-				UpdateFormButton("Form_Saucer", "SAUCER", FormType.Saucer);
-				UpdateFormButton("Form_Crusher", "CRUSHER", FormType.Crusher);
+				for (int i = 0; i < FormCatalog.All.Length; i++)
+				{
+					FormCatalog.Entry entry = FormCatalog.All[i];
+					UpdateFormButton(entry.ButtonName, entry.DisplayName, entry.Type);
+				}
+
+				EnsureFormStrategyHints();
 				EnsureFormIdentityIcons();
 			}
 		}
@@ -114,8 +126,8 @@ namespace AlienCrusher.Systems
 			return form switch
 			{
 				FormType.Spike => (num <= 1) ? " (FIRST UNLOCK)" : " (EARLY FORM)", 
-				FormType.Ram => (num <= 2) ? " (AFTER SPIKE)" : " (MID TIER)", 
-				FormType.Saucer => (num <= 2) ? " (AFTER SPIKE)" : " (MID TIER)", 
+				FormType.Ram => (num <= 2) ? " (AFTER DRILL)" : " (MID TIER)", 
+				FormType.Saucer => (num <= 2) ? " (AFTER DRILL)" : " (MID TIER)", 
 				FormType.Crusher => " (BOSS TIER)", 
 				_ => string.Empty, 
 			};
@@ -136,13 +148,13 @@ namespace AlienCrusher.Systems
 
 		private FormActiveSkill GetFormActiveSkill(FormType form)
 		{
-			return form switch
+			return FormCatalog.GetSmashMethod(form) switch
 			{
-				FormType.Sphere => FormActiveSkill.SpherePulse, 
-				FormType.Spike => FormActiveSkill.SpikeBurst, 
-				FormType.Ram => FormActiveSkill.RamBreach, 
-				FormType.Saucer => FormActiveSkill.SaucerDash, 
-				FormType.Crusher => FormActiveSkill.CrusherSlam, 
+				FormSmashMethod.BodyRam => FormActiveSkill.SpherePulse, 
+				FormSmashMethod.DrillBurrow => FormActiveSkill.DrillBurrow, 
+				FormSmashMethod.ChargeBurst => FormActiveSkill.ChargeBurst, 
+				FormSmashMethod.UfoRay => FormActiveSkill.UfoRay, 
+				FormSmashMethod.MagnetGrab => FormActiveSkill.MagnetGrab, 
 				_ => FormActiveSkill.None, 
 			};
 		}
@@ -152,10 +164,14 @@ namespace AlienCrusher.Systems
 			return skill switch
 			{
 				FormActiveSkill.SpherePulse => "SPHERE PULSE", 
-				FormActiveSkill.SpikeBurst => "SPIKE BURST", 
-				FormActiveSkill.RamBreach => "RAM BREACH", 
-				FormActiveSkill.SaucerDash => "SAUCER DASH", 
-				FormActiveSkill.CrusherSlam => "CRUSHER SLAM", 
+				FormActiveSkill.SpikeBurst => "DRILL BURROW", 
+				FormActiveSkill.RamBreach => "TANK BURST", 
+				FormActiveSkill.SaucerDash => "UFO RAY", 
+				FormActiveSkill.CrusherSlam => "MAGNET PULL", 
+				FormActiveSkill.DrillBurrow => "DRILL BURROW", 
+				FormActiveSkill.ChargeBurst => "TANK CHARGE", 
+				FormActiveSkill.UfoRay => "UFO RAY", 
+				FormActiveSkill.MagnetGrab => "MAGNET PULL", 
 				_ => "FORM", 
 			};
 		}

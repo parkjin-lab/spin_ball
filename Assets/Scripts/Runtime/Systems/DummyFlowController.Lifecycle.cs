@@ -129,6 +129,7 @@ namespace AlienCrusher.Systems
 				return;
 			}
 			ProcessActionSkillInput();
+			UpdateFormSmashMethods(Time.deltaTime);
 			UpdateHudInfo();
 			UpdateRouteHoldTelemetry(Time.deltaTime);
 			EvaluateStageAdvanceRouteReward();

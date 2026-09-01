@@ -157,11 +157,11 @@ namespace AlienCrusher.Systems
 				PlaceBadgeBesideText(lobbyRecommendationText, LobbyRecommendBadgeName, ShouldShowAdvancedLobbyGuidance() ? BadgeRecommendedId : null, new Vector2(-52f, -8f), 36f);
 			}
 
-			ApplyFormCardStateBadge("Form_Sphere", FormType.Sphere);
-			ApplyFormCardStateBadge("Form_Spike", FormType.Spike);
-			ApplyFormCardStateBadge("Form_Ram", FormType.Ram);
-			ApplyFormCardStateBadge("Form_Saucer", FormType.Saucer);
-			ApplyFormCardStateBadge("Form_Crusher", FormType.Crusher);
+			for (int i = 0; i < FormCatalog.All.Length; i++)
+			{
+				FormCatalog.Entry entry = FormCatalog.All[i];
+				ApplyFormCardStateBadge(entry.ButtonName, entry.Type);
+			}
 			ApplyMetaCardStateBadge("MetaUpgrade_SizeButton", FormUnlockSystem.MetaUpgradeType.SizeCore);
 			ApplyMetaCardStateBadge("MetaUpgrade_ImpactButton", FormUnlockSystem.MetaUpgradeType.ImpactCore);
 			ApplyMetaCardStateBadge("MetaUpgrade_DpButton", FormUnlockSystem.MetaUpgradeType.DpAmplifier);

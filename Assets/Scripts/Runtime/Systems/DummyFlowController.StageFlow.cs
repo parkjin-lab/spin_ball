@@ -431,7 +431,7 @@ namespace AlienCrusher.Systems
 			{
 				return "DRILL";
 			}
-			return GetCurrentSelectedForm().ToString().ToUpperInvariant();
+			return FormCatalog.GetDisplayName(GetCurrentSelectedForm());
 		}
 
 		private void UpdateResultMetaProgress(int stageDpEarned)
@@ -611,14 +611,7 @@ namespace AlienCrusher.Systems
 			{
 				return "FORM OFF";
 			}
-			FormType[] array = new FormType[5]
-			{
-				FormType.Sphere,
-				FormType.Spike,
-				FormType.Ram,
-				FormType.Saucer,
-				FormType.Crusher
-			};
+			FormType[] array = FormCatalog.AllTypes;
 			for (int i = 0; i < array.Length; i++)
 			{
 				FormType formType = array[i];
@@ -626,10 +619,11 @@ namespace AlienCrusher.Systems
 				{
 					int unlockCost = formUnlockSystem.GetUnlockCost(formType);
 					int num = Mathf.Max(0, unlockCost - currentDp);
-					return (num <= 0) ? $"{formType.ToString().ToUpperInvariant()} READY" : $"{formType.ToString().ToUpperInvariant()}  NEED {num:0}";
+					string label = $"{FormCatalog.GetDisplayName(formType)} {FormCatalog.Get(formType).MethodShortLabel}";
+					return (num <= 0) ? $"{label} READY" : $"{label}  NEED {num:0}";
 				}
 			}
-			return GetCurrentSelectedForm().ToString().ToUpperInvariant();
+			return FormCatalog.GetDisplayName(GetCurrentSelectedForm());
 		}
 
 		private string GetResultNextMetaHint(int currentDp)
@@ -656,14 +650,7 @@ namespace AlienCrusher.Systems
 			{
 				return false;
 			}
-			FormType[] array = new FormType[5]
-			{
-				FormType.Sphere,
-				FormType.Spike,
-				FormType.Ram,
-				FormType.Saucer,
-				FormType.Crusher
-			};
+			FormType[] array = FormCatalog.AllTypes;
 			for (int i = 0; i < array.Length; i++)
 			{
 				FormType formType = array[i];
@@ -795,7 +782,7 @@ namespace AlienCrusher.Systems
 
 		private bool HasCurrentSelectedFormDrillBias()
 		{
-			return drillUpgradeCount > 0 || GetCurrentSelectedForm() == FormType.Spike || GetCurrentSelectedForm() == FormType.Crusher;
+			return drillUpgradeCount > 0 || FormCatalog.GetSmashMethod(GetCurrentSelectedForm()) == FormSmashMethod.DrillBurrow;
 		}
 
 		private IEnumerator CompleteStageAfterTotalDestructionDelay()

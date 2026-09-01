@@ -155,7 +155,7 @@ namespace AlienCrusher.Systems
 				return GetMetaUpgradeName(spendChangeReadyMeta) + " READY";
 			}
 
-			return spendChangeReadyForm.ToString().ToUpperInvariant() + " READY";
+			return FormCatalog.GetDisplayName(spendChangeReadyForm) + " READY";
 		}
 
 		private Sprite ResolveSpendChangeReadyPipSprite()
