@@ -188,7 +188,7 @@ namespace AlienCrusher.Systems
             catch (PlatformNotSupportedException)
             {
                 File.Copy(SavePath, replacementBackupPath, overwrite: true);
-                File.Move(tempPath, SavePath, overwrite: true);
+                MoveOverwrite(tempPath, SavePath);
             }
         }
 
@@ -198,6 +198,16 @@ namespace AlienCrusher.Systems
                 || exception is UnauthorizedAccessException
                 || exception is NotSupportedException
                 || exception is System.Security.SecurityException;
+        }
+
+        private static void MoveOverwrite(string sourcePath, string destinationPath)
+        {
+            if (File.Exists(destinationPath))
+            {
+                File.Delete(destinationPath);
+            }
+
+            File.Move(sourcePath, destinationPath);
         }
 
         private static void TryDeleteFile(string path)

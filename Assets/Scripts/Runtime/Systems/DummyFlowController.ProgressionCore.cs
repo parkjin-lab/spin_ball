@@ -134,6 +134,15 @@ namespace AlienCrusher.Systems
 					stageTotalDestructibleCount++;
 				}
 			}
+			DummyStreetPropReactive[] wreckProps = Object.FindObjectsByType<DummyStreetPropReactive>((FindObjectsInactive)1);
+			for (int p = 0; p < wreckProps.Length; p++)
+			{
+				DummyStreetPropReactive wreckProp = wreckProps[p];
+				if (!((Object)(object)wreckProp == (Object)null) && wreckProp.CountsTowardStageWreck && ((Component)wreckProp).gameObject.activeInHierarchy)
+				{
+					stageTotalDestructibleCount++;
+				}
+			}
 			stageAdvanceDestroyTarget = GetStageAdvanceDestroyTarget();
 		}
 
@@ -312,7 +321,7 @@ namespace AlienCrusher.Systems
 			ResolvePlayerController();
 			cachedPlayerController?.ApplyCounterSurge(1.04f, 1.08f, 0.9f);
 			feedbackSystem?.PlayComboRushFeedback(val + Vector3.up * 0.18f, 0.48f, 3.2f);
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(0.24f);
 		}
 		private void TriggerEarlyCrushFlowBonus(int bonusIndex)
@@ -350,7 +359,11 @@ namespace AlienCrusher.Systems
 					ResolvePlayerController();
 					cachedPlayerController?.ApplyCounterSurge(1.08f, 1.12f, 1.15f);
 					feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.24f, 0.62f, major: false);
-					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+					feedbackSystem?.PlayRouteOpenCue(0.62f);
+					Vector3 openTrailAim = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : val + Vector3.forward * 6f;
+					RouteOpenTrailVfx.Play(val + Vector3.up * 0.08f, openTrailAim);
+					LaneBreakResidualVfx.Play(val + Vector3.up * 0.06f);
+					cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.AddImpulse(0.32f);
 				}
 			}
@@ -384,8 +397,10 @@ namespace AlienCrusher.Systems
 			ResolvePlayerController();
 			cachedPlayerController?.ApplyCounterSurge(1.05f, 1.1f, Mathf.Max(0.3f, routeHoldCounterDuration));
 			feedbackSystem?.PlayCounterSurgeFeedback(val + Vector3.up * 0.2f, 0.58f, major: false);
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(0.28f);
+			Vector3 holdPulseAim = ((Object)(object)activeStageAdvanceRouteMarker != (Object)null) ? activeStageAdvanceRouteMarker.position : val;
+			RouteHoldSuccessVfx.Play(val + Vector3.up * 0.22f, holdPulseAim);
 		}
 		private void EvaluateStageAdvanceMilestones(int destroyedCount)
 		{
@@ -550,7 +565,8 @@ namespace AlienCrusher.Systems
 			Vector3 val = position + Vector3.up * 0.28f;
 			feedbackSystem?.PlayTotalDestructionFeedback(val, 0.8f);
 			feedbackSystem?.PlayComboRushFeedback(val, 0.72f, 4.8f);
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			RouteBonusSuccessVfx.Play(val);
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(Mathf.Max(0.1f, stageAdvanceRouteRewardCameraImpulse));
 			string districtLabel = GetRouteDistrictPayoffLabel();
 			damageNumberSystem?.ShowTag(val + Vector3.up * 1.05f, $"{districtLabel} +{Mathf.Max(0, stageAdvanceRouteRewardScore):0}", true);
@@ -612,6 +628,159 @@ namespace AlienCrusher.Systems
 			return new Color(0.84f, 0.78f, 1f, 1f);
 		}
 
+		private const string PayoffParkCutLayout = "PAYOFF_ParkCut_Layout";
+		private const string PayoffMarketChainLayout = "PAYOFF_MarketChain_Layout";
+		private const string PayoffYardBlastLayout = "PAYOFF_YardBlast_Layout";
+		private const string PayoffPowerSurgeLayout = "PAYOFF_PowerSurge_Layout";
+		private const string PayoffSkylineBreachLayout = "PAYOFF_SkylineBreach_Layout";
+
+		private string GetRouteDistrictPayoffLayoutId()
+		{
+			int stage = Mathf.Max(1, currentStageNumber);
+			if (stage <= 1)
+			{
+				return "PAYOFF_StarterCluster_Layout";
+			}
+			if (stage == 2)
+			{
+				return PayoffParkCutLayout;
+			}
+			if (stage <= 4)
+			{
+				return PayoffMarketChainLayout;
+			}
+			if (stage == 5)
+			{
+				return PayoffYardBlastLayout;
+			}
+			if (stage == 6)
+			{
+				return PayoffPowerSurgeLayout;
+			}
+			if (stage >= 7)
+			{
+				return PayoffSkylineBreachLayout;
+			}
+			return "PAYOFF_StarterCluster_Layout";
+		}
+
+		private Vector3 GetDistrictPayoffMarkerOffset(int slot)
+		{
+			string layout = GetRouteDistrictPayoffLayoutId();
+			if (layout == PayoffParkCutLayout)
+			{
+				return slot switch
+				{
+					0 => new Vector3(-2.35f, 0f, 0.35f),
+					1 => new Vector3(2.35f, 0f, 0.55f),
+					_ => new Vector3(0f, 0f, 2.7f),
+				};
+			}
+			if (layout == PayoffMarketChainLayout)
+			{
+				return slot switch
+				{
+					0 => new Vector3(-0.55f, 0.48f, 0.55f),
+					1 => new Vector3(0.15f, 0.51f, 1.35f),
+					_ => new Vector3(0.7f, 0f, 2.05f),
+				};
+			}
+			if (layout == PayoffYardBlastLayout)
+			{
+				return slot switch
+				{
+					0 => new Vector3(-2.85f, 0f, 0.25f),
+					1 => new Vector3(2.85f, 0f, 0.45f),
+					_ => new Vector3(0f, 0f, 3.35f),
+				};
+			}
+			if (layout == PayoffPowerSurgeLayout)
+			{
+				return slot switch
+				{
+					0 => new Vector3(-0.12f, 0f, 1.05f),
+					1 => new Vector3(0.16f, 0f, 2.55f),
+					_ => new Vector3(0.08f, 0f, 4.15f),
+				};
+			}
+			if (layout == PayoffSkylineBreachLayout)
+			{
+				return slot switch
+				{
+					0 => new Vector3(-2.05f, 0f, 0.85f),
+					1 => new Vector3(2.25f, 0f, 1.55f),
+					_ => new Vector3(0.95f, 0f, 2.85f),
+				};
+			}
+			return slot switch
+			{
+				0 => new Vector3(-1.1f, 0f, 1.1f),
+				1 => new Vector3(1.05f, 0f, 1.35f),
+				_ => new Vector3(0f, 0f, 2.2f),
+			};
+		}
+
+		private Vector3 GetDistrictPayoffClusterOffset(int index, int propCount, float radius)
+		{
+			string layout = GetRouteDistrictPayoffLayoutId();
+			float t = propCount <= 1 ? 0f : (float)index / (propCount - 1);
+			if (layout == PayoffParkCutLayout)
+			{
+				if (index == 0)
+				{
+					return new Vector3(-radius * 0.82f, 0f, radius * 0.1f);
+				}
+				if (index == 1)
+				{
+					return new Vector3(radius * 0.82f, 0f, radius * 0.2f);
+				}
+				float along = Mathf.Lerp(0.42f, 1.02f, (index - 1f) / Mathf.Max(1, propCount - 2));
+				return new Vector3(((index % 2 == 0) ? -0.16f : 0.16f) * radius, 0f, radius * along);
+			}
+			if (layout == PayoffMarketChainLayout)
+			{
+				return new Vector3(-radius * 0.2f + t * radius * 0.4f, 0f, Mathf.Lerp(0.16f, 0.78f, t) * radius);
+			}
+			if (layout == PayoffYardBlastLayout)
+			{
+				float angle = (90f * index + 38f) * Mathf.Deg2Rad;
+				return new Vector3(Mathf.Cos(angle) * radius * 1.05f, 0f, Mathf.Sin(angle) * radius * 0.98f);
+			}
+			if (layout == PayoffPowerSurgeLayout)
+			{
+				return new Vector3(((index % 2 == 0) ? -0.14f : 0.2f) * radius, 0f, Mathf.Lerp(0.12f, 1.32f, t) * radius);
+			}
+			if (layout == PayoffSkylineBreachLayout)
+			{
+				if (index == 0)
+				{
+					return new Vector3(radius * 0.7f, 0f, radius * 0.52f);
+				}
+				float angle = (205f + 88f * (index - 1)) * Mathf.Deg2Rad;
+				return new Vector3(Mathf.Cos(angle) * radius * 0.8f, 0f, Mathf.Sin(angle) * radius * 0.52f);
+			}
+			float fallbackAngle = ((360f / Mathf.Max(1, propCount)) * index + currentStageNumber * 19f) * Mathf.Deg2Rad;
+			float ringScale = (index % 2 == 0) ? 1f : 0.72f;
+			return new Vector3(Mathf.Cos(fallbackAngle) * radius * ringScale, 0f, Mathf.Sin(fallbackAngle) * radius * 0.78f * ringScale);
+		}
+
+		private void EnsurePayoffLayoutNote(Transform parent, Vector3 localPosition)
+		{
+			if ((Object)(object)parent == (Object)null)
+			{
+				return;
+			}
+			string layoutId = GetRouteDistrictPayoffLayoutId();
+			Transform existing = FindChildByName(parent, layoutId);
+			if ((Object)(object)existing == (Object)null)
+			{
+				GameObject note = new GameObject(layoutId);
+				note.transform.SetParent(parent, false);
+				existing = note.transform;
+			}
+			existing.localPosition = localPosition;
+		}
+
 		private void SpawnStageAdvanceRewardProps(Transform marker)
 		{
 			if ((Object)(object)marker == (Object)null)
@@ -630,29 +799,36 @@ namespace AlienCrusher.Systems
 			}
 			Vector3 localPosition = marker.localPosition;
 			Color payoffColor = GetRouteDistrictPayoffColor();
+			EnsurePayoffLayoutNote(val2, localPosition);
 			if (currentStageNumber <= 2)
 			{
-				EnsureCommercialBenchRuntime(val2, $"RouteRewardBench_{currentStageNumber:00}", localPosition + new Vector3(-1.1f, 0f, 1.1f), payoffColor);
-				EnsureStreetTreeRuntime(val2, $"RouteRewardTree_{currentStageNumber:00}", localPosition + new Vector3(1.05f, 0f, 1.35f), Color.Lerp(payoffColor, Color.white, 0.15f));
-				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + new Vector3(0f, 0f, 2.2f), Color.Lerp(payoffColor, new Color(1f, 0.52f, 0.2f), 0.35f));
+				EnsureCommercialBenchRuntime(val2, $"RouteRewardBench_{currentStageNumber:00}", localPosition + GetDistrictPayoffMarkerOffset(0), payoffColor);
+				EnsureStreetTreeRuntime(val2, $"RouteRewardTree_{currentStageNumber:00}", localPosition + GetDistrictPayoffMarkerOffset(1), Color.Lerp(payoffColor, Color.white, 0.15f));
+				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + GetDistrictPayoffMarkerOffset(2), Color.Lerp(payoffColor, new Color(1f, 0.52f, 0.2f), 0.35f));
 			}
 			else if (currentStageNumber <= 4)
 			{
-				EnsureCommercialKioskRuntime(val2, $"RouteRewardKiosk_{currentStageNumber:00}", localPosition + new Vector3(-1.25f, 0.48f, 1.05f), new Vector3(0.72f, 0.72f, 0.62f), payoffColor);
-				EnsureCommercialVendingRuntime(val2, $"RouteRewardVending_{currentStageNumber:00}", localPosition + new Vector3(1.15f, 0.51f, 1.25f), Color.Lerp(payoffColor, Color.white, 0.12f));
-				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + new Vector3(0f, 0f, 2.15f), Color.Lerp(payoffColor, new Color(1f, 0.46f, 0.18f), 0.45f));
+				EnsureCommercialKioskRuntime(val2, $"RouteRewardKiosk_{currentStageNumber:00}", localPosition + GetDistrictPayoffMarkerOffset(0), new Vector3(0.72f, 0.72f, 0.62f), payoffColor);
+				EnsureCommercialVendingRuntime(val2, $"RouteRewardVending_{currentStageNumber:00}", localPosition + GetDistrictPayoffMarkerOffset(1), Color.Lerp(payoffColor, Color.white, 0.12f));
+				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + GetDistrictPayoffMarkerOffset(2), Color.Lerp(payoffColor, new Color(1f, 0.46f, 0.18f), 0.45f));
 			}
 			else if (currentStageNumber == 5)
 			{
-				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + new Vector3(-1.25f, 0f, 1.1f), payoffColor);
-				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_B", localPosition + new Vector3(1.15f, 0f, 1.28f), Color.Lerp(payoffColor, Color.white, 0.1f));
-				EnsureTransformerRuntime(val2, $"RouteRewardTransformer_{currentStageNumber:00}", localPosition + new Vector3(0f, 0f, 2.25f), Color.Lerp(payoffColor, new Color(1f, 0.82f, 0.36f), 0.32f));
+				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + GetDistrictPayoffMarkerOffset(0), payoffColor);
+				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_B", localPosition + GetDistrictPayoffMarkerOffset(1), Color.Lerp(payoffColor, Color.white, 0.1f));
+				EnsureTransformerRuntime(val2, $"RouteRewardTransformer_{currentStageNumber:00}", localPosition + GetDistrictPayoffMarkerOffset(2), Color.Lerp(payoffColor, new Color(1f, 0.82f, 0.36f), 0.32f));
+			}
+			else if (currentStageNumber == 6)
+			{
+				EnsureTransformerRuntime(val2, $"RouteRewardTransformer_{currentStageNumber:00}_A", localPosition + GetDistrictPayoffMarkerOffset(0), payoffColor);
+				EnsureTransformerRuntime(val2, $"RouteRewardTransformer_{currentStageNumber:00}_B", localPosition + GetDistrictPayoffMarkerOffset(1), Color.Lerp(payoffColor, Color.white, 0.16f));
+				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + GetDistrictPayoffMarkerOffset(2), Color.Lerp(payoffColor, new Color(1f, 0.62f, 0.2f), 0.38f));
 			}
 			else
 			{
-				EnsureTransformerRuntime(val2, $"RouteRewardTransformer_{currentStageNumber:00}_A", localPosition + new Vector3(-1.15f, 0f, 1.25f), payoffColor);
-				EnsureTransformerRuntime(val2, $"RouteRewardTransformer_{currentStageNumber:00}_B", localPosition + new Vector3(1.05f, 0f, 1.38f), Color.Lerp(payoffColor, Color.white, 0.16f));
-				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + new Vector3(0f, 0f, 2.25f), Color.Lerp(payoffColor, new Color(1f, 0.62f, 0.2f), 0.38f));
+				EnsureTransformerRuntime(val2, $"RouteRewardTransformer_{currentStageNumber:00}_A", localPosition + GetDistrictPayoffMarkerOffset(0), payoffColor);
+				EnsureTransformerRuntime(val2, $"RouteRewardTransformer_{currentStageNumber:00}_B", localPosition + GetDistrictPayoffMarkerOffset(1), Color.Lerp(payoffColor, Color.white, 0.16f));
+				EnsureExplosiveBarrelRuntime(val2, $"RouteRewardBarrel_{currentStageNumber:00}_A", localPosition + GetDistrictPayoffMarkerOffset(2), Color.Lerp(payoffColor, new Color(1f, 0.62f, 0.2f), 0.38f));
 			}
 		}
 
@@ -697,6 +873,7 @@ namespace AlienCrusher.Systems
 			Vector3 val2 = ((Component)val).transform.position + Vector3.up * Mathf.Max(1f, ((Component)val).transform.lossyScale.y * 0.75f);
 			damageNumberSystem?.ShowTag(val2, GetRouteDistrictPayoffLabel(), true);
 			feedbackSystem?.PlayComboRushFeedback(((Component)val).transform.position + Vector3.up * 0.22f, 0.62f, 5.6f);
+			RouteChasePulseVfx.Play(marker.position, ((Component)val).transform.position);
 		}
 
 		private void SpawnForwardSmashRewardCluster(DummyDestructibleBlock targetBlock)
@@ -724,9 +901,7 @@ namespace AlienCrusher.Systems
 			Color payoffColor = GetRouteDistrictPayoffColor();
 			for (int i = 0; i < propCount; i++)
 			{
-				float angle = ((360f / (float)propCount) * i + currentStageNumber * 19f) * Mathf.Deg2Rad;
-				float ringScale = (i % 2 == 0) ? 1f : 0.72f;
-				Vector3 offset = new Vector3(Mathf.Cos(angle) * radius * ringScale, 0f, Mathf.Sin(angle) * radius * 0.78f * ringScale);
+				Vector3 offset = GetDistrictPayoffClusterOffset(i, propCount, radius);
 				string suffix = $"{currentStageNumber:00}_{i:00}";
 				if (currentStageNumber <= 2)
 				{
@@ -789,6 +964,7 @@ namespace AlienCrusher.Systems
 					EnsureExplosiveBarrelRuntime(streetPropsRoot, $"RouteClusterBarrel_{suffix}", localCenter + offset, Color.Lerp(new Color(1f, 0.52f, 0.2f), payoffColor, (float)i / Mathf.Max(1, propCount - 1)));
 				}
 			}
+			EnsurePayoffLayoutNote(streetPropsRoot, localCenter);
 			SpawnSkylineRouteClusterAnchor(mapRoot, worldCenter, radius);
 
 			Transform groundDetailsRoot = FindChildByName(mapRoot, "GroundDetails");
@@ -796,14 +972,7 @@ namespace AlienCrusher.Systems
 			{
 				return;
 			}
-			Vector3 markerLocal = groundDetailsRoot.InverseTransformPoint(worldCenter);
-			markerLocal.y = 0.035f;
-			GameObject marker = EnsurePrimitive(groundDetailsRoot, $"RouteClusterMarker_{currentStageNumber:00}", PrimitiveType.Cylinder, markerLocal, new Vector3(radius * 1.15f, 0.018f, radius * 1.15f), Color.Lerp(payoffColor, Color.white, 0.14f));
-			Collider markerCollider = marker.GetComponent<Collider>();
-			if ((Object)(object)markerCollider != (Object)null)
-			{
-				markerCollider.enabled = false;
-			}
+			RouteClusterMarkerVfx.EnsureRouteClusterMarker(groundDetailsRoot, worldCenter, radius, payoffColor, GetRouteDistrictPayoffLayoutId());
 		}
 
 		private void SpawnSkylineRouteClusterAnchor(Transform mapRoot, Vector3 worldCenter, float radius)
@@ -817,7 +986,7 @@ namespace AlienCrusher.Systems
 			{
 				return;
 			}
-			Vector3 local = cityBlocksRoot.InverseTransformPoint(worldCenter + new Vector3(0f, 0f, Mathf.Max(1.8f, radius * 0.55f)));
+			Vector3 local = cityBlocksRoot.InverseTransformPoint(worldCenter + new Vector3(radius * 0.68f, 0f, radius * 0.38f));
 			float height = Mathf.Lerp(2.4f, 3.6f, Mathf.Clamp01((currentStageNumber - 7) * 0.25f));
 			local.y = height * 0.5f;
 			EnsureDestructiblePrimitive(cityBlocksRoot, $"RouteClusterSkylineAnchor_{currentStageNumber:00}", PrimitiveType.Cube, local, new Vector3(1.15f, height, 1.05f), GetRouteDistrictPayoffColor(), 5);
@@ -850,7 +1019,8 @@ namespace AlienCrusher.Systems
 			PushAnnouncement($"FORWARD SMASH +{num:0}", AnnouncementTone.Destruction, 1.15f);
 			feedbackSystem?.PlayTotalDestructionFeedback(position + Vector3.up * 0.26f, 0.92f);
 			feedbackSystem?.PlayComboRushFeedback(position + Vector3.up * 0.18f, 0.88f, Mathf.Max(3.2f, forwardSmashBonusRadius));
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			ForwardSmashConfirmVfx.Play(position);
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.AddImpulse(0.95f);
 			TriggerForwardSmashChain(position);
 			forwardSmashTargetBlock = null;
@@ -922,7 +1092,7 @@ namespace AlienCrusher.Systems
 			{
 				yield return new WaitForSecondsRealtime(num);
 			}
-			cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+			cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 			cameraFollowSystem?.PlayFinishShot(center + Vector3.up * 0.45f, 0.8f);
 			cameraFollowSystem?.AddImpulse(0.85f);
 			feedbackSystem?.PlayTotalDestructionFeedback(center + Vector3.up * 0.24f, 0.74f);
@@ -1028,7 +1198,7 @@ namespace AlienCrusher.Systems
 		private void RefreshDestructibleCache()
 		{
 			destructibleCache.Clear();
-			DummyDestructibleBlock[] array = Object.FindObjectsByType<DummyDestructibleBlock>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			DummyDestructibleBlock[] array = Object.FindObjectsByType<DummyDestructibleBlock>((FindObjectsInactive)1);
 			foreach (DummyDestructibleBlock dummyDestructibleBlock in array)
 			{
 				if (!((Object)(object)dummyDestructibleBlock == (Object)null))

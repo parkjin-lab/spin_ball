@@ -41,7 +41,7 @@ namespace AlienCrusher.EditorTools
             CheckRequiredComponent<FormUnlockSystem>(report, ref warnings, "FormUnlockSystem");
             CheckRequiredComponent<CameraFollowSystem>(report, ref warnings, "CameraFollowSystem");
 
-            var flow = Object.FindFirstObjectByType<DummyFlowController>();
+            var flow = Object.FindAnyObjectByType<DummyFlowController>();
             if (flow != null)
             {
                 ValidateRouteHoldSettings(flow, report, ref warnings);
@@ -113,7 +113,7 @@ namespace AlienCrusher.EditorTools
 
         private static void CheckRequiredComponent<T>(StringBuilder report, ref int count, string label) where T : Object
         {
-            if (Object.FindFirstObjectByType<T>() != null)
+            if (Object.FindAnyObjectByType<T>() != null)
             {
                 report.AppendLine($"OK: {label}");
                 return;

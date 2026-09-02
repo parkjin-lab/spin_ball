@@ -69,14 +69,14 @@ namespace AlienCrusher.Systems
 				scoreSystem?.AddScore(num5);
 			}
 
-			damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
+			damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
 			if (damageNumberSystem != null)
 			{
 				string text = BuildAlleyLineTag(info.Kind, alleyLineChainCount, num5);
 				damageNumberSystem.ShowTag(info.Position + Vector3.up * 0.9f, text, alleyLineChainCount >= Mathf.Max(num4 + 1, alleyLineJackpotHits - 1));
 			}
 
-			feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+			feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
 			if (feedbackSystem != null)
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.34f + (float)alleyLineChainCount * 0.1f + info.Impact01 * 0.2f);
@@ -117,13 +117,13 @@ namespace AlienCrusher.Systems
 				scoreSystem?.AddScore(bonusScore);
 			}
 
-			damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
+			damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
 			if (damageNumberSystem != null)
 			{
 				damageNumberSystem.ShowRetailTag(info.Position + Vector3.up * 1.22f, $"STRIP CLEAR +{bonusScore}", true);
 			}
 
-			feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+			feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
 			if (feedbackSystem != null)
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.72f + (float)Mathf.Max(0, alleyLineChainCount - requiredHits) * 0.05f + info.Impact01 * 0.18f);
@@ -151,13 +151,13 @@ namespace AlienCrusher.Systems
 				scoreSystem?.AddScore(stripClearMissionScoreAwarded);
 			}
 
-			damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
+			damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
 			if (damageNumberSystem != null)
 			{
 				damageNumberSystem.ShowRetailTag(info.Position + Vector3.up * 1.32f, $"MISSION CLEAR +{stripClearMissionScoreAwarded}", true);
 			}
 
-			feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+			feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
 			if (feedbackSystem != null)
 			{
 				feedbackSystem.PlayRetailFrenzyFeedback(info.Position + Vector3.up * 0.28f, 1f, 6.4f);
@@ -213,13 +213,13 @@ namespace AlienCrusher.Systems
 					scoreSystem?.AddScore(activationScore);
 				}
 
-				damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
+				damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
 				if (damageNumberSystem != null)
 				{
 					damageNumberSystem.ShowRetailTag(info.Position + Vector3.up * 1.15f, $"RETAIL FRENZY +{activationScore}", true);
 				}
 
-				feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
 				if (feedbackSystem != null)
 				{
 					float normalizedIntensity2 = Mathf.Clamp01(0.64f + info.Impact01 * 0.26f);
@@ -248,13 +248,13 @@ namespace AlienCrusher.Systems
 				scoreSystem?.AddScore(hitScore);
 			}
 
-			damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
+			damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
 			if (damageNumberSystem != null)
 			{
 				damageNumberSystem.ShowRetailTag(info.Position + Vector3.up * 1.02f, BuildRetailFrenzyTag(info.Kind, hitScore), alleyLineChainCount >= Mathf.Max(triggerHits + 1, retailFrenzyJackpotHits - 1));
 			}
 
-			feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+			feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
 			if (feedbackSystem != null)
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.46f + (float)Mathf.Max(0, alleyLineChainCount - 1) * 0.08f + info.Impact01 * 0.22f);

@@ -4,7 +4,14 @@ param(
     [string]$ProgressionCorePath = "",
     [string]$RuntimeMapPath = "",
     [string]$UiFlowPath = "",
-    [string]$StageChecklistPath = ""
+    [string]$StageChecklistPath = "",
+    [string]$ClusterMarkerVfxPath = "",
+    [string]$HoldSuccessVfxPath = "",
+    [string]$RouteOpenTrailVfxPath = "",
+    [string]$LaneBreakResidualVfxPath = "",
+    [string]$RouteChasePulseVfxPath = "",
+    [string]$RouteHoldWarningVfxPath = "",
+    [string]$RouteBonusSuccessVfxPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,6 +62,13 @@ $progressionCoreSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -Over
 $runtimeMapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RuntimeMapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RuntimeMapFallback.cs"
 $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UiFlowPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UIFlow.cs"
 $stageChecklistSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageChecklistPath -RelativePath "Tools\GenerateStagePlaytestChecklist.ps1"
+$clusterMarkerVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ClusterMarkerVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteClusterMarkerVfx.cs"
+$holdSuccessVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $HoldSuccessVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteHoldSuccessVfx.cs"
+$routeOpenTrailVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RouteOpenTrailVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteOpenTrailVfx.cs"
+$laneBreakResidualVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $LaneBreakResidualVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\LaneBreakResidualVfx.cs"
+$routeChasePulseVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RouteChasePulseVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteChasePulseVfx.cs"
+$routeHoldWarningVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RouteHoldWarningVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteHoldWarningVfx.cs"
+$routeBonusSuccessVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RouteBonusSuccessVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteBonusSuccessVfx.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherRoutePayoffLayoutChecklist.md"
@@ -72,6 +86,14 @@ $progressionCoreText = Read-SourceText -Path $progressionCoreSourcePath
 $runtimeMapText = Read-SourceText -Path $runtimeMapSourcePath
 $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
 $stageChecklistText = Read-SourceText -Path $stageChecklistSourcePath
+$clusterMarkerVfxText = Read-SourceText -Path $clusterMarkerVfxSourcePath
+$holdSuccessVfxText = Read-SourceText -Path $holdSuccessVfxSourcePath
+$routeOpenTrailVfxText = Read-SourceText -Path $routeOpenTrailVfxSourcePath
+$laneBreakResidualVfxText = Read-SourceText -Path $laneBreakResidualVfxSourcePath
+$routeChasePulseVfxText = Read-SourceText -Path $routeChasePulseVfxSourcePath
+$routeHoldWarningVfxText = Read-SourceText -Path $routeHoldWarningVfxSourcePath
+$routeBonusSuccessVfxText = Read-SourceText -Path $routeBonusSuccessVfxSourcePath
+$allRoutePayoffHookText = $progressionCoreText + $runtimeMapText + $uiFlowText + $clusterMarkerVfxText + $holdSuccessVfxText + $routeOpenTrailVfxText + $laneBreakResidualVfxText + $routeChasePulseVfxText + $routeHoldWarningVfxText + $routeBonusSuccessVfxText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -79,17 +101,86 @@ foreach ($needle in @(
     "ROUTE BONUS ->",
     "GetRouteDistrictPayoffLabel",
     "GetRouteDistrictPayoffColor",
+    "GetRouteDistrictPayoffLayoutId",
+    "PAYOFF_ParkCut_Layout",
+    "PAYOFF_MarketChain_Layout",
+    "PAYOFF_YardBlast_Layout",
+    "PAYOFF_PowerSurge_Layout",
+    "PAYOFF_SkylineBreach_Layout",
+    "GetDistrictPayoffClusterOffset",
     "SpawnStageAdvanceRewardProps",
     "PreviewStageAdvanceFollowupTarget",
     "SpawnForwardSmashRewardCluster",
     "SpawnSkylineRouteClusterAnchor",
     "EvaluateForwardSmashBonus",
+    "EvaluateRouteHoldBonus",
+    "RouteHoldSuccessVfx",
+    "RouteOpenTrailVfx",
+    "LaneBreakResidualVfx",
+    "RouteChasePulseVfx",
+    "RouteBonusSuccessVfx",
     "FORWARD SMASH +",
     "RouteClusterMarker",
     "routeRewardClusterRadius",
     "routeRewardClusterPropCount"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $progressionCoreText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteCluster_Marker",
+    "RouteClusterMarker",
+    "EnsureRouteClusterMarker"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $clusterMarkerVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteHold_Success",
+    "RouteHoldSuccessVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $holdSuccessVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteOpen_Trail",
+    "RouteOpenTrailVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $routeOpenTrailVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_LaneBreak_Residual",
+    "LaneBreakResidualVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $laneBreakResidualVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteChase_Pulse",
+    "RouteChasePulseVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $routeChasePulseVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteHold_Warning",
+    "RouteHoldWarningVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $routeHoldWarningVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "RouteHoldWarningVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $uiFlowText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_RouteBonus_Success",
+    "RouteBonusSuccessVfx"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $routeBonusSuccessVfxText -Needle $needle
 }
 
 foreach ($needle in @(
@@ -109,8 +200,7 @@ foreach ($needle in @(
 }
 
 foreach ($needle in @(
-    "Smash opened cluster",
-    "FORWARD TARGET",
+    "OPEN  BEACON",
     "SMASH"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $uiFlowText -Needle $needle
@@ -132,7 +222,13 @@ $layoutCatalog = @(
     [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 6"; Payoff = "Power Surge"; RuntimeLabel = "POWER SURGE OPEN"; LayoutRule = "transformer corridor with one barrel punctuation"; Asset = "PAYOFF_PowerSurge_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
     [pscustomobject]@{ Priority = "P0"; StageBand = "Stage 7"; Payoff = "Skyline Breach"; RuntimeLabel = "SKYLINE BREACH OPEN"; LayoutRule = "asymmetric anchor-first tower plus transformer/barrel ring"; Asset = "PAYOFF_SkylineBreach_Layout"; Folder = "Assets/Art/Layouts/RoutePayoff/" },
     [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Route Cluster Marker"; RuntimeLabel = "RouteClusterMarker"; LayoutRule = "floor read that frames the opened cluster without hiding props"; Asset = "VFX_RouteCluster_Marker"; Folder = "Assets/Art/VFX/Route/" },
-    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Smash Confirmation"; RuntimeLabel = "FORWARD SMASH"; LayoutRule = "impact ring and camera beat stronger than route open, weaker than boss down"; Asset = "VFX_ForwardSmash_Confirm"; Folder = "Assets/Art/VFX/Route/" }
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Smash Confirmation"; RuntimeLabel = "FORWARD SMASH"; LayoutRule = "impact ring and camera beat stronger than route open, weaker than boss down"; Asset = "VFX_ForwardSmash_Confirm"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "HOLD Success Pulse"; RuntimeLabel = "ROUTE HOLD"; LayoutRule = "gold-cyan lock ring at HOLD clear that aims at ROUTE BONUS without using smash-star or combo ticks"; Asset = "VFX_RouteHold_Success"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "ROUTE OPEN Trail Pulse"; RuntimeLabel = "ROUTE OPEN"; LayoutRule = "magenta path dashes that race toward the beacon when LANE BREAK flips to ROUTE OPEN"; Asset = "VFX_RouteOpen_Trail"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "LANE BREAK Residual Flash"; RuntimeLabel = "LANE BREAK"; LayoutRule = "tiny ivory-ash residual crack at the wreck that completed LANE BREAK"; Asset = "VFX_LaneBreak_Residual"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "Forward Chase Pulse"; RuntimeLabel = "SMASH / FORWARD TARGET"; LayoutRule = "cobalt wedges that pull from the opened cluster toward the next smash target"; Asset = "VFX_RouteChase_Pulse"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "HOLD Warning Pulse"; RuntimeLabel = "ROUTE HOLD CLOSING"; LayoutRule = "rose inward ticks at the beacon when HOLD is closing, not the gold-cyan success lock"; Asset = "VFX_RouteHold_Warning"; Folder = "Assets/Art/VFX/Route/" },
+    [pscustomobject]@{ Priority = "P1"; StageBand = "Global"; Payoff = "ROUTE BONUS Success Pulse"; RuntimeLabel = "ROUTE BONUS"; LayoutRule = "amethyst bloom plus upward petals at the opened cluster, not chase wedges or smash star"; Asset = "VFX_RouteBonus_Success"; Folder = "Assets/Art/VFX/Route/" }
 )
 
 $productionBatches = @(
@@ -153,6 +249,42 @@ $productionBatches = @(
         Goal = "make the cash-out beat feel earned after route reading"
         Targets = @("VFX_ForwardSmash_Confirm", "SFX_Route_Bonus")
         Acceptance = "Forward Smash feels bigger than a normal break and shorter than boss down or stage clear"
+    },
+    [pscustomobject]@{
+        Batch = "D. HOLD success pulse"
+        Goal = "make ROUTE HOLD clear read as a distinct flip into ROUTE BONUS / Forward Smash"
+        Targets = @("VFX_RouteHold_Success")
+        Acceptance = "HOLD success shows a gold-cyan lock ring that is not combo ticks, Overdrive chevrons, or the smash star"
+    },
+    [pscustomobject]@{
+        Batch = "E. ROUTE OPEN trail pulse"
+        Goal = "make LANE BREAK -> ROUTE OPEN read as a path opening toward the beacon"
+        Targets = @("VFX_RouteOpen_Trail")
+        Acceptance = "ROUTE OPEN shows magenta path dashes that are not HOLD lock ring, smash star, combo ticks, or Overdrive chevrons"
+    },
+    [pscustomobject]@{
+        Batch = "F. LANE BREAK residual flash"
+        Goal = "leave a tiny residual impact mark on the wreck that completed LANE BREAK"
+        Targets = @("VFX_LaneBreak_Residual")
+        Acceptance = "LANE BREAK shows a short ivory-ash crack flash that is not OPEN dashes, HOLD lock ring, smash star, combo ticks, or Overdrive chevrons"
+    },
+    [pscustomobject]@{
+        Batch = "G. Forward chase pulse"
+        Goal = "make the opened cluster pull the player forward to the next smash target"
+        Targets = @("VFX_RouteChase_Pulse")
+        Acceptance = "ROUTE BONUS chase shows cobalt wedges toward the smash target that are not OPEN dashes, HOLD lock ring, smash star, combo ticks, Overdrive chevrons, or LANE BREAK residual"
+    },
+    [pscustomobject]@{
+        Batch = "H. HOLD warning pulse"
+        Goal = "make ROUTE HOLD CLOSING read as sustain pressure at the beacon before success"
+        Targets = @("VFX_RouteHold_Warning")
+        Acceptance = "HOLD closing shows rose inward ticks at the beacon that are not HOLD lock ring, OPEN dashes, smash star, combo ticks, Overdrive chevrons, chase wedges, LANE BREAK residual, or boss warning ring"
+    },
+    [pscustomobject]@{
+        Batch = "I. ROUTE BONUS success pulse"
+        Goal = "make ROUTE BONUS open read as a confirmation beat at the cluster itself"
+        Targets = @("VFX_RouteBonus_Success")
+        Acceptance = "ROUTE BONUS shows an amethyst cluster bloom that is not chase wedges, smash star, HOLD lock ring, OPEN dashes, LANE BREAK residual, combo ticks, or Overdrive chevrons"
     }
 )
 
@@ -227,7 +359,8 @@ $lines.Add("## Current Route Payoff Layout Targets")
 $lines.Add("| Priority | Stage band | Payoff | Runtime label | Layout rule | Asset | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|---|")
 foreach ($layout in $layoutCatalog) {
-    $lines.Add(("| {0} | {1} | {2} | `{3}` | {4} | `{5}` | `{6}` | [ ] |" -f $layout.Priority, $layout.StageBand, $layout.Payoff, $layout.RuntimeLabel, $layout.LayoutRule, $layout.Asset, $layout.Folder))
+    $doneMark = if ($allRoutePayoffHookText.Contains($layout.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | {1} | {2} | `{3}` | {4} | `{5}` | `{6}` | {7} |" -f $layout.Priority, $layout.StageBand, $layout.Payoff, $layout.RuntimeLabel, $layout.LayoutRule, $layout.Asset, $layout.Folder, $doneMark))
 }
 
 $lines.Add("")

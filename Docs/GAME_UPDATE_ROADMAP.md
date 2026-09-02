@@ -1,6 +1,6 @@
 # Alien Crusher - Game Update Roadmap
 
-Last updated: 2026-08-19
+Last updated: 2026-08-23
 
 This document tracks the current project state, the next production priorities, and the update direction for making the core loop more fun. It should be read with:
 - `Docs/GDD_ALIEN_CRUSHER.md`
@@ -15,20 +15,81 @@ This document tracks the current project state, the next production priorities, 
 
 ## 1. Current Project State
 
+### Street-Prop Density Batch
+Stage 1 (and later stages on the same runtime spawn path) now plants extra A/B/C smashables in existing road-edge gaps between Target_A and Target_B. No Street Props D clutter, no Target_A/B move, no payoff-count or route-timing change.
+
+How to see it: Play Mode Stage 1. Look at curb lamps/cars/kiosks/benches/barrels on the roads between the two orange targets after leaving the opener.
+
+### Qualitative Playtest / HUD Readability Batch
+Creator feel notes from 2026-08-23 (tester 진웅 박) are in `Docs/AlienCrusherStagePlaytestNotes.md`. Fun overall, but growth UI popped too often, HUD/copy was too long, the map felt small/fast, destruction needed more variety, and UI still looked unfinished. This batch shortens HUD/result/lobby labels and stops stacked growth residuals/toasts only. Map size and destruction variety stay later. No invented `F10` telemetry.
+
+How to see it: Play Mode Stage 1. HUD labels should be short (`HOLD 72%  4  8s`, `WRECK n/t`, `SENTINEL`). Result/lobby advice should be one scannable line. A clear should fire one unlock or DP beat, not a residual+toast storm.
+
+### Juice Exhausted / Next Human Action
+Production juice leftovers are exhausted on this PR. Do not invent more micro-pulses, VFX residuals, or lobby confirm flashes.
+
+This branch already ships in-run smash / route / form / district / audio / HUD / boss climax kits, plus outgame leftovers E–M (`VFX_FormEquip_Confirm` through `VFX_NextAction_Residual`). Street Props D, Form Identity D, and Destruction D are already complete. Boss Identity B leftover expose burst stays skipped as a duplicate of Destruction B/C.
+
+Evidence-lock still holds: no route timing, payoff counts, target placement, stage rhythm presets, or boss pressure until `Logs/AlienCrusherPlaytestTelemetry.log` and populated `Docs/AlienCrusherStagePlaytestNotes.md` exist.
+
+**Next to-do:** creator `F10` Stage 1-7 sweep, fill stage notes, save/load smoke. Unattended work should stop inventing juice.
+
+Log pointer: `Logs/AlienCrusherPlaytestTelemetry.log` is still missing. That file plus `Docs/AlienCrusherStagePlaytestNotes.md` are the evidence lock.
+
 ### Implemented Playable Foundation
 - Stage flow exists from lobby into stage start, HUD, level-up choice, result, restart, and next stage.
 - Destruction progression exists through score, chain timing, ball growth, landing shockwave, overdrive, combo rush, retail frenzy, strip clear, traffic panic, seismic bursts, and result feedback.
 - Form and meta progression exist around the current runtime forms `Sphere`, `Spike`, `Ram`, `Saucer`, and `Crusher`, plus meta upgrades such as `SizeCore`, `ImpactCore`, and `DpAmplifier`.
 - LANE BREAK and ROUTE HOLD are wired as the current mid-run tempo layer: route targets, `LANE BREAK -> ROUTE OPEN` feedback, HUD guidance, world beacon, route trail pips, route reward, FORWARD SMASH cluster payoff, result badges, and lobby/meta recommendations are connected.
-- Failure result and lobby recommendation copy now start with one bucket-specific first action before explaining the upgrade reason.
+- Failure result and lobby recommendation copy now use one short scannable label per event instead of stacked first-action / why / next-step paragraphs.
 - Editor/development playtests now emit `[AlienCrusher][Playtest]` console lines and append the same route telemetry to `Logs/AlienCrusherPlaytestTelemetry.log` for `SWEEP_START`, stage start, route open, route hold clear, route bonus, forward smash, stage end, and `SWEEP_END`. ROUTE HOLD telemetry now also samples target distance, closest/average/farthest distance, in-range percentage, and elapsed route time.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` can convert the telemetry log into a markdown report with a current tuning snapshot, rhythm snapshot, `Tune Next` decision block, sweep-level summaries, stage trend rollups, route adherence metrics, tuning candidates, first-pass experiment suggestions, failure bucket actions, and per-run breakdowns for faster Stage 1-7 review.
 - Runtime map rebuilds happen at stage start. Stage 1-7 preserve the original compact-to-skyline curve; Stage 8-10 continue growth from 66m/20x20 to 74m/22x22 without shrinking the earlier layouts.
 - Stage-gated landmark districts now include Stage 2 pocket park, Stage 3 market plaza, Stage 4 Sentinel checkpoint, Stage 5 construction yard, Stage 6 power block, Stage 7 skyline block, Stage 8 transit hub, Stage 9 harbor yard, and Stage 10 civic core.
 - The Stage 8-10 pack adds three distinct late-run destruction rhythms: linear shuttle chain, volatile container/fuel setup, and ring-to-center uplink finale. Stage 9-10 objective density is capped at the Stage 8 baseline so spatial growth does not become a raw workload spike; other balance timing remains evidence-locked.
-- Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade.
-- FeedbackSystem now exposes assignable audio hooks for hit weight, destruction size, combo rise, route open/hold/bonus beats, boss warnings/break/down, and level-up moments. The hooks are silent-safe until clips are assigned, so rhythm work can proceed without blocking on final assets.
-- HUD route/progress/gauge text now uses shorter mobile-safe runtime copy with best-fit safeguards for the main HUD readouts.
+- Stage 4+ boss flow exists around Justice Sentinel, shield pylons, core exposure, break windows, phase 2 drones, pressure pulses, and defeat cascade. Runtime silhouette kits `BOSS_Sentinel_Body_Kit`, `BOSS_Shield_Pylon_Kit`, and `BOSS_Phase2_Drone_Kit` now overlay those three roles so the main body, shield blockers, and phase-2 drones read as separate counts before HUD text.
+- Boss climax feedback now uses named runtime VFX `VFX_Boss_Warning_Ring` and `VFX_Boss_Defeat_Cascade` plus a short vertical break-window burst so inbound warning, CORE EXPOSED, and Sentinel-down release have distinct visual weight. Audio C clips `SFX_Boss_Warning`, `SFX_Boss_Break`, and `SFX_Boss_Down` are reused, not replaced. Shield/exposed/broken still use Destruction B cyan / hot orange / dark cracks. Boss timing, HP, and pulse intervals are unchanged.
+- Route payoff cluster frames now use inspectable draft `VFX_RouteCluster_Marker` at `Assets/Art/VFX/Route/` on a `RouteClusterMarker` host so an opened ROUTE BONUS reads as a mint-slate ring, not a filled disc. Target_A/B, HOLD pips, and `PAL_RouteMarker_Tints` stay the louder nav signal. `routeRewardClusterRadius` and `routeRewardClusterPropCount` are unchanged.
+- Combo rise and Overdrive now use inspectable drafts `VFX_Combo_Rise_Pulse` and `VFX_Overdrive_Pulse` at `Assets/Art/VFX/Combo/`. Combo is a tight lime-gold upward tick burst on CRUSH RUSH; Overdrive is an orange speed ring with flame chevrons around the ball. Audio C `comboRiseClip` stays on the existing combo-rush hook. Combo thresholds, overdrive duration/damage, HUD layout, Icons C Overdrive, Boss C climax VFX, and form kits were not restyled.
+- Forward Smash cash-out now uses inspectable draft `VFX_ForwardSmash_Confirm` at `Assets/Art/VFX/Route/`: a mint-white impact star plus a short broken ring at the smashed follow-up target. Audio A `SFX_Route_Bonus` stays on the existing `PlayTotalDestructionFeedback` hook. Combo/Overdrive pulses and Boss C climax VFX were not restyled. Route radius, payoff counts, and smash damage are unchanged.
+- ROUTE HOLD success now uses named runtime VFX `VFX_RouteHold_Success`: a gold-cyan lock ring plus four ground dashes at the ball, with short aim pips and a marker ping toward the opened ROUTE BONUS / Forward Smash target. Distinct from combo lime ticks, Overdrive orange chevrons, the mint smash star, and Boss C climax VFX. Audio A `routeBonusClip` stays on the existing BONUS/smash hook. HOLD duration, route timing, payoff counts, and marker tints are unchanged.
+- LANE BREAK -> ROUTE OPEN now uses named runtime VFX `VFX_RouteOpen_Trail`: magenta path dashes that race toward the beacon plus an orchid ping. Distinct from HOLD gold-cyan lock ring, smash mint star, combo lime ticks, Overdrive orange chevrons, and Boss C climax VFX. Audio A `routeOpenClip` stays on the existing `PlayRouteOpenCue` hook. Route timing, payoff counts, and marker tints are unchanged.
+- LANE BREAK now also leaves named runtime VFX `VFX_LaneBreak_Residual`: a tiny ivory-ash crack plus a short sliver on the wreck that completed the opener. Distinct from magenta OPEN dashes, HOLD gold-cyan lock ring, smash mint star, combo lime ticks, Overdrive orange chevrons, and Boss C climax VFX. Existing hit/break audio stays on the smash. Route timing, payoff counts, and marker tints are unchanged.
+- ROUTE BONUS chase now uses named runtime VFX `VFX_RouteChase_Pulse`: cobalt wedges racing from the opened cluster toward the next smash target, plus a small ice diamond ping. Distinct from magenta OPEN dashes, HOLD gold-cyan lock ring, smash mint star, combo lime ticks, Overdrive orange chevrons, LANE BREAK ivory-ash residual, and Boss C climax VFX. Existing ROUTE BONUS / combo-rush audio stays on the current hook. Route timing, payoff counts, and marker tints are unchanged.
+- ROUTE HOLD CLOSING now uses named runtime VFX `VFX_RouteHold_Warning`: rose inward ticks plus a blush ping at the HOLD beacon. Distinct from HOLD gold-cyan lock ring, magenta OPEN dashes, smash mint star, combo lime ticks, Overdrive orange chevrons, cobalt chase wedges, LANE BREAK ivory-ash residual, and Boss C rust-amber warning ring. Audio A `routeHoldWarningClip` stays on the existing `PlayHudWarningFeedback` hook. HOLD duration, route timing, and marker tints are unchanged.
+- ROUTE BONUS open now uses named runtime VFX `VFX_RouteBonus_Success`: a small amethyst bloom plus three upward petals at the opened cluster. Distinct from cobalt chase wedges, smash mint star, HOLD gold-cyan lock ring, magenta OPEN dashes, LANE BREAK ivory-ash residual, combo lime ticks, Overdrive orange chevrons, and HOLD warning rose ticks. Audio A `routeBonusClip` stays on the existing `PlayTotalDestructionFeedback` hook. Route timing, payoff counts, and marker tints are unchanged.
+- Route Payoff B–I named VFX now also use inspectable drafts at `Assets/Art/VFX/Route/` (`VFX_RouteCluster_Marker`, `VFX_ForwardSmash_Confirm`, `VFX_RouteHold_Success`, `VFX_RouteOpen_Trail`, `VFX_LaneBreak_Residual`, `VFX_RouteChase_Pulse`, `VFX_RouteHold_Warning`, `VFX_RouteBonus_Success`). Runtime loads those drafts onto the existing slots. Combo/Overdrive pulses now have drafts at `Assets/Art/VFX/Combo/`. HUD/lobby residual pulses were not drafted. Route timing and payoff counts are unchanged.
+- `PAL_RouteMarker_Tints` now locks `Target_A` / `Target_B`, `routeColor`, and HOLD trail pips to a magenta/orchid nav family so route markers stay the highest-contrast signal over district palettes and the new boss kit colors.
+- Core rhythm palettes `PAL_District_StarterResidential`, `PAL_District_MarketPlaza`, `PAL_District_SentinelCheckpoint`, and `PAL_District_SkylineBlock` now tint Stage 1/3/4/7 ground, walls, and landmark pads so those stages do not share one city color. Building tier kits, Icons A/B/C, and route/boss/form numbers are unchanged.
+- Secondary palettes `PAL_District_PocketPark`, `PAL_District_ConstructionYard`, and `PAL_District_PowerBlock` now tint Stage 2/5/6 so the park cut reads calmer, the yard reads blast-payoff, and the power block reads transformer risk. Palette B Stage 1/3/4/7 families and `PAL_RouteMarker_Tints` stay as-is.
+- Ambient stage bands now use named runtime set `PAL_Ambient_StageBands` so Stage 1/4/7 no longer share one cool-gray fill. Ambient stays mid-value so building tiers, orchid/magenta route markers, and payoff props stay readable. District palettes A/B/C, combo/Overdrive pulses, Forward Smash confirm, and Boss C climax VFX were not restyled.
+- FeedbackSystem now exposes assignable audio hooks for hit weight, destruction size, combo rise, route open/hold/bonus beats, boss warnings/break/down, and level-up moments. Route/failure, hit/break, and climax/progression drafts (`SFX_Boss_Warning`, `SFX_Boss_Break`, `SFX_Boss_Down`, `SFX_Combo_Rise`, `SFX_LevelUp_Open`) load at runtime if Inspector slots are empty.
+- Successful lobby unlocks, meta purchases, and form equips now play named draft `SFX_Progression_Confirm`, distinct from the existing dry `SFX_Progression_Locked` fail cue. DP/cost numbers, form stats, and Icons A-D were not restyled. `Toast_ProgressionSaved` still covers save confirm without a modal.
+- Lobby form equip now also uses named runtime VFX `VFX_FormEquip_Confirm`: a short champagne ring pulse on the equipped form card. Distinct from the cyan equipped card frame, result badges, and in-run smash/route VFX. Audio D `SFX_Progression_Confirm` stays on the existing equip hook. DP/cost numbers, form stats, and card layout are unchanged.
+- Leftover `[Outgame Progression] F. Next-run spend change pulse` now ships `VFX_SpendChange_Ready`: a short jade ready plate on the HUD at stage start after a lobby form equip or meta purchase. Distinct from the champagne form-equip ring, result badges, and in-run smash/route VFX. Confirm audio stays on the lobby spend hooks and is not replayed at start. DP/cost numbers and HUD layout are unchanged.
+- Leftover `[Outgame Progression] G. Stage select confirm pulse` now ships `VFX_StageSelect_Confirm`: a short ice-slate bracket pulse on the lobby stage readout when Stage prev/next changes the selected stage. Distinct from the champagne form-equip ring, jade spend-change plate, result badges, unlock banners, and in-run smash/route VFX. Confirm audio is not reused because it does not already play on stage select. Unlock rules and stage list layout are unchanged.
+- Leftover `[Outgame Progression] H. Meta purchase confirm pulse` now ships `VFX_MetaUpgrade_Confirm`: a short copper diamond pulse on the purchased Size / Impact / DP node. Distinct from the champagne form-equip ring, ice-slate stage-select brackets, jade spend-change plate, result badges, and in-run smash/route VFX. Confirm audio stays on the existing spend hook. DP/cost numbers and node layout are unchanged.
+- Leftover `[Audio] D. Failure beat visuals` now uses inspectable drafts `VFX_Failure_Ordinary` and `VFX_Failure_Boss` at `Assets/Art/VFX/Failure/`: ordinary defeat drops a dry umber break, boss-phase defeat drops a heavier steel collapse. Distinct from smash/combo ticks, boss-down cascade, route pulses, and lobby confirm VFX. Failure audio stays on the existing `PlayFailureBeatFeedback` hook. Timing and HP are unchanged.
+- Leftover `[Outgame Progression] I. DP gain residual afterglow` now ships `VFX_DP_Gain_Residual`: a short aqua halo beside the existing `UI_DP_GainBurst` on result/lobby earn so the gain stays readable after the burst. Distinct from the burst sprite, copper meta diamond, champagne form-equip ring, ice-slate stage-select brackets, and in-run smash/route VFX. DP amounts and layout are unchanged.
+- Leftover `[Outgame Progression] J. Result next-action ready pulse` now ships `VFX_NextAction_Ready`: a short lilac caret on the one form-ready, meta-ready, or recommended result badge when result opens. Distinct from the aqua DP residual, copper meta diamond, champagne form-equip ring, ice-slate stage-select brackets, jade spend-change plate, and in-run smash/route VFX. DP/cost numbers and badge layout are unchanged.
+- Leftover `[Outgame Progression] K. Stage unlock banner pulse` now ships `VFX_StageUnlock_Ready`: a short honey-ivory residual afterglow beside the existing `Banner_StageUnlocked` when a first-time stage clear unlocks the next stage. Distinct from the banner sprite, ice-slate stage-select brackets, lilac next-action caret, aqua DP residual, copper meta diamond, champagne form-equip ring, jade spend-change plate, and in-run smash/route VFX. Unlock rules and banner layout are unchanged.
+- Leftover `[Outgame Progression] L. Form unlock confirm pulse` now ships `VFX_FormUnlock_Confirm`: a short periwinkle petal burst on a newly unlocked lobby form card. Distinct from the champagne form-equip ring, cyan equipped frame, honey-ivory stage-unlock residual, lilac next-action caret, aqua DP residual, copper meta diamond, ice-slate stage-select brackets, and in-run smash/route VFX. Unlock costs and form stats are unchanged.
+- Leftover `[Outgame Progression] M. Result next-action residual afterglow` now ships `VFX_NextAction_Residual`: a short pale-orchid halo beside the existing `VFX_NextAction_Ready` caret so the next action stays readable after the caret. Distinct from the caret sprite, periwinkle form-unlock burst, champagne form-equip ring, honey-ivory stage-unlock residual, aqua DP residual, and in-run smash/route VFX. Badge layout is unchanged.
+- Boss-stage success now uses named result badge `Badge_Boss_Clear`, a steel plate with a downward chevron and slit eye, so Sentinel victory does not share the mint district-clear plate. `Badge_Result_Clear`, Icons A-D, HOLD pulse, smash confirm, combo pulses, Boss C climax VFX, and ambient bands were not restyled.
+- Leftover `[Boss Identity] E. Lobby/result Sentinel icon` now ships `Icon_Boss_Sentinel`: a tall steel Sentinel body that appears on lobby Stage 4+ select and on result next-action when the next run is a Sentinel encounter. Distinct from in-run `Icon_Boss` eye-in-frame and `Badge_Boss_Clear` down-chevron. HOLD pulse, smash confirm, combo pulses, climax VFX, ambient bands, and lobby confirm audio were not restyled.
+- Leftover `[UI Icons] E. Failure bucket badges` now swap the result outcome plate by last-run fail reason: `Badge_Fail_Opening`, `Badge_Fail_Hold`, `Badge_Fail_Drift`, `Badge_Fail_Push`, and `Badge_Fail_Boss`. Ordinary leftover fail still uses rust `Badge_Result_Failure`. `Badge_Result_Clear`, `Badge_Boss_Clear`, Icons A-D, route pulses, climax VFX, ambient bands, and lobby confirm audio were not restyled.
+- HUD route/progress/gauge text now uses shorter mobile-safe runtime copy with best-fit safeguards for the main HUD readouts. Run-essential draft icons `Icon_DP`, `Icon_Stage`, `Icon_NextStep`, and `Icon_Route` now appear on the play-mode HUD strip and beside the matching lobby/result labels. Route/boss readability draft icons `Icon_BreakWindow`, `Icon_Shield`, `Icon_WeakPoint`, and `Icon_Boss` now sit on a top-right HUD strip, swap beside Sentinel status, and mark elite weak-point copy without changing HUD strings. Upgrade/chaos status draft icons `Icon_Overdrive`, `Icon_Panic`, `Icon_Seismic`, `Icon_Retail`, and `Icon_Traffic` sit on a compact strip below Icons A and beside chain / upgrade / TRAFFIC labels. Result/lobby draft badges `Badge_Result_Clear`, `Badge_Result_Failure`, `Badge_Locked`, and `Badge_Recommended` mark success, fail, lock, and recommendation without restyling Icons A/B/C or district palettes. Outgame DP economy now uses `UI_DP_GainBurst` plus `SFX_Progression_Locked` so result earn, lobby spend, and insufficient-DP fails read before copy. Form/meta choice and result-to-lobby payoff now use `UI_FormCard_StateSet`, `UI_MetaNode_SizeCore`, `UI_MetaNode_ImpactCore`, `UI_MetaNode_DpAmplifier`, `Badge_FormReady`, `Badge_MetaReady`, `Banner_StageUnlocked`, and `Toast_ProgressionSaved` so lock/unlock, recommended nodes, stage unlock, and save confirm read without restyling Icons A-D. Icon_DP and Icons A-D were not restyled.
+- Sphere now has a designed starter identity: runtime kit `FORM_Sphere_Body_Kit` (cool-green body plus emissive belt), lobby thumbnail `Icon_Form_Sphere`, and SPHERE PULSE cues `Icon_Skill_SpherePulse` plus an in-world pulse mark. Form stats, unlock cost, and pulse cooldown/damage are unchanged.
+- Ram and Saucer now have route-helper identities: `FORM_Ram_Body_Kit` reads as a forward amber wedge with side horns, `FORM_Saucer_Body_Kit` reads as a wide cyan disc. Lobby icons `Icon_Form_Ram` / `Icon_Form_Saucer` sit on those cards. Skill numbers are unchanged.
+- Spike and Crusher now have damage-fantasy identities: `FORM_Spike_Body_Kit` reads as a lean acid-tipped needle crown, `FORM_Crusher_Body_Kit` reads as layered steel bulk with a flat plate and blue seams. Lobby icons `Icon_Form_Spike` / `Icon_Form_Crusher` sit on those cards. Skill numbers are unchanged.
+- Form Identity D material families now use draft materials `MAT_Form_Sphere`, `MAT_Form_Ram`, `MAT_Form_Saucer`, `MAT_Form_Spike`, and `MAT_Form_Crusher` at `Assets/Art/Materials/Forms/`. Lobby icons and runtime silhouette kits were already shipped. Form stats and unlocks are unchanged.
+- Building size tiers now use draft materials `MAT_Building_Small`, `MAT_Building_Mid`, `MAT_Building_Large`, and `MAT_Boss_Structure` at `Assets/Art/Materials/Destruction/` so easy plaster props, city-concrete fillers, dark durable masses, and steel-blue boss structures read at gameplay distance before they break. HP, break thresholds, and spawn counts are unchanged.
+- Combat states now use draft materials `MAT_Damage_CrackOverlay`, `MAT_WeakPoint_Glow`, `MAT_Shielded_Pylon`, and `MAT_Exposed_Core` at `Assets/Art/Materials/Destruction/` so damaged buildings, elite weak points, protected pylons, and an exposed Sentinel core never share one look. Shield counts, break thresholds, and boss timing are unchanged.
+- Break feedback now uses draft materials `VFX_Debris_Light`, `VFX_Debris_Heavy`, `VFX_Smoke_Damage`, and `VFX_WeakPoint_Hit` at `Assets/Art/VFX/Destruction/` so small chips, heavy collapse, near-break smoke, and crit flashes stay distinct without covering route markers. HP, spawn counts, and smash-weight mappings are unchanged.
+- Traffic now uses named runtime kits `PROP_Car_Compact_A`, `PROP_Car_Compact_B`, and `PROP_Van_Bus` so moving cars and parked panic clusters read as vehicles instead of boxes. Traffic count, speed, HP, and spawn rate are unchanged.
+- Roadside rhythm props now use named runtime kits `PROP_StreetLamp`, `PROP_TrafficLight`, `PROP_RoadsideTree`, and `PROP_Bench` so Stage 1-3 streets have thin lamps/lights, gappy trees, and low benches that do not hide route markers. Spawn counts and HP are unchanged.
+- Market and utility props now use named runtime kits `PROP_Kiosk`, `PROP_Vending`, `PROP_BusStop`, `PROP_Transformer`, and `PROP_ExplosiveBarrel` so Stage 2-6 streets and ROUTE BONUS clusters signal chain density versus payoff danger before impact. Spawn counts, HP, and explosion radii are unchanged.
+- Residential filler props now use named runtime kits `PROP_Fence`, `PROP_Mailbox`, and `PROP_Shed` on the existing residential hooks. Fences read as thin rails, mailboxes as post-and-box, sheds as roofed backyard boxes. Spawn counts and HP are unchanged so Stage 1 does not gain extra clutter. Route markers stay readable.
 - Validation tools now include Unity scene validation/repair, Unity runtime map layout audit entry points, Unity-free static audits, and safer Unity batch wrappers.
 
 ### Current Validation Status
@@ -41,7 +102,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/RunPlaytestReadinessPrep.ps1` now ends with a "Next Autonomous Work While Waiting" block so recurring agents can keep improving readiness, reports, resource planning, and handoff docs without violating the no-evidence tuning lock.
 - `Tools/GenerateAutonomousWorkBacklog.ps1` generates `Logs/AlienCrusherAutonomousWorkBacklog.md`, a current safe-work list for unattended agents while real playtest evidence is still missing.
 - `Tools/GenerateResourceProductionBacklog.ps1` merges generated production checklists into `Logs/AlienCrusherResourceProductionBacklog.md`, so unattended agents can prioritize audio, route payoff, boss identity, district palette, and UI/icon work without touching tuning.
-- `Logs/AlienCrusherResourceProductionBacklog.md` now includes `## Recommended Production Batch Order` and `## Production Batch Focus`, consolidating 5 recommended batches, 33 total production batches, and 108 individual resource items. Use the recommended batch order when assigning unattended resource work so assets are produced in readable gameplay groups instead of isolated one-offs.
+- `Logs/AlienCrusherResourceProductionBacklog.md` still lists `## Recommended Production Batch Order` and `## Production Batch Focus` (5 recommended batches, 33 total, 108 items). Those batches, including leftover Outgame E–M, are already shipped on this PR. Do not assign another juice batch from that file.
 - `Tools/GenerateArchitectureExtractionPlan.ps1` maps `DummyFlowController` partial ownership into `Logs/AlienCrusherArchitectureExtractionPlan.md`, so architecture planning can proceed without changing gameplay behavior before Evidence Green.
 - `Tools/GenerateAutomationStatusSummary.ps1` writes `Logs/AlienCrusherAutomationStatusSummary.md`, a one-page heartbeat artifact for progress, validation, current blockers, next safe work, resource item count, and production batch count.
 - Unity-free static audits now include a playtest telemetry wiring check so runtime `F10` event names and telemetry summary parser expectations stay aligned before manual tuning starts.
@@ -59,7 +120,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/GenerateOutgameProgressionChecklist.ps1` generates disposable outgame progression output at `Logs/AlienCrusherOutgameProgressionChecklist.md`, mapping DP gain, form card states, meta nodes, result badges, stage unlock banners, and save confirmation targets to the current lobby/result systems.
 - `Tools/GenerateRoutePayoffLayoutChecklist.ps1` generates disposable route payoff layout output at `Logs/AlienCrusherRoutePayoffLayoutChecklist.md`, mapping ROUTE BONUS, district payoff layouts, cluster markers, and Forward Smash confirmation to current route reward code paths.
 - `Tools/GeneratePlaytestTelemetrySummary.ps1` now includes a rhythm snapshot, but no real Stage 1-7 sweep evidence has been captured yet.
-- As of 2026-06-08, no real `F10` sweep telemetry log exists yet. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, populated Stage 1 / 4 / 7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`, and a completed progression save smoke result.
+- As of 2026-08-23, no real `F10` sweep telemetry log exists yet. Juice leftovers are exhausted. The next required evidence artifacts are `Logs/AlienCrusherPlaytestTelemetry.log`, regenerated `Logs/AlienCrusherPlaytestTelemetrySummary.md`, populated Stage 1-7 notes in `Docs/AlienCrusherStagePlaytestNotes.md`, and a completed progression save smoke result.
 - `Docs/GAME_DESIGN_GAP_POLICY.md` now records the sub-agent gap review and sets policy for evidence gates, tuning lock, ROUTE HOLD route-readability, sensory rhythm, mobile HUD readability, landmark value, Stage 4 identity, and production gates.
 - `Tools/TestPlaytestEvidenceGate.ps1` now provides the blocking Evidence Green check for real telemetry, summary freshness, Stage 1-7 marker coverage, and populated playtest notes. Use `-ReportOnly` when checking readiness before evidence exists.
 - `Tools/TestPlaytestEvidenceGateRegression.ps1` now keeps the Evidence Green gate itself covered by fixture telemetry and temporary notes, and `Tools/RunStaticAudits.ps1` runs it with the rest of the Unity-free audit chain.
@@ -75,7 +136,7 @@ This document tracks the current project state, the next production priorities, 
 - `Tools/AuditRuntimeMapLayoutStatic.ps1` now records landmark value metadata beyond count: role, target relationship, payoff object mix, entry lane, and exit lane for every active landmark.
 
 ### Current Main Risk
-The prototype has enough systems to be interesting, and the automated validation loop is now green again. The remaining risk is play feel: real editor/mobile playtests must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion instead of flattening into constant pressure. The current design policy treats this as an evidence problem first and blocks rhythm/payoff/boss tuning until real Stage 1-7 playtest telemetry exists.
+The prototype has enough systems to be interesting, juice leftovers are exhausted, and the automated validation loop is green again except the known Linux lock-path test. The remaining risk is play feel: a real creator `F10` Stage 1-7 sweep must still confirm that route readability, map growth, reward timing, HUD scaffolding, and the opener -> pivot -> sustain -> payoff -> climax rhythm all feel good in motion. The current design policy treats this as an evidence problem first and blocks rhythm/payoff/boss tuning until `Logs/AlienCrusherPlaytestTelemetry.log` and populated `Docs/AlienCrusherStagePlaytestNotes.md` exist. Unattended work should stop inventing juice.
 
 ---
 
@@ -92,14 +153,22 @@ Done when:
 - `Logs/AlienCrusherMapLayoutAudit.log` exists and covers Stage 1-7.
 - Unity batch logs are from the current run, not stale files.
 
-### P0 - Stage 1-7 Editor Playtest
-Before entering play mode, run the autonomous readiness prep:
+### P0 - Creator F10 Stage 1-7 Playtest
+This is the next human step. Production juice leftovers are exhausted. Do not invent more micro-pulses, VFX residuals, or lobby confirm flashes.
+
+Required evidence lock:
+- `Logs/AlienCrusherPlaytestTelemetry.log` from a real editor/development `F10` sweep
+- populated Stage 01-07 notes plus save/load smoke in `Docs/AlienCrusherStagePlaytestNotes.md`
+
+Until those exist, do not change route timing, payoff counts, target placement, stage rhythm presets, or boss pressure.
+
+Before entering play mode, optional autonomous readiness prep:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1
 ```
 
-If an asset/resource pass is next, include the production checklists in the same run:
+Do not start another leftover juice batch. If checklists are stale only, include the production checklists in the same run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File Tools/RunPlaytestReadinessPrep.ps1 -IncludeProductionChecklists
@@ -210,23 +279,16 @@ Done when:
 
 ### P0 - Autonomous Continuity While The Creator Is Away
 
-Recurring agents may continue work without new creator input only inside the safe pre-evidence lanes:
+Production juice leftovers are exhausted. Recurring agents must **not** invent more micro-pulses, VFX residuals, or lobby confirm flashes, and must not pick another leftover from `Logs/AlienCrusherResourceProductionBacklog.md`.
 
-1. Keep readiness automation readable and green.
-2. Improve generated checklist/report diagnostics.
-3. Update handoff docs with the latest verified next step.
-4. Expand resource planning from existing runtime hooks and generated checklist gaps.
-5. Add static/regression coverage for tooling changes.
+Safe leftover work, if any, is only tooling or docs that unblock the creator `F10` sweep. Otherwise stop and wait for evidence.
 
 Do not use autonomous time to tune route timing, payoff counts, target placement, stage rhythm presets, or boss pressure before Evidence Green.
 
 Done when:
-- `Tools/RunPlaytestReadinessPrep.ps1` clearly prints both the required human evidence and safe autonomous work.
-- `Logs/AlienCrusherResourceProductionBacklog.md` exists and identifies the highest-value resource tasks that support rhythm readability without changing gameplay numbers.
-- `Logs/AlienCrusherArchitectureExtractionPlan.md` exists and identifies safe extraction order before any `DummyFlowController` behavior refactor.
-- `Logs/AlienCrusherAutomationStatusSummary.md` exists and summarizes progress, validation, blockers, resource order, and architecture order for the next unattended agent.
-- `Docs/NEXT_SESSION_CONTEXT_PACKET.md` names the next safe task for an unattended agent.
-- readiness prep regression protects those instructions.
+- `Docs/NEXT_SESSION_CONTEXT_PACKET.md` names the creator `F10` Stage 1-7 sweep as the next human step.
+- Unattended agents stop inventing juice.
+- `Logs/AlienCrusherPlaytestTelemetry.log` and populated `Docs/AlienCrusherStagePlaytestNotes.md` exist after the creator sweep.
 
 ---
 
@@ -302,12 +364,12 @@ Success signal:
 - player can read "almost there" without parsing a sentence
 
 #### 4. District Route Puzzles
-Baseline district route payoff identity is now implemented:
-- Stage 2 park: forgiving bench/tree/barrel payoff
-- Stage 3-4 market: kiosk/vending/barrel chain payoff
-- Stage 5 construction: barrel-heavy yard blast payoff
-- Stage 6 power block: transformer-heavy power surge payoff
-- Stage 7 skyline: transformer/barrel cluster plus high-value skyline anchor
+Baseline district route payoff identity is now implemented as named layouts:
+- Stage 2 `PAYOFF_ParkCut_Layout`: open bench/tree/barrel cut with a readable center chase lane
+- Stage 3-4 `PAYOFF_MarketChain_Layout`: tight kiosk/vending/barrel chain along the smash path
+- Stage 5 `PAYOFF_YardBlast_Layout`: wide barrel-heavy blast corners plus one utility
+- Stage 6 `PAYOFF_PowerSurge_Layout`: long transformer corridor with barrel punctuation
+- Stage 7 `PAYOFF_SkylineBreach_Layout`: asymmetric anchor-first tower with a side cluster
 
 Success signal:
 - later stages feel different by route decision, not only by size
@@ -432,9 +494,9 @@ Extraction candidates:
 - The route loop may still flatten into uniform pressure if district-to-district rhythm variation is too weak.
 - ROUTE HOLD may still feel like a timed destruction count unless route adherence is measured separately from destroyed count.
 - ROUTE HOLD route-adherence telemetry now exists, but it still needs the first real Stage 1-7 sweep before any tuning decision can use it.
-- Audio assets are still missing, but the runtime hook points now exist; mobile HUD readability has first-pass text safeguards but still needs device/screenshot review.
+- Route and failure rhythm now have draft clips on the matching events; hit/break/boss/level-up audio and mobile HUD screenshot review are still open.
 - Progression save recovery now falls back per file, persists sanitized repairs after load, clamps meta/stage bounds, and removes duplicate meta-upgrade entries; this still needs an in-editor smoke test with a real save file before release.
-- Stage 4 has first-pass Sentinel checkpoint identity, but it still needs playtest/screenshot confirmation that the boss approach reads without HUD text.
+- Stage 4 has first-pass Sentinel checkpoint identity plus runtime boss silhouette kits for the main body, shield pylons, and phase-2 drones; it still needs playtest/screenshot confirmation that those three roles stay countable at mobile distance without HUD text.
 - Landmark value records now exist in static audit/checklist output, but they still need real visual confirmation that the roles are legible during play.
 - Route trail pips may be visually noisy on small Android screens.
 - Current implementation form names differ from older GDD form fantasy names; status documents should use runtime names until the design naming pass is resolved.

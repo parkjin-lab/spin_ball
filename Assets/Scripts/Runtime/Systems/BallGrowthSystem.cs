@@ -29,7 +29,7 @@ namespace AlienCrusher.Systems
 
         private void Awake()
         {
-            scoreSystem = Object.FindFirstObjectByType<ScoreSystem>();
+            scoreSystem = Object.FindAnyObjectByType<ScoreSystem>();
             ResolvePlayerReferences();
             ResetGrowth();
         }
@@ -38,7 +38,7 @@ namespace AlienCrusher.Systems
         {
             if (scoreSystem == null)
             {
-                scoreSystem = Object.FindFirstObjectByType<ScoreSystem>();
+                scoreSystem = Object.FindAnyObjectByType<ScoreSystem>();
             }
 
             ResolvePlayerReferences();
@@ -71,7 +71,7 @@ namespace AlienCrusher.Systems
         {
             if (playerBall == null)
             {
-                var transforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                var transforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
                 foreach (var item in transforms)
                 {
                     if (item.name == playerBallName)

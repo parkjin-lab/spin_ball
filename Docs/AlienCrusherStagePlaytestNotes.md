@@ -1,6 +1,6 @@
 # Alien Crusher Stage Playtest Notes
 
-Last updated: 2026-06-10
+Last updated: 2026-08-24
 
 Use this tracked file for human observations from the first real Stage 1-7 `F10` sweep. The generated checklist in `Logs/AlienCrusherStagePlaytestChecklist.md` is a disposable readiness artifact and can be regenerated at any time.
 
@@ -119,3 +119,32 @@ Evidence-quality examples:
 - [ ] Payoff layout rhythm
 - [ ] Boss breathing windows
 - [ ] Multiple variable families at once
+
+## Qualitative Playtest (2026-08-23)
+
+This is creator feel notes only. It is **not** a full `F10` telemetry sweep. Stage 01-07 evidence fields above stay empty on purpose. Do not treat this section as Evidence Green.
+
+- Date: 2026-08-23
+- Tester: 진웅 박
+- Scope: qualitative Stage 1 playtest; no telemetry log captured
+- Feel: fun
+- Growth UI pops too often
+- HUD / copy text is too long and hard to read
+- Map feels too small and ends too fast
+- Destruction pleasure needs more variety
+- UI still looks unfinished
+
+Follow-up batches after this note: HUD/copy/toast readability first. Map size, route timing, and destruction variety stay later. No invented `F10` markers.
+
+## Qualitative Playtest (2026-08-24)
+
+This is creator feel notes only. It is **not** a full `F10` telemetry sweep. Stage 01-07 evidence fields above stay empty on purpose. Do not treat this section as Evidence Green. Do not invent `STAGE_START` / `STAGE_END` for skipped stages.
+
+- Date: 2026-08-24 (Seoul)
+- Tester: 진웅 박
+- Not a full `F10` sweep. Stages 02-03 were skipped.
+- Stage 01: victory GOAL REACHED 36s, 55/123
+- Stage 02-03: skipped
+- Stage 04-05: victory BOSS DOWN, ~8% wreck
+- Stage 06: two TIME UP in BOSS PHASE, then victory BOSS DOWN 14%
+- Stage 07: started (`STAGE_START` 22:14:07, boss `Block_130`, 8 elites), then `MissingReferenceException` in `DummyFlowController.UpdateStageBossTelemetry` → `DummyDestructibleBlock.SetBossCoreExposure` → `EnsureWeakPointSetup`. Never reached `STAGE_END`.

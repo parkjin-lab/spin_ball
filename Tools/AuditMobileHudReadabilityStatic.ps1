@@ -69,14 +69,14 @@ if ($errors.Count -eq 0) {
     }
 
     foreach ($needle in @(
-        'hudProgressText.text = $"HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {GetRouteHoldRemainingWrecks(num):0} LEFT  /  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";',
-        'hudProgressText.text = flag2 ? $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  {Mathf.RoundToInt(num3 * 100f)}%  /  NEXT" : $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  {Mathf.RoundToInt(num3 * 100f)}%";',
-        'text4 = $"NEXT  /  HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%, {GetRouteHoldRemainingWrecks(num):0} left";',
+        'hudProgressText.text = $"HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  {GetRouteHoldRemainingWrecks(num):0}  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";',
+        'hudProgressText.text = $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}";',
+        'text4 = $"HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%  {GetRouteHoldRemainingWrecks(num):0}";',
         "hudRouteIndicatorText.text = FormatHudRouteIndicatorText(text, text2, num);",
-        'hudStageGoalText.text = $"HOLD  {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {routeHoldRemaining:0} LEFT";',
-        'hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  BOSS";',
-        'hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  PUSH";',
-        'hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}";'
+        'hudStageGoalText.text = $"HOLD  {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  {routeHoldRemaining:0}";',
+        'hudStageGoalText.text = $"GOAL  {num:0}/{num2:0}  BOSS";',
+        'hudStageGoalText.text = $"GOAL  {num:0}/{num2:0}  PUSH";',
+        'hudStageGoalText.text = $"GOAL  {num:0}/{num2:0}";'
     )) {
         Add-RequiredTextCheck -Errors $errors -Text $uiFlowText -Needle $needle -Label "Mobile HUD compact copy"
     }
@@ -85,6 +85,13 @@ if ($errors.Count -eq 0) {
         "ROUTE HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {GetRouteHoldRemainingWrecks(num):0} TO CLUSTER",
         "DESTRUCTION {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}",
         "ROUTE HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%, {GetRouteHoldRemainingWrecks(num):0} to cluster",
+        'hudProgressText.text = $"HOLD {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {GetRouteHoldRemainingWrecks(num):0} LEFT  /  {Mathf.CeilToInt(GetRouteHoldRemainingSeconds()):0}s";',
+        'hudProgressText.text = flag2 ? $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  {Mathf.RoundToInt(num3 * 100f)}%  /  NEXT" : $"WRECK {num:0}/{Mathf.Max(0, stageTotalDestructibleCount):0}  {Mathf.RoundToInt(num3 * 100f)}%";',
+        'text4 = $"NEXT  /  HOLD {Mathf.RoundToInt(GetRouteHoldProgress01(num) * 100f):0}%, {GetRouteHoldRemainingWrecks(num):0} left";',
+        'hudStageGoalText.text = $"HOLD  {Mathf.RoundToInt(routeHoldProgress * 100f):0}%  /  {routeHoldRemaining:0} LEFT";',
+        'hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  BOSS";',
+        'hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}  /  PUSH";',
+        'hudStageGoalText.text = $"NEXT  {num:0}/{num2:0}";',
         'hudStageGoalText.text = $"NEXT STAGE  {num:0}/{num2:0}  /  BOSS BLOCKING";',
         'hudStageGoalText.text = $"NEXT STAGE  {num:0}/{num2:0}  /  FINAL PUSH";',
         'hudStageGoalText.text = $"NEXT STAGE  {num:0}/{num2:0}  /  GOOD START";',

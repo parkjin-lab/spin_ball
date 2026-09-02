@@ -40,6 +40,27 @@ Deliverables:
 - 5 form silhouette addon kits
 - 5 form color/material presets
 
+Sphere starter shipped:
+- `FORM_Sphere_Body_Kit` runtime cool-green body plus emissive belt
+- `Icon_Form_Sphere` lobby/HUD circle-with-orbit-band thumbnail
+- `Icon_Skill_SpherePulse` SPHERE PULSE ring cue
+- draft sprites at `Assets/Resources/UI/Icons/`
+- in-world pulse mark `VFX_SpherePulse_Mark` plus belt flash; cooldown/damage unchanged
+
+Ram / Saucer route helpers shipped:
+- `FORM_Ram_Body_Kit` dark shell, amber wedge plate, and side horns
+- `FORM_Saucer_Body_Kit` wide cyan rim over a pale disc
+- `Icon_Form_Ram` / `Icon_Form_Saucer` lobby thumbnails
+- `Icon_Skill_RamBreach` / `Icon_Skill_SaucerDash` action-button cues
+- in-world marks `VFX_RamBreach_Mark` and `VFX_SaucerDash_Mark`; skill numbers unchanged
+
+Spike / Crusher damage fantasies shipped:
+- `FORM_Spike_Body_Kit` lean dark core, longer forward/up needles, acid tips
+- `FORM_Crusher_Body_Kit` layered steel bulk, flat frontal plate, blue pressure seams
+- `Icon_Form_Spike` / `Icon_Form_Crusher` lobby thumbnails
+- `Icon_Skill_SpikeBurst` / `Icon_Skill_CrusherSlam` action-button cues
+- in-world marks `VFX_SpikeBurst_Mark` and `VFX_CrusherSlam_Mark`; skill numbers unchanged
+
 Expected output:
 - player can distinguish all forms at a glance
 - form selection in lobby feels desirable
@@ -52,10 +73,21 @@ Unity-native fallback allowed now:
 - saucer: flattened sphere + ring disk
 - crusher: layered heavy shell + frontal plate
 
+Form material families shipped:
+- `MAT_Form_Sphere` cool green body / belt language
+- `MAT_Form_Ram` amber plate language
+- `MAT_Form_Saucer` cyan rim language
+- `MAT_Form_Spike` acid tip language
+- `MAT_Form_Crusher` steel body plus blue seam emission
+- draft `.mat` files at `Assets/Art/Materials/Forms/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- form stats, unlock costs, and skill numbers unchanged
+
 Suggested file targets:
 - `Assets/Art/Forms/`
+- `Assets/Art/Materials/Forms/`
 - `Assets/Resources/UI/Forms/`
 - `Assets/Settings/Materials/Forms/`
+- `Assets/Resources/UI/Icons/`
 
 Done when:
 - every form has unique silhouette from gameplay camera distance
@@ -71,6 +103,32 @@ Deliverables:
 - shield material
 - exposed-core material
 - crack/damage tint presets
+
+Building tiers shipped:
+- `MAT_Building_Small` pale plaster for props and low-rises
+- `MAT_Building_Mid` warm city concrete for standard fillers
+- `MAT_Building_Large` charcoal mass for durable targets
+- `MAT_Boss_Structure` cool steel-blue armor for Sentinel / gate / pylon hosts
+- draft `.mat` files at `Assets/Art/Materials/Destruction/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- HP, break thresholds, and spawn counts unchanged
+- Stage 1 is mostly plaster + concrete; Stage 4 adds dark mass plus steel-blue boss structures at the Sentinel checkpoint
+
+Combat states shipped:
+- `MAT_Damage_CrackOverlay` dark split lines that appear as buildings take damage
+- `MAT_WeakPoint_Glow` gold pip plus halo so elite crit spots are not ordinary props
+- `MAT_Shielded_Pylon` cool cyan barrier on live pylon panes / caps
+- `MAT_Exposed_Core` hot orange-white chest/core window when shields drop
+- draft `.mat` files at `Assets/Art/Materials/Destruction/` plus Resources copies; runtime `Resources.Load`s them before the Unlit fallback
+- HP, break thresholds, shield counts, and timing unchanged
+- Stage 1 smash shows gold weak points and crack overlays; Stage 4 shows cyan protected pylons vs hot exposed core
+
+Break feedback shipped:
+- `VFX_Debris_Light` short plaster chips on small hits and street-prop breaks
+- `VFX_Debris_Heavy` heavier local burst on large/mid collapse, kept short so Target_A/B and HOLD pips stay readable
+- `VFX_Smoke_Damage` near-break smoke on mid/large structures
+- `VFX_WeakPoint_Hit` tight gold/orange crit flash, distinct from ordinary chips
+- draft materials at `Assets/Art/VFX/Destruction/` plus Resources copies; runtime `Resources.Load`s them onto the existing ParticleSystem / flash slots before the Particles Unlit fallback
+- HP, spawn counts, timing, and smash-weight mappings unchanged
 
 Expected output:
 - players can tell easy targets from high-value targets
@@ -97,6 +155,40 @@ Deliverables:
 - 8 to 10 lightweight prop silhouettes
 - 3 vehicle body variants minimum
 - 5 breakable roadside prop variants minimum
+
+Traffic silhouettes shipped:
+- `PROP_Car_Compact_A` low hatchback, hood / cabin / hatch read
+- `PROP_Car_Compact_B` same footprint with a notchback roof and trunk
+- `PROP_Van_Bus` longer blocky cabin, readable from chase camera
+- applied by `EnsureTrafficVehicleRuntime` and `RegisterTrafficVehicle` so Stage 1-3 moving cars and parked panic clusters share the set
+- collider size, traffic count, speed, HP, and spawn rate unchanged
+- roofs stay low so Target_A / Target_B and HOLD trail pips stay visible
+
+Light roadside props shipped:
+- `PROP_StreetLamp` thin post plus warm cap, used by even `Lamp_*` serials
+- `PROP_TrafficLight` same pole hook with a narrow signal-head stack
+- `PROP_RoadsideTree` trunk plus a gappy four-sphere canopy, not a leaf wall
+- `PROP_Bench` low seat/back kit on the existing 1-HP bench host
+- spawn counts, HP, and hit volumes unchanged; legacy Pole/Trunk/host colliders stay
+- posts stay thin and benches stay low so Target_A / Target_B and HOLD trail pips stay readable
+
+Market and utility props shipped:
+- `PROP_Kiosk` stacked stall with awning, window, and counter
+- `PROP_Vending` upright cabinet with a face panel, glass, and slot
+- `PROP_BusStop` thin posts, roof, and back panel — a shelter, not a building
+- `PROP_Transformer` steel tank with yellow/black hazard and pipe caps
+- `PROP_ExplosiveBarrel` drum with lid, hoop, and a strong orange danger band
+- applied by the existing commercial/utility Ensure* hooks, including Stage 2-6 streets and ROUTE BONUS clusters
+- spawn counts, HP, explosion radius, and hit volumes unchanged
+- silhouettes stay under building height so Target_A / Target_B and HOLD trail pips stay readable
+
+Residential filler props shipped:
+- `PROP_Fence` thin posts plus two rails, not a solid slab
+- `PROP_Mailbox` tiny post-and-box with a flag
+- `PROP_Shed` roofed backyard box with a door, smaller than a building
+- applied by the existing `EnsureResidentialFenceRuntime` / `EnsureResidentialMailboxRuntime` / `EnsureResidentialShedRuntime` hooks
+- spawn counts, HP, and hit volumes unchanged so Stage 1 starter lane does not get extra clutter
+- rails stay thin and sheds stay low so Target_A / Target_B and HOLD trail pips stay readable
 
 Expected output:
 - city feels alive before the player reaches large buildings
@@ -165,13 +257,19 @@ Must-cover events:
 - UI click / locked / confirm / fail
 
 Current `FeedbackSystem` slot map:
-- `hitLightClip`, `hitMediumClip`, `hitHeavyClip`
-- `breakSmallClip`, `breakLargeClip`
-- `comboRiseClip`
+- `hitLightClip`, `hitMediumClip`, `hitHeavyClip` (`SFX_Hit_Light` / `SFX_Hit_Medium` / `SFX_Hit_Heavy` in `Assets/Audio/SFX/Impact/`)
+- `breakSmallClip`, `breakLargeClip` (`SFX_Break_Small` / `SFX_Break_LargeCollapse` in `Assets/Audio/SFX/Impact/`)
+- `comboRiseClip` (`SFX_Combo_Rise` in `Assets/Audio/SFX/Skills/`)
+- `VFX_Combo_Rise_Pulse` lime-gold upward ticks on CRUSH RUSH
+- `VFX_Overdrive_Pulse` orange speed ring and flame chevrons on OVERDRIVE
+- draft materials at `Assets/Art/VFX/Combo/` plus Resources copies; runtime `Resources.Load`s them onto the existing CRUSH RUSH / OVERDRIVE slots before the Unlit fallback
 - `routeOpenClip`, `routeHoldWarningClip`, `routeBonusClip`
-- `bossWarningClip`, `bossBreakClip`, `bossDownClip`
-- `levelUpClip`
+- `bossWarningClip`, `bossBreakClip`, `bossDownClip` (`SFX_Boss_Warning` / `SFX_Boss_Break` / `SFX_Boss_Down` in `Assets/Audio/SFX/Boss/`)
+- `levelUpClip` (`SFX_LevelUp_Open` in `Assets/Audio/SFX/UI/`)
 - `failureWarningClip`, `failureBossClip`
+- `VFX_Failure_Ordinary` dry umber down-break on ordinary defeat
+- `VFX_Failure_Boss` heavier steel collapse on boss-phase defeat
+- draft materials at `Assets/Art/VFX/Failure/` plus Resources copies; runtime `Resources.Load`s them onto the existing ordinary / boss-phase defeat slots before the Unlit fallback
 
 Suggested file targets:
 - `Assets/Audio/SFX/Impact/`
@@ -179,6 +277,8 @@ Suggested file targets:
 - `Assets/Audio/SFX/Boss/`
 - `Assets/Audio/SFX/Failure/`
 - `Assets/Audio/SFX/UI/`
+- `Assets/Art/VFX/Failure/`
+- `Assets/Art/VFX/Combo/`
 
 Done when:
 - silent critical moments no longer exist
@@ -197,11 +297,27 @@ Priority: `P0`
 Deliverables:
 - form card state set
 - meta node state set for Size Core / Impact Core / DP Amplifier
-- DP gain / spend / insufficient feedback
-- form ready and meta ready badges
-- stage unlocked banner
-- lightweight progression saved toast
-- confirm / locked audio cues
+- `UI_DP_GainBurst` DP gain / spend / insufficient burst
+- `SFX_Progression_Locked` insufficient-DP / locked purchase cue
+- `SFX_Progression_Confirm` purchase / unlock / equip confirmation cue
+- `VFX_FormEquip_Confirm` champagne lock-in ring when a lobby form is equipped
+- `VFX_SpendChange_Ready` jade ready plate naming the last lobby spend when the next run starts
+- `VFX_StageSelect_Confirm` ice-slate bracket pulse when a lobby stage is selected
+- `VFX_MetaUpgrade_Confirm` copper diamond pulse when a meta upgrade is purchased
+- `VFX_DP_Gain_Residual` aqua afterglow after a result/lobby DP gain burst
+- `VFX_NextAction_Ready` lilac caret pulse on the one result next-action badge
+- `VFX_StageUnlock_Ready` honey-ivory afterglow beside the stage-unlock banner
+- `VFX_FormUnlock_Confirm` periwinkle petal burst when a lobby form is unlocked
+- `VFX_NextAction_Residual` pale-orchid afterglow beside the result next-action caret
+- `UI_FormCard_StateSet` form card lock / ready / equipped frame
+- `UI_MetaNode_SizeCore` Size Core node chip
+- `UI_MetaNode_ImpactCore` Impact Core node chip
+- `UI_MetaNode_DpAmplifier` DP Amplifier node chip
+- `Badge_FormReady` result form-ready next-action badge
+- `Badge_MetaReady` result meta-ready next-action badge
+- `Banner_StageUnlocked` stage unlocked banner
+- `Toast_ProgressionSaved` lightweight progression saved toast
+- confirm / locked audio cues (`SFX_Progression_Confirm`, `SFX_Progression_Locked`)
 
 Generated checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateOutgameProgressionChecklist.ps1`
@@ -215,12 +331,21 @@ Done when:
 Priority: `P0`
 
 Deliverables:
-- park cut payoff layout
-- market chain payoff layout
-- construction yard blast payoff layout
-- power surge payoff layout
-- skyline breach payoff layout
-- route cluster marker VFX
+- `PAYOFF_ParkCut_Layout` park cut payoff layout
+- `PAYOFF_MarketChain_Layout` market chain payoff layout
+- `PAYOFF_YardBlast_Layout` construction yard blast payoff layout
+- `PAYOFF_PowerSurge_Layout` power surge payoff layout
+- `PAYOFF_SkylineBreach_Layout` skyline breach payoff layout
+- `VFX_RouteCluster_Marker` mint-slate ring frame for opened ROUTE BONUS clusters
+- `RouteClusterMarker` runtime host for that frame
+- `VFX_ForwardSmash_Confirm` mint-white impact star and short broken ring on FORWARD SMASH
+- `VFX_RouteHold_Success` gold-cyan lock ring when ROUTE HOLD completes and flips toward ROUTE BONUS
+- `VFX_RouteOpen_Trail` magenta path dashes when LANE BREAK flips to ROUTE OPEN
+- `VFX_LaneBreak_Residual` ivory-ash residual crack at the wreck that completed LANE BREAK
+- `VFX_RouteChase_Pulse` cobalt wedges from the opened ROUTE BONUS cluster toward the next smash target
+- `VFX_RouteHold_Warning` rose inward ticks at the beacon when ROUTE HOLD is closing
+- `VFX_RouteBonus_Success` amethyst bloom plus upward petals when ROUTE BONUS opens at the cluster
+- draft materials at `Assets/Art/VFX/Route/` plus Resources copies; runtime `Resources.Load`s them onto the existing cluster / smash / HOLD / OPEN / residual / chase / warning / bonus slots before the Unlit fallback
 - Forward Smash confirmation VFX/SFX
 
 Generated checklist:
@@ -235,20 +360,26 @@ Done when:
 Priority: `P0`
 
 Deliverables:
-- Justice Sentinel silhouette kit
-- shield pylon kit
-- phase 2 drone kit
-- boss armor / shield / exposed-core material set
-- boss-only warning particle pass
-- boss core expose and defeat cascade VFX
-- boss-only audio layer refinement
-- boss HUD icon / clear badge
+- `BOSS_Sentinel_Body_Kit` Justice Sentinel silhouette kit
+- `BOSS_Shield_Pylon_Kit` shield pylon kit
+- `BOSS_Phase2_Drone_Kit` phase 2 drone kit
+- `VFX_Boss_Warning_Ring` inbound / pressure-pulse danger ring
+- `VFX_Boss_Core_Expose_Burst` short vertical break-window burst on CORE EXPOSED (not a second warning ring)
+- `VFX_Boss_Defeat_Cascade` Sentinel-down / city-collapse release
+- `SFX_Boss_Warning` threat pulse / inbound warning
+- `SFX_Boss_Break` break-window open
+- `SFX_Boss_Down` Justice Sentinel defeat
+- `MAT_Boss_Sentinel_Armor` default Sentinel body
+- `MAT_Boss_Shield_Pylon` active shield pylon
+- `MAT_Boss_Core_Exposed` break-window core
+- `Badge_Boss_Clear` steel result badge for Sentinel victory
+- `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run boss identity
 
 Generated checklist:
 - `powershell -ExecutionPolicy Bypass -File Tools/GenerateBossIdentityProductionChecklist.ps1`
 
 Done when:
-- boss no longer reads as a large building with special rules
+- `BOSS_Sentinel_Body_Kit`, `BOSS_Shield_Pylon_Kit`, and `BOSS_Phase2_Drone_Kit` keep the three Stage 4+ roles countable from silhouette and color language alone
 - phase 1 / break window / phase 2 are visually separable
 - the boss loop reads as breathe -> burst -> punish -> release in Stage 4+ playtests
 
@@ -256,16 +387,32 @@ Done when:
 Priority: `P1`
 
 Deliverables:
-- DP icon
-- stage icon
-- route icon
-- break window icon
-- shield icon
-- weak point icon
-- overdrive icon
-- panic icon
-- seismic icon
-- boss icon
+- `Icon_DP` teal cracked-diamond money pip
+- `Icon_Stage` stacked district-block skyline
+- `Icon_NextStep` forward chevron with target notch
+- `Icon_Route` orchid path-to-beacon (echoes `PAL_RouteMarker_Tints`)
+- `Icon_BreakWindow` gold open cracked ring
+- `Icon_Shield` cyan shield plate with pylon ticks
+- `Icon_WeakPoint` gold bullseye with glow dot
+- `Icon_Boss` sentinel eye inside steel frame
+- `Icon_Boss_Sentinel` tall steel Sentinel body for lobby/result next-run identity
+- `Icon_Overdrive` orange speed ring with flame notch
+- `Icon_Panic` car with radial warning spikes
+- `Icon_Seismic` ground crack wave
+- `Icon_Retail` shop awning with burst star
+- `Icon_Traffic` road lane plus small car
+- `Badge_Result_Clear` mint success plate with upward shard
+- `Badge_Boss_Clear` steel Sentinel-down plate with downward chevron
+- `Badge_Result_Failure` rust fail plate with broken route notch
+- `Badge_Fail_Opening` rust stacked-bar plate for OPENING FAILED
+- `Badge_Fail_Hold` rust trail-and-beacon plate for ROUTE HOLD MISSED
+- `Badge_Fail_Drift` rust offset-chevron plate for MID-RUN DRIFT
+- `Badge_Fail_Push` rust notched-wedge plate for FINAL PUSH FAILED
+- `Badge_Fail_Boss` steel cracked-eye plate for BOSS PHASE fail
+- `Badge_Locked` steel lock plate
+- `Badge_Recommended` gold focus chevron
+- draft sprites at `Assets/Resources/UI/Icons/`
+- draft badges at `Assets/Resources/UI/Badges/`
 
 Done when:
 - HUD and lobby rely less on text-only recognition
@@ -275,14 +422,15 @@ Done when:
 Priority: `P0`
 
 Deliverables:
-- starter residential palette
-- pocket park palette
-- market plaza palette
-- Sentinel checkpoint palette
-- construction yard palette
-- power block palette
-- skyline block palette
-- global route marker tint set
+- `PAL_District_StarterResidential` Stage 1 clean-road opener
+- `PAL_District_MarketPlaza` Stage 3 warm stall-density pivot
+- `PAL_District_SentinelCheckpoint` Stage 4 steel/amber boss-approach warning
+- `PAL_District_SkylineBlock` Stage 7 night-plaza climax
+- `PAL_District_PocketPark` Stage 2 calmer park-cut green
+- `PAL_District_ConstructionYard` Stage 5 dusty blast-payoff yellow/black
+- `PAL_District_PowerBlock` Stage 6 electric teal transformer risk
+- `PAL_RouteMarker_Tints` global route marker tint set for `Target_A`, `Target_B`, `routeColor`, and HOLD trail pips
+- `PAL_Ambient_StageBands` stage-band ambient fill for `RenderSettings.ambientLight`
 - ambient stage-band tone set
 
 Generated checklist:
@@ -291,7 +439,7 @@ Generated checklist:
 Done when:
 - stage difficulty also feels like spatial escalation
 - screenshots from different stage bands no longer look interchangeable
-- route markers and HOLD trail pips stay readable over every palette
+- `PAL_RouteMarker_Tints` keeps `Target_A`, `Target_B`, `routeColor`, and HOLD trail pips as the highest-contrast nav signal over every district and the Stage 4+ boss kits
 
 ---
 
@@ -348,7 +496,7 @@ This is the fastest way to understand why each asset matters.
 | Early-stage fun | small props, vehicles, break reactions | gives enough crush density before big buildings |
 | Retail Frenzy / Strip Clear | shop props, signage, frenzy burst, frenzy SFX | supports combo lane fantasy |
 | Traffic Panic | car variants, panic SFX, chain reaction prop feedback | makes chaos feel systemic |
-| Overdrive / Seismic / Landing Shockwave | distinct burst VFX and audio | separates special states from normal combat |
+| Overdrive / Seismic / Landing Shockwave | distinct burst VFX and audio (`VFX_Overdrive_Pulse` plus `VFX_Combo_Rise_Pulse` on CRUSH RUSH) | separates special states from normal combat |
 | Boss | sentinel kit, pylon kit, drone kit, boss-only VFX/SFX | creates stage climax identity |
 | Lobby / Meta | form cards, meta nodes, badges, unlock banners | strengthens return loop |
 

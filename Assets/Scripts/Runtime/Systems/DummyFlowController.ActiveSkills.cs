@@ -13,10 +13,14 @@ namespace AlienCrusher.Systems
 			return skill switch
 			{
 				FormActiveSkill.SpherePulse => Mathf.Max(0.1f, spherePulseCooldown), 
-				FormActiveSkill.SpikeBurst => Mathf.Max(0.1f, spikeBurstCooldown), 
-				FormActiveSkill.RamBreach => Mathf.Max(0.1f, ramBreachCooldown), 
-				FormActiveSkill.SaucerDash => Mathf.Max(0.1f, saucerDashCooldown), 
-				FormActiveSkill.CrusherSlam => Mathf.Max(0.1f, crusherSlamCooldown), 
+				FormActiveSkill.SpikeBurst => DrillBurrowCooldown, 
+				FormActiveSkill.RamBreach => ChargeBurstCooldown, 
+				FormActiveSkill.SaucerDash => UfoRayTickSeconds, 
+				FormActiveSkill.CrusherSlam => MagnetDetonateCooldown, 
+				FormActiveSkill.DrillBurrow => DrillBurrowCooldown, 
+				FormActiveSkill.ChargeBurst => ChargeBurstCooldown, 
+				FormActiveSkill.UfoRay => UfoRayTickSeconds, 
+				FormActiveSkill.MagnetGrab => MagnetDetonateCooldown, 
 				_ => 0f, 
 			};
 		}
@@ -36,6 +40,7 @@ namespace AlienCrusher.Systems
 
 		private void ResetFormActiveSkillRuntime()
 		{
+			ResetFormSmashMethodRuntime();
 			formSkillCooldownRemaining = 0f;
 			cachedTransformButtonLabel = string.Empty;
 			cachedSpecial1ButtonLabel = string.Empty;
@@ -108,23 +113,30 @@ namespace AlienCrusher.Systems
 				flag = ExecuteSpherePulseSkill();
 				break;
 			case FormActiveSkill.SpikeBurst:
-				flag = ExecuteSpikeBurstSkill();
+			case FormActiveSkill.DrillBurrow:
+				flag = TryTriggerFormSmashMethod(FormSmashMethod.DrillBurrow);
 				break;
 			case FormActiveSkill.RamBreach:
-				flag = ExecuteRamBreachSkill();
+			case FormActiveSkill.ChargeBurst:
+				flag = TryTriggerFormSmashMethod(FormSmashMethod.ChargeBurst);
 				break;
 			case FormActiveSkill.SaucerDash:
-				flag = ExecuteSaucerDashSkill();
+			case FormActiveSkill.UfoRay:
+				flag = TryTriggerFormSmashMethod(FormSmashMethod.UfoRay);
 				break;
 			case FormActiveSkill.CrusherSlam:
-				flag = ExecuteCrusherSlamSkill();
+			case FormActiveSkill.MagnetGrab:
+				flag = TryTriggerFormSmashMethod(FormSmashMethod.MagnetGrab);
 				break;
 			}
 			if (!flag)
 			{
 				return false;
 			}
-			ApplyFormSkillSynergyEffects(formActiveSkill, drillSynergy, overdriveSynergy);
+			if (formActiveSkill == FormActiveSkill.SpherePulse)
+			{
+				ApplyFormSkillSynergyEffects(formActiveSkill, drillSynergy, overdriveSynergy);
+			}
 			float formSkillCooldownScale = GetFormSkillCooldownScale(formActiveSkill, drillSynergy, overdriveSynergy);
 			formSkillCooldownRemaining = GetFormActiveSkillCooldown(formActiveSkill) * formSkillCooldownScale;
 			RefreshActionSkillButtons(force: true);
@@ -176,16 +188,22 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.52f + (float)num4 * 0.05f);
 				feedbackSystem.PlayComboRushFeedback(position + Vector3.up * 0.16f, normalizedIntensity, spherePulseRadius);
+				feedbackSystem.PlaySpherePulseMark(position + Vector3.up * 0.08f, spherePulseRadius);
+			}
+			ResolvePlayerController();
+			if ((Object)(object)cachedPlayerController != (Object)null)
+			{
+				cachedPlayerController.PlaySpherePulseVisualCue();
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.58f);
 			PushAnnouncement($"SPHERE PULSE +{num5}", AnnouncementTone.Burst, Mathf.Max(0.56f, comboRushAnnouncementSeconds * 0.7f));
@@ -220,16 +238,22 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.58f + (float)num4 * 0.05f);
 				feedbackSystem.PlayComboRushFeedback(position + Vector3.up * 0.18f, normalizedIntensity, spikeBurstRadius);
+				feedbackSystem.PlaySpikeBurstMark(position + Vector3.up * 0.1f, spikeBurstRadius);
+			}
+			ResolvePlayerController();
+			if ((Object)(object)cachedPlayerController != (Object)null)
+			{
+				cachedPlayerController.PlaySpikeBurstVisualCue();
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.7f);
 			PushAnnouncement($"SPIKE BURST +{num5}", AnnouncementTone.Burst, Mathf.Max(0.6f, comboRushAnnouncementSeconds * 0.75f));
@@ -304,16 +328,22 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.62f + (float)num4 * 0.05f);
 				feedbackSystem.PlayComboRushFeedback(playerTransform.position + normalized * 0.4f + Vector3.up * 0.22f, normalizedIntensity, ramBreachRadius);
+				feedbackSystem.PlayRamBreachMark(playerTransform.position + normalized * 0.55f + Vector3.up * 0.1f, ramBreachRadius, normalized);
+			}
+			ResolvePlayerController();
+			if ((Object)(object)cachedPlayerController != (Object)null)
+			{
+				cachedPlayerController.PlayRamBreachVisualCue();
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.82f);
 			PushAnnouncement($"RAM BREACH +{num5}", AnnouncementTone.Burst, Mathf.Max(0.64f, comboRushAnnouncementSeconds * 0.78f));
@@ -388,16 +418,22 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.5f + (float)num4 * 0.06f);
 				feedbackSystem.PlayComboRushFeedback(playerTransform.position + normalized * 0.75f + Vector3.up * 0.2f, normalizedIntensity, saucerDashRadius);
+				feedbackSystem.PlaySaucerDashMark(playerTransform.position + Vector3.up * 0.06f, saucerDashRadius);
+			}
+			ResolvePlayerController();
+			if ((Object)(object)cachedPlayerController != (Object)null)
+			{
+				cachedPlayerController.PlaySaucerDashVisualCue();
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.62f);
 			PushAnnouncement($"SAUCER DASH +{num5}", AnnouncementTone.Burst, Mathf.Max(0.55f, comboRushAnnouncementSeconds * 0.7f));
@@ -447,16 +483,22 @@ namespace AlienCrusher.Systems
 			scoreSystem?.AddScore(num5);
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
 				float normalizedIntensity = Mathf.Clamp01(0.66f + (float)num4 * 0.05f);
 				feedbackSystem.PlayComboRushFeedback(position + Vector3.up * 0.24f, normalizedIntensity, crusherSlamRadius);
+				feedbackSystem.PlayCrusherSlamMark(position + Vector3.up * 0.08f, crusherSlamRadius);
+			}
+			ResolvePlayerController();
+			if ((Object)(object)cachedPlayerController != (Object)null)
+			{
+				cachedPlayerController.PlayCrusherSlamVisualCue();
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(0.9f);
 			PushAnnouncement($"CRUSHER SLAM +{num5}", AnnouncementTone.Destruction, Mathf.Max(0.7f, comboRushAnnouncementSeconds * 0.82f));
@@ -504,12 +546,15 @@ namespace AlienCrusher.Systems
 			switch (skill)
 			{
 			case FormActiveSkill.SpikeBurst:
+			case FormActiveSkill.DrillBurrow:
 				num += (drillSynergy ? 0.04f : 0f);
 				break;
 			case FormActiveSkill.RamBreach:
+			case FormActiveSkill.ChargeBurst:
 				num += (overdriveSynergy ? 0.04f : 0f);
 				break;
 			case FormActiveSkill.CrusherSlam:
+			case FormActiveSkill.MagnetGrab:
 				num += 0.05f;
 				break;
 			}
@@ -677,7 +722,7 @@ namespace AlienCrusher.Systems
 			}
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null && num9 > 0)
 			{
@@ -686,7 +731,7 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(num6 * (overdriveSynergy ? 1.2f : 1f));
 			string text = BuildSynergySuffix(drillSynergy, overdriveSynergy);
@@ -767,7 +812,7 @@ namespace AlienCrusher.Systems
 			//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
 			//IL_00d9: Unknown result type (might be due to invalid IL or missing references)
 			//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
-			DummyStreetPropReactive[] array = Object.FindObjectsByType<DummyStreetPropReactive>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			DummyStreetPropReactive[] array = Object.FindObjectsByType<DummyStreetPropReactive>((FindObjectsInactive)1);
 			if (array == null || array.Length == 0)
 			{
 				return 0;
@@ -805,8 +850,17 @@ namespace AlienCrusher.Systems
 			FormActiveSkill formActiveSkill = GetFormActiveSkill(GetCurrentSelectedForm());
 			bool flag = enableFormActiveSkills && formActiveSkill != FormActiveSkill.None;
 			bool flag2 = flag && formSkillCooldownRemaining <= 0f;
-			string text = ((!flag) ? "FORM\nPASSIVE" : (flag2 ? (GetFormActiveSkillName(formActiveSkill) + "\nREADY") : $"{GetFormActiveSkillName(formActiveSkill)}\n{Mathf.CeilToInt(formSkillCooldownRemaining)}s"));
-			string text2 = (flag ? "TAP: TRIGGER" : "NO ACTIVE");
+			FormSmashMethod smashMethod = FormCatalog.GetSmashMethod(GetCurrentSelectedForm());
+			string holdHint = smashMethod switch
+			{
+				FormSmashMethod.UfoRay => "HOLD/TAP: RAY",
+				FormSmashMethod.ChargeBurst => "HOLD: CHARGE",
+				FormSmashMethod.DrillBurrow => "HOLD/TAP: DRILL",
+				FormSmashMethod.MagnetGrab => "TAP: PULL",
+				_ => "TAP: TRIGGER"
+			};
+			string text = ((!flag) ? "FORM\nPASSIVE" : (flag2 ? (GetFormActiveSkillName(formActiveSkill) + "\nREADY") : $"{GetFormActiveSkillName(formActiveSkill)}\n{Mathf.CeilToInt(Mathf.Max(formSkillCooldownRemaining, formSmashMethodCooldown))}s"));
+			string text2 = (flag ? holdHint : "NO ACTIVE");
 			string text3 = (flag ? "AUTO" : "---");
 			if (force || cachedTransformButtonLabel != text)
 			{
@@ -823,8 +877,12 @@ namespace AlienCrusher.Systems
 				SetButtonLabel("Special2Button", text3);
 				cachedSpecial2ButtonLabel = text3;
 			}
-			SetButtonInteractable("TransformButton", flag && flag2 && stageRunning && !levelUpOpen);
-			SetButtonInteractable("Special1Button", flag && flag2 && stageRunning && !levelUpOpen);
+			bool holdMethod = smashMethod == FormSmashMethod.UfoRay
+				|| smashMethod == FormSmashMethod.ChargeBurst
+				|| smashMethod == FormSmashMethod.DrillBurrow
+				|| smashMethod == FormSmashMethod.MagnetGrab;
+			SetButtonInteractable("TransformButton", flag && (flag2 || holdMethod) && stageRunning && !levelUpOpen);
+			SetButtonInteractable("Special1Button", flag && (flag2 || holdMethod) && stageRunning && !levelUpOpen);
 			SetButtonInteractable("Special2Button", interactable: false);
 			bool flag3 = (actionSkillReadyVisualActive = flag && flag2 && stageRunning && !levelUpOpen);
 			if ((force || flag3 != previousActionSkillReadyVisualState) && flag3)
@@ -836,6 +894,7 @@ namespace AlienCrusher.Systems
 				actionSkillReadyPulseRemaining = 0f;
 			}
 			previousActionSkillReadyVisualState = flag3;
+			RefreshFormIdentitySkillIcons();
 		}
 
 		private void CacheActionSkillButtons()

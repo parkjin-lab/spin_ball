@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using AlienCrusher.Gameplay;
+using MCPForUnity.Runtime.Helpers;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -37,7 +38,7 @@ namespace AlienCrusher.Systems
 		private void EnsureRuntimeMapFallback()
 		{
 			//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-			DummyDestructibleBlock[] existingDestructibles = Object.FindObjectsByType<DummyDestructibleBlock>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			DummyDestructibleBlock[] existingDestructibles = Object.FindObjectsByType<DummyDestructibleBlock>((FindObjectsInactive)1);
 			if (existingDestructibles.Length < 68)
 			{
 				Transform val = FindChildByName(null, "_Gameplay");
@@ -76,6 +77,7 @@ namespace AlienCrusher.Systems
 			ApplyRuntimeMapCameraBounds(layout);
 			LogRuntimeStageMapSummary(mapRoot, layout, theme);
 			Debug.Log((object)$"[AlienCrusher] Runtime stage map rebuilt for stage {layout.Stage:00}: {layout.MapSize:0.#}m, {layout.XCells}x{layout.ZCells} lots.");
+			AmbientStageBandSet.Apply(Mathf.Max(1, currentStageNumber));
 		}
 
 #if UNITY_EDITOR
@@ -397,6 +399,10 @@ namespace AlienCrusher.Systems
 				color3f = new Color(0.28f, 0.82f, 0.98f, 1f);
 				break;
 			}
+			// PAL_RouteMarker_Tints: keep Target_A / Target_B / routeColor above district and boss colors.
+			color3 = RouteMarkerTintSet.Marker;
+			color3h = RouteMarkerTintSet.Paint;
+			DistrictRhythmPaletteSet.TryApplyCoreRhythmPalette(currentStageNumber, ref color, ref color2, ref color3b, ref color3g, ref color3i, ref val5, ref val6, ref val7, ref val8, ref color3e, ref color3f, ref val9, ref val10);
 			num = Mathf.Clamp01(num + layout.Growth01 * 0.08f);
 			num2 = Mathf.Clamp01(num2 + layout.Growth01 * 0.08f);
 			num3 = Mathf.Clamp01(num3 + layout.Growth01 * 0.07f);
@@ -929,6 +935,7 @@ namespace AlienCrusher.Systems
 			EnsureStarterDestructionCluster(orCreateDirectChild, orCreateDirectChild2, orCreateDirectChild5, footprints, color3d, val7, val8, color3e, color3f, num27BoundaryPadding, ResolveStarterClusterCenter(layout));
 			EnsurePrimitive(orCreateDirectChild4, "Target_A", (PrimitiveType)2, new Vector3(-layout.TargetX, 0.15f, layout.TargetForwardZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
 			EnsurePrimitive(orCreateDirectChild4, "Target_B", (PrimitiveType)2, new Vector3(layout.TargetX, 0.15f, layout.TargetReturnZ), new Vector3(1.5f, 0.15f, 1.5f), color3);
+			FillRouteGapStreetProps(orCreateDirectChild3, orCreateDirectChild2, footprints, layout, val3, val4, val9, val10, color3e, color3f);
 			return runtimeCityThemeProfile;
 		}
 
@@ -1135,9 +1142,9 @@ namespace AlienCrusher.Systems
 			Vector3 crane = new Vector3(center.x - 2.85f, 1.2f, center.z + 2.05f);
 			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref crane, 0.34f, 0.34f, mapPadding))
 			{
-				EnsurePrimitive(root, "YardCraneMast", (PrimitiveType)3, crane, new Vector3(0.22f, 2.4f, 0.22f), Color.Lerp(neutralColor, Color.black, 0.18f));
-				EnsurePrimitive(root, "YardCraneArm", (PrimitiveType)3, new Vector3(crane.x + 1.1f, crane.y + 1.16f, crane.z), new Vector3(2.4f, 0.16f, 0.18f), Color.Lerp(hazardB, Color.white, 0.12f));
-				EnsurePrimitive(root, "YardCraneHook", (PrimitiveType)3, new Vector3(crane.x + 2.15f, crane.y + 0.52f, crane.z), new Vector3(0.14f, 0.72f, 0.14f), hazardA);
+				EnsureDestructiblePrimitive(root, "YardCraneMast", (PrimitiveType)3, crane, new Vector3(0.22f, 2.4f, 0.22f), Color.Lerp(neutralColor, Color.black, 0.18f), 3);
+				EnsureDestructiblePrimitive(root, "YardCraneArm", (PrimitiveType)3, new Vector3(crane.x + 1.1f, crane.y + 1.16f, crane.z), new Vector3(2.4f, 0.16f, 0.18f), Color.Lerp(hazardB, Color.white, 0.12f), 2);
+				EnsureDestructiblePrimitive(root, "YardCraneHook", (PrimitiveType)3, new Vector3(crane.x + 2.15f, crane.y + 0.52f, crane.z), new Vector3(0.14f, 0.72f, 0.14f), hazardA, 1);
 			}
 		}
 
@@ -1271,8 +1278,8 @@ namespace AlienCrusher.Systems
 			Vector3 crane = new Vector3(center.x + 3.75f, 1.75f, center.z - 2.55f);
 			if (TryReserveRuntimeLandmarkFootprint(footprints, layout, ref crane, 0.42f, 0.42f, mapPadding))
 			{
-				EnsurePrimitive(root, "HarborCraneMast", (PrimitiveType)3, crane, new Vector3(0.3f, 3.5f, 0.3f), neutralColor);
-				EnsurePrimitive(root, "HarborCraneArm", (PrimitiveType)3, new Vector3(crane.x - 1.55f, crane.y + 1.62f, crane.z), new Vector3(3.4f, 0.22f, 0.24f), hazardB);
+				EnsureDestructiblePrimitive(root, "HarborCraneMast", (PrimitiveType)3, crane, new Vector3(0.3f, 3.5f, 0.3f), neutralColor, 4);
+				EnsureDestructiblePrimitive(root, "HarborCraneArm", (PrimitiveType)3, new Vector3(crane.x - 1.55f, crane.y + 1.62f, crane.z), new Vector3(3.4f, 0.22f, 0.24f), hazardB, 3);
 			}
 		}
 
@@ -1565,7 +1572,7 @@ namespace AlienCrusher.Systems
 				}
 			}
 
-			return count;
+			return count + CountOpeningStreetProps(mapRoot, layout);
 		}
 
 		private static bool IsInsideRuntimeMapBounds(Vector3 localPoint, RuntimeStageMapLayout layout, float padding)
@@ -1612,6 +1619,10 @@ namespace AlienCrusher.Systems
 		{
 			Transform mapRoot = FindChildByName(null, "MapRoot");
 			if ((Object)(object)mapRoot == (Object)null || (Object)(object)FindChildByName(mapRoot, "StarterClusterBlock_00_00") != (Object)null)
+			{
+				return;
+			}
+			if (rebuildRuntimeMapOnStageStart || HasAuthoredOpeningStretch(mapRoot))
 			{
 				return;
 			}
@@ -1842,7 +1853,7 @@ namespace AlienCrusher.Systems
 				return RuntimeCityThemeProfile.IndustrialHarbor;
 			}
 
-			int num2 = Environment.TickCount ^ (((Object)(object)mapRoot != (Object)null) ? (((Object)mapRoot).GetInstanceID() * 397) : 0) ^ num * 733;
+			int num2 = Environment.TickCount ^ (((Object)(object)mapRoot != (Object)null) ? (mapRoot.ToDeterministicSeed() * 397) : 0) ^ num * 733;
 			return (new System.Random(num2).Next(0, 2) == 0) ? RuntimeCityThemeProfile.DenseCore : RuntimeCityThemeProfile.IndustrialHarbor;
 		}
 
@@ -1864,6 +1875,7 @@ namespace AlienCrusher.Systems
 			((Component)orCreateDirectChild).gameObject.SetActive(true);
 			GameObject hitTarget = EnsurePrimitive(orCreateDirectChild, "Pole", (PrimitiveType)2, new Vector3(0f, 1.05f, 0f), new Vector3(0.08f, 1.05f, 0.08f), new Color(0.7f, 0.74f, 0.8f));
 			EnsurePrimitive(orCreateDirectChild, "Head", (PrimitiveType)3, new Vector3(0f, 2.1f, 0f), new Vector3(0.36f, 0.16f, 0.36f), new Color(1f, 0.9f, 0.55f));
+			ApplyStreetLampOrTrafficLightKit(orCreateDirectChild, name);
 			EnsureStreetPropReactiveRuntime(hitTarget, orCreateDirectChild, DummyStreetPropReactive.PropKind.Lamp);
 		}
 
@@ -1885,6 +1897,7 @@ namespace AlienCrusher.Systems
 			((Component)orCreateDirectChild).gameObject.SetActive(true);
 			GameObject hitTarget = EnsurePrimitive(orCreateDirectChild, "Trunk", (PrimitiveType)2, new Vector3(0f, 0.55f, 0f), new Vector3(0.18f, 0.55f, 0.18f), new Color(0.35f, 0.25f, 0.16f));
 			EnsurePrimitive(orCreateDirectChild, "Leaves", (PrimitiveType)0, new Vector3(0f, 1.35f, 0f), new Vector3(0.95f, 0.95f, 0.95f), leafColor);
+			ApplyRoadsideTreeKit(orCreateDirectChild, leafColor);
 			EnsureStreetPropReactiveRuntime(hitTarget, orCreateDirectChild, DummyStreetPropReactive.PropKind.Tree);
 		}
 
@@ -1920,6 +1933,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(orCreateDirectChild, "Band_A", (PrimitiveType)2, new Vector3(0f, 0.61f, 0f), new Vector3(0.57f, 0.05f, 0.57f), Color.Lerp(bodyColor, Color.white, 0.22f));
 			EnsurePrimitive(orCreateDirectChild, "Band_B", (PrimitiveType)2, new Vector3(0f, 0.23f, 0f), new Vector3(0.57f, 0.05f, 0.57f), Color.Lerp(bodyColor, Color.black, 0.18f));
 			EnsurePrimitive(orCreateDirectChild, "Core", (PrimitiveType)0, new Vector3(0f, 0.42f, 0f), new Vector3(0.22f, 0.22f, 0.22f), Color.Lerp(bodyColor, new Color(1f, 0.86f, 0.3f), 0.4f));
+			ApplyExplosiveBarrelKit(orCreateDirectChild, bodyColor);
 			EnsureStreetPropReactiveRuntime(hitTarget, orCreateDirectChild, DummyStreetPropReactive.PropKind.ChainBarrel);
 		}
 
@@ -1957,6 +1971,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(orCreateDirectChild, "Pole_L", (PrimitiveType)2, new Vector3(-0.26f, 0.95f, 0f), new Vector3(0.08f, 0.32f, 0.08f), new Color(0.74f, 0.76f, 0.8f));
 			EnsurePrimitive(orCreateDirectChild, "Pole_R", (PrimitiveType)2, new Vector3(0.26f, 0.95f, 0f), new Vector3(0.08f, 0.32f, 0.08f), new Color(0.74f, 0.76f, 0.8f));
 			EnsurePrimitive(orCreateDirectChild, "Core", (PrimitiveType)0, new Vector3(0f, 0.78f, 0f), new Vector3(0.24f, 0.24f, 0.24f), Color.Lerp(baseColor, new Color(1f, 0.86f, 0.36f), 0.48f));
+			ApplyTransformerKit(orCreateDirectChild, baseColor);
 			EnsureStreetPropReactiveRuntime(hitTarget, orCreateDirectChild, DummyStreetPropReactive.PropKind.Transformer);
 		}
 
@@ -1966,6 +1981,7 @@ namespace AlienCrusher.Systems
 			Transform transform = gameObject.transform;
 			EnsurePrimitive(transform, "Post", (PrimitiveType)2, new Vector3(0f, -0.18f, 0f), new Vector3(0.08f, 0.18f, 0.08f), postColor);
 			EnsurePrimitive(transform, "Flag", (PrimitiveType)3, new Vector3(0.19f, 0.06f, 0f), new Vector3(0.06f, 0.16f, 0.04f), Color.Lerp(boxColor, Color.white, 0.22f));
+			ApplyMailboxKit(transform, boxColor);
 		}
 
 		private static void EnsureResidentialFenceRuntime(Transform parent, string name, Vector3 localPosition, Color color)
@@ -1976,6 +1992,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(transform, "RailBottom", (PrimitiveType)3, new Vector3(0f, -0.08f, 0f), new Vector3(0.94f, 0.08f, 0.06f), Color.Lerp(color, Color.black, 0.08f));
 			EnsurePrimitive(transform, "Post_L", (PrimitiveType)3, new Vector3(-0.34f, 0f, 0f), new Vector3(0.08f, 0.48f, 0.08f), Color.Lerp(color, Color.black, 0.12f));
 			EnsurePrimitive(transform, "Post_R", (PrimitiveType)3, new Vector3(0.34f, 0f, 0f), new Vector3(0.08f, 0.48f, 0.08f), Color.Lerp(color, Color.black, 0.12f));
+			ApplyFenceKit(transform, color);
 		}
 
 		private static void EnsureResidentialShedRuntime(Transform parent, string name, Vector3 localPosition, Vector3 scale, Color color)
@@ -1984,6 +2001,7 @@ namespace AlienCrusher.Systems
 			Transform transform = gameObject.transform;
 			EnsurePrimitive(transform, "Roof", (PrimitiveType)3, new Vector3(0f, scale.y * 0.62f, 0f), new Vector3(scale.x * 1.08f, scale.y * 0.18f, scale.z * 1.08f), Color.Lerp(color, Color.black, 0.18f));
 			EnsurePrimitive(transform, "Door", (PrimitiveType)3, new Vector3(0f, 0f - scale.y * 0.08f, scale.z * 0.5f + 0.01f), new Vector3(scale.x * 0.28f, scale.y * 0.55f, 0.04f), Color.Lerp(color, Color.black, 0.24f));
+			ApplyShedKit(transform, color);
 		}
 
 		private static void EnsureCommercialAwningRuntime(Transform parent, string name, Vector3 localPosition, Vector3 scale, Color color)
@@ -2011,6 +2029,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(transform, "ShopRoof", (PrimitiveType)3, new Vector3(0f, scale.y * 0.52f, 0f), new Vector3(scale.x * 1.12f, scale.y * 0.18f, scale.z * 1.12f), Color.Lerp(color, Color.black, 0.22f));
 			EnsurePrimitive(transform, "ShopCounter", (PrimitiveType)3, new Vector3(0f, 0f - scale.y * 0.08f, scale.z * 0.5f + 0.03f), new Vector3(scale.x * 0.76f, scale.y * 0.32f, 0.08f), Color.Lerp(color, Color.white, 0.12f));
 			EnsurePrimitive(transform, "ShopStripe", (PrimitiveType)3, new Vector3(0f, scale.y * 0.14f, scale.z * 0.5f + 0.02f), new Vector3(scale.x * 0.82f, scale.y * 0.18f, 0.05f), Color.Lerp(color, Color.white, 0.28f));
+			ApplyKioskKit(transform, color);
 		}
 
 		private static void EnsureCommercialBenchRuntime(Transform parent, string name, Vector3 localPosition, Color color)
@@ -2021,6 +2040,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(transform, "BenchBack", (PrimitiveType)3, new Vector3(0f, 0.16f, -0.1f), new Vector3(0.98f, 0.22f, 0.08f), Color.Lerp(color, Color.black, 0.1f));
 			EnsurePrimitive(transform, "BenchLeg_L", (PrimitiveType)3, new Vector3(-0.28f, -0.12f, 0f), new Vector3(0.08f, 0.22f, 0.08f), Color.Lerp(color, Color.black, 0.22f));
 			EnsurePrimitive(transform, "BenchLeg_R", (PrimitiveType)3, new Vector3(0.28f, -0.12f, 0f), new Vector3(0.08f, 0.22f, 0.08f), Color.Lerp(color, Color.black, 0.22f));
+			ApplyBenchKit(transform, color);
 		}
 
 		private static void EnsureCommercialBusStopRuntime(Transform parent, string name, Vector3 localPosition, Color color)
@@ -2031,6 +2051,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(transform, "StopPanel", (PrimitiveType)3, new Vector3(0f, 0f, -0.07f), new Vector3(0.76f, 0.74f, 0.06f), Color.Lerp(color, Color.white, 0.22f));
 			EnsurePrimitive(transform, "StopPole_L", (PrimitiveType)3, new Vector3(-0.34f, 0f, 0f), new Vector3(0.08f, 0.96f, 0.08f), Color.Lerp(color, Color.black, 0.24f));
 			EnsurePrimitive(transform, "StopPole_R", (PrimitiveType)3, new Vector3(0.34f, 0f, 0f), new Vector3(0.08f, 0.96f, 0.08f), Color.Lerp(color, Color.black, 0.24f));
+			ApplyBusStopKit(transform, color);
 		}
 
 		private static void EnsureCommercialVendingRuntime(Transform parent, string name, Vector3 localPosition, Color color)
@@ -2040,6 +2061,7 @@ namespace AlienCrusher.Systems
 			EnsurePrimitive(transform, "VendFace", (PrimitiveType)3, new Vector3(0f, 0.04f, 0.27f), new Vector3(0.46f, 0.78f, 0.04f), Color.Lerp(color, Color.white, 0.26f));
 			EnsurePrimitive(transform, "VendSlot", (PrimitiveType)3, new Vector3(0f, -0.28f, 0.28f), new Vector3(0.28f, 0.08f, 0.05f), Color.Lerp(color, Color.black, 0.24f));
 			EnsurePrimitive(transform, "VendCap", (PrimitiveType)3, new Vector3(0f, 0.44f, 0f), new Vector3(0.62f, 0.08f, 0.56f), Color.Lerp(color, Color.black, 0.18f));
+			ApplyVendingKit(transform, color);
 		}
 
 		private static void EnsureStreetPropReactiveRuntime(GameObject hitTarget, Transform propRoot, DummyStreetPropReactive.PropKind kind)

@@ -117,7 +117,7 @@
 ### 사람 개입
 
 - [ ] `ROUTE HOLD`의 지위를 **필수 조건** 또는 **고득점 선택지** 중 하나로 결정하고 `Docs/GAME_DESIGN_GAP_POLICY.md`에 반영한다.
-- [ ] Unity 6000.3.8f1에서 현재 날짜 Runtime Green을 확인한다. 2026-07-14 배치는 IL Post Processor 단계에서 타임아웃됐고, 2026-08-11에는 프로젝트별 잠금 판정을 수정했으나 stale Temp/UnityLockfile 삭제가 승인되지 않아 실행을 보류했다.
+- [ ] Unity 6000.5.9f1에서 현재 날짜 Runtime Green을 확인한다. 2026-07-14 배치는 IL Post Processor 단계에서 타임아웃됐고, 2026-08-11에는 프로젝트별 잠금 판정을 수정했으나 stale Temp/UnityLockfile 삭제가 승인되지 않아 실행을 보류했다.
 - [ ] 실제 `F10` Stage 1-7 sweep을 실행하고 `Docs/AlienCrusherStagePlaytestNotes.md`에 28 notes와 화면/영상 근거를 기록한다.
 - [ ] DP, 선택 형태, 스테이지 해금, 메타 업그레이드가 종료·재진입 후 유지되는 save smoke를 수행한다.
 - [ ] `Tools/TestPlaytestEvidenceGate.ps1` 결과와 체감 관찰을 함께 검토해 Evidence Green / Decision Green을 승인한다.

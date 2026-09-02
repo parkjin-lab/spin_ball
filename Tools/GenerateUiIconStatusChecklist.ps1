@@ -4,7 +4,11 @@ param(
     [string]$UiFlowPath = "",
     [string]$UpgradeUiPath = "",
     [string]$StageEncounterPath = "",
-    [string]$MetaProgressionPath = ""
+    [string]$MetaProgressionPath = "",
+    [string]$IconHookPath = "",
+    [string]$BossIconHookPath = "",
+    [string]$StatusIconHookPath = "",
+    [string]$BadgeHookPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,6 +59,10 @@ $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath 
 $upgradeUiSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UpgradeUiPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UpgradeUI.cs"
 $stageEncounterSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageEncounterPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageEncounter.cs"
 $metaProgressionSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $MetaProgressionPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.MetaProgression.cs"
+$iconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $IconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.RunEssentialIcons.cs"
+$bossIconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $BossIconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.BossReadabilityIcons.cs"
+$statusIconHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StatusIconHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UpgradeStatusIcons.cs"
+$badgeHookSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $BadgeHookPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.ResultLobbyBadges.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherUiIconStatusChecklist.md"
@@ -72,6 +80,11 @@ $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
 $upgradeUiText = Read-SourceText -Path $upgradeUiSourcePath
 $stageEncounterText = Read-SourceText -Path $stageEncounterSourcePath
 $metaProgressionText = Read-SourceText -Path $metaProgressionSourcePath
+$iconHookText = Read-SourceText -Path $iconHookSourcePath
+$bossIconHookText = Read-SourceText -Path $bossIconHookSourcePath
+$statusIconHookText = Read-SourceText -Path $statusIconHookSourcePath
+$badgeHookText = Read-SourceText -Path $badgeHookSourcePath
+$allIconHookText = $iconHookText + $bossIconHookText + $statusIconHookText + $badgeHookText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -113,6 +126,56 @@ foreach ($needle in @(
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $metaProgressionText -Needle $needle
 }
 
+foreach ($needle in @(
+    "Icon_DP",
+    "Icon_Stage",
+    "Icon_NextStep",
+    "Icon_Route",
+    "EnsureRunEssentialIcons",
+    "HudRunEssentialIcons"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $iconHookText -Needle $needle
+}
+
+foreach ($needle in @(
+    "Icon_BreakWindow",
+    "Icon_Shield",
+    "Icon_WeakPoint",
+    "Icon_Boss",
+    "EnsureBossReadabilityIcons",
+    "HudBossReadabilityIcons"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $bossIconHookText -Needle $needle
+}
+
+foreach ($needle in @(
+    "Icon_Overdrive",
+    "Icon_Panic",
+    "Icon_Seismic",
+    "Icon_Retail",
+    "Icon_Traffic",
+    "EnsureUpgradeStatusIcons",
+    "HudUpgradeStatusIcons"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $statusIconHookText -Needle $needle
+}
+
+foreach ($needle in @(
+    "Badge_Result_Clear",
+    "Badge_Boss_Clear",
+    "Badge_Result_Failure",
+    "Badge_Fail_Opening",
+    "Badge_Fail_Hold",
+    "Badge_Fail_Drift",
+    "Badge_Fail_Push",
+    "Badge_Fail_Boss",
+    "Badge_Locked",
+    "Badge_Recommended",
+    "EnsureResultLobbyBadges"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $badgeHookText -Needle $needle
+}
+
 $iconCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_DP"; RuntimeUse = "DP balance, rewards, meta purchases"; Shape = "cracked diamond or alien currency pip"; Folder = "Assets/Resources/UI/Icons/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_Stage"; RuntimeUse = "stage select and result stage identity"; Shape = "stacked district blocks with number badge space"; Folder = "Assets/Resources/UI/Icons/" },
@@ -128,7 +191,13 @@ $iconCatalog = @(
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_Traffic"; RuntimeUse = "traffic density and vehicle state"; Shape = "road lane plus small car"; Folder = "Assets/Resources/UI/Icons/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Icon_Boss"; RuntimeUse = "Justice Sentinel boss state"; Shape = "sentinel eye inside heavy frame"; Folder = "Assets/Resources/UI/Icons/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Result_Clear"; RuntimeUse = "result success state"; Shape = "wide badge with upward shard"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Boss_Clear"; RuntimeUse = "result boss victory state"; Shape = "wide steel plate with down chevron and slit eye"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Result_Failure"; RuntimeUse = "result failure bucket state"; Shape = "wide badge with broken route notch"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Opening"; RuntimeUse = "result OPENING FAILED state"; Shape = "rust plate with stacked low-rise bars"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Hold"; RuntimeUse = "result ROUTE HOLD MISSED state"; Shape = "rust plate with broken trail and beacon diamond"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Drift"; RuntimeUse = "result MID-RUN DRIFT state"; Shape = "rust plate with offset broken chevrons"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Push"; RuntimeUse = "result FINAL PUSH FAILED state"; Shape = "rust plate with notched forward wedge"; Folder = "Assets/Resources/UI/Badges/" },
+    [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Fail_Boss"; RuntimeUse = "result BOSS PHASE fail state"; Shape = "steel plate with cracked slit eye, not the victory down-chevron"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Locked"; RuntimeUse = "locked form/meta state"; Shape = "small lock plate"; Folder = "Assets/Resources/UI/Badges/" },
     [pscustomobject]@{ Priority = "P1"; Asset = "Badge_Recommended"; RuntimeUse = "recommended next upgrade/form"; Shape = "small focus chevron"; Folder = "Assets/Resources/UI/Badges/" }
 )
@@ -157,13 +226,19 @@ $productionBatches = @(
         Goal = "make clear, failure, locked, and recommended states visible before reading breakdown copy"
         Targets = @("Badge_Result_Clear", "Badge_Result_Failure", "Badge_Locked", "Badge_Recommended")
         Acceptance = "result/lobby cards show success, failure, lock, and recommendation states at a glance"
+    },
+    [pscustomobject]@{
+        Batch = "E. Failure bucket badges"
+        Goal = "make the last-run fail reason scannable on result before reading advice copy"
+        Targets = @("Badge_Fail_Opening", "Badge_Fail_Hold", "Badge_Fail_Drift", "Badge_Fail_Push", "Badge_Fail_Boss")
+        Acceptance = "OPENING FAILED, ROUTE HOLD MISSED, MID-RUN DRIFT, FINAL PUSH FAILED, and BOSS PHASE use distinct result plates, not one shared rust notch"
     }
 )
 
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher UI Icon And Status Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`' -f $uiFlowSourcePath, $upgradeUiSourcePath, $stageEncounterSourcePath, $metaProgressionSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`, `{6}`, `{7}`' -f $uiFlowSourcePath, $upgradeUiSourcePath, $stageEncounterSourcePath, $metaProgressionSourcePath, $iconHookSourcePath, $bossIconHookSourcePath, $statusIconHookSourcePath, $badgeHookSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: convert the current text-heavy HUD, lobby, result, upgrade, route, and boss states into a concrete icon/status production list.")
 $lines.Add("")
@@ -215,7 +290,8 @@ $lines.Add("## Current UI Icon And Status Targets")
 $lines.Add("| Priority | Asset | Runtime use | Shape target | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|")
 foreach ($icon in $iconCatalog) {
-    $lines.Add(("| {0} | `{1}` | {2} | {3} | `{4}` | [ ] |" -f $icon.Priority, $icon.Asset, $icon.RuntimeUse, $icon.Shape, $icon.Folder))
+    $doneMark = if ($allIconHookText.Contains($icon.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | `{1}` | {2} | {3} | `{4}` | {5} |" -f $icon.Priority, $icon.Asset, $icon.RuntimeUse, $icon.Shape, $icon.Folder, $doneMark))
 }
 
 $lines.Add("")

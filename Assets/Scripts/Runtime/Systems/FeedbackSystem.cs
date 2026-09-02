@@ -1,12 +1,22 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 #if MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED
 using Lofelt.NiceVibrations;
 #endif
 
 namespace AlienCrusher.Systems
 {
+    public enum SmashBreakWeight
+    {
+        Light = 0,
+        Mid = 1,
+        Heavy = 2
+    }
+
     [DisallowMultipleComponent]
     public class FeedbackSystem : MonoBehaviour
     {
@@ -141,6 +151,7 @@ namespace AlienCrusher.Systems
         private void Awake()
         {
             ResolveReferences();
+            EnsureDraftRhythmClips();
             EnsureFlashOverlay();
             BuildBurstPool();
         }
@@ -154,6 +165,11 @@ namespace AlienCrusher.Systems
 
         public void PlayHitFeedback(Vector3 worldPosition, float normalizedImpact)
         {
+            PlayHitFeedback(worldPosition, normalizedImpact, forceHeavy: false);
+        }
+
+        public void PlayHitFeedback(Vector3 worldPosition, float normalizedImpact, bool forceHeavy)
+        {
             normalizedImpact = Mathf.Clamp01(normalizedImpact);
 
             PlayScreenFlash(Color.Lerp(new Color(1f, 0.95f, 0.82f, 1f), burstBaseColor, normalizedImpact),
@@ -163,7 +179,7 @@ namespace AlienCrusher.Systems
             ApplyCameraFeedback(Mathf.Lerp(hitCameraImpulse * 0.6f, hitCameraImpulse, normalizedImpact),
                 Mathf.Lerp(fovPunchOnHit * 0.55f, fovPunchOnHit, normalizedImpact));
 
-            PlayAudio(normalizedImpact > 0.62f ? hitMediumClip : hitLightClip, Mathf.Lerp(0.62f, 0.86f, normalizedImpact), Mathf.Lerp(0.96f, 1.05f, normalizedImpact));
+            PlayAudio(ResolveHitWeightClip(normalizedImpact, forceHeavy), Mathf.Lerp(0.62f, 0.86f, normalizedImpact), Mathf.Lerp(0.96f, 1.05f, normalizedImpact));
             PlayHaptic(destroyed: false, normalizedImpact);
         }
 
@@ -171,37 +187,97 @@ namespace AlienCrusher.Systems
         {
             normalizedImpact = Mathf.Clamp01(normalizedImpact);
 
-            PlayScreenFlash(Color.Lerp(burstBaseColor, burstHotColor, normalizedImpact),
-                Mathf.Lerp(destroyFlashAlpha * 0.72f, destroyFlashAlpha, normalizedImpact), 0.05f, 0.17f);
+            if (SmashVfxBudget.TryConsumeDestroyVisual())
+            {
+                PlayScreenFlash(Color.Lerp(burstBaseColor, burstHotColor, normalizedImpact),
+                    Mathf.Lerp(destroyFlashAlpha * 0.72f, destroyFlashAlpha, normalizedImpact), 0.05f, 0.17f);
 
-            SpawnBurst(worldPosition, normalizedImpact, heavy: true);
-            ApplyCameraFeedback(Mathf.Lerp(destroyCameraImpulse * 0.7f, destroyCameraImpulse, normalizedImpact),
-                Mathf.Lerp(fovPunchOnDestroy * 0.65f, fovPunchOnDestroy, normalizedImpact));
+                SpawnBurst(worldPosition, normalizedImpact, heavy: true);
+                ApplyCameraFeedback(Mathf.Lerp(destroyCameraImpulse * 0.7f, destroyCameraImpulse, normalizedImpact),
+                    Mathf.Lerp(fovPunchOnDestroy * 0.65f, fovPunchOnDestroy, normalizedImpact));
+            }
 
             PlayAudio(normalizedImpact > 0.7f ? breakLargeClip : breakSmallClip, Mathf.Lerp(0.72f, 1f, normalizedImpact), Mathf.Lerp(0.94f, 1.02f, normalizedImpact));
             PlayHaptic(destroyed: true, normalizedImpact);
         }
+
+        public void PlayDestroyFeedback(Vector3 worldPosition, float normalizedImpact, SmashBreakWeight weight)
+        {
+            if (weight == SmashBreakWeight.Light)
+            {
+                normalizedImpact = Mathf.Clamp01(normalizedImpact);
+                if (SmashVfxBudget.TryConsumeDestroyVisual())
+                {
+                    PlayScreenFlash(Color.Lerp(new Color(1f, 0.95f, 0.82f, 1f), burstBaseColor, normalizedImpact),
+                        Mathf.Lerp(hitFlashAlpha * 0.7f, hitFlashAlpha, normalizedImpact), 0.04f, 0.11f);
+                    SpawnBurst(worldPosition, normalizedImpact, heavy: false);
+                    ApplyCameraFeedback(Mathf.Lerp(hitCameraImpulse * 0.55f, hitCameraImpulse * 0.85f, normalizedImpact),
+                        Mathf.Lerp(fovPunchOnHit * 0.5f, fovPunchOnHit * 0.8f, normalizedImpact));
+                }
+
+                PlayAudio(breakSmallClip, Mathf.Lerp(0.68f, 0.88f, normalizedImpact), Mathf.Lerp(0.98f, 1.04f, normalizedImpact));
+                PlayHaptic(destroyed: true, normalizedImpact);
+                return;
+            }
+
+            if (weight == SmashBreakWeight.Heavy)
+            {
+                PlayDestroyFeedback(worldPosition, 1f);
+                return;
+            }
+
+            PlayDestroyFeedback(worldPosition, Mathf.Clamp(normalizedImpact, 0.72f, 0.86f));
+        }
         public void PlayComboRushFeedback(Vector3 worldCenter, float normalizedIntensity, float radius)
         {
             normalizedIntensity = Mathf.Clamp01(normalizedIntensity);
-            var flashColor = Color.Lerp(comboRushFlashColorA, comboRushFlashColorB, normalizedIntensity);
-            var flashAlpha = Mathf.Lerp(comboRushFlashAlpha * 0.65f, comboRushFlashAlpha, normalizedIntensity);
-            PlayScreenFlash(flashColor, flashAlpha, 0.035f, 0.22f);
-            PlayComboRushRing(normalizedIntensity);
-            var bursts = Mathf.Max(2, comboRushBurstCount + Mathf.RoundToInt(normalizedIntensity * 3f));
-            var spread = Mathf.Max(0.85f, comboRushBurstSpread + Mathf.Min(radius, 6f) * 0.25f);
-            for (var i = 0; i < bursts; i++)
+            if (SmashVfxBudget.TryConsumeComboRushVisual())
             {
-                var angle = (360f / bursts) * i + Random.Range(-18f, 18f);
-                var dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
-                var pos = worldCenter + dir * spread * Random.Range(0.55f, 1f);
-                SpawnBurst(pos + Vector3.up * 0.35f, Mathf.Clamp01(0.62f + normalizedIntensity * 0.38f), heavy: true);
+                var flashColor = Color.Lerp(comboRushFlashColorA, comboRushFlashColorB, normalizedIntensity);
+                var flashAlpha = Mathf.Lerp(comboRushFlashAlpha * 0.65f, comboRushFlashAlpha, normalizedIntensity);
+                PlayScreenFlash(flashColor, flashAlpha, 0.035f, 0.22f);
+                PlayComboRushRing(normalizedIntensity);
+                var bursts = Mathf.Max(2, comboRushBurstCount + Mathf.RoundToInt(normalizedIntensity * 3f));
+                var spread = Mathf.Max(0.85f, comboRushBurstSpread + Mathf.Min(radius, 6f) * 0.25f);
+                for (var i = 0; i < bursts; i++)
+                {
+                    var angle = (360f / bursts) * i + Random.Range(-18f, 18f);
+                    var dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+                    var pos = worldCenter + dir * spread * Random.Range(0.55f, 1f);
+                    SpawnBurst(pos + Vector3.up * 0.35f, Mathf.Clamp01(0.62f + normalizedIntensity * 0.38f), heavy: true);
+                }
+                SpawnBurst(worldCenter + Vector3.up * 0.4f, Mathf.Clamp01(0.8f + normalizedIntensity * 0.2f), heavy: true);
+                ApplyCameraFeedback(Mathf.Lerp(comboRushCameraImpulse * 0.68f, comboRushCameraImpulse, normalizedIntensity),
+                    Mathf.Lerp(comboRushFovPunch * 0.6f, comboRushFovPunch, normalizedIntensity));
             }
-            SpawnBurst(worldCenter + Vector3.up * 0.4f, Mathf.Clamp01(0.8f + normalizedIntensity * 0.2f), heavy: true);
-            ApplyCameraFeedback(Mathf.Lerp(comboRushCameraImpulse * 0.68f, comboRushCameraImpulse, normalizedIntensity),
-                Mathf.Lerp(comboRushFovPunch * 0.6f, comboRushFovPunch, normalizedIntensity));
+
             PlayAudio(comboRiseClip, Mathf.Lerp(0.72f, 1f, normalizedIntensity), Mathf.Lerp(1f, 1.12f, normalizedIntensity));
             PlayHaptic(destroyed: true, Mathf.Clamp01(0.75f + normalizedIntensity * 0.25f));
+        }
+
+        public void PlaySpherePulseMark(Vector3 worldCenter, float radius)
+        {
+            SpherePulseMarkDriver.Spawn(worldCenter, radius);
+        }
+
+        public void PlayRamBreachMark(Vector3 worldCenter, float radius, Vector3 forward)
+        {
+            SpherePulseMarkDriver.SpawnRamBreach(worldCenter, radius, forward);
+        }
+
+        public void PlaySaucerDashMark(Vector3 worldCenter, float radius)
+        {
+            SpherePulseMarkDriver.SpawnSaucerDash(worldCenter, radius);
+        }
+
+        public void PlaySpikeBurstMark(Vector3 worldCenter, float radius)
+        {
+            SpherePulseMarkDriver.SpawnSpikeBurst(worldCenter, radius);
+        }
+
+        public void PlayCrusherSlamMark(Vector3 worldCenter, float radius)
+        {
+            SpherePulseMarkDriver.SpawnCrusherSlam(worldCenter, radius);
         }
 
         public void PlayRetailFrenzyFeedback(Vector3 worldCenter, float normalizedIntensity, float radius)
@@ -268,7 +344,7 @@ namespace AlienCrusher.Systems
             PlayAudio(levelUpClip, 0.86f, 1.04f);
         }
 
-        public void PlayTotalDestructionFeedback(Vector3 center, float intensity)
+        public void PlayTotalDestructionFeedback(Vector3 center, float intensity, bool playAudio = true)
         {
             intensity = Mathf.Clamp01(intensity);
             PlayMilestoneFeedback(
@@ -283,7 +359,10 @@ namespace AlienCrusher.Systems
                 heavyBursts: true,
                 destroyedHaptic: true,
                 hapticIntensity: Mathf.Lerp(0.7f, 1f, intensity));
-            PlayAudio(routeBonusClip, Mathf.Lerp(0.78f, 1f, intensity), Mathf.Lerp(0.96f, 1.04f, intensity));
+            if (playAudio)
+            {
+                PlayAudio(routeBonusClip, Mathf.Lerp(0.78f, 1f, intensity), Mathf.Lerp(0.96f, 1.04f, intensity));
+            }
         }
 
         public void PlayBossDownFeedback(Vector3 center, float intensity)
@@ -382,6 +461,7 @@ namespace AlienCrusher.Systems
                 ? Mathf.Lerp(0.14f, 0.26f, normalizedIntensity)
                 : Mathf.Lerp(0.08f, 0.18f, normalizedIntensity);
             PlayScreenFlash(flashColor, flashAlpha, 0.02f, bossCore ? 0.18f : 0.12f);
+            DestructionBreakFeedbackVfx.PlayWeakPointHit(center, bossCore);
 
             var ringIntensity = bossCore ? Mathf.Lerp(0.68f, 1f, normalizedIntensity) : Mathf.Lerp(0.45f, 0.8f, normalizedIntensity);
             PlayComboRushRing(ringIntensity);
@@ -432,6 +512,24 @@ namespace AlienCrusher.Systems
                 Mathf.Lerp(hudWarningCameraImpulse * 0.6f, hudWarningCameraImpulse, intensity),
                 Mathf.Lerp(hudWarningFovPunch * 0.55f, hudWarningFovPunch, intensity));
             PlayAudio(bossRelated ? bossWarningClip : routeHoldWarningClip, Mathf.Lerp(0.45f, 0.72f, intensity), bossRelated ? 0.92f : 1f);
+        }
+
+        public void PlayRouteOpenCue(float intensity = 0.62f)
+        {
+            intensity = Mathf.Clamp01(intensity);
+            PlayAudio(routeOpenClip, Mathf.Lerp(0.72f, 0.96f, intensity), Mathf.Lerp(1f, 1.08f, intensity));
+        }
+
+        public void PlayBossWarningCue(float intensity = 0.7f)
+        {
+            intensity = Mathf.Clamp01(intensity);
+            PlayAudio(bossWarningClip, Mathf.Lerp(0.55f, 0.82f, intensity), Mathf.Lerp(0.9f, 0.98f, intensity));
+        }
+
+        public void PlayBossBreakCue(float intensity = 0.78f)
+        {
+            intensity = Mathf.Clamp01(intensity);
+            PlayAudio(bossBreakClip, Mathf.Lerp(0.68f, 0.94f, intensity), Mathf.Lerp(0.96f, 1.02f, intensity));
         }
 
         public void PlayFailureBeatFeedback(Vector3 center, bool bossRelated, float intensity = 1f)
@@ -517,7 +615,7 @@ namespace AlienCrusher.Systems
             mainCamera = Camera.main;
             if (mainCamera == null)
             {
-                var cameras = UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                var cameras = UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsInactive.Include);
                 if (cameras.Length > 0)
                 {
                     mainCamera = cameras[0];
@@ -529,8 +627,63 @@ namespace AlienCrusher.Systems
                 baseFov = mainCamera.fieldOfView;
             }
 
-            cameraFollowSystem = UnityEngine.Object.FindFirstObjectByType<CameraFollowSystem>();
+            cameraFollowSystem = UnityEngine.Object.FindAnyObjectByType<CameraFollowSystem>();
             EnsureAudioSource();
+        }
+
+        private void EnsureDraftRhythmClips()
+        {
+            routeOpenClip = CoalesceDraftClip(routeOpenClip, "Audio/SFX/Skills/SFX_Route_Open", "Assets/Audio/SFX/Skills/SFX_Route_Open.wav");
+            routeHoldWarningClip = CoalesceDraftClip(routeHoldWarningClip, "Audio/SFX/Skills/SFX_Route_HoldWarning", "Assets/Audio/SFX/Skills/SFX_Route_HoldWarning.wav");
+            routeBonusClip = CoalesceDraftClip(routeBonusClip, "Audio/SFX/Skills/SFX_Route_Bonus", "Assets/Audio/SFX/Skills/SFX_Route_Bonus.wav");
+            failureWarningClip = CoalesceDraftClip(failureWarningClip, "Audio/SFX/Failure/SFX_Failure_Warning", "Assets/Audio/SFX/Failure/SFX_Failure_Warning.wav");
+            failureBossClip = CoalesceDraftClip(failureBossClip, "Audio/SFX/Failure/SFX_Failure_Boss", "Assets/Audio/SFX/Failure/SFX_Failure_Boss.wav");
+            hitLightClip = CoalesceDraftClip(hitLightClip, "Audio/SFX/Impact/SFX_Hit_Light", "Assets/Audio/SFX/Impact/SFX_Hit_Light.wav");
+            hitMediumClip = CoalesceDraftClip(hitMediumClip, "Audio/SFX/Impact/SFX_Hit_Medium", "Assets/Audio/SFX/Impact/SFX_Hit_Medium.wav");
+            hitHeavyClip = CoalesceDraftClip(hitHeavyClip, "Audio/SFX/Impact/SFX_Hit_Heavy", "Assets/Audio/SFX/Impact/SFX_Hit_Heavy.wav");
+            breakSmallClip = CoalesceDraftClip(breakSmallClip, "Audio/SFX/Impact/SFX_Break_Small", "Assets/Audio/SFX/Impact/SFX_Break_Small.wav");
+            breakLargeClip = CoalesceDraftClip(breakLargeClip, "Audio/SFX/Impact/SFX_Break_LargeCollapse", "Assets/Audio/SFX/Impact/SFX_Break_LargeCollapse.wav");
+            bossWarningClip = CoalesceDraftClip(bossWarningClip, "Audio/SFX/Boss/SFX_Boss_Warning", "Assets/Audio/SFX/Boss/SFX_Boss_Warning.wav");
+            bossBreakClip = CoalesceDraftClip(bossBreakClip, "Audio/SFX/Boss/SFX_Boss_Break", "Assets/Audio/SFX/Boss/SFX_Boss_Break.wav");
+            bossDownClip = CoalesceDraftClip(bossDownClip, "Audio/SFX/Boss/SFX_Boss_Down", "Assets/Audio/SFX/Boss/SFX_Boss_Down.wav");
+            comboRiseClip = CoalesceDraftClip(comboRiseClip, "Audio/SFX/Skills/SFX_Combo_Rise", "Assets/Audio/SFX/Skills/SFX_Combo_Rise.wav");
+            levelUpClip = CoalesceDraftClip(levelUpClip, "Audio/SFX/UI/SFX_LevelUp_Open", "Assets/Audio/SFX/UI/SFX_LevelUp_Open.wav");
+        }
+
+        private AudioClip ResolveHitWeightClip(float normalizedImpact, bool forceHeavy)
+        {
+            if (forceHeavy || normalizedImpact > 0.82f)
+            {
+                return hitHeavyClip;
+            }
+
+            return normalizedImpact > 0.62f ? hitMediumClip : hitLightClip;
+        }
+
+        private static AudioClip CoalesceDraftClip(AudioClip assigned, string resourcesPath, string assetPath)
+        {
+            if (assigned != null)
+            {
+                return assigned;
+            }
+
+            return LoadDraftClip(resourcesPath, assetPath);
+        }
+
+        private static AudioClip LoadDraftClip(string resourcesPath, string assetPath)
+        {
+            var clip = Resources.Load<AudioClip>(resourcesPath);
+            if (clip != null)
+            {
+                return clip;
+            }
+
+#if UNITY_EDITOR
+            return AssetDatabase.LoadAssetAtPath<AudioClip>(assetPath);
+#else
+            _ = assetPath;
+            return null;
+#endif
         }
 
         private void EnsureAudioSource()
@@ -569,7 +722,7 @@ namespace AlienCrusher.Systems
         private void EnsureFlashOverlay()
         {
             Canvas canvas = null;
-            var allCanvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var allCanvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include);
             for (var i = 0; i < allCanvas.Length; i++)
             {
                 if (allCanvas[i].name == "Canvas_Dummy")
@@ -579,7 +732,7 @@ namespace AlienCrusher.Systems
                 }
             }
 
-            canvas ??= UnityEngine.Object.FindFirstObjectByType<Canvas>(FindObjectsInactive.Include);
+            canvas ??= UnityEngine.Object.FindAnyObjectByType<Canvas>(FindObjectsInactive.Include);
             if (canvas == null)
             {
                 return;
@@ -730,7 +883,7 @@ namespace AlienCrusher.Systems
 
         private void SpawnBurst(Vector3 worldPosition, float normalizedImpact, bool heavy)
         {
-            if (burstPool == null || burstPool.Length == 0)
+            if (burstPool == null || burstPool.Length == 0 || !SmashVfxBudget.TryConsumeBurstSpawn())
             {
                 return;
             }
@@ -766,7 +919,7 @@ namespace AlienCrusher.Systems
 
         private void PlayScreenFlash(Color color, float peakAlpha, float riseDuration, float fallDuration)
         {
-            if (!allowDotween || flashOverlay == null)
+            if (!allowDotween || flashOverlay == null || !SmashVfxBudget.TryConsumeScreenFlash())
             {
                 return;
             }
@@ -925,7 +1078,7 @@ namespace AlienCrusher.Systems
         }
         private void ApplyCameraFeedback(float impulseMagnitude, float fovPunch)
         {
-            cameraFollowSystem ??= UnityEngine.Object.FindFirstObjectByType<CameraFollowSystem>();
+            cameraFollowSystem ??= UnityEngine.Object.FindAnyObjectByType<CameraFollowSystem>();
             cameraFollowSystem?.AddImpulse(impulseMagnitude);
 
             if (!allowDotween)

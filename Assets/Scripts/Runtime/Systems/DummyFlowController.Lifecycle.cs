@@ -16,13 +16,13 @@ namespace AlienCrusher.Systems
 			EnsureGameplayLighting();
 			ApplyStylizedLookToScene();
 			ApplyMapContrastPalette();
-			gameFlowSystem = Object.FindFirstObjectByType<GameFlowSystem>();
-			scoreSystem = Object.FindFirstObjectByType<ScoreSystem>();
-			ballGrowthSystem = Object.FindFirstObjectByType<BallGrowthSystem>();
-			cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
-			feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
-			damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
-			formUnlockSystem = Object.FindFirstObjectByType<FormUnlockSystem>();
+			gameFlowSystem = Object.FindAnyObjectByType<GameFlowSystem>();
+			scoreSystem = Object.FindAnyObjectByType<ScoreSystem>();
+			ballGrowthSystem = Object.FindAnyObjectByType<BallGrowthSystem>();
+			cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
+			feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
+			damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
+			formUnlockSystem = Object.FindAnyObjectByType<FormUnlockSystem>();
 			EnsureGameFlowSystem();
 			EnsureScoreSystem();
 			EnsureBallGrowthSystem();
@@ -129,6 +129,7 @@ namespace AlienCrusher.Systems
 				return;
 			}
 			ProcessActionSkillInput();
+			UpdateFormSmashMethods(Time.deltaTime);
 			UpdateHudInfo();
 			UpdateRouteHoldTelemetry(Time.deltaTime);
 			EvaluateStageAdvanceRouteReward();

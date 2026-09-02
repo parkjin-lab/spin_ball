@@ -78,7 +78,10 @@ if ($errors.Count -eq 0) {
         'stream.Flush(flushToDisk: true)',
         'TryLoadProgressionFile(tempPath)',
         'File.Replace(tempPath, SavePath, replacementBackupPath, ignoreMetadataErrors: true)',
-        'File.Move(tempPath, SavePath, overwrite: true)',
+        'MoveOverwrite(tempPath, SavePath)',
+        'private static void MoveOverwrite(string sourcePath, string destinationPath)',
+        'File.Delete(destinationPath)',
+        'File.Move(sourcePath, destinationPath)',
         'var replacementBackupPath = preserveExistingBackup ? CorruptPath : BackupPath',
         'TryLoadProgressionFile(SavePath)',
         'TryLoadProgressionFile(BackupPath)',
@@ -114,7 +117,8 @@ if ($errors.Count -eq 0) {
         'progressionSaveSystem.LoadOrCreate()',
         'TryCommitProgression(MigrateFromLegacyPlayerPrefs)',
         'progressionSaveSystem.TryCommit(mutation)',
-        'data.meta.dpBalance = balance - requiredCost',
+        'data.meta.dpBalance = balance - committedCost',
+        'var committedCost = requiredCost',
         'SetMetaUpgradeLevel(data.meta, upgradeType, next)',
         'data.meta.unlockedForms.Add((int)form)',
         'data.meta.selectedForm = (int)form',
@@ -127,9 +131,16 @@ if ($errors.Count -eq 0) {
     if ($formUnlockText.Contains('TrySpendDp(requiredCost)')) {
         $errors.Add("Purchase paths must not save DP separately before granting the purchased item")
     }
+    if ($formUnlockText.Contains('data.meta.dpBalance = balance - requiredCost')) {
+        $errors.Add("Purchase lambdas must copy out parameter requiredCost to a local committedCost before capture")
+    }
     if ($formUnlockText.Contains('GameObject.Find("_Systems")') -or
-        $formUnlockText.Contains('FindFirstObjectByType<ProgressionSaveSystem>()')) {
+        $formUnlockText.Contains('FindFirstObjectByType<ProgressionSaveSystem>()') -or
+        $formUnlockText.Contains('FindAnyObjectByType<ProgressionSaveSystem>()')) {
         $errors.Add("FormUnlockSystem must resolve progression storage from an explicit reference or its canonical _Systems root")
+    }
+    if ($saveSystemText -match 'File\.Move\([^;\r\n]*overwrite\s*:') {
+        $errors.Add("ProgressionSaveSystem must use the Unity-compatible MoveOverwrite helper instead of File.Move overwrite named arguments")
     }
 
     foreach ($needle in @(

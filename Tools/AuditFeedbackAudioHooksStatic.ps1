@@ -32,6 +32,24 @@ $projectRoot = Resolve-ProjectRoot
 $feedbackPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\FeedbackSystem.cs"
 $bossEncounterPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\DummyFlowController.StageEncounter.cs"
 $stageFlowPath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\DummyFlowController.StageFlow.cs"
+$progressionCorePath = Join-Path $projectRoot "Assets\Scripts\Runtime\Systems\DummyFlowController.ProgressionCore.cs"
+$draftClipCatalog = @(
+    [pscustomobject]@{ Field = "routeOpenClip"; AssetName = "SFX_Route_Open"; DocumentedPath = "Assets\Audio\SFX\Skills\SFX_Route_Open.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Skills\SFX_Route_Open.wav" },
+    [pscustomobject]@{ Field = "routeHoldWarningClip"; AssetName = "SFX_Route_HoldWarning"; DocumentedPath = "Assets\Audio\SFX\Skills\SFX_Route_HoldWarning.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Skills\SFX_Route_HoldWarning.wav" },
+    [pscustomobject]@{ Field = "routeBonusClip"; AssetName = "SFX_Route_Bonus"; DocumentedPath = "Assets\Audio\SFX\Skills\SFX_Route_Bonus.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Skills\SFX_Route_Bonus.wav" },
+    [pscustomobject]@{ Field = "failureWarningClip"; AssetName = "SFX_Failure_Warning"; DocumentedPath = "Assets\Audio\SFX\Failure\SFX_Failure_Warning.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Failure\SFX_Failure_Warning.wav" },
+    [pscustomobject]@{ Field = "failureBossClip"; AssetName = "SFX_Failure_Boss"; DocumentedPath = "Assets\Audio\SFX\Failure\SFX_Failure_Boss.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Failure\SFX_Failure_Boss.wav" },
+    [pscustomobject]@{ Field = "hitLightClip"; AssetName = "SFX_Hit_Light"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Hit_Light.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Hit_Light.wav" },
+    [pscustomobject]@{ Field = "hitMediumClip"; AssetName = "SFX_Hit_Medium"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Hit_Medium.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Hit_Medium.wav" },
+    [pscustomobject]@{ Field = "hitHeavyClip"; AssetName = "SFX_Hit_Heavy"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Hit_Heavy.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Hit_Heavy.wav" },
+    [pscustomobject]@{ Field = "breakSmallClip"; AssetName = "SFX_Break_Small"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Break_Small.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Break_Small.wav" },
+    [pscustomobject]@{ Field = "breakLargeClip"; AssetName = "SFX_Break_LargeCollapse"; DocumentedPath = "Assets\Audio\SFX\Impact\SFX_Break_LargeCollapse.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Impact\SFX_Break_LargeCollapse.wav" },
+    [pscustomobject]@{ Field = "bossWarningClip"; AssetName = "SFX_Boss_Warning"; DocumentedPath = "Assets\Audio\SFX\Boss\SFX_Boss_Warning.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Boss\SFX_Boss_Warning.wav" },
+    [pscustomobject]@{ Field = "bossBreakClip"; AssetName = "SFX_Boss_Break"; DocumentedPath = "Assets\Audio\SFX\Boss\SFX_Boss_Break.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Boss\SFX_Boss_Break.wav" },
+    [pscustomobject]@{ Field = "bossDownClip"; AssetName = "SFX_Boss_Down"; DocumentedPath = "Assets\Audio\SFX\Boss\SFX_Boss_Down.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Boss\SFX_Boss_Down.wav" },
+    [pscustomobject]@{ Field = "comboRiseClip"; AssetName = "SFX_Combo_Rise"; DocumentedPath = "Assets\Audio\SFX\Skills\SFX_Combo_Rise.wav"; ResourcePath = "Assets\Resources\Audio\SFX\Skills\SFX_Combo_Rise.wav" },
+    [pscustomobject]@{ Field = "levelUpClip"; AssetName = "SFX_LevelUp_Open"; DocumentedPath = "Assets\Audio\SFX\UI\SFX_LevelUp_Open.wav"; ResourcePath = "Assets\Resources\Audio\SFX\UI\SFX_LevelUp_Open.wav" }
+)
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherFeedbackAudioHooksStaticAudit.log"
@@ -60,13 +78,19 @@ if (-not (Test-Path -Path $stageFlowPath -PathType Leaf)) {
     $errors.Add("Stage flow partial not found: $stageFlowPath")
 }
 
+if (-not (Test-Path -Path $progressionCorePath -PathType Leaf)) {
+    $errors.Add("Progression core partial not found: $progressionCorePath")
+}
+
 $feedbackText = ""
 $bossEncounterText = ""
 $stageFlowText = ""
+$progressionCoreText = ""
 if ($errors.Count -eq 0) {
     $feedbackText = Get-Content -Path $feedbackPath -Raw
     $bossEncounterText = Get-Content -Path $bossEncounterPath -Raw
     $stageFlowText = Get-Content -Path $stageFlowPath -Raw
+    $progressionCoreText = Get-Content -Path $progressionCorePath -Raw
 
     foreach ($needle in @(
         "private bool allowAudio",
@@ -89,6 +113,12 @@ if ($errors.Count -eq 0) {
         "private AudioClip failureBossClip",
         "public bool AllowAudio",
         "private void EnsureAudioSource()",
+        "private void EnsureDraftRhythmClips()",
+        "private AudioClip ResolveHitWeightClip",
+        "private static AudioClip LoadDraftClip",
+        "public void PlayRouteOpenCue",
+        "public void PlayBossWarningCue",
+        "public void PlayBossBreakCue",
         "private void PlayAudio(AudioClip clip",
         "audioSource.PlayOneShot"
     )) {
@@ -96,7 +126,8 @@ if ($errors.Count -eq 0) {
     }
 
     foreach ($needle in @(
-        "PlayAudio(normalizedImpact > 0.62f ? hitMediumClip : hitLightClip",
+        "PlayAudio(ResolveHitWeightClip(normalizedImpact, forceHeavy)",
+        "return normalizedImpact > 0.62f ? hitMediumClip : hitLightClip",
         "PlayAudio(normalizedImpact > 0.7f ? breakLargeClip : breakSmallClip",
         "PlayAudio(comboRiseClip",
         "PlayAudio(levelUpClip",
@@ -115,8 +146,29 @@ if ($errors.Count -eq 0) {
     }
 
     Add-RequiredTextCheck -Errors $errors -Text $bossEncounterText -Needle "feedbackSystem?.PlayBossDownFeedback" -Label "Boss down audio call"
+    Add-RequiredTextCheck -Errors $errors -Text $bossEncounterText -Needle "feedbackSystem?.PlayBossWarningCue" -Label "Boss warning audio call"
+    Add-RequiredTextCheck -Errors $errors -Text $bossEncounterText -Needle "feedbackSystem.PlayBossBreakCue" -Label "Boss break audio call"
     Add-RequiredTextCheck -Errors $errors -Text $stageFlowText -Needle "PlayStageDefeatFeedback()" -Label "Stage defeat feedback call"
     Add-RequiredTextCheck -Errors $errors -Text $stageFlowText -Needle "feedbackSystem?.PlayFailureBeatFeedback" -Label "Stage defeat feedback call"
+    Add-RequiredTextCheck -Errors $errors -Text $progressionCoreText -Needle "feedbackSystem?.PlayRouteOpenCue" -Label "Route open audio call"
+
+    foreach ($clip in $draftClipCatalog) {
+        $documentedPath = Join-Path $projectRoot $clip.DocumentedPath
+        $resourcePath = Join-Path $projectRoot $clip.ResourcePath
+        if (-not (Test-Path -Path $documentedPath -PathType Leaf)) {
+            $errors.Add("Draft clip missing for $($clip.Field): $documentedPath")
+        }
+        elseif ((Get-Item -Path $documentedPath).Length -lt 16) {
+            $errors.Add("Draft clip is too small to be a real audio asset for $($clip.Field): $documentedPath")
+        }
+
+        if (-not (Test-Path -Path $resourcePath -PathType Leaf)) {
+            $errors.Add("Runtime draft clip missing for $($clip.Field): $resourcePath")
+        }
+        elseif ((Get-Item -Path $resourcePath).Length -lt 16) {
+            $errors.Add("Runtime draft clip is too small to be a real audio asset for $($clip.Field): $resourcePath")
+        }
+    }
 }
 
 $lines = [System.Collections.Generic.List[string]]::new()
@@ -124,6 +176,7 @@ $lines.Add("[AlienCrusher][FeedbackAudioHooksStaticAudit] Feedback audio hooks a
 $lines.Add("Feedback source: $feedbackPath")
 $lines.Add("Boss encounter source: $bossEncounterPath")
 $lines.Add("Stage flow source: $stageFlowPath")
+$lines.Add("Progression core source: $progressionCorePath")
 
 foreach ($errorMessage in $errors) {
     $lines.Add("ERROR: $errorMessage")

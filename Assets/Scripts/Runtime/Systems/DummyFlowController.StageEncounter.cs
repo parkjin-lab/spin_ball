@@ -52,6 +52,7 @@ namespace AlienCrusher.Systems
 					continue;
 				}
 				dummyDestructibleBlock.ApplyStageEncounterRole(DummyDestructibleBlock.StageEncounterRole.Standard);
+				ClearBossIdentityKits(dummyDestructibleBlock);
 				if (((Component)dummyDestructibleBlock).gameObject.activeInHierarchy && !((Object)dummyDestructibleBlock).name.StartsWith("Prop_", StringComparison.OrdinalIgnoreCase))
 				{
 					Vector3 lossyScale = ((Component)dummyDestructibleBlock).transform.lossyScale;
@@ -76,6 +77,7 @@ namespace AlienCrusher.Systems
 					int num2 = Mathf.Max(0, currentStageNumber - Mathf.Max(2, bossStageStart));
 					int bonusHp = Mathf.Max(0, bossHpBonusBase + num2 * Mathf.Max(0, bossHpBonusPerStage));
 					stageBossBlock.ApplyStageEncounterRole(DummyDestructibleBlock.StageEncounterRole.BossSentinel, bonusHp, bossSentinelColor);
+					ApplyNamedBossIdentityKit(stageBossBlock, "BOSS_Sentinel_Body_Kit", bossSentinelColor);
 					ConfigureBossShieldPylons(list, num2);
 				}
 				else
@@ -87,6 +89,7 @@ namespace AlienCrusher.Systems
 			num3 = Mathf.Clamp(num3, 0, Mathf.Max(0, eliteWeakPointMaxCount));
 			if (num3 <= 0 || list.Count <= 0)
 			{
+				ApplyBuildingTierMaterialsToAll();
 				return;
 			}
 			list.Sort((DummyDestructibleBlock a, DummyDestructibleBlock b) => GetDestructibleThreatScore(b).CompareTo(GetDestructibleThreatScore(a)));
@@ -146,6 +149,7 @@ namespace AlienCrusher.Systems
 			}
 			string arg = (((Object)(object)stageBossBlock != (Object)null) ? ((Object)stageBossBlock).name : "none");
 			UpdateBossShieldState();
+			ApplyBuildingTierMaterialsToAll();
 			Debug.Log((object)$"[AlienCrusher] Stage {currentStageNumber:00} encounter set: elite weak-points {stageEliteWeakPointCount}, boss {arg}");
 		}
 
@@ -194,6 +198,16 @@ namespace AlienCrusher.Systems
 			return false;
 		}
 
+		private bool HasLiveStageBossBlock()
+		{
+			if ((Object)(object)stageBossBlock == (Object)null)
+			{
+				stageBossBlock = null;
+				return false;
+			}
+			return true;
+		}
+
 		private void ResetStageBossTelemetry()
 		{
 			stageBossIntroAnnounced = false;
@@ -230,7 +244,11 @@ namespace AlienCrusher.Systems
 			if (!flag)
 			{
 				SetBossPhaseTwoDronesActive(active: false);
-				stageBossBlock?.SetBossCoreExposure(false);
+				if (!HasLiveStageBossBlock())
+				{
+					return;
+				}
+				stageBossBlock.SetBossCoreExposure(false);
 				if (!stageBossDestroyedAnnounced)
 				{
 					stageBossDestroyedAnnounced = true;
@@ -239,7 +257,8 @@ namespace AlienCrusher.Systems
 					Vector3 val = (((Object)(object)stageBossBlock != (Object)null) ? ((Component)stageBossBlock).transform.position : (((Object)(object)playerTransform != (Object)null) ? playerTransform.position : Vector3.zero));
 					damageNumberSystem?.ShowTag(val + Vector3.up * 1.8f, "SENTINEL DOWN", true);
 					feedbackSystem?.PlayBossDownFeedback(val + Vector3.up * 0.4f, 1f);
-					cameraFollowSystem ??= Object.FindFirstObjectByType<CameraFollowSystem>();
+					BossClimaxFeedbackVfx.PlayDefeatCascade(val);
+					cameraFollowSystem ??= Object.FindAnyObjectByType<CameraFollowSystem>();
 					cameraFollowSystem?.PlayFinishShot(val + Vector3.up * 0.85f, 1f);
 					TriggerBossFinishSlowMotion();
 					RouteStageVictoryEnd(StageEndReason.BossDefeated, val, StageVictoryFlow.BossCascade);
@@ -343,11 +362,11 @@ namespace AlienCrusher.Systems
 		{
 			if (IsBossBreakWindowActive())
 			{
-				return $"CORE EXPOSED: unload everything for {Mathf.CeilToInt(stageBossBreakRemaining):0}s";
+				return $"CORE  {Mathf.CeilToInt(stageBossBreakRemaining):0}s";
 			}
 			if (stageBossShieldActiveCount > 0)
 			{
-				return $"JUSTICE SENTINEL SHIELDED: break {stageBossShieldActiveCount:0} pylon(s) to expose the core";
+				return $"PYLONS  {stageBossShieldActiveCount:0}";
 			}
 			if (stageBossPhaseTwoActive)
 			{
@@ -355,20 +374,20 @@ namespace AlienCrusher.Systems
 				{
 					if (stageBossPhaseTwoDroneRecoveryRemaining <= Mathf.Max(0.45f, bossPhaseTwoDroneRespawnWarningDuration))
 					{
-						return $"JUSTICE SENTINEL PHASE 2: drone swarm returning in {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
+						return $"DRONES  {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
 					}
-					return $"JUSTICE SENTINEL PHASE 2: drones down, push damage for {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
+					return $"PUSH  {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s";
 				}
-				return "JUSTICE SENTINEL PHASE 2: break drones to open a safe push window";
+				return "DRONES";
 			}
 			switch (Mathf.Clamp(this.stageBossThreatLevel, 1, 3))
 			{
 			case 3:
-				return "JUSTICE SENTINEL FURY: avoid burst pulses and break the weak point now";
+				return "FURY";
 			case 2:
-				return "JUSTICE SENTINEL LOCKED: circle wide between pulses, then drive through the weak point";
+				return "LOCKED";
 			default:
-				return "JUSTICE SENTINEL SCANNING: watch scan pulses, build speed, then line up the weak point";
+				return "SCAN";
 			}
 		}
 
@@ -379,7 +398,10 @@ namespace AlienCrusher.Systems
 			stageBossShieldIntroAnnounced = false;
 			if (!enableBossShieldPylons || (Object)(object)stageBossBlock == (Object)null || candidates == null || candidates.Count <= 0)
 			{
-				stageBossBlock?.SetStageEncounterDamageScale(1f);
+				if (HasLiveStageBossBlock())
+				{
+					stageBossBlock.SetStageEncounterDamageScale(1f);
+				}
 				return;
 			}
 			Vector3 position = ((Component)stageBossBlock).transform.position;
@@ -421,10 +443,12 @@ namespace AlienCrusher.Systems
 				if (!stageBossShieldPylons.Contains(dummyDestructibleBlock2))
 				{
 					dummyDestructibleBlock2.ApplyStageEncounterRole(DummyDestructibleBlock.StageEncounterRole.EliteWeakPoint, Mathf.Max(0, bossShieldPylonBonusHp + stageDepth / 2), bossShieldPylonColor);
+					ApplyNamedBossIdentityKit(dummyDestructibleBlock2, "BOSS_Shield_Pylon_Kit", bossShieldPylonColor);
 					stageBossShieldPylons.Add(dummyDestructibleBlock2);
 				}
 			}
 			UpdateBossShieldState();
+			ApplyBuildingTierMaterialsToAll();
 		}
 
 		private void UpdateBossShieldState()
@@ -507,7 +531,7 @@ namespace AlienCrusher.Systems
 			Vector3 position = ((Component)stageBossBlock).transform.position;
 			if (damageNumberSystem == null)
 			{
-				damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+				damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
 			}
 			if ((Object)(object)damageNumberSystem != (Object)null)
 			{
@@ -516,7 +540,7 @@ namespace AlienCrusher.Systems
 			}
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -530,7 +554,10 @@ namespace AlienCrusher.Systems
 			if (!enableBossBreakWindow || (Object)(object)stageBossBlock == (Object)null)
 			{
 				stageBossBreakRemaining = 0f;
-				stageBossBlock?.SetStageEncounterDamageScale(1f);
+				if (HasLiveStageBossBlock())
+				{
+					stageBossBlock.SetStageEncounterDamageScale(1f);
+				}
 				return;
 			}
 			float num = stageBossPhaseTwoActive ? Mathf.Clamp(bossBreakWindowDuration * Mathf.Clamp(bossPhaseTwoBreakDurationScale, 0.4f, 1f), 1f, bossBreakWindowDuration) : Mathf.Max(1f, bossBreakWindowDuration);
@@ -541,12 +568,14 @@ namespace AlienCrusher.Systems
 			stageBossBlock.SetStageEncounterDamageScale(Mathf.Max(1f, bossBreakDamageMultiplier));
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
-				feedbackSystem.PlayTotalDestructionFeedback(((Component)stageBossBlock).transform.position + Vector3.up * 0.3f, 0.82f);
+				feedbackSystem.PlayTotalDestructionFeedback(((Component)stageBossBlock).transform.position + Vector3.up * 0.3f, 0.82f, playAudio: false);
+				feedbackSystem.PlayBossBreakCue();
 			}
+			BossClimaxFeedbackVfx.PlayBreakWindowBurst(((Component)stageBossBlock).transform.position);
 		}
 
 		private void UpdateBossBreakWindow(float deltaTime)
@@ -556,7 +585,11 @@ namespace AlienCrusher.Systems
 				return;
 			}
 			stageBossBreakRemaining = Mathf.Max(0f, stageBossBreakRemaining - Mathf.Max(0f, deltaTime));
-			if (stageBossBreakRemaining > 0f || (Object)(object)stageBossBlock == (Object)null)
+			if (!HasLiveStageBossBlock())
+			{
+				return;
+			}
+			if (stageBossBreakRemaining > 0f)
 			{
 				stageBossBlock.SetBossCoreExposure(true, stageBossPhaseTwoActive ? 1.85f : 1.45f);
 				return;
@@ -677,12 +710,7 @@ namespace AlienCrusher.Systems
 			{
 				string name = $"BossDrone_{i:00}";
 				GameObject val2 = EnsurePrimitive(stageBossPhaseTwoDroneRoot, name, PrimitiveType.Sphere, Vector3.zero, new Vector3(0.62f, 0.24f, 0.62f), bossPhaseTwoDroneColor);
-				Transform orCreateDirectChild = GetOrCreateDirectChild(val2.transform, "Core");
-				EnsurePrimitive(orCreateDirectChild, "Eye", PrimitiveType.Sphere, Vector3.zero, new Vector3(0.32f, 0.32f, 0.32f), new Color(1f, 0.9f, 0.52f, 1f));
-				Transform orCreateDirectChild2 = GetOrCreateDirectChild(val2.transform, "Wing_L");
-				EnsurePrimitive(orCreateDirectChild2, "WingMesh", PrimitiveType.Cube, new Vector3(-0.56f, 0f, 0f), new Vector3(0.7f, 0.06f, 0.16f), new Color(0.22f, 0.26f, 0.34f, 1f));
-				Transform orCreateDirectChild3 = GetOrCreateDirectChild(val2.transform, "Wing_R");
-				EnsurePrimitive(orCreateDirectChild3, "WingMesh", PrimitiveType.Cube, new Vector3(0.56f, 0f, 0f), new Vector3(0.7f, 0.06f, 0.16f), new Color(0.22f, 0.26f, 0.34f, 1f));
+				ApplyNamedBossIdentityKit(val2.transform, "BOSS_Phase2_Drone_Kit", bossPhaseTwoDroneColor);
 				Collider component = val2.GetComponent<Collider>();
 				if ((Object)(object)component != (Object)null)
 				{
@@ -801,7 +829,10 @@ namespace AlienCrusher.Systems
 			{
 				stageBossPhaseTwoDroneRecoveryRemaining = Mathf.Max(1.8f, bossPhaseTwoDroneRecoveryDuration);
 				stageBossPhaseTwoDroneRespawnWarned = false;
-				stageBossBlock?.SetBossCoreExposure(true, 1.9f);
+				if (HasLiveStageBossBlock())
+				{
+					stageBossBlock.SetBossCoreExposure(true, 1.9f);
+				}
 				PushAnnouncement("DRONE SWARM BROKEN", AnnouncementTone.BossMajor, 1.25f);
 				damageNumberSystem?.ShowTag(position + Vector3.up * 1.2f, $"WINDOW {Mathf.CeilToInt(stageBossPhaseTwoDroneRecoveryRemaining):0}s", true);
 				feedbackSystem?.PlayDroneBreakFeedback(position + Vector3.up * 0.18f, 0.95f, swarmBroken: true);
@@ -886,6 +917,7 @@ namespace AlienCrusher.Systems
 			Vector3 position = ((Component)stageBossBlock).transform.position;
 			float num = Mathf.Clamp01((float)(Mathf.Clamp(threatLevel, 1, 3) - 1) / 2f);
 			float num2 = Mathf.Max(3.5f, bossPressurePulseRadius + bossPressurePulseRadiusPerThreat * (float)Mathf.Max(0, threatLevel - 1));
+			BossClimaxFeedbackVfx.PlayWarningRing(position, num2, threatLevel);
 			float num3 = Mathf.Max(0.3f, bossPressureSlowDuration * Mathf.Lerp(0.9f, 1.4f, num));
 			float num4 = Mathf.Clamp(Mathf.Lerp(1f, Mathf.Clamp(bossPressureSlowScale, 0.2f, 1f), Mathf.Lerp(0.55f, 1f, num)), 0.2f, 1f);
 			float num5 = Mathf.Max(0f, bossPressurePushForce * Mathf.Lerp(0.75f, 1.2f, num));
@@ -918,7 +950,7 @@ namespace AlienCrusher.Systems
 			}
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null)
 			{
@@ -926,12 +958,12 @@ namespace AlienCrusher.Systems
 			}
 			if (cameraFollowSystem == null)
 			{
-				cameraFollowSystem = Object.FindFirstObjectByType<CameraFollowSystem>();
+				cameraFollowSystem = Object.FindAnyObjectByType<CameraFollowSystem>();
 			}
 			cameraFollowSystem?.AddImpulse(Mathf.Lerp(0.34f, 0.82f, num));
 			if (damageNumberSystem == null)
 			{
-				damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+				damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
 			}
 			if ((Object)(object)damageNumberSystem != (Object)null)
 			{
@@ -987,7 +1019,8 @@ namespace AlienCrusher.Systems
 				StopBossClearCascadeRoutine();
 				pendingBossStageCompletion = true;
 				bossClearCascadeActive = true;
-				bossClearCascadeRoutine = StartCoroutine(BossClearCascadeRoutine(center));
+				BossClimaxFeedbackVfx.PlayDefeatCascade(center);
+			bossClearCascadeRoutine = StartCoroutine(BossClearCascadeRoutine(center));
 			}
 			else
 			{
@@ -1109,6 +1142,8 @@ namespace AlienCrusher.Systems
 				comboRushAnnouncementText = "JUSTICE SENTINEL INBOUND";
 				damageNumberSystem?.ShowTag(position + Vector3.up * 1.9f, "JUSTICE SENTINEL", true);
 				feedbackSystem?.PlayStageStartFeedback(position + Vector3.up * 0.35f);
+				feedbackSystem?.PlayBossWarningCue(0.78f);
+				BossClimaxFeedbackVfx.PlayWarningRing(position, bossPressurePulseRadius, threatLevel);
 				return;
 			}
 			string text2 = $"SENTINEL {text}";
@@ -1116,6 +1151,8 @@ namespace AlienCrusher.Systems
 			comboRushAnnouncementText = text2;
 			damageNumberSystem?.ShowTag(position + Vector3.up * 1.65f, text2, threatLevel >= 2);
 			feedbackSystem?.PlayCounterSurgeFeedback(position + Vector3.up * 0.3f, Mathf.InverseLerp(1f, 3f, threatLevel), threatLevel >= 3);
+			feedbackSystem?.PlayBossWarningCue(Mathf.Lerp(0.52f, 0.86f, Mathf.InverseLerp(1f, 3f, threatLevel)));
+			BossClimaxFeedbackVfx.PlayWarningRing(position, bossPressurePulseRadius, threatLevel);
 		}
 
 		private static float GetDestructibleThreatScore(DummyDestructibleBlock block)

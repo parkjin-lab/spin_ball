@@ -96,6 +96,56 @@ $slotBriefs = @{
         Direction = "heavier collapse stinger that clearly belongs to the boss phase"
         Avoid = "reusing ordinary failure color"
     }
+    hitLightClip = [pscustomobject]@{
+        Beat = "graze"
+        Direction = "short high tick with no bass weight"
+        Avoid = "thump body or the route-open rising chirp family"
+    }
+    hitMediumClip = [pscustomobject]@{
+        Beat = "committed connect"
+        Direction = "mid thump that says the hit landed"
+        Avoid = "the light tick or a fat slam"
+    }
+    hitHeavyClip = [pscustomobject]@{
+        Beat = "heavy body / weak-point slam"
+        Direction = "fat one-shot impact, still short"
+        Avoid = "boss stinger, rising fanfare, or failure color"
+    }
+    breakSmallClip = [pscustomobject]@{
+        Beat = "light shatter"
+        Direction = "brittle pop for small props and light collapses"
+        Avoid = "low rumble or the same tail as large collapse"
+    }
+    breakLargeClip = [pscustomobject]@{
+        Beat = "large collapse"
+        Direction = "deeper rubble with a longer debris tail"
+        Avoid = "boss-down stinger or a copied small-break pitch"
+    }
+    bossWarningClip = [pscustomobject]@{
+        Beat = "rising danger"
+        Direction = "dark siren rise before the punish, not a hit"
+        Avoid = "route-open chirp or impact slam"
+    }
+    bossBreakClip = [pscustomobject]@{
+        Beat = "shield/core permission"
+        Direction = "short metallic crack that opens the window"
+        Avoid = "the long down release or a copied small-break pop"
+    }
+    bossDownClip = [pscustomobject]@{
+        Beat = "heaviest release"
+        Direction = "warm resolved downbeat, still a win"
+        Avoid = "failureBossClip collapse color"
+    }
+    comboRiseClip = [pscustomobject]@{
+        Beat = "repeatable rise tick"
+        Direction = "tiny upward blip that can stack"
+        Avoid = "melody or route-bonus smash"
+    }
+    levelUpClip = [pscustomobject]@{
+        Beat = "progression reward"
+        Direction = "bright chime one-shot when the draft opens"
+        Avoid = "routeBonusClip smash family"
+    }
 }
 
 $productionBatches = @(
@@ -116,6 +166,12 @@ $productionBatches = @(
         Goal = "give boss pressure, boss break, boss defeat, combo rise, and level-up their own punctuation"
         Fields = @("bossWarningClip", "bossBreakClip", "bossDownClip", "comboRiseClip", "levelUpClip")
         Acceptance = "boss warning/break/down and progression payoff do not share the same emotional color or tail length"
+    },
+    [pscustomobject]@{
+        Batch = "D. Failure beat visuals"
+        Goal = "make ordinary and boss defeat readable at the fail beat before the result screen"
+        Fields = @("VFX_Failure_Ordinary", "VFX_Failure_Boss")
+        Acceptance = "ordinary failure shows a dry umber down-break and boss failure shows a heavier steel collapse, not smash/combo ticks, boss-down cascade, route pulses, or lobby confirm VFX"
     }
 )
 
@@ -188,6 +244,36 @@ foreach ($fieldName in $productionBatches[0].Fields) {
 }
 $lines.Add("")
 $lines.Add("Batch A review rule: route open, route warning, route bonus, ordinary failure, and boss failure must form five distinct rhythm punctuation marks before any timing or balance tuning.")
+
+$lines.Add("")
+$lines.Add("## Impact And Destruction Weight Slot Briefs")
+$lines.Add("| Slot | Beat role | Sound direction | Avoid |")
+$lines.Add("|---|---|---|---|")
+foreach ($fieldName in $productionBatches[1].Fields) {
+    $brief = $slotBriefs[$fieldName]
+    if ($null -eq $brief) {
+        continue
+    }
+
+    $lines.Add(('| `{0}` | {1} | {2} | {3} |' -f $fieldName, $brief.Beat, $brief.Direction, $brief.Avoid))
+}
+$lines.Add("")
+$lines.Add("Batch B review rule: graze, committed hit, heavy slam, small shatter, and large collapse must form five distinct punctuation marks before any damage or mass tuning.")
+
+$lines.Add("")
+$lines.Add("## Climax And Progression Payoff Slot Briefs")
+$lines.Add("| Slot | Beat role | Sound direction | Avoid |")
+$lines.Add("|---|---|---|---|")
+foreach ($fieldName in $productionBatches[2].Fields) {
+    $brief = $slotBriefs[$fieldName]
+    if ($null -eq $brief) {
+        continue
+    }
+
+    $lines.Add(('| `{0}` | {1} | {2} | {3} |' -f $fieldName, $brief.Beat, $brief.Direction, $brief.Avoid))
+}
+$lines.Add("")
+$lines.Add("Batch C review rule: boss warning, boss break, boss down, combo rise, and level-up must keep distinct color and tail length from each other and from route/failure/hit/break drafts.")
 
 $lines.Add("")
 $lines.Add("## Current FeedbackSystem Audio Slots")

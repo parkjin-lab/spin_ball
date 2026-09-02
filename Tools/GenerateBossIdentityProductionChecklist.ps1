@@ -3,7 +3,10 @@ param(
     [string]$ReportPath = "",
     [string]$StageEncounterPath = "",
     [string]$DronePath = "",
-    [string]$FeedbackSystemPath = ""
+    [string]$FeedbackSystemPath = "",
+    [string]$IdentityKitPath = "",
+    [string]$ClimaxVfxPath = "",
+    [string]$ResultBadgePath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,6 +56,9 @@ $projectRoot = Resolve-ProjectRoot
 $stageEncounterSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $StageEncounterPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.StageEncounter.cs"
 $droneSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $DronePath -RelativePath "Assets\Scripts\Runtime\Gameplay\BossPhaseTwoDroneDummy.cs"
 $feedbackSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $FeedbackSystemPath -RelativePath "Assets\Scripts\Runtime\Systems\FeedbackSystem.cs"
+$identityKitSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $IdentityKitPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.BossIdentityKits.cs"
+$climaxVfxSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ClimaxVfxPath -RelativePath "Assets\Scripts\Runtime\Systems\BossClimaxFeedbackVfx.cs"
+$resultBadgeSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ResultBadgePath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.ResultLobbyBadges.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherBossIdentityProductionChecklist.md"
@@ -69,6 +75,10 @@ if (-not [string]::IsNullOrWhiteSpace($reportDirectory)) {
 $stageEncounterText = Read-SourceText -Path $stageEncounterSourcePath
 $droneText = Read-SourceText -Path $droneSourcePath
 $feedbackText = Read-SourceText -Path $feedbackSourcePath
+$identityKitText = Read-SourceText -Path $identityKitSourcePath
+$climaxVfxText = Read-SourceText -Path $climaxVfxSourcePath
+$resultBadgeText = Read-SourceText -Path $resultBadgeSourcePath
+$allBossHookText = $stageEncounterText + $droneText + $feedbackText + $identityKitText + $climaxVfxText + $resultBadgeText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -81,7 +91,10 @@ foreach ($needle in @(
     "DRONE SWARM BROKEN",
     "PHASE 2 DRONE SWEEP",
     "ExecuteStageBossPressurePulse",
-    "BossClearCascadeRoutine"
+    "BossClearCascadeRoutine",
+    "BOSS_Sentinel_Body_Kit",
+    "BOSS_Shield_Pylon_Kit",
+    "BOSS_Phase2_Drone_Kit"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $stageEncounterText -Needle $needle
 }
@@ -90,7 +103,8 @@ foreach ($needle in @(
     "BossPhaseTwoDroneDummy",
     "SetRespawnPreview",
     "DRONE DOWN",
-    "Restore"
+    "Restore",
+    "BOSS_Phase2_Drone_Kit"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $droneText -Needle $needle
 }
@@ -104,6 +118,38 @@ foreach ($needle in @(
     "PlayHudWarningFeedback"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $feedbackText -Needle $needle
+}
+
+foreach ($needle in @(
+    "BOSS_Sentinel_Body_Kit",
+    "BOSS_Shield_Pylon_Kit",
+    "BOSS_Phase2_Drone_Kit",
+    "EnsureVisualPrimitive"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $identityKitText -Needle $needle
+}
+
+foreach ($needle in @(
+    "VFX_Boss_Warning_Ring",
+    "VFX_Boss_Core_Expose_Burst",
+    "VFX_Boss_Defeat_Cascade",
+    "SFX_Boss_Warning",
+    "SFX_Boss_Break",
+    "SFX_Boss_Down",
+    "PlayWarningRing",
+    "PlayBreakWindowBurst",
+    "PlayDefeatCascade"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $climaxVfxText -Needle $needle
+}
+
+foreach ($needle in @(
+    "Badge_Boss_Clear",
+    "DidStageEndWithBossClear",
+    "Icon_Boss_Sentinel",
+    "RefreshBossSentinelLobbyResultIcon"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $resultBadgeText -Needle $needle
 }
 
 $assetCatalog = @(
@@ -141,6 +187,18 @@ $productionBatches = @(
         Goal = "punctuate warning, break, and down beats without changing boss timing"
         Targets = @("VFX_Boss_Warning_Ring", "VFX_Boss_Defeat_Cascade", "SFX_Boss_Warning", "SFX_Boss_Break", "SFX_Boss_Down")
         Acceptance = "boss warning, break window, and defeat release have distinct audio/visual weight"
+    },
+    [pscustomobject]@{
+        Batch = "D. Result boss-clear badge"
+        Goal = "separate Sentinel victory from a normal district clear on the result screen"
+        Targets = @("Badge_Boss_Clear")
+        Acceptance = "boss-stage success uses a steel down-badge, not the mint district-clear plate"
+    },
+    [pscustomobject]@{
+        Batch = "E. Lobby/result Sentinel icon"
+        Goal = "make the next Sentinel run scannable before stage start"
+        Targets = @("Icon_Boss_Sentinel")
+        Acceptance = "lobby/result show a tall steel Sentinel body icon on boss-tier stages, not the in-run eye-in-frame"
     }
 )
 
@@ -154,7 +212,7 @@ $beatRows = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher Boss Identity Production Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`' -f $stageEncounterSourcePath, $droneSourcePath, $feedbackSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`' -f $stageEncounterSourcePath, $droneSourcePath, $feedbackSourcePath, $identityKitSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: turn the existing Justice Sentinel boss logic into a production checklist for climax readability, rhythm, and asset assignment.")
 $lines.Add("")
@@ -214,7 +272,8 @@ $lines.Add("## Current Boss Identity Targets")
 $lines.Add("| Priority | Category | Asset | Runtime moment | Readability target | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|")
 foreach ($asset in $assetCatalog) {
-    $lines.Add(("| {0} | {1} | `{2}` | {3} | {4} | `{5}` | [ ] |" -f $asset.Priority, $asset.Category, $asset.Asset, $asset.RuntimeMoment, $asset.ReadabilityTarget, $asset.Folder))
+    $doneMark = if ($allBossHookText.Contains($asset.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | {1} | `{2}` | {3} | {4} | `{5}` | {6} |" -f $asset.Priority, $asset.Category, $asset.Asset, $asset.RuntimeMoment, $asset.ReadabilityTarget, $asset.Folder, $doneMark))
 }
 
 $lines.Add("")

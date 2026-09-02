@@ -35,6 +35,7 @@ namespace AlienCrusher.Gameplay
         [SerializeField] private float upwardForce = 1.9f;
         [SerializeField] private int scoreReward = 22;
         [SerializeField] private float cleanupDelay = 4.6f;
+        [SerializeField] private bool countsTowardStageWreck = true;
 
         [Header("Chain Explosion")]
         [SerializeField] private bool enableChainExplosion = false;
@@ -62,6 +63,8 @@ namespace AlienCrusher.Gameplay
 
         public PropKind Kind => propKind;
         public bool IsBroken => broken;
+        public bool IsAlive => CollisionContactGuard.IsUnityAlive(this) && !broken && isActiveAndEnabled && stageLayoutVisible;
+        public bool CountsTowardStageWreck => countsTowardStageWreck;
 
         public void ConfigureForScaffolder(PropKind kind, Transform root)
         {
@@ -130,6 +133,24 @@ namespace AlienCrusher.Gameplay
             }
 
             CaptureBaseStats();
+            countsTowardStageWreck = true;
+        }
+
+        public void ExcludeFromStageWreckCount()
+        {
+            countsTowardStageWreck = false;
+        }
+
+        public SmashBreakWeight ResolveSmashBreakWeight()
+        {
+            switch (propKind)
+            {
+                case PropKind.Lamp:
+                case PropKind.Tree:
+                    return SmashBreakWeight.Light;
+                default:
+                    return SmashBreakWeight.Mid;
+            }
         }
 
         private void Awake()
@@ -141,14 +162,19 @@ namespace AlienCrusher.Gameplay
 
             CaptureBaseStats();
 
-            feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
-            scoreSystem = Object.FindFirstObjectByType<ScoreSystem>();
-            damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+            feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
+            scoreSystem = Object.FindAnyObjectByType<ScoreSystem>();
+            damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
         }
 
         private void OnDisable()
         {
-            if (propRoot != null)
+            if (!CollisionContactGuard.IsUnityAlive(this))
+            {
+                return;
+            }
+
+            if (CollisionContactGuard.IsUnityAlive(propRoot))
             {
                 propRoot.DOKill(false);
             }
@@ -156,24 +182,33 @@ namespace AlienCrusher.Gameplay
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (broken || !isActiveAndEnabled || !stageLayoutVisible)
+            if (!CollisionContactGuard.IsUnityAlive(this) || broken || !isActiveAndEnabled || !stageLayoutVisible)
             {
                 return;
             }
 
-            var player = collision.gameObject.GetComponent<PlayerBallDummyController>()
-                         ?? collision.gameObject.GetComponentInParent<PlayerBallDummyController>();
-            if (player == null)
+            if (!CollisionContactGuard.TryGetLiveOther(collision, out _, out var other))
+            {
+                return;
+            }
+
+            var player = other.GetComponent<PlayerBallDummyController>()
+                         ?? other.GetComponentInParent<PlayerBallDummyController>();
+            if (!CollisionContactGuard.IsUnityAlive(player))
             {
                 return;
             }
 
             var playerBody = player.GetComponent<Rigidbody>();
-            var playerSpeed = playerBody != null
+            var playerSpeed = CollisionContactGuard.IsUnityAlive(playerBody)
                 ? new Vector3(playerBody.linearVelocity.x, 0f, playerBody.linearVelocity.z).magnitude
                 : 0f;
 
-            var root = propRoot != null ? propRoot : transform;
+            var root = CollisionContactGuard.IsUnityAlive(propRoot) ? propRoot : transform;
+            if (!CollisionContactGuard.IsUnityAlive(root))
+            {
+                return;
+            }
             var vehicleBody = root.GetComponent<Rigidbody>() ?? root.GetComponentInParent<Rigidbody>();
             var vehicleSpeed = vehicleBody != null
                 ? new Vector3(vehicleBody.linearVelocity.x, 0f, vehicleBody.linearVelocity.z).magnitude
@@ -181,21 +216,30 @@ namespace AlienCrusher.Gameplay
 
             var relativeSpeed = collision.relativeVelocity.magnitude;
             var fallbackSpeed = Mathf.Max(relativeSpeed, playerSpeed * 0.78f, Mathf.Abs(playerSpeed - vehicleSpeed) * 1.05f);
-            var impact = fallbackSpeed * Mathf.Max(0.58f, player.ImpactMultiplier);
+            var impact = fallbackSpeed * Mathf.Max(0.58f, player.ImpactMultiplier) * player.GetBodySmashScale();
             if (impact < wobbleImpactThreshold)
             {
                 return;
             }
 
-            var contact = collision.contactCount > 0 ? collision.GetContact(0).point : root.position;
+            var contact = CollisionContactGuard.GetContactPointOrFallback(collision, root.position);
             var impact01 = Mathf.InverseLerp(wobbleImpactThreshold, breakImpactThreshold * 2f, impact);
 
             if (impact < breakImpactThreshold)
             {
-                root.DOKill(false);
                 var wobble = Mathf.Lerp(6f, 15f, impact01);
-                root.DOPunchRotation(new Vector3(0f, wobble, wobble * 0.45f), 0.12f, 8, 0.7f);
+                var wobbleRoot = root;
                 feedbackSystem?.PlayHitFeedback(contact, Mathf.Clamp01(impact01 * 0.8f));
+                PhysicsCallbackDefer.RunAfterPhysics(() =>
+                {
+                    if (!CollisionContactGuard.IsUnityAlive(wobbleRoot))
+                    {
+                        return;
+                    }
+
+                    wobbleRoot.DOKill(false);
+                    wobbleRoot.DOPunchRotation(new Vector3(0f, wobble, wobble * 0.45f), 0.12f, 8, 0.7f);
+                });
                 return;
             }
 
@@ -204,30 +248,58 @@ namespace AlienCrusher.Gameplay
 
         public void ApplyExternalBreak(Vector3 hitPoint, float impact01, bool drillMode, bool suppressFeedback = true)
         {
-            if (broken || !isActiveAndEnabled || !stageLayoutVisible)
+            if (!CollisionContactGuard.IsUnityAlive(this) || broken || !isActiveAndEnabled || !stageLayoutVisible)
             {
                 return;
             }
 
-            var root = propRoot != null ? propRoot : transform;
+            var root = CollisionContactGuard.IsUnityAlive(propRoot) ? propRoot : transform;
+            if (!CollisionContactGuard.IsUnityAlive(root))
+            {
+                return;
+            }
+
             BreakProp(root, hitPoint, Mathf.Clamp01(impact01), drillMode, suppressFeedback);
         }
 
         private void BreakProp(Transform root, Vector3 hitPoint, float impact01, bool drillMode, bool suppressFeedback = false)
         {
+            if (!CollisionContactGuard.IsUnityAlive(this) || !CollisionContactGuard.IsUnityAlive(root))
+            {
+                return;
+            }
+
             broken = true;
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
-            scoreSystem ??= Object.FindFirstObjectByType<ScoreSystem>();
-            damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
+            scoreSystem ??= Object.FindAnyObjectByType<ScoreSystem>();
+            damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
 
             if (!suppressFeedback)
             {
-                feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01));
+                var weight = ResolveSmashBreakWeight();
+                feedbackSystem?.PlayDestroyFeedback(hitPoint, Mathf.Clamp01(impact01), weight);
+                if (weight == SmashBreakWeight.Light)
+                {
+                    DestructionBreakFeedbackVfx.PlayDebrisLight(hitPoint, Mathf.Clamp01(impact01));
+                }
+                else
+                {
+                    DestructionBreakFeedbackVfx.PlayDebrisHeavy(hitPoint, weight == SmashBreakWeight.Heavy ? 0.9f : 0.62f);
+                }
             }
 
-            scoreSystem?.AddScore(scoreReward);
-            scoreSystem?.RegisterChainHit();
-            var breakPosition = root != null ? root.position : transform.position;
+            if (countsTowardStageWreck)
+            {
+                scoreSystem?.RegisterDestruction(scoreReward);
+            }
+            else
+            {
+                scoreSystem?.AddScore(scoreReward);
+                scoreSystem?.RegisterChainHit();
+            }
+            var breakPosition = CollisionContactGuard.IsUnityAlive(root)
+                ? root.position
+                : (CollisionContactGuard.IsUnityAlive(transform) ? transform.position : hitPoint);
             PropBroken?.Invoke(new PropBreakInfo
             {
                 Kind = propKind,
@@ -241,53 +313,18 @@ namespace AlienCrusher.Gameplay
             for (var i = 0; i < colliders.Length; i++)
             {
                 var col = colliders[i];
-                if (col == null)
+                if (!CollisionContactGuard.IsUnityAlive(col))
                 {
                     continue;
                 }
 
                 var piece = col.transform;
-                if (piece == null)
+                if (!CollisionContactGuard.IsUnityAlive(piece))
                 {
                     continue;
                 }
 
                 pieces.Add(piece);
-            }
-
-            var drillMul = drillMode ? 1.25f : 1f;
-            foreach (var piece in pieces)
-            {
-                if (piece == null)
-                {
-                    continue;
-                }
-
-                piece.SetParent(null, true);
-
-                var rb = piece.GetComponent<Rigidbody>();
-                if (rb == null)
-                {
-                    rb = piece.gameObject.AddComponent<Rigidbody>();
-                }
-
-                rb.mass = Mathf.Clamp(rb.mass, 0.08f, 0.9f);
-                rb.linearDamping = 0.2f;
-                rb.angularDamping = 0.05f;
-
-                var forceDir = piece.position - hitPoint;
-                if (forceDir.sqrMagnitude < 0.0001f)
-                {
-                    forceDir = Random.insideUnitSphere;
-                }
-
-                forceDir = forceDir.normalized;
-                forceDir.y = Mathf.Abs(forceDir.y) + 0.35f;
-
-                var force = scatterForce * drillMul * Mathf.Lerp(0.8f, 1.45f, Random.value) * Mathf.Lerp(0.65f, 1.2f, impact01);
-                rb.AddForce(forceDir * force + Vector3.up * upwardForce, ForceMode.Impulse);
-
-                Object.Destroy(piece.gameObject, cleanupDelay);
             }
 
             var shouldChainBurst = enableChainExplosion && IsChainKind(propKind) && !chainBurstTriggered;
@@ -298,7 +335,69 @@ namespace AlienCrusher.Gameplay
                 TriggerChainExplosion(hitPoint, impact01, drillMode, suppressFeedback);
             }
 
-            if (root != null)
+            var scatterPieces = new List<Transform>(pieces.Count);
+            foreach (var piece in pieces)
+            {
+                scatterPieces.Add(piece);
+            }
+
+            var scatterRoot = root;
+            var scatterHit = hitPoint;
+            var scatterImpact = impact01;
+            var scatterDrill = drillMode;
+            PhysicsCallbackDefer.RunAfterPhysics(() => ScatterBrokenPieces(scatterRoot, scatterHit, scatterImpact, scatterDrill, scatterPieces));
+        }
+
+        private void ScatterBrokenPieces(Transform root, Vector3 hitPoint, float impact01, bool drillMode, List<Transform> scatterPieces)
+        {
+            var drillMul = drillMode ? 1.25f : 1f;
+            if (scatterPieces != null)
+            {
+                for (var i = 0; i < scatterPieces.Count; i++)
+                {
+                    var piece = scatterPieces[i];
+                    if (!CollisionContactGuard.IsUnityAlive(piece))
+                    {
+                        continue;
+                    }
+
+                    piece.SetParent(null, true);
+
+                    var rb = piece.GetComponent<Rigidbody>();
+                    if (!CollisionContactGuard.IsUnityAlive(rb))
+                    {
+                        rb = piece.gameObject.AddComponent<Rigidbody>();
+                    }
+
+                    if (!CollisionContactGuard.IsUnityAlive(rb))
+                    {
+                        continue;
+                    }
+
+                    rb.mass = Mathf.Clamp(rb.mass, 0.08f, 0.9f);
+                    rb.linearDamping = 0.2f;
+                    rb.angularDamping = 0.05f;
+
+                    var forceDir = piece.position - hitPoint;
+                    if (forceDir.sqrMagnitude < 0.0001f)
+                    {
+                        forceDir = Random.insideUnitSphere;
+                    }
+
+                    forceDir = forceDir.normalized;
+                    forceDir.y = Mathf.Abs(forceDir.y) + 0.35f;
+
+                    var force = scatterForce * drillMul * Mathf.Lerp(0.8f, 1.45f, Random.value) * Mathf.Lerp(0.65f, 1.2f, impact01);
+                    rb.AddForce(forceDir * force + Vector3.up * upwardForce, ForceMode.Impulse);
+
+                    if (CollisionContactGuard.IsUnityAlive(piece.gameObject))
+                    {
+                        Object.Destroy(piece.gameObject, cleanupDelay);
+                    }
+                }
+            }
+
+            if (CollisionContactGuard.IsUnityAlive(root) && CollisionContactGuard.IsUnityAlive(root.gameObject))
             {
                 Object.Destroy(root.gameObject);
             }
@@ -312,15 +411,15 @@ namespace AlienCrusher.Gameplay
             }
 
             chainBurstTriggered = true;
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
-            scoreSystem ??= Object.FindFirstObjectByType<ScoreSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
+            scoreSystem ??= Object.FindAnyObjectByType<ScoreSystem>();
 
             var radius = Mathf.Max(0.9f, chainExplosionRadius) * (drillMode ? 1.08f : 1f);
             var minDamage = Mathf.Max(6f, chainExplosionDamageRange.x) * (drillMode ? 1.06f : 1f);
             var maxDamage = Mathf.Max(minDamage + 6f, chainExplosionDamageRange.y) * (drillMode ? 1.1f : 1f);
 
             var destructibleHits = 0;
-            var destructibles = Object.FindObjectsByType<DummyDestructibleBlock>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var destructibles = Object.FindObjectsByType<DummyDestructibleBlock>(FindObjectsInactive.Exclude);
             var radiusSqr = radius * radius;
             for (var i = 0; i < destructibles.Length; i++)
             {
@@ -330,7 +429,7 @@ namespace AlienCrusher.Gameplay
                 }
 
                 var block = destructibles[i];
-                if (block == null || !block.gameObject.activeInHierarchy)
+                if (!CollisionContactGuard.IsUnityAlive(block) || !block.gameObject.activeInHierarchy)
                 {
                     continue;
                 }
@@ -352,7 +451,7 @@ namespace AlienCrusher.Gameplay
             }
 
             var propHits = 0;
-            var props = Object.FindObjectsByType<DummyStreetPropReactive>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var props = Object.FindObjectsByType<DummyStreetPropReactive>(FindObjectsInactive.Exclude);
             for (var i = 0; i < props.Length; i++)
             {
                 if (propHits >= Mathf.Max(1, chainPropTriggerCap))
@@ -361,7 +460,7 @@ namespace AlienCrusher.Gameplay
                 }
 
                 var prop = props[i];
-                if (prop == null || prop == this || prop.broken || !prop.gameObject.activeInHierarchy)
+                if (!CollisionContactGuard.IsUnityAlive(prop) || prop == this || prop.broken || !prop.gameObject.activeInHierarchy)
                 {
                     continue;
                 }

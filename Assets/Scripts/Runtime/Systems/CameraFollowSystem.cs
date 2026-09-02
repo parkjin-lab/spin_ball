@@ -271,7 +271,7 @@ namespace AlienCrusher.Systems
         {
             if (playerTarget == null)
             {
-                var all = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                var all = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
                 foreach (var item in all)
                 {
                     if (item.name == playerBallName)
@@ -298,7 +298,7 @@ namespace AlienCrusher.Systems
 
             if (cameraTransform == null)
             {
-                var all = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                var all = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
                 foreach (var item in all)
                 {
                     if (item.name == gameplayCameraName && item.GetComponent<Camera>() != null)
@@ -315,7 +315,7 @@ namespace AlienCrusher.Systems
                 cameraGo.tag = "MainCamera";
                 cameraTransform = cameraGo.transform;
 
-                if (Object.FindFirstObjectByType<AudioListener>() == null)
+                if (Object.FindAnyObjectByType<AudioListener>() == null)
                 {
                     cameraGo.AddComponent<AudioListener>();
                 }

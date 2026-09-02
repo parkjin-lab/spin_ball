@@ -4,7 +4,10 @@ param(
     [string]$RuntimeMapPath = "",
     [string]$ControllerPath = "",
     [string]$UiFlowPath = "",
-    [string]$SystemBootstrapPath = ""
+    [string]$SystemBootstrapPath = "",
+    [string]$RouteTintPath = "",
+    [string]$RhythmPalettePath = "",
+    [string]$AmbientBandPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,6 +58,9 @@ $runtimeMapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverrideP
 $controllerSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $ControllerPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.cs"
 $uiFlowSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $UiFlowPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.UIFlow.cs"
 $systemBootstrapSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $SystemBootstrapPath -RelativePath "Assets\Scripts\Runtime\Systems\DummyFlowController.SystemBootstrap.cs"
+$routeTintSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RouteTintPath -RelativePath "Assets\Scripts\Runtime\Systems\RouteMarkerTintSet.cs"
+$rhythmPaletteSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $RhythmPalettePath -RelativePath "Assets\Scripts\Runtime\Systems\DistrictRhythmPaletteSet.cs"
+$ambientBandSourcePath = Resolve-ProjectPath -ProjectRoot $projectRoot -OverridePath $AmbientBandPath -RelativePath "Assets\Scripts\Runtime\Systems\AmbientStageBandSet.cs"
 
 if ([string]::IsNullOrWhiteSpace($ReportPath)) {
     $ReportPath = Join-Path $projectRoot "Logs\AlienCrusherDistrictPaletteProductionChecklist.md"
@@ -72,6 +78,10 @@ $runtimeMapText = Read-SourceText -Path $runtimeMapSourcePath
 $controllerText = Read-SourceText -Path $controllerSourcePath
 $uiFlowText = Read-SourceText -Path $uiFlowSourcePath
 $systemBootstrapText = Read-SourceText -Path $systemBootstrapSourcePath
+$routeTintText = Read-SourceText -Path $routeTintSourcePath
+$rhythmPaletteText = Read-SourceText -Path $rhythmPaletteSourcePath
+$ambientBandText = Read-SourceText -Path $ambientBandSourcePath
+$allPaletteHookText = $routeTintText + $rhythmPaletteText + $runtimeMapText + $ambientBandText
 
 $missingRuntimeMarkers = [System.Collections.Generic.List[string]]::new()
 foreach ($needle in @(
@@ -99,17 +109,19 @@ foreach ($needle in @(
     "PowerPad",
     "Landmark_Skyline_Plaza",
     "Target_A",
-    "Target_B"
+    "Target_B",
+    "PAL_RouteMarker_Tints",
+    "RouteMarkerTintSet"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $runtimeMapText -Needle $needle
 }
 
 foreach ($needle in @(
     "DescribeStageDistrict",
-    "low-rise suburb",
-    "mixed commercial strip",
-    "dense core",
-    "fortified skyline"
+    "SUBURB",
+    "MARKET",
+    "CORE",
+    "SKYLINE"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $uiFlowText -Needle $needle
 }
@@ -118,6 +130,43 @@ foreach ($needle in @(
     "RenderSettings.ambientLight"
 )) {
     Add-MissingMarker -Missing $missingRuntimeMarkers -Source $systemBootstrapText -Needle $needle
+}
+
+foreach ($needle in @(
+    "PAL_Ambient_StageBands",
+    "RenderSettings.ambientLight"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $ambientBandText -Needle $needle
+}
+
+foreach ($needle in @(
+    "PAL_RouteMarker_Tints",
+    "RouteMarkerTintSet",
+    "Marker",
+    "Paint",
+    "Trail"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $routeTintText -Needle $needle
+}
+
+foreach ($needle in @(
+    "PAL_District_StarterResidential",
+    "PAL_District_PocketPark",
+    "PAL_District_MarketPlaza",
+    "PAL_District_SentinelCheckpoint",
+    "PAL_District_ConstructionYard",
+    "PAL_District_PowerBlock",
+    "PAL_District_SkylineBlock",
+    "TryApplyCoreRhythmPalette"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $rhythmPaletteText -Needle $needle
+}
+
+foreach ($needle in @(
+    "RouteMarkerTintSet.Marker",
+    "RouteMarkerTintSet.Trail"
+)) {
+    Add-MissingMarker -Missing $missingRuntimeMarkers -Source $uiFlowText -Needle $needle
 }
 
 $paletteCatalog = @(
@@ -172,7 +221,7 @@ $stageRhythmRows = @(
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add("# Alien Crusher District Palette Production Checklist")
 $lines.Add("")
-$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`' -f $runtimeMapSourcePath, $controllerSourcePath, $uiFlowSourcePath, $systemBootstrapSourcePath))
+$lines.Add(('Generated from: `{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`, `{6}`' -f $runtimeMapSourcePath, $controllerSourcePath, $uiFlowSourcePath, $systemBootstrapSourcePath, $routeTintSourcePath, $rhythmPaletteSourcePath, $ambientBandSourcePath))
 $lines.Add("")
 $lines.Add("Purpose: turn the current stage-gated runtime districts into concrete palette, material, route tint, and ambient-tone production targets.")
 $lines.Add("")
@@ -233,7 +282,8 @@ $lines.Add("## Current District Palette Targets")
 $lines.Add("| Priority | Stage band | District | Runtime anchor | Asset | Palette need | Folder | Done? |")
 $lines.Add("|---|---|---|---|---|---|---|---|")
 foreach ($palette in $paletteCatalog) {
-    $lines.Add(("| {0} | {1} | {2} | `{3}` | `{4}` | {5} | `{6}` | [ ] |" -f $palette.Priority, $palette.StageBand, $palette.District, $palette.RuntimeAnchor, $palette.Asset, $palette.PaletteNeed, $palette.Folder))
+    $doneMark = if ($allPaletteHookText.Contains($palette.Asset)) { "[x]" } else { "[ ]" }
+    $lines.Add(("| {0} | {1} | {2} | `{3}` | `{4}` | {5} | `{6}` | {7} |" -f $palette.Priority, $palette.StageBand, $palette.District, $palette.RuntimeAnchor, $palette.Asset, $palette.PaletteNeed, $palette.Folder, $doneMark))
 }
 
 $lines.Add("")

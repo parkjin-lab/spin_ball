@@ -71,7 +71,7 @@ namespace AlienCrusher.Systems
 			PushAnnouncement($"CHAOS SURGE Lv.{num}", AnnouncementTone.Milestone, Mathf.Lerp(0.85f, 1.4f, num2));
 			if (damageNumberSystem == null)
 			{
-				damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
+				damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
 			}
 			if ((Object)(object)damageNumberSystem != (Object)null && !levelUpOpen)
 			{
@@ -79,7 +79,7 @@ namespace AlienCrusher.Systems
 			}
 			if (feedbackSystem == null)
 			{
-				feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+				feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
 			}
 			if ((Object)(object)feedbackSystem != (Object)null && !levelUpOpen)
 			{
@@ -202,7 +202,7 @@ namespace AlienCrusher.Systems
 				trafficPanicBonusCooldownRemaining = Mathf.Max(0.1f, trafficPanicBonusCooldown) * Mathf.Lerp(0.74f, 1.18f, Mathf.Clamp01((float)num9 / 10f));
 				if (showTrafficPanicBonusTag)
 				{
-					damageNumberSystem = (damageNumberSystem ?? Object.FindFirstObjectByType<DamageNumberSystem>());
+					damageNumberSystem = (damageNumberSystem ?? Object.FindAnyObjectByType<DamageNumberSystem>());
 					if ((Object)(object)damageNumberSystem != (Object)null && !levelUpOpen)
 					{
 						int num24 = Mathf.Max(1, trafficPanicChainTagMinStack);
@@ -230,7 +230,7 @@ namespace AlienCrusher.Systems
 					cachedPlayerController.ApplyCounterSurge(speedScale, impactScale, duration);
 					if (showTrafficPanicCounterSurgeTag)
 					{
-						damageNumberSystem = (damageNumberSystem ?? Object.FindFirstObjectByType<DamageNumberSystem>());
+						damageNumberSystem = (damageNumberSystem ?? Object.FindAnyObjectByType<DamageNumberSystem>());
 						if ((Object)(object)damageNumberSystem != (Object)null && !levelUpOpen)
 						{
 							string tag = ((trafficPanicChainStack >= Mathf.Max(num25 + 2, trafficPanicChainTagMinStack + 1)) ? $"PANIC SURGE x{trafficPanicChainStack}" : "PANIC SURGE");
@@ -250,7 +250,7 @@ namespace AlienCrusher.Systems
 					PushAnnouncement($"PANIC JACKPOT +{num31}", AnnouncementTone.Destruction, 1.05f);
 					if (showTrafficPanicJackpotTag)
 					{
-						damageNumberSystem = (damageNumberSystem ?? Object.FindFirstObjectByType<DamageNumberSystem>());
+						damageNumberSystem = (damageNumberSystem ?? Object.FindAnyObjectByType<DamageNumberSystem>());
 						if ((Object)(object)damageNumberSystem != (Object)null && !levelUpOpen)
 						{
 							damageNumberSystem.ShowTag(center + Vector3.up * 1.05f, $"JACKPOT +{num31}", emphasis: true);

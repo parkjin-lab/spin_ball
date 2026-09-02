@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MCPForUnity.Editor.Helpers;
 using MCPForUnity.Editor.Tools;
+using MCPForUnity.Runtime.Helpers;
 using Newtonsoft.Json.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace MCPForUnity.Editor.Tools.GameObjects
 
             if (
                 targetToken?.Type == JTokenType.Integer
-                || (searchMethod == "by_id" && int.TryParse(targetToken?.ToString(), out _))
+                || (searchMethod == "by_id" && UnityObjectIdentity.TryParseSerializedId(targetToken?.ToString(), out _))
             )
             {
                 findAll = false;
@@ -65,10 +66,10 @@ namespace MCPForUnity.Editor.Tools.GameObjects
             switch (searchMethod)
             {
                 case "by_id":
-                    if (int.TryParse(searchTerm, out int instanceId))
+                    if (UnityObjectIdentity.TryParseSerializedId(searchTerm, out ulong instanceId))
                     {
                         var allObjects = GetAllSceneObjects(searchInactive);
-                        GameObject obj = allObjects.FirstOrDefault(go => go.GetInstanceID() == instanceId);
+                        GameObject obj = allObjects.FirstOrDefault(go => go.ToSerializedId() == instanceId);
                         if (obj != null)
                             results.Add(obj);
                     }
@@ -154,16 +155,10 @@ namespace MCPForUnity.Editor.Tools.GameObjects
                         }
                         else
                         {
-#if UNITY_2023_1_OR_NEWER
                             var inactive = searchInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude;
-                            searchPoolComp = UnityEngine.Object.FindObjectsByType(componentType, inactive, FindObjectsSortMode.None)
+                            searchPoolComp = UnityEngine.Object.FindObjectsByType(componentType, inactive)
                                 .Cast<Component>()
                                 .Select(c => c.gameObject);
-#else
-                            searchPoolComp = UnityEngine.Object.FindObjectsOfType(componentType, searchInactive)
-                                .Cast<Component>()
-                                .Select(c => c.gameObject);
-#endif
                         }
                         results.AddRange(searchPoolComp.Where(go => go != null));
                     }
@@ -174,10 +169,10 @@ namespace MCPForUnity.Editor.Tools.GameObjects
                     break;
 
                 case "by_id_or_name_or_path":
-                    if (int.TryParse(searchTerm, out int id))
+                    if (UnityObjectIdentity.TryParseSerializedId(searchTerm, out ulong id))
                     {
                         var allObjectsId = GetAllSceneObjects(true);
-                        GameObject objById = allObjectsId.FirstOrDefault(go => go.GetInstanceID() == id);
+                        GameObject objById = allObjectsId.FirstOrDefault(go => go.ToSerializedId() == id);
                         if (objById != null)
                         {
                             results.Add(objById);

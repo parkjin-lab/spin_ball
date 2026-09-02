@@ -15,6 +15,7 @@ namespace AlienCrusher.Systems
 				if (speedUpgradeCount + impactUpgradeCount + drillUpgradeCount + comboPowerUpgradeCount + comboTriggerUpgradeCount + seismicUpgradeCount + trafficPanicUpgradeCount <= 0 && !retailFrenzyActive)
 				{
 					hudUpgradeListText.text = "UPGRADES: NONE";
+					RefreshHudUpgradeStatusIcons();
 					return;
 				}
 				StringBuilder stringBuilder = new StringBuilder();
@@ -38,6 +39,7 @@ namespace AlienCrusher.Systems
 					stringBuilder.Append("s");
 				}
 				hudUpgradeListText.text = stringBuilder.ToString();
+				RefreshHudUpgradeStatusIcons();
 			}
 		}
 

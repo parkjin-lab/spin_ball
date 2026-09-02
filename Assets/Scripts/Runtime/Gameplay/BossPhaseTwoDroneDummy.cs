@@ -34,6 +34,8 @@ namespace AlienCrusher.Gameplay
         private bool respawnPreviewActive;
         private Color baseTint = Color.white;
 
+        public const string Phase2DroneKitId = "BOSS_Phase2_Drone_Kit";
+
         public bool IsAlive => !destroyed;
         public bool IsDestroyed => destroyed;
         public float DurabilityRatio => maxDurability > 0.001f ? Mathf.Clamp01(currentDurability / maxDurability) : 0f;
@@ -42,8 +44,8 @@ namespace AlienCrusher.Gameplay
         {
             cachedCollider = GetComponent<Collider>();
             cachedRenderers = GetComponentsInChildren<Renderer>(true);
-            damageNumberSystem = Object.FindFirstObjectByType<DamageNumberSystem>();
-            feedbackSystem = Object.FindFirstObjectByType<FeedbackSystem>();
+            damageNumberSystem = Object.FindAnyObjectByType<DamageNumberSystem>();
+            feedbackSystem = Object.FindAnyObjectByType<FeedbackSystem>();
             baseLocalPosition = transform.localPosition;
             baseLocalRotation = transform.localRotation;
             Restore();
@@ -80,11 +82,7 @@ namespace AlienCrusher.Gameplay
         {
             destroyedCallback = onDestroyed;
             baseTint = tint;
-            if (cachedRenderers == null || cachedRenderers.Length == 0)
-            {
-                cachedRenderers = GetComponentsInChildren<Renderer>(true);
-            }
-
+            cachedRenderers = GetComponentsInChildren<Renderer>(true);
             ApplyTint(baseTint);
         }
 
@@ -122,10 +120,15 @@ namespace AlienCrusher.Gameplay
 
         private void ApplyTint(Color tint)
         {
+            if (cachedRenderers == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < cachedRenderers.Length; i++)
             {
                 Renderer renderer = cachedRenderers[i];
-                if ((Object)(object)renderer == (Object)null)
+                if ((Object)(object)renderer == (Object)null || IsAccentRenderer(renderer) || IsHiddenRootRenderer(renderer))
                 {
                     continue;
                 }
@@ -169,14 +172,21 @@ namespace AlienCrusher.Gameplay
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (destroyed || Time.time < lastHitAt + Mathf.Max(0.02f, hitCooldown))
+            if (!CollisionContactGuard.IsUnityAlive(this)
+                || destroyed
+                || Time.time < lastHitAt + Mathf.Max(0.02f, hitCooldown))
             {
                 return;
             }
 
-            PlayerBallDummyController player = collision.gameObject.GetComponent<PlayerBallDummyController>() ??
-                                               collision.gameObject.GetComponentInParent<PlayerBallDummyController>();
-            if (player == null)
+            if (!CollisionContactGuard.TryGetLiveOther(collision, out _, out var other))
+            {
+                return;
+            }
+
+            PlayerBallDummyController player = other.GetComponent<PlayerBallDummyController>() ??
+                                               other.GetComponentInParent<PlayerBallDummyController>();
+            if (!CollisionContactGuard.IsUnityAlive(player))
             {
                 return;
             }
@@ -189,7 +199,7 @@ namespace AlienCrusher.Gameplay
             }
 
             Rigidbody body = player.GetComponent<Rigidbody>();
-            float velocityDamage = (body != null ? body.linearVelocity.magnitude : relativeSpeed) * rigidbodyVelocityDamageScale;
+            float velocityDamage = (CollisionContactGuard.IsUnityAlive(body) ? body.linearVelocity.magnitude : relativeSpeed) * rigidbodyVelocityDamageScale;
             float damage = (relativeSpeed * damagePerSpeed + velocityDamage) * Mathf.Max(0.6f, player.ImpactMultiplier);
             if (player.DrillMode)
             {
@@ -200,10 +210,10 @@ namespace AlienCrusher.Gameplay
             lastHitAt = Time.time;
             currentDurability -= damage;
 
-            Vector3 hitPoint = collision.contactCount > 0 ? collision.GetContact(0).point : transform.position;
+            Vector3 hitPoint = CollisionContactGuard.GetContactPointOrFallback(collision, transform.position);
             float impact01 = Mathf.InverseLerp(impactThreshold, 16f, relativeSpeed);
-            damageNumberSystem ??= Object.FindFirstObjectByType<DamageNumberSystem>();
-            feedbackSystem ??= Object.FindFirstObjectByType<FeedbackSystem>();
+            damageNumberSystem ??= Object.FindAnyObjectByType<DamageNumberSystem>();
+            feedbackSystem ??= Object.FindAnyObjectByType<FeedbackSystem>();
             damageNumberSystem?.ShowDamage(hitPoint, damage, impact01 >= 0.65f, currentDurability <= 0f);
             feedbackSystem?.PlayHitFeedback(hitPoint, Mathf.Clamp01(impact01));
             wobbleRemaining = Mathf.Max(0.04f, wobbleDuration);
@@ -215,15 +225,28 @@ namespace AlienCrusher.Gameplay
 
             destroyed = true;
             respawnPreviewActive = false;
-            if ((Object)(object)cachedCollider != (Object)null)
+            SetRenderersEnabled(false);
+            damageNumberSystem?.ShowTag(transform.position + Vector3.up * 0.9f, "DRONE DOWN", true);
+            destroyedCallback?.Invoke(this);
+            PhysicsCallbackDefer.RunAfterPhysics(DeactivateAfterPhysics);
+        }
+
+        private void DeactivateAfterPhysics()
+        {
+            if (!CollisionContactGuard.IsUnityAlive(this))
+            {
+                return;
+            }
+
+            if (CollisionContactGuard.IsUnityAlive(cachedCollider))
             {
                 cachedCollider.enabled = false;
             }
 
-            SetRenderersEnabled(false);
-            damageNumberSystem?.ShowTag(transform.position + Vector3.up * 0.9f, "DRONE DOWN", true);
-            destroyedCallback?.Invoke(this);
-            gameObject.SetActive(false);
+            if (CollisionContactGuard.IsUnityAlive(gameObject))
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         private void SetRenderersEnabled(bool enabled)
@@ -236,11 +259,24 @@ namespace AlienCrusher.Gameplay
             for (int i = 0; i < cachedRenderers.Length; i++)
             {
                 Renderer renderer = cachedRenderers[i];
-                if ((Object)(object)renderer != (Object)null)
+                if ((Object)(object)renderer == (Object)null)
                 {
-                    renderer.enabled = enabled;
+                    continue;
                 }
+
+                renderer.enabled = enabled && !IsHiddenRootRenderer(renderer);
             }
+        }
+
+        private bool IsHiddenRootRenderer(Renderer renderer)
+        {
+            return (Object)(object)renderer != (Object)null && renderer.gameObject == gameObject;
+        }
+
+        private static bool IsAccentRenderer(Renderer renderer)
+        {
+            return (Object)(object)renderer != (Object)null &&
+                   renderer.name.IndexOf("Accent", StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

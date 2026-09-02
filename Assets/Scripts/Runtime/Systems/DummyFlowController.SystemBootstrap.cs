@@ -215,7 +215,7 @@ namespace AlienCrusher.Systems
 			//IL_013a: Unknown result type (might be due to invalid IL or missing references)
 			//IL_0158: Unknown result type (might be due to invalid IL or missing references)
 			Light val = null;
-			Light[] array = Object.FindObjectsByType<Light>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			Light[] array = Object.FindObjectsByType<Light>((FindObjectsInactive)1);
 			foreach (Light val2 in array)
 			{
 				if ((Object)(object)val2 != (Object)null && (int)val2.type == 1)
@@ -250,7 +250,7 @@ namespace AlienCrusher.Systems
 			val.shadows = (LightShadows)2;
 			((Component)val).transform.rotation = Quaternion.Euler(48f, -32f, 0f);
 			((Component)val).transform.position = new Vector3(0f, 18f, 0f);
-			RenderSettings.ambientLight = new Color(0.63f, 0.67f, 0.74f, 1f);
+			RenderSettings.ambientLight = AmbientStageBandSet.Resolve(Mathf.Max(1, currentStageNumber));
 		}
 
 		private void ApplyStylizedLookToScene()
@@ -260,7 +260,7 @@ namespace AlienCrusher.Systems
 			{
 				return;
 			}
-			Renderer[] array = Object.FindObjectsByType<Renderer>((FindObjectsInactive)1, (FindObjectsSortMode)0);
+			Renderer[] array = Object.FindObjectsByType<Renderer>((FindObjectsInactive)1);
 			foreach (Renderer val2 in array)
 			{
 				if (!((Object)(object)val2 == (Object)null) && !(val2 is ParticleSystemRenderer) && !((Object)(object)((Component)val2).GetComponent<TextMesh>() != (Object)null))

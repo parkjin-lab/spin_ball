@@ -1,0 +1,416 @@
+using AlienCrusher.Gameplay;
+using UnityEngine;
+using UnityEngine.UI;
+using Object = UnityEngine.Object;
+
+namespace AlienCrusher.Systems
+{
+	public partial class DummyFlowController
+	{
+		private const string BadgeResultClearId = "Badge_Result_Clear";
+		private const string BadgeBossClearId = "Badge_Boss_Clear";
+		private const string BadgeResultFailureId = "Badge_Result_Failure";
+		private const string BadgeFailOpeningId = "Badge_Fail_Opening";
+		private const string BadgeFailHoldId = "Badge_Fail_Hold";
+		private const string BadgeFailDriftId = "Badge_Fail_Drift";
+		private const string BadgeFailPushId = "Badge_Fail_Push";
+		private const string BadgeFailBossId = "Badge_Fail_Boss";
+		private const string BadgeLockedId = "Badge_Locked";
+		private const string BadgeRecommendedId = "Badge_Recommended";
+		private const string ResultOutcomeBadgeName = "ResultOutcomeBadge";
+		private const string ResultAdviceBadgeName = "ResultAdviceBadge";
+		private const string LobbyRecommendBadgeName = "LobbyRecommendBadge";
+		private const string CardStateBadgeName = "CardStateBadge";
+		private const string LobbyBossSentinelIconName = "LobbyBossSentinelIcon";
+		private const string ResultBossSentinelIconName = "ResultBossSentinelIcon";
+
+		private Sprite badgeResultClearSprite;
+		private Sprite badgeBossClearSprite;
+		private Sprite badgeResultFailureSprite;
+		private Sprite badgeFailOpeningSprite;
+		private Sprite badgeFailHoldSprite;
+		private Sprite badgeFailDriftSprite;
+		private Sprite badgeFailPushSprite;
+		private Sprite badgeFailBossSprite;
+		private Sprite badgeLockedSprite;
+		private Sprite badgeRecommendedSprite;
+		private bool resultLobbyBadgesCached;
+
+		private void EnsureResultLobbyBadges()
+		{
+			CacheResultLobbyBadgeSprites();
+			RefreshResultLobbyBadges();
+		}
+
+		private void CacheResultLobbyBadgeSprites()
+		{
+			if (resultLobbyBadgesCached)
+			{
+				return;
+			}
+
+			badgeResultClearSprite = LoadResultLobbyBadgeSprite(BadgeResultClearId);
+			badgeBossClearSprite = LoadResultLobbyBadgeSprite(BadgeBossClearId);
+			badgeResultFailureSprite = LoadResultLobbyBadgeSprite(BadgeResultFailureId);
+			badgeFailOpeningSprite = LoadResultLobbyBadgeSprite(BadgeFailOpeningId);
+			badgeFailHoldSprite = LoadResultLobbyBadgeSprite(BadgeFailHoldId);
+			badgeFailDriftSprite = LoadResultLobbyBadgeSprite(BadgeFailDriftId);
+			badgeFailPushSprite = LoadResultLobbyBadgeSprite(BadgeFailPushId);
+			badgeFailBossSprite = LoadResultLobbyBadgeSprite(BadgeFailBossId);
+			badgeLockedSprite = LoadResultLobbyBadgeSprite(BadgeLockedId);
+			badgeRecommendedSprite = LoadResultLobbyBadgeSprite(BadgeRecommendedId);
+			resultLobbyBadgesCached = true;
+		}
+
+		private static Sprite LoadResultLobbyBadgeSprite(string badgeId)
+		{
+			Sprite sprite = Resources.Load<Sprite>("UI/Badges/" + badgeId);
+			if ((Object)(object)sprite != (Object)null)
+			{
+				return sprite;
+			}
+
+			Texture2D texture = Resources.Load<Texture2D>("UI/Badges/" + badgeId);
+			if ((Object)(object)texture == (Object)null)
+			{
+				return null;
+			}
+
+			sprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+			sprite.name = badgeId;
+			return sprite;
+		}
+
+		private Sprite GetResultLobbyBadgeSprite(string badgeId)
+		{
+			CacheResultLobbyBadgeSprites();
+			if (badgeId == BadgeResultClearId)
+			{
+				return badgeResultClearSprite;
+			}
+
+			if (badgeId == BadgeBossClearId)
+			{
+				return badgeBossClearSprite;
+			}
+
+			if (badgeId == BadgeResultFailureId)
+			{
+				return badgeResultFailureSprite;
+			}
+
+			if (badgeId == BadgeFailOpeningId)
+			{
+				return badgeFailOpeningSprite;
+			}
+
+			if (badgeId == BadgeFailHoldId)
+			{
+				return badgeFailHoldSprite;
+			}
+
+			if (badgeId == BadgeFailDriftId)
+			{
+				return badgeFailDriftSprite;
+			}
+
+			if (badgeId == BadgeFailPushId)
+			{
+				return badgeFailPushSprite;
+			}
+
+			if (badgeId == BadgeFailBossId)
+			{
+				return badgeFailBossSprite;
+			}
+
+			if (badgeId == BadgeLockedId)
+			{
+				return badgeLockedSprite;
+			}
+
+			if (badgeId == BadgeRecommendedId)
+			{
+				return badgeRecommendedSprite;
+			}
+
+			return null;
+		}
+
+		private void RefreshResultLobbyBadges()
+		{
+			CacheResultLobbyBadgeSprites();
+			if ((Object)(object)canvasRootTransform == (Object)null)
+			{
+				return;
+			}
+
+			if ((Object)(object)resultPanel != (Object)null)
+			{
+				PlaceIndependentBadge(resultPanel.transform, ResultOutcomeBadgeName, ResolveResultOutcomeBadgeId(), new Vector2(0.5f, 1f), new Vector2(1f, 1f), new Vector2(96f, 48f), new Vector2(-390f, -24f));
+				PlaceBadgeBesideText(resultAdviceText, ResultAdviceBadgeName, ResolveResultAdviceBadgeId(), new Vector2(52f, -6f), 36f);
+				ApplyCardStateBadge("NextStageButton", DidStageEndInSuccess() ? null : BadgeLockedId);
+			}
+
+			if ((Object)(object)lobbyPanel != (Object)null)
+			{
+				PlaceBadgeBesideText(lobbyRecommendationText, LobbyRecommendBadgeName, ShouldShowAdvancedLobbyGuidance() ? BadgeRecommendedId : null, new Vector2(-52f, -8f), 36f);
+			}
+
+			for (int i = 0; i < FormCatalog.All.Length; i++)
+			{
+				FormCatalog.Entry entry = FormCatalog.All[i];
+				ApplyFormCardStateBadge(entry.ButtonName, entry.Type);
+			}
+			ApplyMetaCardStateBadge("MetaUpgrade_SizeButton", FormUnlockSystem.MetaUpgradeType.SizeCore);
+			ApplyMetaCardStateBadge("MetaUpgrade_ImpactButton", FormUnlockSystem.MetaUpgradeType.ImpactCore);
+			ApplyMetaCardStateBadge("MetaUpgrade_DpButton", FormUnlockSystem.MetaUpgradeType.DpAmplifier);
+			RefreshBossSentinelLobbyResultIcon();
+		}
+
+		private void RefreshBossSentinelLobbyResultIcon()
+		{
+			CacheBossReadabilityIconSprites();
+			Sprite sprite = GetBossReadabilityIconSprite("Icon_Boss_Sentinel");
+			if ((Object)(object)canvasRootTransform == (Object)null)
+			{
+				return;
+			}
+
+			PlaceToggleIconBesideText(FindText(canvasRootTransform, "StageSelectText"), LobbyBossSentinelIconName, sprite, ShouldShowLobbyBossSentinelIcon(), new Vector2(48f, 0f), 36f);
+			PlaceToggleIconBesideText(resultAdviceText, ResultBossSentinelIconName, sprite, ShouldShowResultBossSentinelIcon(), new Vector2(88f, -6f), 36f);
+		}
+
+		private bool IsBossEncounterStage(int stageNumber)
+		{
+			return enableStageBossEncounter && stageNumber >= Mathf.Max(2, bossStageStart);
+		}
+
+		private bool ShouldShowLobbyBossSentinelIcon()
+		{
+			return currentUiViewState == UiViewState.Lobby && IsBossEncounterStage(currentStageNumber);
+		}
+
+		private bool ShouldShowResultBossSentinelIcon()
+		{
+			if (currentUiViewState != UiViewState.Result)
+			{
+				return false;
+			}
+
+			int nextStage = DidStageEndInSuccess() ? currentStageNumber + 1 : currentStageNumber;
+			return IsBossEncounterStage(nextStage);
+		}
+
+		private void PlaceToggleIconBesideText(Text text, string childName, Sprite sprite, bool visible, Vector2 anchoredOffset, float size)
+		{
+			if ((Object)(object)text == (Object)null)
+			{
+				return;
+			}
+
+			Transform parent = text.transform.parent;
+			if ((Object)(object)parent == (Object)null)
+			{
+				return;
+			}
+
+			Image image = EnsureNamedIconImage(parent, childName);
+			if ((Object)(object)image == (Object)null)
+			{
+				return;
+			}
+
+			RectTransform source = text.rectTransform;
+			RectTransform rect = image.rectTransform;
+			rect.anchorMin = source.anchorMin;
+			rect.anchorMax = source.anchorMin;
+			rect.pivot = new Vector2(1f, 1f);
+			rect.sizeDelta = new Vector2(size, size);
+			rect.anchoredPosition = source.anchoredPosition + anchoredOffset;
+			image.sprite = sprite;
+			image.color = Color.white;
+			image.preserveAspect = true;
+			image.raycastTarget = false;
+			image.enabled = visible && (Object)(object)sprite != (Object)null;
+		}
+
+		private string ResolveResultOutcomeBadgeId()
+		{
+			if (stageEndResult == StageEndResult.None)
+			{
+				return null;
+			}
+
+			if (DidStageEndWithBossClear())
+			{
+				return BadgeBossClearId;
+			}
+
+			return DidStageEndInSuccess() ? BadgeResultClearId : ResolveFailureBucketBadgeId();
+		}
+
+		private string ResolveFailureBucketBadgeId()
+		{
+			string bucket = GetLastRunFailureBucket();
+			if (bucket == "OPENING FAILED")
+			{
+				return BadgeFailOpeningId;
+			}
+
+			if (bucket == "ROUTE HOLD MISSED")
+			{
+				return BadgeFailHoldId;
+			}
+
+			if (bucket == "MID-RUN DRIFT")
+			{
+				return BadgeFailDriftId;
+			}
+
+			if (bucket == "FINAL PUSH FAILED")
+			{
+				return BadgeFailPushId;
+			}
+
+			if (bucket == "BOSS PHASE")
+			{
+				return BadgeFailBossId;
+			}
+
+			return BadgeResultFailureId;
+		}
+
+		private bool DidStageEndWithBossClear()
+		{
+			return DidStageEndInSuccess() && stageBossEncounterActive && !IsStageBossAlive();
+		}
+
+		private string ResolveResultAdviceBadgeId()
+		{
+			if (stageEndResult == StageEndResult.None)
+			{
+				return null;
+			}
+
+			int dp = ((Object)(object)formUnlockSystem != (Object)null) ? formUnlockSystem.DpBalance : 0;
+			if (HasReadyFormUnlock(dp) || HasReadyMetaUpgrade(dp) || lastRecommendedFormUnlock != FormType.Sphere)
+			{
+				return BadgeRecommendedId;
+			}
+
+			if (DidStageEndWithBossClear())
+			{
+				return BadgeBossClearId;
+			}
+
+			return DidStageEndInSuccess() ? BadgeResultClearId : ResolveFailureBucketBadgeId();
+		}
+
+		private void ApplyFormCardStateBadge(string buttonName, FormType formType)
+		{
+			if ((Object)(object)formUnlockSystem == (Object)null)
+			{
+				ApplyCardStateBadge(buttonName, null);
+				return;
+			}
+
+			bool unlocked = formUnlockSystem.IsUnlocked(formType);
+			bool recommended = formType == lastRecommendedFormUnlock && ShouldShowAdvancedLobbyGuidance();
+			if (recommended)
+			{
+				ApplyCardStateBadge(buttonName, BadgeRecommendedId);
+				return;
+			}
+
+			ApplyCardStateBadge(buttonName, unlocked ? null : BadgeLockedId);
+		}
+
+		private void ApplyMetaCardStateBadge(string buttonName, FormUnlockSystem.MetaUpgradeType upgradeType)
+		{
+			if ((Object)(object)formUnlockSystem == (Object)null)
+			{
+				ApplyCardStateBadge(buttonName, null);
+				return;
+			}
+
+			bool recommended = upgradeType == lastRecommendedMetaUpgrade && ShouldShowAdvancedLobbyGuidance();
+			if (recommended)
+			{
+				ApplyCardStateBadge(buttonName, BadgeRecommendedId);
+				return;
+			}
+
+			int cost = formUnlockSystem.GetMetaUpgradeCost(upgradeType);
+			bool locked = cost > 0 && formUnlockSystem.DpBalance < cost;
+			ApplyCardStateBadge(buttonName, locked ? BadgeLockedId : null);
+		}
+
+		private void ApplyCardStateBadge(string buttonName, string badgeId)
+		{
+			Button button = FindButton(buttonName);
+			if ((Object)(object)button == (Object)null)
+			{
+				return;
+			}
+
+			PlaceIndependentBadge(button.transform, CardStateBadgeName, badgeId, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(28f, 28f), new Vector2(-6f, -6f));
+		}
+
+		private void PlaceBadgeBesideText(Text text, string childName, string badgeId, Vector2 anchoredOffset, float size)
+		{
+			if ((Object)(object)text == (Object)null)
+			{
+				return;
+			}
+
+			Transform parent = text.transform.parent;
+			if ((Object)(object)parent == (Object)null)
+			{
+				return;
+			}
+
+			Image image = EnsureNamedIconImage(parent, childName);
+			if ((Object)(object)image == (Object)null)
+			{
+				return;
+			}
+
+			RectTransform source = text.rectTransform;
+			RectTransform rect = image.rectTransform;
+			rect.anchorMin = source.anchorMin;
+			rect.anchorMax = source.anchorMin;
+			rect.pivot = new Vector2(1f, 1f);
+			rect.sizeDelta = new Vector2(size, size);
+			rect.anchoredPosition = source.anchoredPosition + anchoredOffset;
+			Sprite sprite = GetResultLobbyBadgeSprite(badgeId);
+			image.sprite = sprite;
+			image.color = Color.white;
+			image.preserveAspect = true;
+			image.raycastTarget = false;
+			image.enabled = (Object)(object)sprite != (Object)null;
+		}
+
+		private void PlaceIndependentBadge(Transform parent, string name, string badgeId, Vector2 anchor, Vector2 pivot, Vector2 size, Vector2 anchoredPosition)
+		{
+			Image image = EnsureNamedIconImage(parent, name);
+			if ((Object)(object)image == (Object)null)
+			{
+				return;
+			}
+
+			RectTransform rect = image.rectTransform;
+			rect.anchorMin = anchor;
+			rect.anchorMax = anchor;
+			rect.pivot = pivot;
+			rect.sizeDelta = size;
+			rect.anchoredPosition = anchoredPosition;
+			Sprite sprite = GetResultLobbyBadgeSprite(badgeId);
+			image.sprite = sprite;
+			image.color = Color.white;
+			image.preserveAspect = true;
+			image.raycastTarget = false;
+			image.enabled = (Object)(object)sprite != (Object)null;
+		}
+	}
+}

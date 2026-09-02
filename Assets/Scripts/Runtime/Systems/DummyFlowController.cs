@@ -31,7 +31,11 @@ namespace AlienCrusher.Systems
 			RamBreach,
 			SaucerDash,
 			CrusherSlam,
-			SpherePulse
+			SpherePulse,
+			UfoRay,
+			DrillBurrow,
+			ChargeBurst,
+			MagnetGrab
 		}
 
 		private struct TrafficSpawnPoint
